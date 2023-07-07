@@ -5,10 +5,13 @@
  - title
  - description
  - url
- - archives
+ - [archives]
+
 * Archive
-An archive is a snapshot in time. You never update them. You only add add more. You could delete them, but storage is cheap. You may also want to create multiple archives from the same point in time, but in different formats, like one for the original HTML and one for the extracted content converted to markdown.
+An archive is a snapshot in time. You never update them. You only add add more. You could delete them, but storage is cheap. You may also want to create multiple archives from the same point in time, but in different formats, like one for the original HTML and one for the extracted content converted to Markdown.
 
  - mime_type
- - data
+ - string_data
  - created_at
+
+At the moment I only need string data, but i may want to expand to binary data too (=BSON::Binary=) so I've called the data field =string_data=
