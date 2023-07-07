@@ -29,5 +29,22 @@
 # To learn more, please read the Rails Internationalization guide
 # available at https://guides.rubyonrails.org/i18n.html.
 
+# NOTE
+# Keys with a '_html' suffix and keys named 'html' are marked as HTML safe.
+
+# retrieve attr name translations with
+# MyModel.model_name.attr_name
+# or
+# MyModel.human_attribute_name("attr_name")
+
 en:
-  hello: "Hello world"
+  mongoid:
+    attributes:
+      bookmark:
+        tags: "Tags"
+  errors:
+    bookmarks:
+      no_archive_found: "No archive was found for this bookmark."
+      cant_archive_without_url: "Can't create an archive without an url."
+  bookmarks:
+     heading: "Bookmarks"

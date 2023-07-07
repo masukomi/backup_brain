@@ -1,14 +1,38 @@
-<p style="color: green"><%= notice %></p>
+<% unless notice.blank? %>
+  <div class="container">
+    <div class="row">
+      <div class="col alert-danger">
+        <%= notice %>
+      </div>
+    </div>
+  </div>
+<% end %>
 
-<h1>Bookmarks</h1>
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <h2><%= t("bookmarks.heading") %></h2>
+    </div>
+  </div>
+</div>
 
-<div id="bookmarks">
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <%= link_to "New bookmark", new_bookmark_path %>
+    </div>
+  </div>
+</div>
+
+
+<div class="container" id="bookmarks">
   <% @bookmarks.each do |bookmark| %>
-    <%= render bookmark %>
-    <p>
-      <%= link_to "Show this bookmark", bookmark %>
-    </p>
+    <div class="row">
+      <div class="col">
+        <%= render bookmark %>
+      </div>
+    </div>
   <% end %>
 </div>
 
-<%= link_to "New bookmark", new_bookmark_path %>
+

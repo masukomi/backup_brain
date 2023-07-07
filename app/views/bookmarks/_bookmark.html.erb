@@ -1,17 +1,19 @@
-<div id="<%= dom_id bookmark %>">
-  <p>
-    <strong>Title:</strong>
-    <%= bookmark.title %>
-  </p>
-
-  <p>
-    <strong>Description:</strong>
-    <%= bookmark.description %>
-  </p>
-
-  <p>
-    <strong>Tags:</strong>
-    <%= bookmark.tags %>
-  </p>
-
+<div id="<%= dom_id bookmark %>" class="container">
+  <div class="row">
+    <div class="col">
+      <%= icon_link("link", bookmark.url, "inline-link-icon") %>
+      <%= link_to(bookmark.title, bookmark.url) %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <%= Orgmode::Parser.new(bookmark.description).to_html.html_safe %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <!-- TODO: link this to a search for things with this tag -->
+      <%= Bookmark.model_name.tags %><%= bookmark.tags.join(", ") %>
+    </div>
+  </div>
 </div>

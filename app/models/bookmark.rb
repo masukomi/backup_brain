@@ -1,12 +1,12 @@
 class Bookmark
   include Mongoid::Document
   include Mongoid::Timestamps
-  field :title,       type: String
+  field :title,       type: String, optional: false
+  field :url,         type: String, optional: false
   field :description, type: String
   field :tags,        type: Array
 
   embeds_many :archives
-
 
   def has_archive?
     archives.present?
@@ -19,4 +19,7 @@ class Bookmark
     sorted.where(mime_type: mime_type).first
   end
 
+  def generate_archive
+    raise t("errors.bookmarks.cant_archive_without_url") if url.blank?
+  end
 end

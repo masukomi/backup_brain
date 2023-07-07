@@ -1,5 +1,5 @@
 class BookmarksController < ApplicationController
-  before_action :set_bookmark, only: %i[ show edit update destroy ]
+  before_action :set_bookmark, only: %i[show edit update destroy]
 
   # GET /bookmarks or /bookmarks.json
   def index
@@ -8,6 +8,7 @@ class BookmarksController < ApplicationController
 
   # GET /bookmarks/1 or /bookmarks/1.json
   def show
+    # display with the most recent archive
   end
 
   # GET /bookmarks/new
@@ -25,7 +26,7 @@ class BookmarksController < ApplicationController
 
     respond_to do |format|
       if @bookmark.save
-        format.html { redirect_to bookmark_url(@bookmark), notice: "Bookmark was successfully created." }
+        format.html { redirect_to bookmark_url(@bookmark), notice: t("bookmarks.creation_success") }
         format.json { render :show, status: :created, location: @bookmark }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -38,7 +39,7 @@ class BookmarksController < ApplicationController
   def update
     respond_to do |format|
       if @bookmark.update(bookmark_params)
-        format.html { redirect_to bookmark_url(@bookmark), notice: "Bookmark was successfully updated." }
+        format.html { redirect_to bookmark_url(@bookmark), notice: t("bookmarks.update_success") }
         format.json { render :show, status: :ok, location: @bookmark }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -52,19 +53,20 @@ class BookmarksController < ApplicationController
     @bookmark.destroy
 
     respond_to do |format|
-      format.html { redirect_to bookmarks_url, notice: "Bookmark was successfully destroyed." }
+      format.html { redirect_to bookmarks_url, notice: t("bookmarks.deletion_success") }
       format.json { head :no_content }
     end
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_bookmark
-      @bookmark = Bookmark.find(params[:id])
-    end
 
-    # Only allow a list of trusted parameters through.
-    def bookmark_params
-      params.require(:bookmark).permit(:title, :description, :tags)
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_bookmark
+    @bookmark = Bookmark.find(params[:id])
+  end
+
+  # Only allow a list of trusted parameters through.
+  def bookmark_params
+    params.require(:bookmark).permit(:title, :url, :description, :tags)
+  end
 end
