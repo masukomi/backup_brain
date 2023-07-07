@@ -1,12 +1,19 @@
 class Bookmark
   include Mongoid::Document
   include Mongoid::Timestamps
-  field :title,       type: String, optional: false
-  field :url,         type: String, optional: false
+
+  after_create :generate_archive
+
+  field :title,       type: String
+  field :url,         type: String
   field :description, type: String
   field :tags,        type: Array
 
   embeds_many :archives
+
+  validates :title, presence: true
+  validates :url, presence: true
+  validates :url, uniqueness: true
 
   scope :sorted_archives, -> { order_by(created_at: -1) }
 
@@ -22,5 +29,6 @@ class Bookmark
 
   def generate_archive
     raise t("errors.bookmarks.cant_archive_without_url") if url.blank?
+    ArchiveUrlJob.perform_now(self)
   end
 end
