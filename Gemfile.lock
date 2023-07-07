@@ -136,6 +136,7 @@ GEM
       racc
     puma (5.6.5)
       nio4r (~> 2.0)
+    pygments.rb (2.4.0)
     racc (1.6.2)
     rack (2.2.7)
     rack-test (2.1.0)
@@ -277,6 +278,7 @@ DEPENDENCIES
   mongoid
   org-ruby
   puma (~> 5.0)
+  pygments.rb
   rails (~> 7.0.4, >= 7.0.4.3)
   redcarpet
   redis (~> 4.0)

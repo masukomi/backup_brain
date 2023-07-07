@@ -46,6 +46,16 @@ en:
     bookmarks:
       no_archive_found: "No archive was found for this bookmark."
       cant_archive_without_url: "Can't create an archive without an url."
+  navigation:
+    home: "Home"
   bookmarks:
      heading: "Bookmarks"
+     edit_heading: "Editing Bookmark"
      archives_list_heading: "Recorded Archives"
+     no_tags_message: "No tags"
+     archived_date_message: "Archived on %{archive_date}"
+     view_archive_alt_text: "View archived copy"
+     view_archive_title: "archived on: %{archive_date}"
+     archive_now: "create a new archive"
+  misc:
+    missing_alt_text: 'missing alt text. please file a bug'

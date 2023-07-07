@@ -1,6 +1,11 @@
 .inline-link-icon {
 	margin-right: 0.25rem;
 }
+.inline-link-icon img {
+	max-width: 1rem;
+}
+.archive-link-icon {
+}
 /* BOOKMARKS */
 #bookmark-archives-listing {
 	list-style-type: none;

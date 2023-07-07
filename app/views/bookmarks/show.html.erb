@@ -1,28 +1,37 @@
 <div class="container">
+  <% archive = nil
+    if ! params[:archive_id].present?
+      archive = @bookmark.latest_archive('text/markdown')
+    else
+      archive = @bookmark.archives.where(:_id => params[:archive_id])
+    end
+  %>
 
-<% archive = nil
-   if ! params[:archive_id].present?
-     archive = @bookmark.latest_archive('text/markdown'))
-   else
-     archive = @bookmark.archives.where(:_id => params[:archive_id])
-   end
-%>
-
-<% if ! archive.nil?  %>
+  <% if ! archive.nil?  %>
   <div class="row">
     <div class="col">
-      <%#TODO deal with rendering archives that might not be markdown %>
-      <%= render partial: 'bookmark_md_archive',
-          locals: {archive: archive} %>
+      <div><%=t('bookmarks.archived_date_message',
+                   archive_date: I18n.l(archive.created_at.to_date, format: :default)
+                ) %></div>
+
+      <hr />
     </div>
   </div>
-<% else %>
-  <div class="row alert alert-warning">
-    <div class="col">
-      <%= t('errors.bookmarks.no_archive_found') %>
+    <div class="row">
+      <div class="col">
+        <%#TODO deal with rendering archives that might not be markdown %>
+        <%= render partial: 'bookmark_md_archive',
+            locals: {archive: archive} %>
+      </div>
     </div>
-  </div>
-<% end %>
+  <% else %>
+    <div class="row alert alert-warning">
+      <div class="col">
+        <%= t('errors.bookmarks.no_archive_found') %>
+      </div>
+    </div>
+  <% end %>
+</div>
 
 <hr />
 <div class="container">

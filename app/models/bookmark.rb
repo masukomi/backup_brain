@@ -15,10 +15,12 @@ class Bookmark
   validates :url, presence: true
   validates :url, uniqueness: true
 
-  scope :sorted_archives, -> { order_by(created_at: -1) }
-
   def has_archive?
     archives.present?
+  end
+
+  def sorted_archives
+    archives.order_by(created_at: -1)
   end
 
   def latest_archive(mime_type = nil)

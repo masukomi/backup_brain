@@ -48,7 +48,7 @@ gem "org-ruby" # org-mode markup renderer
 gem "redcarpet" # markdown renderer
 gem "ruby-readability", require: "readability"
 gem "reverse_markdown"
-# gem 'html2markdown', '0.0.3', :path => 'vendor/gems/html2markdown-0.0.3'
+gem "pygments.rb"
 
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]

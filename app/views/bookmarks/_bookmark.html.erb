@@ -1,8 +1,26 @@
 <div id="<%= dom_id bookmark %>" class="container">
   <div class="row">
-    <div class="col">
-      <%= icon_link("link", bookmark.url, "inline-link-icon") %>
+    <div class="col-6">
+      <%= icon_link("link", bookmark.url, link_css: "inline-link-icon") %>
       <%= link_to(bookmark.title, bookmark.url) %>
+    </div>
+    <div class="col-1">
+      <% if bookmark.has_archive? %>
+        <%= icon_link("archive", bookmark_path(bookmark),
+            link_css: "inline-link-icon archive-link-icon",
+            alt: t('bookmarks.view_archive_alt_text'),
+            title: t('bookmarks.view_archive_title',
+                    archive_date: I18n.l(bookmark.latest_archive.created_at.to_date,
+                                        format: :default)
+            )
+        )%>
+      <% else %>
+        <%= icon_link("download", bookmark_path(bookmark),
+            link_css: "inline-link-icon archive-link-icon",
+            method: :put,
+            alt: t('bookmarks.archive_now')) %>
+      <% end %>
+
     </div>
   </div>
   <div class="row">
@@ -13,7 +31,12 @@
   <div class="row">
     <div class="col">
       <!-- TODO: link this to a search for things with this tag -->
-      <%= Bookmark.model_name.tags %><%= bookmark.tags.join(", ") %>
+      <span class="inline-link-icon"><%= image_tag("/images/icons/tag.svg") %></span>
+      <% if bookmark.tags.present? %>
+        <%= bookmark.tags.join(", ") %>
+      <% else %>
+        <%= t('bookmarks.no_tags_message') %>
+      <% end %>
     </div>
   </div>
 </div>

@@ -1,5 +1,5 @@
 class BookmarksController < ApplicationController
-  before_action :set_bookmark, only: %i[show edit update destroy]
+  before_action :set_bookmark, only: %i[show edit update archive destroy]
 
   # GET /bookmarks or /bookmarks.json
   def index
@@ -33,6 +33,12 @@ class BookmarksController < ApplicationController
         format.json { render json: @bookmark.errors, status: :unprocessable_entity }
       end
     end
+  end
+
+  # PATCH/PUT
+  def archive
+    bookmark.generate_archive
+    redirect_to root_path
   end
 
   # PATCH/PUT /bookmarks/1 or /bookmarks/1.json

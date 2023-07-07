@@ -32,13 +32,20 @@
   </head>
 
   <body>
+      <div class="container" id="header">
+          <div class="row" id="navigation">
+              <div class="col">
+                <%= link_to(t('navigation.home'), '/') %>
+              </div>
+          </div>
+      </div>
     <%= yield %>
 
     <!-- FOOTER -->
     <div id="footer" class="container">
         <div class="row">
             <div class="col">
-                A footer yo!
+                <!-- someday there'll be something useful here -->
             </div>
         </div>
     </div>
