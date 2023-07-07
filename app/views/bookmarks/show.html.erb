@@ -1,10 +1,19 @@
 <div class="container">
 
-<% if @bookmark.has_archive? %>
+<% archive = nil
+   if ! params[:archive_id].present?
+     archive = @bookmark.latest_archive('text/markdown'))
+   else
+     archive = @bookmark.archives.where(:_id => params[:archive_id])
+   end
+%>
+
+<% if ! archive.nil?  %>
   <div class="row">
     <div class="col">
+      <%#TODO deal with rendering archives that might not be markdown %>
       <%= render partial: 'bookmark_md_archive',
-          locals: {archive: @bookmark.latest_archive('text/markdown')} %>
+          locals: {archive: archive} %>
     </div>
   </div>
 <% else %>
