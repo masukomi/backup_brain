@@ -7,10 +7,39 @@
     <%= csp_meta_tag %>
 
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "/css/bootstrap.css" %>
+    <%= stylesheet_link_tag "/css/bootstrap-grid.css" %>
+    <%= stylesheet_link_tag "/css/bootstrap-reboot.css" %>
+    <%= stylesheet_link_tag "/css/bootstrap-utilities.css" %>
+    <%= stylesheet_link_tag "/css/bootstrap.rtl.css" %>
+    <%= stylesheet_link_tag "/css/timeline.css" %>
+    <%= stylesheet_link_tag "/css/bootstrap_docs.css" %>
+    <%= javascript_include_tag "/js/popper.min.js" %>
+    <%= javascript_include_tag "/js/jquery-3.0.0.slim.min.js" %>
+    <%= javascript_include_tag "/js/bootstrap.js" %>
     <%= javascript_importmap_tags %>
+    <script type="text/javascript">
+
+        $(function () {
+            $('[data-toggle="popover"]').popover()
+        })
+        // $('.popover-dismiss').popover({
+        // 	trigger: 'focus'
+        // })
+    </script>
+
   </head>
 
   <body>
     <%= yield %>
+
+    <!-- FOOTER -->
+    <div id="footer" class="container">
+        <div class="row">
+            <div class="col">
+                A footer yo!
+            </div>
+        </div>
+    </div>
   </body>
 </html>
