@@ -1,0 +1,14 @@
+<p style="color: green"><%= notice %></p>
+
+<h1>Bookmarks</h1>
+
+<div id="bookmarks">
+  <% @bookmarks.each do |bookmark| %>
+    <%= render bookmark %>
+    <p>
+      <%= link_to "Show this bookmark", bookmark %>
+    </p>
+  <% end %>
+</div>
+
+<%= link_to "New bookmark", new_bookmark_path %>
