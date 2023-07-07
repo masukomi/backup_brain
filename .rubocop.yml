@@ -1,0 +1,26 @@
+require:
+  - standard
+  - rubocop-rails
+  - rubocop-rspec
+  - rubocop-factory_bot
+
+inherit_gem:
+  standard: config/base.yml
+
+AllCops:
+  NewCops: enable
+  Exclude:
+    - public/**/*
+    - vendor/**/*
+
+Rails:
+  Enabled: true # enable rubocop-rails cops
+RSpec:
+  Enabled: true # enable rubocop-rspec cops
+
+Layout/ExtraSpacing:
+  Enabled: false
+
+# because there's no good suggested alternative
+RSpec/LetSetup:
+  Enabled: false

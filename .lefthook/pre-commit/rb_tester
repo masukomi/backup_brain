@@ -1,0 +1,67 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+files = `git diff --cached --name-only --diff-filter=ACM`.split("\n")
+tested_files = Set.new
+git_root = `git rev-parse --show-toplevel`.strip
+# tracking tested files because there may be changes to
+# foo.rb and foo_spec.rb which would result in
+# foo_spec.rb being invoked twice.
+def get_spec_path(file)
+  new_path = file
+  unless is_spec?(file)
+    new_path = file.sub(/\.rb$/, "_spec.rb")
+    if new_path.include? "app/"
+      new_path = new_path.sub("app/", "spec/")
+    end
+    if new_path.include? "lib/"
+      new_path = new_path.sub("lib/", "spec/")
+    end
+  end
+  new_path
+end
+
+def get_spec_subpath(file)
+  file.sub(/.*?spec/, "spec")
+end
+
+def is_spec?(file)
+  file.end_with?("_spec.rb")
+end
+
+def is_ruby?(file)
+  file.end_with?(".rb")
+end
+
+def get_inner_root(file)
+  file.sub(/spec\/.*/, "")
+end
+
+files.each do |file|
+  filename = file
+  next unless is_ruby? file
+
+  filename = get_spec_path(filename)
+  next unless is_spec?(filename)
+
+  full_spec_path = "#{git_root}/#{filename}"
+  begin
+    Dir.chdir(get_inner_root(full_spec_path)) do
+      spec_subpath = get_spec_subpath(full_spec_path)
+      next unless File.exist?(spec_subpath) && tested_files.exclude?(spec_subpath)
+
+      valid_code = system("ruby -c #{spec_subpath}")
+      exit 2 unless valid_code
+
+      tested_files.add full_spec_path
+
+      response = system("bundle exec rspec #{spec_subpath}")
+      unless response
+        puts "spec failed: #{spec_subpath}"
+        exit 1
+      end
+    end
+  rescue
+    nil
+  end
+end

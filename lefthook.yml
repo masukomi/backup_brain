@@ -1,0 +1,20 @@
+skip_output:
+  - meta
+  - skips
+pre-commit:
+  parallel: true
+  commands:
+    rubocop:
+      exclude: "application.rb|routes.rb"
+      run: bundle exec rubocop -A --force-exclusion {staged_files}
+      stage_fixed: true
+      # run: bundle exec standardrb --fix {staged_files} && git add {staged_files}
+      tags: linting
+  scripts:
+    "bad_words":
+      exclude: "Gemfile|Gemfile.lock"
+      runner: bash
+      tags: bad_words
+    "rb_tester":
+      runner: ruby
+      tags: testing
