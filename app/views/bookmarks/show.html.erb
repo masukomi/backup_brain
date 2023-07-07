@@ -16,9 +16,26 @@
 <% end %>
 
 <hr />
-<div>
-  <%= link_to "Edit this bookmark", edit_bookmark_path(@bookmark) %> |
-  <%= link_to "Back to bookmarks", bookmarks_path %>
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <%= link_to "Edit this bookmark", edit_bookmark_path(@bookmark) %> |
+      <%= link_to "Back to bookmarks", bookmarks_path %>
 
-  <%= button_to "Destroy this bookmark", @bookmark, method: :delete %>
+      <%= button_to "Destroy this bookmark", @bookmark, method: :delete %>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <h3><%= t("bookmarks.archives_list_heading") %></h3>
+      <ul id="bookmark-archives-listing">
+        <% @bookmark.sorted_archives.each do | archive | %>
+          <li><%= show_archive_link(archive) %></li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
 </div>

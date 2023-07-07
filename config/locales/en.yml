@@ -48,3 +48,4 @@ en:
       cant_archive_without_url: "Can't create an archive without an url."
   bookmarks:
      heading: "Bookmarks"
+     archives_list_heading: "Recorded Archives"

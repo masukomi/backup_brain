@@ -1,3 +1,7 @@
 .inline-link-icon {
 	margin-right: 0.25rem;
 }
+/* BOOKMARKS */
+#bookmark-archives-listing {
+	list-style-type: none;
+}
