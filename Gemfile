@@ -44,6 +44,9 @@ gem "bootsnap", require: false
 
 gem 'mongoid'
 
+gem "org-ruby" # org-mode markup renderer
+gem "redcarpet" # markdown renderer
+
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
