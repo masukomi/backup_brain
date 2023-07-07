@@ -15,3 +15,5 @@ An archive is a snapshot in time. You never update them. You only add add more. 
  - created_at
 
 At the moment I only need string data, but i may want to expand to binary data too (=BSON::Binary=) so I've called the data field =string_data=
+
+Archive creation currently happens on the main thread. No point in backgrounding it yet, but the code is in =ArchiveUrlJob= so we can just turn that on if we need to, or use backgrounding for batches.
