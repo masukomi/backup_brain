@@ -31,7 +31,9 @@ namespace :importer do
     #       "tags":"3dprinting hardware"
     #     }
 
-    counter = 0
+    counter  = 0
+    failures = 0
+    updates  = 0
     Whirly.configure spinner: "dots"
     Whirly.start do
       data_hash.each do |bookmark_data|
@@ -52,6 +54,7 @@ namespace :importer do
               tags: bookmark_data["tags"].split(" ")
             )
           else
+            updates += 1
             Whirly.status = "updating #{sprintf("%7d", counter)}: #{bookmark_data["href"]}"
             existing_bookmark.update(
               title: bookmark_data["description"],
@@ -64,10 +67,18 @@ namespace :importer do
 
           end
         rescue => e
+          failures += 1
           Whirly.status = "Oh No! Error! #{e.message} from #{bookmark_data["href"]}"
           sleep 2
         end
       end # END data_hash.each
     end # END Whirly.start
+    puts "Successfully imported: #{counter - failures} bookmarks."
+    if updates > 0
+      puts "Updated #{updates} bookmarks."
+    end
+    if failures > 0
+      puts "BUT, there were also #{failures} failures along the way. 😭"
+    end
   end # END task
 end # END namespace
