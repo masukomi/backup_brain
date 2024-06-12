@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+if [[ $OSTYPE == "darwin"* ]]; then
+  ps -ax | grep meili | grep -v 'grep' > /dev/null
+else
+  ps -aux | grep meili | grep -v 'grep' > /dev/null
+fi
+
+if [ $? -ne 0 ]; then
+  echo "booting meilisearch too..."
+  api_key=$(cat .env | grep MEILISEARCH_API_KEY | sed -e "s/MEILISEARCH_API_KEY=//")
+  if [ -z "$api_key" ]; then
+    echo "MEILISEARCH_API_KEY is not set"
+    exit 78 # EX_CONFIG (78)  Something was found in an unconfigured or misconfigured state.
+  fi
+  meilisearch --master-key "$api_key"  > /dev/null 2>&1 &
+  disown
+else
+  echo "meiliesarch is already running"
+fi
+
+bundle exec rails server -p 3334
