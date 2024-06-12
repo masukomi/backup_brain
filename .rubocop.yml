@@ -9,6 +9,7 @@ inherit_gem:
 
 AllCops:
   NewCops: enable
+  SuggestExtensions: false
   Exclude:
     - public/**/*
     - vendor/**/*
@@ -24,3 +25,30 @@ Layout/ExtraSpacing:
 # because there's no good suggested alternative
 RSpec/LetSetup:
   Enabled: false
+
+# old man shouting at clouds
+RSpec/MessageSpies:
+  Enabled: false
+
+
+# these are fine for ActiveRecord but
+# aren't supported by Mongoid
+Rails/FindEach:
+  Enabled: false
+Rails/HasAndBelongsToMany:
+  Enabled: false
+
+# stop effing with my log messages!
+Rails/EagerEvaluationLogMessage:
+  Enabled: false
+
+# no shit, but don't make me put rubocop comments in a view. not cool
+Rails/OutputSafety:
+  Enabled: false
+
+RSpec/ExampleLength:
+  Max: 10
+  CountAsOne:
+    - array
+    - hash
+    - heredoc
