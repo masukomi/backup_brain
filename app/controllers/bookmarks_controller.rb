@@ -6,6 +6,12 @@ class BookmarksController < ApplicationController
     @bookmarks = Bookmark.all
   end
 
+  def tagged_with
+    @tags = params[:tags].split(",")
+    @bookmarks = Bookmark.where(tags: {"$in" => @tags}).order_by([[:created_at, :desc]])
+    render :index
+  end
+
   # GET /bookmarks/1 or /bookmarks/1.json
   def show
     # display with the most recent archive
@@ -44,8 +50,9 @@ class BookmarksController < ApplicationController
   # PATCH/PUT /bookmarks/1 or /bookmarks/1.json
   def update
     respond_to do |format|
-      if @bookmark.update(bookmark_params)
-        format.html { redirect_to bookmark_url(@bookmark), notice: t("bookmarks.update_success") }
+      # FIXME: there's got to be a better way to do this  --------------vvv
+      if @bookmark.update(bookmark_params.merge({tags: bookmark_params[:tags].split(/\s+/)}))
+        format.html { redirect_to edit_bookmark_url(@bookmark), notice: t("bookmarks.update_success") }
         format.json { render :show, status: :ok, location: @bookmark }
       else
         format.html { render :edit, status: :unprocessable_entity }
