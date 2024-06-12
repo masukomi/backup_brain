@@ -49,6 +49,13 @@ gem "redcarpet" # markdown renderer
 gem "ruby-readability", require: "readability"
 gem "reverse_markdown"
 gem "pygments.rb"
+gem "meilisearch"
+gem "mongodb_meilisearch"
+gem "pagy", "~> 6.0"
+gem "dotenv-rails"
+
+gem "whirly" # spinner for rake tasks
+gem "paint"  # colorize terminal output (mostly for whirly)
 
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
