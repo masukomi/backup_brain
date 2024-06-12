@@ -4,9 +4,27 @@
 .inline-link-icon img {
 	max-width: 1rem;
 }
-.archive-link-icon {
-}
 /* BOOKMARKS */
 #bookmark-archives-listing {
 	list-style-type: none;
+}
+
+.archive-link-icon {
+}
+.edit-link-icon {
+}
+.delete-link-icon {
+}
+.bookmark-list-item {
+	border: 1px dashed #ccc;
+	border-radius: 0.5rem;
+	margin-bottom: 0.5rem;
+}
+.bookmark-input-field{
+	width: 100%;
+}
+.bookmark-textarea-field{
+	width: 100%;
+	height: 5rem;
+
 }
