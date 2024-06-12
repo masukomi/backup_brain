@@ -1,17 +1,5 @@
 <div class="container">
-  <% if bookmark.errors.any? %>
-  <div class="row">
-    <div class="col alert-danger">
-      <h2><%= pluralize(bookmark.errors.count, "error") %></h2>
-
-      <ul>
-        <% bookmark.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
-    </div>
-  </div>
-  <% end %>
+  <%= render partial: 'shared/errors_row', locals: {thing: bookmark} %>
   <%= form_with(model: bookmark) do |form| %>
 
     <div class="row">
@@ -19,7 +7,7 @@
         <%= form.label :title, style: "display: block" %>
       </div>
       <div class="col-6">
-        <%= form.text_field :title %>
+        <%= form.text_field :title, class: 'bookmark-input-field'  %>
       </div>
     </div>
 
@@ -28,7 +16,7 @@
         <%= form.label :url, style: "display: block" %>
       </div>
       <div class="col-6">
-        <%= form.text_field :url %>
+        <%= form.text_field :url, class: 'bookmark-input-field'  %>
       </div>
     </div>
     <div class="row">
@@ -36,7 +24,7 @@
         <%= form.label :description, style: "display: block" %>
       </div>
       <div class="col-6">
-        <%= form.text_field :description %>
+        <%= form.text_area :description, class: 'bookmark-textarea-field' %>
       </div>
     </div>
     <div class="row">
@@ -44,7 +32,7 @@
         <%= form.label :tags, style: "display: block" %>
       </div>
       <div class="col-6">
-        <%= form.text_field :tags %>
+        <%= form.text_field :tags, class: 'bookmark-input-field' %>
       </div>
     </div>
     <div class="row">

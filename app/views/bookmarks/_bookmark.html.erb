@@ -1,10 +1,35 @@
-<div id="<%= dom_id bookmark %>" class="container">
+<div id="<%= dom_id bookmark %>" class="container bookmark-list-item">
   <div class="row">
     <div class="col-6">
-      <%= icon_link("link", bookmark.url, link_css: "inline-link-icon") %>
-      <%= link_to(bookmark.title, bookmark.url) %>
+      <div class="row">
+        <div class="col">
+          <%= icon_link("link", bookmark.url, link_css: "inline-link-icon") %>
+          <%= link_to(bookmark.title, bookmark.url) %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <%= Orgmode::Parser.new(bookmark.description).to_html.html_safe %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <!-- TODO: link this to a search for things with this tag -->
+          <span class="inline-link-icon"><%= image_tag("/images/icons/tag.svg") %></span>
+          <% if bookmark.tags.present? %>
+            <% bookmark.tags.each do | tag | %>
+              <%= link_to(tag, bookmarks_tagged_with_path(tags: tag)) %>
+            <% end %>
+          <% else %>
+            <%= t('bookmarks.no_tags_message') %>
+          <% end %>
+        </div>
+      </div>
     </div>
+
+    <!--- action icons -->
     <div class="col-1">
+      <div class="action-icon">
       <% if bookmark.has_archive? %>
         <%= icon_link("archive", bookmark_path(bookmark),
             link_css: "inline-link-icon archive-link-icon",
@@ -16,27 +41,26 @@
         )%>
       <% else %>
         <%= icon_link("download", bookmark_path(bookmark),
-            link_css: "inline-link-icon archive-link-icon",
+            link_css: "inline-link-icon download-link-icon",
             method: :put,
             alt: t('bookmarks.archive_now')) %>
       <% end %>
+      </div>
+      <div class="action-icon">
+      <%= icon_link("edit", edit_bookmark_path(bookmark),
+          link_css: "inline-link-icon edit-link-icon",
+          method: :put,
+          alt: t('bookmarks.edit'),
+          text: t('bookmarks.edit')) %>
+      </div>
+      <div class="action-icon">
+      <%= confirmation_icon_link("delete", bookmark_path(bookmark),
+          link_css: "inline-link-icon delete-link-icon",
+          method: :put,
+          alt: t('bookmarks.delete'),
+          text: t('bookmarks.delete')) %>
+      </div>
 
-    </div>
-  </div>
-  <div class="row">
-    <div class="col">
-      <%= Orgmode::Parser.new(bookmark.description).to_html.html_safe %>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col">
-      <!-- TODO: link this to a search for things with this tag -->
-      <span class="inline-link-icon"><%= image_tag("/images/icons/tag.svg") %></span>
-      <% if bookmark.tags.present? %>
-        <%= bookmark.tags.join(", ") %>
-      <% else %>
-        <%= t('bookmarks.no_tags_message') %>
-      <% end %>
     </div>
   </div>
 </div>
