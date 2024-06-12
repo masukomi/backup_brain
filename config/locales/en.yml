@@ -51,11 +51,14 @@ en:
   bookmarks:
      heading: "Bookmarks"
      edit_heading: "Editing Bookmark"
+     edit: "edit"
+     delete: "delete"
      archives_list_heading: "Recorded Archives"
      no_tags_message: "No tags"
      archived_date_message: "Archived on %{archive_date}"
      view_archive_alt_text: "View archived copy"
      view_archive_title: "archived on: %{archive_date}"
      archive_now: "create a new archive"
+     update_success: "Successfully Updated"
   misc:
     missing_alt_text: 'missing alt text. please file a bug'
