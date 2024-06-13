@@ -1,0 +1,60 @@
+<% link = Proc.new {|pagy, link_extra|
+           link_to(
+                pagy,
+                bookmarks_path(page: pagy, limit: @limit,
+                    aria_label: I18n.t("pagination.aria_next")
+                ),
+                method: :get,
+                class: 'page-link'
+           )
+   } %>
+<nav class="pagy-bootstrap-nav" role="navigation">
+<ul class="pagination">
+
+<% if pagy.prev                -%>
+      <%==
+        link_to(
+           t('pagination.previous'),
+           bookmarks_path(page: pagy.prev, limit: @limit,
+             aria_label: I18n.t("pagination.aria_previous")
+           ),
+           method: :get,
+           class: 'page-link'
+        )
+
+           %>
+
+
+<% else                        -%>    <li class="page-item prev disabled"><a href="#" class="page-link"><%== t('search.previous') %></a></li>
+<% end                         -%>
+
+<% pagy.series.each do |item| # series example: [1, :gap, 7, 8, "9", 10, 11, :gap, 36] -%>
+<%   if    item.is_a?(Integer) -%>    <li class="page-item"><%== link.call(item) %></li>
+<%   elsif item.is_a?(String)  -%>    <li class="page-item active"><%== link.call(item) %></li>
+<%   elsif item == :gap        -%>    <li class="page-item disabled gap"><a href="#" class="page-link"><%== t('pagination.page_gap') %></a></li>
+<%   end                       -%>
+<% end                         -%>
+
+
+<%# "next >" link at end %>
+<% if pagy.next                -%>
+    <li class="page-item next">
+      <%==
+
+        link_to(
+           t('pagination.next'),
+           bookmarks_path(page: pagy.next, limit: @limit,
+             aria_label: I18n.t("pagination.aria_next")
+           ),
+           method: :get,
+           class: 'page-link'
+        )
+           %>
+    </li>
+<% else                        -%>
+    <li class="page-item next disabled">
+      <a href="#" class="page-link"><%== t('pagination.next') %></a>
+    </li>
+<% end                         -%>
+</ul>
+</nav>

@@ -29,7 +29,13 @@
 
 
 <div class="container" id="bookmarks">
-  <%== pagy_nav(@pagy) if ! @pagy.nil? && @pagy.count > (@pagy.items * @pagy.page) %>
+  <% if ! @pagy.nil? && @pagy.count > (@pagy.items * @pagy.page) %>
+    <div class="row">
+      <div class="col">
+        <%= render partial: 'pagy/bookmark_db_results', locals: {pagy: @pagy} %>
+      </div>
+    </div>
+  <% end %>
   <% @bookmarks.each do |bookmark| %>
     <div class="row">
       <div class="col">
@@ -37,7 +43,11 @@
       </div>
     </div>
   <% end %>
-  <%== pagy_nav(@pagy) if ! @pagy.nil? && @pagy.count > (@pagy.items * @pagy.page) %>
+  <% if ! @pagy.nil? && @pagy.count > (@pagy.items * @pagy.page) %>
+    <div class="row">
+      <div class="col">
+        <%= render partial: 'pagy/bookmark_db_results', locals: {pagy: @pagy} %>
+      </div>
+    </div>
+  <% end %>
 </div>
-
-

@@ -63,3 +63,9 @@ en:
      update_success: "Successfully Updated"
   misc:
     missing_alt_text: 'missing alt text. please file a bug'
+  pagination:
+    next: "Next 〉"
+    aria_next: "next"
+    previous: "〈 Prev."
+    aria_previous: "previous"
+    page_gap: "…"
