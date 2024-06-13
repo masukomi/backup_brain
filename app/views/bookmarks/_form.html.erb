@@ -36,6 +36,24 @@
       </div>
     </div>
     <div class="row">
+      <div class="col-2">
+        <%= form.label :private,
+            style: "display: block",
+            class: "form-check-label",
+            for: "privacySwitch"
+            %>
+      </div>
+      <div class="col-1 form-check form-switch">
+        <%= form.check_box :private,
+            class: 'bookmark-checkbox-field form-check-input',
+            role: "switch",
+            id: "privacySwitch",
+            checked: bookmark.private?
+            %>
+      </div>
+    </div>
+
+    <div class="row">
       <div class="col ">
         <%= form.submit class: "btn btn-primary" %>
       </div>

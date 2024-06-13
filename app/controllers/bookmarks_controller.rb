@@ -86,7 +86,7 @@ class BookmarksController < ApplicationController
 
   # Only allow a list of trusted parameters through.
   def bookmark_params
-    params.require(:bookmark).permit(:title, :url, :description, :tags)
+    params.require(:bookmark).permit(:title, :url, :description, :tags, :private, :to_read)
   end
 
   def set_limit

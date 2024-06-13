@@ -9,6 +9,10 @@ h1 {
 	max-height: inherit;
 	padding-right: 0.25rem;
 }
+.inline-body-icon{
+	max-height: 1rem;
+	padding-right: 0.25rem;
+}
 
 /* Navigation  */
 
@@ -64,4 +68,12 @@ h1 {
 .bookmark-count {
 	font-style: italic;
 	font-size: 0.8rem;
+}
+.private-bookmark {
+	background-color: #ffecc5;
+}
+.private-hint {
+	font-style: italic;
+	font-size: 0.8rem;
+	color: #aaa;
 }

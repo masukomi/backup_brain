@@ -67,6 +67,7 @@ en:
      add: "Add a Bookmark"
      list_link: "Show All Bookmarks"
      counter: "%{formatted_count} and counting…"
+     private_hint: "Shhh…"
   misc:
     missing_alt_text: 'missing alt text. please file a bug'
     app_name: "Backup Brain"
