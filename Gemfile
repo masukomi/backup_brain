@@ -53,9 +53,12 @@ gem "meilisearch"
 gem "mongodb_meilisearch"
 gem "pagy", "~> 6.0"
 gem "dotenv-rails"
+gem "gemoji"
 
 gem "whirly" # spinner for rake tasks
 gem "paint"  # colorize terminal output (mostly for whirly)
+
+gem "httparty" # for importer to check if urls are serving.
 
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
