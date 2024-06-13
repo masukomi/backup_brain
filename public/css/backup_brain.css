@@ -4,6 +4,10 @@
 .inline-link-icon img {
 	max-width: 1rem;
 }
+.icon-link-text {
+	display: inline;
+	margin-left: 0.25rem;
+}
 /* BOOKMARKS */
 #bookmark-archives-listing {
 	list-style-type: none;
