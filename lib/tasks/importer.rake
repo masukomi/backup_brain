@@ -3,16 +3,43 @@ require "paint"
 require "whirly"
 
 namespace :importer do
+  def url_potentially_good?(url_string)
+    code = HTTParty.head(url_string,
+      verify: false,
+      timeout: 5).response.code.to_i
+    return false if code == 0 # theoretically can't happen
+    return true if code < 400
+    return true if code == 599 # network connect timeout error
+    return false if code > 500
+    # Things that mean the user can probably access it but we can't
+    # 401 unauthorized.
+    # 402 payment required.
+    # 403 forbidden.
+    # 403 REALLY should be false, but it's often used for paywalls
+    return true if code > 400 && code < 404
+    return true if code == 407 # proxy auth required
+    return true if code == 418 # i'm a teapot
+    return true if code == 429 # too many requests
+    return true if code == 498 # invalid token
+    return true if code == 450 # blocked by windows parental controls
+    return true if code == 451 # unavailable for legal reasons
+    false
+  rescue Net::ReadTimeout, Errno::ETIMEDOUT
+    true # ... maybe?
+  rescue
+    false
+  end
+
   desc "Import JSON exported bookmarks from Pinboard.in"
-  task :pinboard_import, [:path] => :environment do |t, args|
+  task :pinboard_import, [:path, :start_at] => :environment do |t, args|
     # Check if the file path is provided
     # If not, print the usage and exit
     if !args[:path]
-      puts Paint["Usage: rake importer:pinboard_import[relative/path/to/exported.json]", :red]
+      puts Paint["Usage: rake importer:pinboard_import[relative/path/to/exported.json,1]", :red]
       exit
     elsif !File.exist? args[:path]
       puts Paint["⚠ File doesn't exist", :red]
-      puts Paint["Usage: rake importer:pinboard_import[relative/path/to/exported.json]", :red]
+      puts Paint["Usage: rake importer:pinboard_import[relative/path/to/exported.json,1]", :red]
       exit
     end
     file = File.read(args[:path])
@@ -34,15 +61,25 @@ namespace :importer do
     counter  = 0
     failures = 0
     updates  = 0
+    skipped  = 0
+    start_at = args[:start_at].to_i || 1
+    puts Paint["Skipping all bookmarks prior to number #{start_at}", :yellow]
     Whirly.configure spinner: "dots"
     Whirly.start do
       data_hash.each do |bookmark_data|
         counter += 1
 
+        next if counter < start_at
+
         # Create a new Bookmark object with the data from the hash
         begin
           existing_bookmark = Bookmark.where(url: bookmark_data["href"]).first
           if !existing_bookmark
+            unless url_potentially_good?(bookmark_data["href"])
+              skipped += 1
+              Whirly.status = Paint["skipping #{sprintf("%7d", counter)}: #{bookmark_data["href"]}", :yellow]
+              next
+            end
             Whirly.status = "importing #{sprintf("%7d", counter)}: #{bookmark_data["href"]}"
             Bookmark.create(
               url: bookmark_data["href"],
@@ -76,6 +113,9 @@ namespace :importer do
     puts "Successfully imported: #{counter - failures} bookmarks."
     if updates > 0
       puts "Updated #{updates} bookmarks."
+    end
+    if skipped > 0
+      puts "Skipped #{skipped} bookmarks."
     end
     if failures > 0
       puts "BUT, there were also #{failures} failures along the way. 😭"
