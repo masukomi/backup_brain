@@ -12,6 +12,9 @@
   <div class="row">
     <div class="col">
       <h2><%= link_to(t("bookmarks.heading"), bookmarks_path) %></h2>
+      <span class="bookmark-count">
+      <%= @bookmarks.count %>
+      </span>
     </div>
   </div>
 </div>
