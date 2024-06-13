@@ -13,7 +13,12 @@
     <div class="col-9">
       <h2><%= link_to(t("bookmarks.heading"), bookmarks_path) %></h2>
       <span class="bookmark-count">
-      <%= @bookmarks.count %>
+      <%= t('bookmarks.counter',
+            formatted_count: number_with_delimiter(
+                              @bookmarks.count,
+                              delimiter: t('number.format.delimiter')
+            )
+          ) %>
       </span>
     </div>
     <div class="col">
