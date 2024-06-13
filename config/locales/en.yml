@@ -57,6 +57,7 @@ en:
      no_tags_message: "No tags"
      archived_date_message: "Archived on %{archive_date}"
      view_archive_alt_text: "View archived copy"
+     view_archive_link_text: "Archived"
      view_archive_title: "archived on: %{archive_date}"
      archive_now: "create a new archive"
      update_success: "Successfully Updated"
