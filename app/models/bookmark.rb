@@ -1,6 +1,7 @@
 class Bookmark
   include Mongoid::Document
   include Mongoid::Timestamps
+  include Mongoid::Pagination
 
   extend Search::ClassMethods
   include Search::InstanceMethods

@@ -129,6 +129,9 @@ GEM
       activemodel (>= 5.1, < 7.1, != 7.0.0)
       mongo (>= 2.10.5, < 3.0.0)
       ruby2_keywords (~> 0.0.5)
+    mongoid-pagination (0.2.0)
+      activesupport
+      mongoid
     msgpack (1.7.1)
     multi_xml (0.6.0)
     net-imap (0.3.4)
@@ -301,6 +304,7 @@ DEPENDENCIES
   meilisearch
   mongodb_meilisearch
   mongoid
+  mongoid-pagination
   org-ruby
   pagy (~> 6.0)
   paint

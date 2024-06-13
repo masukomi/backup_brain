@@ -52,6 +52,7 @@ gem "pygments.rb"
 gem "meilisearch"
 gem "mongodb_meilisearch"
 gem "pagy", "~> 6.0"
+gem "mongoid-pagination"
 gem "dotenv-rails"
 gem "gemoji"
 

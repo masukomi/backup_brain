@@ -1,14 +1,20 @@
 class BookmarksController < ApplicationController
   before_action :set_bookmark, only: %i[show edit update archive destroy]
+  before_action :set_limit, only: %i[index tagged_with]
+  before_action :set_page, only: %i[index tagged_with]
 
   # GET /bookmarks or /bookmarks.json
   def index
-    @bookmarks = Bookmark.all
+    @pagy, @bookmarks = pagify(Bookmark.all.order_by([[:created_at, :desc]]))
   end
 
   def tagged_with
     @tags = params[:tags].split(",")
-    @bookmarks = Bookmark.where(tags: {"$in" => @tags}).order_by([[:created_at, :desc]])
+    @pagy, @bookmarks = pagify(
+      Bookmark.where(tags: {"$in" => @tags})
+        .order_by([[:created_at, :desc]]),
+      items: @limit
+    )
     render :index
   end
 
@@ -81,5 +87,21 @@ class BookmarksController < ApplicationController
   # Only allow a list of trusted parameters through.
   def bookmark_params
     params.require(:bookmark).permit(:title, :url, :description, :tags)
+  end
+
+  def set_limit
+    @limit = params[:limit].present? ? params[:limit].to_i : Pagy::DEFAULT[:items]
+  end
+
+  def set_page
+    @page = params[:page].present? ? params[:page].to_i : 1
+  end
+
+  def pagify(query, page = @page, limit = @limit)
+    paginated_query = query.paginate(page: page, limit: limit)
+    [
+      Pagy.new(count: query.count, page: page, items: limit),
+      paginated_query
+    ]
   end
 end

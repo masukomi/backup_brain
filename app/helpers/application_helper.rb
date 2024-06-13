@@ -1,4 +1,6 @@
 module ApplicationHelper
+  include Pagy::Frontend
+
   def icon_link(icon_name, url,
     link_css: nil,
     method: :get,
