@@ -6,7 +6,9 @@ namespace :importer do
   def url_potentially_good?(url_string)
     code = HTTParty.head(url_string,
       verify: false,
-      timeout: 5).response.code.to_i
+      timeout: 5,
+      # tell it we're chrome. Yes, this is a real chrome user agent string.
+      headers: {"User-Agent" => "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.79 Safari/537.36"}).response.code.to_i
     return false if code == 0 # theoretically can't happen
     return true if code < 400
     return true if code == 599 # network connect timeout error
