@@ -120,7 +120,7 @@ namespace :importer do
       puts "Skipped #{skipped} bookmarks."
     end
     if failures > 0
-      puts "BUT, there were also #{failures} failures along the way. 😭"
+      puts "BUT, there were also #{failures} errors along the way. 😭"
     end
   end # END task
 end # END namespace
