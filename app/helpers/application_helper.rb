@@ -1,15 +1,27 @@
 module ApplicationHelper
   include Pagy::Frontend
 
+  def inline_icon(icon_name,
+    icon_class: "inline-icon",
+    alt: nil,
+    title: nil)
+    image_tag("/images/icons/#{icon_name}.svg",
+      class: icon_class,
+      alt: alt,
+      title: title)
+  end
+
   def icon_link(icon_name, url,
     link_css: nil,
+    icon_css: nil,
     method: :get,
     alt: nil,
     title: nil,
     text: nil)
     link_to(
       image_tag(
-        "/images/icons/#{icon_name}.svg"
+        "/images/icons/#{icon_name}.svg",
+        class: icon_css
       ) + icon_link_text(text),
       url,
       class: link_css,

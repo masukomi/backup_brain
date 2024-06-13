@@ -10,22 +10,20 @@
 
 <div class="container">
   <div class="row">
-    <div class="col">
+    <div class="col-9">
       <h2><%= link_to(t("bookmarks.heading"), bookmarks_path) %></h2>
       <span class="bookmark-count">
       <%= @bookmarks.count %>
       </span>
     </div>
-  </div>
-</div>
-
-<div class="container">
-  <div class="row">
     <div class="col">
-      <%= link_to "New bookmark", new_bookmark_path %>
+      <%= link_to t('bookmarks.add'), new_bookmark_path,
+          type: "button",
+          class: "btn btn-primary" %>
     </div>
   </div>
 </div>
+
 
 
 <div class="container" id="bookmarks">

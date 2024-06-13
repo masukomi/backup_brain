@@ -1,3 +1,32 @@
+/* General look */
+
+h1 {
+	font-size: 2rem;
+	max-height: 2rem;
+	margin-bottom: 1.5rem;
+}
+.inline-icon{
+	max-height: inherit;
+	padding-right: 0.25rem;
+}
+
+/* Navigation  */
+
+.home-nav-icon img{
+	max-width: 3rem;
+	display: inline-block;
+}
+#header{
+    background: aliceblue;
+    min-height: 2rem;
+	font-weight: bold;
+}
+#navigation > div > a {
+	color: black;
+	text-decoration: none;
+}
+
+/* Links */
 .inline-link-icon {
 	margin-right: 0.25rem;
 }
