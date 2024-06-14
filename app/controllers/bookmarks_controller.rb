@@ -55,6 +55,15 @@ class BookmarksController < ApplicationController
 
   # GET /bookmarks/new
   def new
+    if params[:url].present?
+      @bookmark = Bookmark.where(url: params[:url]).first
+    end
+    if @bookmark.present?
+      flash[:notice] = t("bookmarks.create_existing_warning")
+      redirect_to edit_bookmark_url(@bookmark)
+      return
+    end
+
     @bookmark = Bookmark.new
   end
 

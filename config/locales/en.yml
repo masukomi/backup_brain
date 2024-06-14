@@ -76,6 +76,7 @@ en:
     list_link: "Show All Bookmarks"
     counter: "%{formatted_count} and counting…"
     private_hint: "Shhh…"
+    create_existing_warning: "⚠️ You've already got a bookmark for that."
   misc:
     missing_alt_text: 'missing alt text. please file a bug'
     app_name: "Backup Brain"
