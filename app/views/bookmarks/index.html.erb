@@ -5,7 +5,7 @@
       <span class="bookmark-count">
       <%= t('bookmarks.counter',
             formatted_count: number_with_delimiter(
-                              @bookmarks.count,
+                              @pagy.count || @bookmarks.count,
                               delimiter: t('number.format.delimiter')
             )
           ) %>
@@ -14,7 +14,8 @@
     <div class="col">
       <%= link_to t('bookmarks.add'), new_bookmark_path,
           type: "button",
-          class: "btn btn-primary" %>
+          class: "btn btn-primary compact-button",
+          style: "margin-top: 0.5rem" %>
     </div>
   </div>
 </div>

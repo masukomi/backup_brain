@@ -42,7 +42,7 @@ class BookmarksController < ApplicationController
 
     # if we were searching for _any_ record we'd use `filtered_by_class: false`
     raw_results = Bookmark.search(@query, options: options, filtered_by_class: true)
-    @pagy = pagify_search(raw_results)
+    @pagy = pagify_search(raw_results["search_result_metadata"]["nbHits"])
     @bookmarks = raw_results["matches"]
 
     render :index
@@ -135,7 +135,7 @@ class BookmarksController < ApplicationController
     ]
   end
 
-  def pagify_search(raw_results, page = @page, limit = @limit)
-    Pagy.new(count: raw_results["search_result_metadata"]["nbHits"], page: page, items: limit)
+  def pagify_search(count, page = @page, limit = @limit)
+    Pagy.new(count: count, page: page, items: limit)
   end
 end
