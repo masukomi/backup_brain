@@ -17,7 +17,10 @@
 /tmp/pids/*
 !/tmp/pids/
 !/tmp/pids/.keep
+# don't need to track temp cache stuff either
+/tmp/cache/*
 
+/lib/.precomp/*
 
 /public/assets
 
