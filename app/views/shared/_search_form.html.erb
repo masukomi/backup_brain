@@ -1,0 +1,20 @@
+<%# using css style attribute because something's wrong and the browser is refusing to admit the
+    class definition exists in custom.css %>
+<div class="search-form" >
+  <%= form_with url: bookmarks_search_path, data: {turbo: false}, method: :get do |form| %>
+    <%= form.label :query, I18n.t("search.form_label"), class: "screen-readers-only" %>
+      <input type="text" name="query" value="<%= query %>" placeholder="<%= t("search.placeholder") %>" >
+      <input type="radio" name="sort" value="match"
+      <% if ! @sort || @sort == "match" %>checked<% end %>
+      id="sort_radio_match" >
+      <label for="sort_radio_match" ><%=I18n.t("search.match_sort_label")%></label>
+      <input type="radio" name="sort" value="newest"
+      <% if @sort == "newest" %>checked<% end %>
+      id="sort_radio_newest" >
+      <label for="sort_radio_newest" ><%=I18n.t("search.newest_sort_label")%></label>
+      <%= form.submit I18n.t("search.search_button"),
+          type: :image,
+          src: "/images/icons/search_white.png",
+          class: "btn btn-primary" %>
+  <% end %>
+</div>

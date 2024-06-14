@@ -16,6 +16,9 @@ h1 {
 
 /* Navigation  */
 
+.home-link-col {
+	padding-top: 0.35rem;
+}
 .home-nav-icon img{
 	max-width: 3rem;
 	display: inline-block;
@@ -28,6 +31,11 @@ h1 {
 #navigation > div > a {
 	color: black;
 	text-decoration: none;
+}
+/* Search */
+.search-form {
+	padding-left: 1rem;
+	border-left: solid 1px #ccc;
 }
 
 /* Links */

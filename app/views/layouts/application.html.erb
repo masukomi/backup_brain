@@ -36,7 +36,7 @@
   <body>
         <div class="container" id="header">
           <div class="row" id="navigation">
-              <div class="col">
+              <div class="col-4 home-link-col">
                 <%= icon_link("logo", root_path,
                     link_css: "home-nav-icon",
                     alt: t('navigation.home_icon_alt'),
@@ -45,6 +45,16 @@
                     )%>
 
               </div>
+
+              <% if Search::Client.instance.enabled? %>
+                <div class="col">
+                    <%= render partial: 'shared/search_form', locals: {
+                        query: (@query || '')
+                    }%>
+
+                </div>
+              <% end %>
+
           </div>
       </div>
 

@@ -1,7 +1,7 @@
 class BookmarksController < ApplicationController
   before_action :set_bookmark, only: %i[show edit update archive destroy]
-  before_action :set_limit, only: %i[index tagged_with]
-  before_action :set_page, only: %i[index tagged_with]
+  before_action :set_limit, only: %i[index tagged_with search]
+  before_action :set_page, only: %i[index tagged_with search]
 
   # GET /bookmarks or /bookmarks.json
   def index
@@ -15,6 +15,36 @@ class BookmarksController < ApplicationController
         .order_by([[:created_at, :desc]]),
       items: @limit
     )
+    render :index
+  end
+
+  def search
+    @query = params[:query]
+    if @query.blank?
+      flash[:notice] = t("search.missing_query")
+      redirect_to action: "index"
+      return
+    end
+
+    # configure sorting
+    sort_params = []
+    @sort = params[:sort] || "match"
+    if @sort == "newest"
+      sort_params << "created_at:desc"
+    end
+
+    # Meilisearch Options
+    options = {
+      limit: @limit,
+      sort: sort_params,
+      offset: (@limit * (@page - 1)) # number of resources skipped
+    }
+
+    # if we were searching for _any_ record we'd use `filtered_by_class: false`
+    raw_results = Bookmark.search(@query, options: options, filtered_by_class: true)
+    @pagy = pagify_search(raw_results)
+    @bookmarks = raw_results["matches"]
+
     render :index
   end
 
@@ -103,5 +133,9 @@ class BookmarksController < ApplicationController
       Pagy.new(count: query.count, page: page, items: limit),
       paginated_query
     ]
+  end
+
+  def pagify_search(raw_results, page = @page, limit = @limit)
+    Pagy.new(count: raw_results["search_result_metadata"]["nbHits"], page: page, items: limit)
   end
 end
