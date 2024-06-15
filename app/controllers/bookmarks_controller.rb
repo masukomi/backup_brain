@@ -182,6 +182,6 @@ class BookmarksController < ApplicationController
     # closeable comes in via new & edit,
     # then gets passed along to create and update
     # and finally to show, where the view will invoke it
-    @closeable = params[:closeable].present?
+    @closeable = params[:closeable].present? ? params[:closable] == "true" : false
   end
 end
