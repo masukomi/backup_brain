@@ -100,8 +100,17 @@ class BookmarksController < ApplicationController
   def update
     respond_to do |format|
       # FIXME: there's got to be a better way to do this  --------------vvv
-      if @bookmark.update(bookmark_params.merge({tags: bookmark_params[:tags].split(/\s+/)}))
-        format.html { redirect_to edit_bookmark_url(@bookmark), notice: t("bookmarks.update_success") }
+      with_split_tags = bookmark_params.merge({tags: bookmark_params[:tags].split(/\s+/)})
+      if @bookmark.update(with_split_tags)
+        format.html {
+          flash[:notice] = t("bookmarks.update_success")
+          if @closeable.present?
+            redirect_to bookmarks_success_path(layout: @layout, closeable: @closeable)
+            # redirect_to bookmarks_success_path, layout: @layout
+          else
+            redirect_to edit_bookmark_url(@bookmark), notice: t("bookmarks.update_success")
+          end
+        }
         format.json { render :show, status: :ok, location: @bookmark }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -118,6 +127,9 @@ class BookmarksController < ApplicationController
       format.html { redirect_to bookmarks_url, notice: t("bookmarks.deletion_success") }
       format.json { head :no_content }
     end
+  end
+
+  def success
   end
 
   private

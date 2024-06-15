@@ -1,7 +1,8 @@
 <div class="container">
   <%= render partial: 'shared/errors_row', locals: {thing: bookmark} %>
   <%= form_with(model: bookmark) do |form| %>
-    <%= form.hidden_field :closeable, value: @closeable %>
+    <%= hidden_field_tag(:closeable, @closeable) %>
+    <%= hidden_field_tag(:layout, @layout) %>
 
     <div class="row">
       <div class="col-2">

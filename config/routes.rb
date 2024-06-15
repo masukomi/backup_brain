@@ -2,6 +2,11 @@ Rails.application.routes.draw do
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
   get "bookmarks/search", controller: :bookmarks, action: :search, as: :bookmarks_search
   get "bookmarks/tagged_with/:tags", controller: :bookmarks, action: :tagged_with, as: :bookmarks_tagged_with
+
+  # a trivially small success page which expects to be closed immediately
+  # by the plugin
+  get "bookmarks/success", controller: :bookmarks, action: :success, as: :bookmarks_success
+
   resources :bookmarks do
     member do
       put "archive"

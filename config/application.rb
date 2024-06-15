@@ -33,5 +33,8 @@ module BackupBrain
 
     # Don't generate system test files.
     config.generators.system_tests = nil
+
+    # let folks add backupbrain to their /etc/hosts file
+    config.hosts << 'backupbrain'
   end
 end

@@ -92,3 +92,7 @@ h1 {
 	font-size: 0.8rem;
 	color: #aaa;
 }
+/* misc */
+.giant-emoji {
+	font-size: 10rem;
+}
