@@ -17,7 +17,7 @@ class BookmarksController < ApplicationController
     render :index
   end
 
-  def toread
+  def to_read
     @pagy, @bookmarks = pagify(Bookmark.where(to_read: true).order_by([[:created_at, :desc]]))
     render :index
   end

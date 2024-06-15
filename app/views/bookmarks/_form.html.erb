@@ -37,6 +37,7 @@
         <%= form.text_field :tags, class: 'bookmark-input-field' %>
       </div>
     </div>
+
     <div class="row">
       <div class="col-2">
         <%= form.label :private,
@@ -47,7 +48,7 @@
       </div>
       <div class="col-1 form-check form-switch">
         <%= form.check_box :private,
-            class: 'bookmark-checkbox-field form-check-input',
+            class: 'bookmark-checkbox-field form-check-input toggle',
             role: "switch",
             id: "privacySwitch",
             checked: bookmark.private?
@@ -55,6 +56,23 @@
       </div>
     </div>
 
+    <div class="row">
+      <div class="col-2">
+        <%= form.label :to_read,
+            style: "display: block",
+            class: "form-check-label",
+            for: "privacySwitch"
+            %>
+      </div>
+      <div class="col-1 form-check form-switch">
+        <%= form.check_box :to_read,
+            class: 'bookmark-checkbox-field form-check-input toggle',
+            role: "switch",
+            id: "toReadSwitch",
+            checked: bookmark.to_read?
+            %>
+      </div>
+    </div>
     <div class="row">
       <div class="col ">
         <%= form.submit class: "btn btn-primary" %>
