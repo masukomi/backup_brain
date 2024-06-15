@@ -2,6 +2,7 @@ class BookmarksController < ApplicationController
   before_action :set_bookmark, only: %i[show edit update archive destroy]
   before_action :set_limit, only: %i[index tagged_with search]
   before_action :set_page, only: %i[index tagged_with search]
+  before_action :set_closeable, only: %i[new edit create update show]
 
   # GET /bookmarks or /bookmarks.json
   def index
@@ -63,8 +64,11 @@ class BookmarksController < ApplicationController
       redirect_to edit_bookmark_url(@bookmark)
       return
     end
+    url = params[:url].strip if params[:url].present?
+    title = params[:title].strip if params[:title].present?
+    description = params[:description].strip if params[:description].present?
 
-    @bookmark = Bookmark.new
+    @bookmark = Bookmark.new(url: url, title: title, description: description)
   end
 
   # GET /bookmarks/1/edit
@@ -146,5 +150,13 @@ class BookmarksController < ApplicationController
 
   def pagify_search(count, page = @page, limit = @limit)
     Pagy.new(count: count, page: page, items: limit)
+  end
+
+  # Indicates if the resulting window should close itself.
+  def set_closeable
+    # closeable comes in via new & edit,
+    # then gets passed along to create and update
+    # and finally to show, where the view will invoke it
+    @closeable = params[:closeable].present?
   end
 end
