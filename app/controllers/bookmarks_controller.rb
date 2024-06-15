@@ -1,7 +1,7 @@
 class BookmarksController < ApplicationController
   before_action :set_bookmark, only: %i[show edit update archive destroy]
-  before_action :set_limit, only: %i[index tagged_with search]
-  before_action :set_page, only: %i[index tagged_with search]
+  before_action :set_limit, only: %i[index tagged_with search unarchived to_read]
+  before_action :set_page, only: %i[index tagged_with search unarchived to_read]
   before_action :set_closeable, only: %i[new edit create update show]
 
   # GET /bookmarks or /bookmarks.json
