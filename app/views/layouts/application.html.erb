@@ -65,12 +65,20 @@
       </div>
     <% end %>
 
-    <%= yield %>
-
+    <div class="container" id="body-sections">
+      <div class="row">
+        <div class="col-8" id="main-body">
+          <%= yield %>
+        </div>
+        <div class="col" id="side-navigation">
+          <%= render partial: 'shared/side_navigation' %>
+        </div>
+      </div>
+    </div>
     <!-- FOOTER -->
-    <div id="footer" class="container non-essential">
+    <div class="container non-essential">
         <div class="row">
-            <div class="col">
+            <div id="footer" class="col">
               <a href="https://github.com/masukomi/backup_brain/"><%=t('navigation.source_link')%></a>
             </div>
         </div>

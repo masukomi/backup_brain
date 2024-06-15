@@ -1,5 +1,7 @@
 /* General look */
-
+body {
+	color: #484337;
+}
 h1 {
 	font-size: 2rem;
 	max-height: 2rem;
@@ -35,8 +37,25 @@ h1 {
     min-height: 2rem;
 	font-weight: bold;
 }
+/* the only "a" tag is the one that goes home */
 #navigation > div > a {
-	color: black;
+	color: #484337;
+	text-decoration: none;
+}
+
+#side-navigation {
+	border-left: dashed 1px #ccc;
+	padding-left: 0px;
+}
+#side-nav-items {
+	list-style-type: none;
+	padding-left: 0px;
+}
+#side-nav-items > li {
+	font-weight: bold;
+}
+#side-nav-items > li > a {
+	color: #484337;
 	text-decoration: none;
 }
 /* Search */
@@ -96,4 +115,11 @@ h1 {
 /* misc */
 .giant-emoji {
 	font-size: 10rem;
+}
+
+/* footer */
+#footer {
+	background: aliceblue;
+	justify-content: center;
+	display: flex;
 }

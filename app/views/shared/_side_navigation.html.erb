@@ -1,0 +1,14 @@
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <ul id="side-nav-items">
+        <!-- if not logged in  login li -->
+        <li><%= link_to t('bookmarks.add'), new_bookmark_path %>
+        </li>
+        <li><%= link_to t('navigation.to_read_link'), bookmarks_toread_path %></li>
+        <li><%= link_to t('navigation.unarchived_link'), bookmarks_unarchived_path %></li>
+        <!-- if logged in logout li -->
+      </ul>
+    </div>
+  </div>
+</div>

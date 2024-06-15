@@ -9,6 +9,19 @@ class BookmarksController < ApplicationController
     @pagy, @bookmarks = pagify(Bookmark.all.order_by([[:created_at, :desc]]))
   end
 
+  def unarchived
+    query = Bookmark
+      .or({:archives.exists => false}, {archives: {"$size": 0}})
+      .order_by([[:created_at, :desc]])
+    @pagy, @bookmarks = pagify(query)
+    render :index
+  end
+
+  def toread
+    @pagy, @bookmarks = pagify(Bookmark.where(to_read: true).order_by([[:created_at, :desc]]))
+    render :index
+  end
+
   def tagged_with
     @tags = params[:tags].split(",")
     @pagy, @bookmarks = pagify(

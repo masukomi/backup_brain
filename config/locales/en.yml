@@ -51,6 +51,8 @@ en:
     home_icon_alt: "A logo of a brain with an arrow pointing to a cloud. Click me to go home."
     home_icon_title: "Click me to go home."
     source_link: "Source Code & Issues"
+    to_read_link: "To Read"
+    unarchived_link: "Unarchived"
   search:
     missing_query: "You gotta give me something to work with here. 🤦‍♀️"
     placeholder: "Search…"
@@ -62,7 +64,7 @@ en:
   bookmarks:
     heading: "Bookmarks"
     edit_heading: "Editing Bookmark"
-    new_heading: "Create Bookmark"
+    new_heading: "Add A Bookmark"
     edit: "edit"
     delete: "delete"
     archives_list_heading: "Recorded Archives"
@@ -73,7 +75,7 @@ en:
     view_archive_title: "archived on: %{archive_date}"
     archive_now: "create a new archive"
     update_success: "Successfully Updated"
-    add: "Add a Bookmark"
+    add: "Add a Bookmark…"
     list_link: "Show All Bookmarks"
     counter: "(%{formatted_count} and counting…)"
     private_hint: "Shhh…"
