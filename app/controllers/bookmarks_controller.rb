@@ -18,7 +18,9 @@ class BookmarksController < ApplicationController
   end
 
   def to_read
-    @pagy, @bookmarks = pagify(Bookmark.where(to_read: true).order_by([[:created_at, :desc]]))
+    query = Bookmark.where(to_read: true)
+      .order_by([[:created_at, :desc]])
+    @pagy, @bookmarks = pagify(query)
     render :index
   end
 
@@ -105,8 +107,13 @@ class BookmarksController < ApplicationController
 
   # PATCH/PUT
   def archive
-    bookmark.generate_archive
-    redirect_to root_path
+    if @bookmark.generate_archive
+      flash[:notice] = t("bookmarks.archiving_success")
+      redirect_to bookmark_url(@bookmark)
+    else
+      flash[:error] = t("bookmarks.archiving_error")
+      redirect_back
+    end
   end
 
   # PATCH/PUT /bookmarks/1 or /bookmarks/1.json

@@ -8,6 +8,7 @@ Rails.application.routes.draw do
   # a trivially small success page which expects to be closed immediately
   # by the plugin
   get "bookmarks/success", controller: :bookmarks, action: :success, as: :bookmarks_success
+  get "bookmarks/:id/archive", controller: :bookmarks, action: :archive, as: :bookmarks_archive, via: [:post, :put]
 
   resources :bookmarks do
     member do

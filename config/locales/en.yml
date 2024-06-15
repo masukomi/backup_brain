@@ -80,6 +80,8 @@ en:
     counter: "(%{formatted_count} and counting…)"
     private_hint: "Shhh…"
     create_existing_warning: "⚠️ You've already got a bookmark for that."
+    archiving_error: "A problem was encountered while trying to archive that."
+    archiving_success: "Archive successfully created."
   misc:
     missing_alt_text: 'missing alt text. please file a bug'
     app_name: "Backup Brain"
