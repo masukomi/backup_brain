@@ -75,7 +75,7 @@ en:
     update_success: "Successfully Updated"
     add: "Add a Bookmark"
     list_link: "Show All Bookmarks"
-    counter: "%{formatted_count} and counting…"
+    counter: "(%{formatted_count} and counting…)"
     private_hint: "Shhh…"
     create_existing_warning: "⚠️ You've already got a bookmark for that."
   misc:

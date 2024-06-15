@@ -83,6 +83,7 @@ h1 {
 .bookmark-count {
 	font-style: italic;
 	font-size: 0.8rem;
+	color: slategray;
 }
 .private-bookmark {
 	background-color: #ffecc5;
