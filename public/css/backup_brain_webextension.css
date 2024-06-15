@@ -1,0 +1,7 @@
+/* CSS Tweaks & overrides*/
+/* to support minimal layouts*/
+/* for use in plugin windows. */
+
+.non-essential {
+    display: none;
+}

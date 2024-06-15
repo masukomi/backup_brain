@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>BackupBrain</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "/css/bootstrap.css" %>
+    <%= stylesheet_link_tag "/css/bootstrap-grid.css" %>
+    <%= stylesheet_link_tag "/css/bootstrap-reboot.css" %>
+    <%= stylesheet_link_tag "/css/bootstrap-utilities.css" %>
+    <%= stylesheet_link_tag "/css/bootstrap.rtl.css" %>
+    <%= stylesheet_link_tag "/css/timeline.css" %>
+    <%= stylesheet_link_tag "/css/bootstrap_docs.css" %>
+    <%= stylesheet_link_tag "/css/backup_brain.css" %>
+    <%= stylesheet_link_tag "/css/backup_brain_webextension.css" %>
+    <%= javascript_include_tag "/js/popper.min.js" %>
+    <%= javascript_include_tag "/js/jquery-3.0.0.slim.min.js" %>
+    <%= javascript_include_tag "/js/bootstrap.js" %>
+    <%= javascript_importmap_tags %>
+    <script type="text/javascript">
+
+        $(function () {
+            $('[data-toggle="popover"]').popover()
+        })
+        // $('.popover-dismiss').popover({
+        // 	trigger: 'focus'
+        // })
+    </script>
+  </head>
+
+  <body>
+        <div class="container" id="header">
+          <div class="row" id="navigation">
+              <div class="col-4 home-link-col">
+                <%= icon_link("logo", root_path,
+                    link_css: "home-nav-icon",
+                    alt: t('navigation.home_icon_alt'),
+                    title: t('navigation.home_icon_title'),
+                    text: t('misc.app_name')
+                    )%>
+
+              </div>
+          </div>
+      </div>
+
+    <% flash.each do |type, msg| %>
+      <div class="alert alert-info">
+        <%= msg %>
+      </div>
+    <% end %>
+
+    <%= yield %>
+
+    <!-- FOOTER -->
+    <div id="footer" class="container">
+        <div class="row">
+            <div class="col">
+              <a href="https://github.com/masukomi/backup_brain/"><%=t('navigation.source_link')%></a>
+            </div>
+        </div>
+    </div>
+  </body>
+</html>
