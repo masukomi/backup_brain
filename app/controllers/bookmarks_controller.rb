@@ -3,6 +3,7 @@ class BookmarksController < ApplicationController
   before_action :set_limit, only: %i[index tagged_with search unarchived to_read]
   before_action :set_page, only: %i[index tagged_with search unarchived to_read]
   before_action :set_closeable, only: %i[new edit create update show]
+  before_action :set_total_bookmarks, only: %i[index unarchived to_read tagged_with search]
 
   # GET /bookmarks or /bookmarks.json
   def index
@@ -67,6 +68,12 @@ class BookmarksController < ApplicationController
   # GET /bookmarks/1 or /bookmarks/1.json
   def show
     # display with the most recent archive
+    # TODO: handle the archive_id parameter
+    @archive = if params[:archive_id].blank?
+      @bookmark.latest_archive("text/markdown")
+    else
+      @bookmark.archives.where(_id: params[:archive_id])
+    end
   end
 
   # GET /bookmarks/new
@@ -92,7 +99,7 @@ class BookmarksController < ApplicationController
 
   # POST /bookmarks or /bookmarks.json
   def create
-    @bookmark = Bookmark.new(bookmark_params)
+    @bookmark = Bookmark.new(split_tag_params)
 
     respond_to do |format|
       if @bookmark.save
@@ -120,8 +127,7 @@ class BookmarksController < ApplicationController
   def update
     respond_to do |format|
       # FIXME: there's got to be a better way to do this  --------------vvv
-      with_split_tags = bookmark_params.merge({tags: bookmark_params[:tags].split(/\s+/)})
-      if @bookmark.update(with_split_tags)
+      if @bookmark.update(split_tag_params)
         format.html {
           flash[:notice] = t("bookmarks.update_success")
           if @closeable.present?
@@ -164,6 +170,11 @@ class BookmarksController < ApplicationController
     params.require(:bookmark).permit(:title, :url, :description, :tags, :private, :to_read)
   end
 
+  def split_tag_params
+    tags = params[:tags].present? ? params[:tags].split(/\s+/) : []
+    bookmark_params.merge({tags: tags})
+  end
+
   def set_limit
     @limit = params[:limit].present? ? params[:limit].to_i : Pagy::DEFAULT[:items]
   end
@@ -190,5 +201,9 @@ class BookmarksController < ApplicationController
     # then gets passed along to create and update
     # and finally to show, where the view will invoke it
     @closeable = params[:closeable].present? ? params[:closable] == "true" : false
+  end
+
+  def set_total_bookmarks
+    @total_bookmarks = Bookmark.count
   end
 end

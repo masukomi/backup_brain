@@ -2,40 +2,52 @@
   <div class="row">
     <div class="col-9">
       <h2><%= link_to(t("bookmarks.heading"), bookmarks_path) %></h2>
-      <span class="bookmark-count">
-      <%= t('bookmarks.counter',
-            formatted_count: number_with_delimiter(
-                              @pagy.count || @bookmarks.count,
-                              delimiter: t('number.format.delimiter')
-            )
-          ) %>
-      </span>
+      <% if @total_bookmarks != 0 %>
+        <span class="bookmark-count">
+        <%= t('bookmarks.counter',
+              formatted_count: number_with_delimiter(
+                                @pagy.count || @bookmarks.count,
+                                delimiter: t('number.format.delimiter')
+              )
+            ) %>
+        </span>
+      <% end %>
     </div>
   </div>
 </div>
 
 
+<% if @total_bookmarks == 0 %>
+  <div class="container" id="bookmarks">
+    <div class="row">
+      <div class="col">
+        <%==t('bookmarks.none_message') %>
+      </div>
+    </div>
+  </div>
+<% else %>
+  <div class="container" id="bookmarks">
+    <% if ! @pagy.nil? && @pagy.count > (@pagy.items * @pagy.page) %>
+      <div class="row">
+        <div class="col">
+          <%= render partial: 'pagy/bookmark_db_results', locals: {pagy: @pagy} %>
+        </div>
+      </div>
+    <% end %>
+    <% @bookmarks.each do |bookmark| %>
+      <div class="row">
+        <div class="col">
+          <%= render bookmark %>
+        </div>
+      </div>
+    <% end %>
+    <% if ! @pagy.nil? && @pagy.count > (@pagy.items * @pagy.page) %>
+      <div class="row">
+        <div class="col">
+          <%= render partial: 'pagy/bookmark_db_results', locals: {pagy: @pagy} %>
+        </div>
+      </div>
+    <% end %>
+  </div>
 
-<div class="container" id="bookmarks">
-  <% if ! @pagy.nil? && @pagy.count > (@pagy.items * @pagy.page) %>
-    <div class="row">
-      <div class="col">
-        <%= render partial: 'pagy/bookmark_db_results', locals: {pagy: @pagy} %>
-      </div>
-    </div>
-  <% end %>
-  <% @bookmarks.each do |bookmark| %>
-    <div class="row">
-      <div class="col">
-        <%= render bookmark %>
-      </div>
-    </div>
-  <% end %>
-  <% if ! @pagy.nil? && @pagy.count > (@pagy.items * @pagy.page) %>
-    <div class="row">
-      <div class="col">
-        <%= render partial: 'pagy/bookmark_db_results', locals: {pagy: @pagy} %>
-      </div>
-    </div>
-  <% end %>
-</div>
+<% end %>

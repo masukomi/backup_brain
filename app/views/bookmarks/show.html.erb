@@ -1,17 +1,10 @@
 <div class="container">
-  <% archive = nil
-    if ! params[:archive_id].present?
-      archive = @bookmark.latest_archive('text/markdown')
-    else
-      archive = @bookmark.archives.where(:_id => params[:archive_id])
-    end
-  %>
 
-  <% if ! archive.nil?  %>
+  <% if @archive.present?  %>
   <div class="row">
     <div class="col">
       <div><%=t('bookmarks.archived_date_message',
-                   archive_date: I18n.l(archive.created_at.to_date, format: :default)
+                   archive_date: I18n.l(@archive.created_at.to_date, format: :default)
                 ) %></div>
 
       <hr />
@@ -21,7 +14,7 @@
       <div class="col">
         <%#TODO deal with rendering archives that might not be markdown %>
         <%= render partial: 'bookmark_md_archive',
-            locals: {archive: archive} %>
+            locals: {archive: @archive} %>
       </div>
     </div>
   <% else %>
@@ -33,27 +26,41 @@
   <% end %>
 </div>
 
-<hr />
-<div class="container">
-  <div class="row">
-    <div class="col">
-      <%= link_to "Edit this bookmark", edit_bookmark_path(@bookmark) %> |
-      <%= link_to "Back to bookmarks", bookmarks_path %>
-
-      <%= button_to "Destroy this bookmark", @bookmark, method: :delete %>
+<% content_for :sidebar do %>
+  <%= render partial: 'shared/sidebar_page_actions_top' %>
+  <div class="container">
+    <div class="row">
+      <div class="col">
+         <%= link_to t('bookmarks.edit_this_link'), edit_bookmark_path(@bookmark),
+             class: 'btn btn-primary compact-button' %>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <div class="safe-space">
+          <%= button_to "Destroy this bookmark", @bookmark,
+              method: :delete ,
+              class: 'btn btn-danger compact-button'%>
+        </div>
+      </div>
+    </div>
+    <!-- archives list -->
+    <div class="row">
+      <div class="col">
+        <em><%= t("bookmarks.archives_list_heading") %></em>
+        <ul id="bookmark-archives-listing">
+          <% @bookmark.sorted_archives.each do | an_archive |
+             current = (an_archive.id == @archive&.id)
+             %>
+            <li class="<%= current ? 'current-archive-item' : '' %>">
+              <%= show_archive_link(an_archive) %>
+            </li>
+          <% end %>
+        </ul>
+      </div>
     </div>
   </div>
-</div>
+<% end %>
 
 <div class="container">
-  <div class="row">
-    <div class="col">
-      <h3><%= t("bookmarks.archives_list_heading") %></h3>
-      <ul id="bookmark-archives-listing">
-        <% @bookmark.sorted_archives.each do | archive | %>
-          <li><%= show_archive_link(archive) %></li>
-        <% end %>
-      </ul>
-    </div>
-  </div>
 </div>

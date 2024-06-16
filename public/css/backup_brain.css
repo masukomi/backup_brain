@@ -82,6 +82,12 @@ h1 {
 
 .archive-link-icon {
 }
+.current-archive-item{
+	font-weight: bold;
+}
+.current-archive-item > a::before {
+	content: "▶ ";
+}
 .edit-link-icon {
 }
 .delete-link-icon {
@@ -150,4 +156,8 @@ h1 {
 /* misc */
 .giant-emoji {
 	font-size: 10rem;
+}
+.safe-space{
+	margin-top: 2rem;
+	margin-bottom: 2rem;
 }

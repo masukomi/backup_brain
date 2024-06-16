@@ -66,8 +66,9 @@ en:
     edit_heading: "Editing Bookmark"
     new_heading: "Add A Bookmark"
     edit: "edit"
+    edit_this_link: "Edit This Bookmark…"
     delete: "delete"
-    archives_list_heading: "Recorded Archives"
+    archives_list_heading: "Recorded Archives:"
     no_tags_message: "No tags"
     archived_date_message: "Archived on %{archive_date}"
     view_archive_alt_text: "View archived copy"
@@ -75,6 +76,7 @@ en:
     view_archive_title: "archived on: %{archive_date}"
     archive_now: "create a new archive"
     update_success: "Successfully Updated"
+    creation_success: "Successfully Created"
     add: "Add a Bookmark…"
     list_link: "Show All Bookmarks"
     counter: "(%{formatted_count} and counting…)"
@@ -82,6 +84,15 @@ en:
     create_existing_warning: "⚠️ You've already got a bookmark for that."
     archiving_error: "A problem was encountered while trying to archive that."
     archiving_success: "Archive successfully created."
+    none_message: "
+        <h4>You poor thing. You've got no bookmarks!</h4>
+        <p>Go click the \"Add a bookmark\" link on the right
+        to add your first one. </p>
+        <p>You can find links to the browser extensions in
+        the footer, and instructions on how to import
+        from Pinboard.in on our site <a href='https://BackupBrain.app'>BackupBrain.app</a>
+        </p>
+        "
   misc:
     missing_alt_text: 'missing alt text. please file a bug'
     app_name: "Backup Brain"
@@ -92,6 +103,8 @@ en:
         chrome_icon_alt: "Chrome logo"
         safari_link: "Coming even less soon"
         safari_icon_alt: "Safari logo"
+  sidebar:
+      page_actions_header: "Page Actions…"
   pagination:
     next: "Next 〉"
     aria_next: "next"
