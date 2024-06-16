@@ -76,10 +76,38 @@
       </div>
     </div>
     <!-- FOOTER -->
-    <div class="container non-essential">
+    <div class="container non-essential" id="footer">
         <div class="row">
-            <div id="footer" class="col">
+            <div class="col">
               <a href="https://github.com/masukomi/backup_brain/"><%=t('navigation.source_link')%></a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col extension-links">
+                <span class="extension-link-container">
+                <%= icon_link("external/firefox", '#',
+                    link_css: "extension-link",
+                    icon_css: "extension-link",
+                    alt: t('misc.browser_extensions.firefox_icon_alt'),
+                    title: t('misc.browser_extensions.firefox_link')
+                    )%>
+                </span>
+                <span class="extension-link-container">
+                <%= icon_link("external/chrome", '#',
+                    link_css: "extension-link",
+                    icon_css: "extension-link",
+                    alt: t('misc.browser_extensions.chrome_icon_alt'),
+                    title: t('misc.browser_extensions.chrome_link')
+                    )%>
+                </span>
+                <span class="extension-link-container">
+                <%= icon_link("external/safari", '#',
+                    link_css: "extension-link",
+                    icon_css: "extension-link",
+                    alt: t('misc.browser_extensions.safari_icon_alt'),
+                    title: t('misc.browser_extensions.safari_link')
+                    )%>
+                </span>
             </div>
         </div>
     </div>

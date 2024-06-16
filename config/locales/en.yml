@@ -85,6 +85,13 @@ en:
   misc:
     missing_alt_text: 'missing alt text. please file a bug'
     app_name: "Backup Brain"
+    browser_extensions:
+        firefox_link: "Coming Soon"
+        firefox_icon_alt: "Firefox logo"
+        chrome_link: "Coming less soon"
+        chrome_icon_alt: "Chrome logo"
+        safari_link: "Coming even less soon"
+        safari_icon_alt: "Safari logo"
   pagination:
     next: "Next 〉"
     aria_next: "next"
