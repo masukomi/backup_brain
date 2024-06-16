@@ -1,4 +1,4 @@
-<h2>Sign up</h2>
+<header><%= t('accounts.create_account_header') %></header>
 
 <%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
   <%= render "devise/shared/error_messages", resource: resource %>
@@ -21,8 +21,8 @@
     <%= f.password_field :password_confirmation, autocomplete: "new-password" %>
   </div>
 
-  <div class="actions">
-    <%= f.submit "Sign up" %>
+  <div class="actions safe-space">
+    <%= f.submit "Sign up", class: "btn btn-primary" %>
   </div>
 <% end %>
 

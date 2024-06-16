@@ -105,6 +105,14 @@ en:
         safari_icon_alt: "Safari logo"
   sidebar:
       page_actions_header: "Page Actions…"
+  accounts:
+    create_account_header: "Create An Account"
+    links:
+      edit_account: "Edit Account"
+      sign_in: "Sign In"
+      sign_out: "Sign Out"
+      sign_up: "Sign Up"
+
   pagination:
     next: "Next 〉"
     aria_next: "next"

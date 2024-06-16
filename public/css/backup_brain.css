@@ -7,6 +7,10 @@ h1 {
 	max-height: 2rem;
 	margin-bottom: 1.5rem;
 }
+header {
+	font-size: 120%;
+	font-weight: bold;
+}
 .inline-icon{
 	max-height: inherit;
 	padding-right: 0.25rem;

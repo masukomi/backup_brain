@@ -23,6 +23,8 @@ class Bookmark
 
   embeds_many :archives
 
+  belongs_to :user
+
   validates :title, presence: true
   validates :url, presence: true
   validates :url, uniqueness: true
