@@ -2,6 +2,7 @@ class User
   include Mongoid::Document
   include Mongoid::Timestamps
 
+  before_create :there_can_be_only_one
   has_many :bookmarks, dependent: :destroy
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
@@ -40,4 +41,13 @@ class User
   # field :failed_attempts, type: Integer, default: 0 # Only if lock strategy is :failed_attempts
   # field :unlock_token,    type: String # Only if unlock strategy is :email or :both
   # field :locked_at,       type: Time
+
+  protected
+
+  def there_can_be_only_one
+    if User.count > 1
+      errors.add(:email, t("accounts.only_one_user_allowed"))
+      throw(:abort)
+    end
+  end
 end

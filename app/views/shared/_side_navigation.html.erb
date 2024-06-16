@@ -12,7 +12,7 @@
 
         <% if current_user %>
           <!--<li><%#= link_to t('accounts.links.edit_account'), edit_user_registration_path, class: "nav-link" %><li>-->
-          <li><%= button_to t('accounts.links.sign_out'), destroy_user_session_path, method: :delete, class: "btn btn-small btn-primary mx-2" %></li>
+          <li><%= button_to t('accounts.links.sign_out'), destroy_user_session_path, method: :delete, class: "btn btn-small btn-primary mx-2 compact-button safe-space" %></li>
         <% elsif @user_count > 0 %>
           <li><%= link_to t('accounts.links.sign_in'), new_user_session_path, class: "nav-link"  %></li>
         <% else %>

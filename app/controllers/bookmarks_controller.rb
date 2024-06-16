@@ -1,4 +1,11 @@
 class BookmarksController < ApplicationController
+  # ⚠ WARNING TO FUTUTRE HACKERS
+  # The user privacy stuff in here is based on the idea that
+  # there will only be one user.
+  # It is guaranteed to expose private data if
+  # you allow multiple accounts to be created.
+  # Don't do that. This is a single-user instance.
+
   before_action :set_bookmark, only: %i[show edit update archive destroy]
   before_action :set_limit, only: %i[index tagged_with search unarchived to_read]
   before_action :set_page, only: %i[index tagged_with search unarchived to_read]
@@ -7,13 +14,16 @@ class BookmarksController < ApplicationController
 
   # GET /bookmarks or /bookmarks.json
   def index
-    @pagy, @bookmarks = pagify(Bookmark.all.order_by([[:created_at, :desc]]))
+    query = privatize(Bookmark.all.order_by([[:created_at, :desc]]))
+
+    @pagy, @bookmarks = pagify(query)
   end
 
   def unarchived
     query = Bookmark
       .or({:archives.exists => false}, {archives: {"$size": 0}})
       .order_by([[:created_at, :desc]])
+    query = privatize(query)
     @pagy, @bookmarks = pagify(query)
     render :index
   end
@@ -21,6 +31,7 @@ class BookmarksController < ApplicationController
   def to_read
     query = Bookmark.where(to_read: true)
       .order_by([[:created_at, :desc]])
+    query = privatize(query)
     @pagy, @bookmarks = pagify(query)
     render :index
   end
@@ -28,8 +39,8 @@ class BookmarksController < ApplicationController
   def tagged_with
     @tags = params[:tags].split(",")
     @pagy, @bookmarks = pagify(
-      Bookmark.where(tags: {"$in" => @tags})
-        .order_by([[:created_at, :desc]]),
+      privatize(Bookmark.where(tags: {"$in" => @tags})
+        .order_by([[:created_at, :desc]])),
       items: @limit
     )
     render :index
@@ -163,6 +174,11 @@ class BookmarksController < ApplicationController
   # Use callbacks to share common setup or constraints between actions.
   def set_bookmark
     @bookmark = Bookmark.find(params[:id])
+    if @bookmark.user != current_user
+      @bookmark = nil
+      flash[:error] = t("accounts.access_denied")
+      redirect_to bookmarks_url
+    end
   end
 
   # Only allow a list of trusted parameters through.
@@ -205,5 +221,9 @@ class BookmarksController < ApplicationController
 
   def set_total_bookmarks
     @total_bookmarks = Bookmark.count
+  end
+
+  def privatize(query)
+    current_user.present? ? query : query.where(private: false)
   end
 end

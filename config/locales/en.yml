@@ -107,6 +107,8 @@ en:
       page_actions_header: "Page Actions…"
   accounts:
     create_account_header: "Create An Account"
+    access_denied: "Access Denied. You must be signed in to view that."
+    only_one_user_allowed: "⚠ This is a single user instance, and there's already one user."
     links:
       edit_account: "Edit Account"
       sign_in: "Sign In"
