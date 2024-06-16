@@ -54,6 +54,9 @@ gem "mongodb_meilisearch"
 gem "pagy", "~> 6.0"
 gem "mongoid-pagination"
 gem "dotenv-rails"
+gem "devise"
+gem "omniauth-apple" # https://github.com/nhosoya/omniauth-apple
+
 gem "gemoji"
 
 gem "whirly" # spinner for rake tasks
