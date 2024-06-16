@@ -6,6 +6,32 @@ else
   ps -AH S | grep meili | grep -v 'grep' > /dev/null
 fi
 
+hostname=$(cat .env | grep HOST_NAME | sed -e "s/HOST_NAME=//" -e "s/#.*//")
+if [ -z "$hostname" ]; then
+  echo "HOST_NAME is not set"
+  echo "Set it in the .env file"
+  echo "By default you probably want to set it to 'localhost'"
+  echo "ex: HOST_NAME=localhost"
+  echo "Check the README ways to give it a better name."
+  exit 78 # EX_CONFIG (78)  Something was found in an unconfigured or misconfigured state.
+else
+  echo "HOST_NAME is set to \"$hostname\""
+  echo "If this is not correct please update the .env file"
+  echo "It will effect your ability to log in."
+fi
+port=$(cat .env | grep PORT | sed -e "s/PORT=//" -e "s/#.*//")
+if [ -z "$port" ]; then
+  echo "PORT is not set"
+  echo "Set it in the .env file"
+  echo "By default you probably want to set it to 3334"
+  echo "ex: PORT=3334"
+  echo "Lots of development tools use 3000, so this won't interfere with them."
+  exit 78 # EX_CONFIG (78)  Something was found in an unconfigured or misconfigured state.
+else
+  echo "PORT is set to \"$hostname\""
+  echo "If this is not correct please update the .env file"
+fi
+
 if [ $? -ne 0 ]; then
   echo "booting meilisearch too..."
   api_key=$(cat .env | grep MEILISEARCH_API_KEY | sed -e "s/MEILISEARCH_API_KEY=//")
