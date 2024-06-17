@@ -5,9 +5,9 @@
       <div class="row">
         <div class="col">
           <% if bookmark.domain.present? %>
-            <img class="favicon" src="http://www.google.com/s2/favicons?domain=<% bookmark.domain %>" />
+            <img class="favicon" src="http://www.google.com/s2/favicons?sz=64&domain=<%= bookmark.domain %>" />
           <% else %>
-            <%= inline_icon("broken_image", icon_class: "favicon") %>
+            <%= inline_icon("missing_image", icon_class: "favicon") %>
           <% end %>
           <%= link_to(bookmark.title, bookmark.url) %>
         </div>

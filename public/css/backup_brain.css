@@ -82,7 +82,8 @@ header {
 /* BOOKMARKS */
 
 .favicon {
-	max-width: 1.5rem;
+	/* px because of google's favicon api relying on pixel sizes */
+	max-height: 32px;
 	display: inline-block;
 }
 #bookmark-archives-listing {
