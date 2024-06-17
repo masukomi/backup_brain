@@ -45,8 +45,8 @@ class User
   protected
 
   def there_can_be_only_one
-    if User.count > 1
-      errors.add(:email, t("accounts.only_one_user_allowed"))
+    if User.count > 0
+      errors.add(:email, I18n.t("accounts.only_one_user_allowed"))
       throw(:abort)
     end
   end
