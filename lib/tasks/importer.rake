@@ -1,10 +1,16 @@
 require "json"
 require "paint"
 require "whirly"
-
 namespace :importer do
   desc "Import JSON exported bookmarks from Pinboard.in"
   task :pinboard_import, [:path, :start_at] => :environment do |t, args|
+    # rubocop:disable Lint/ConstantDefinitionInBlock
+    # because rake sucks. grr
+    class LocalArchiveTools
+      extend BackupBrain::ArchiveTools
+    end
+    # rubocop:enable Lint/ConstantDefinitionInBlock
+
     # Check if the file path is provided
     # If not, print the usage and exit
     if !args[:path]
@@ -47,8 +53,8 @@ namespace :importer do
         # Create a new Bookmark object with the data from the hash
         begin
           existing_bookmark = Bookmark.where(url: bookmark_data["href"]).first
-          if !existing_bookmark
-            unless BackupBrain::ArchiveTools.url_potentially_good?(bookmark_data["href"])
+          if existing_bookmark.nil?
+            unless LocalArchiveTools.url_potentially_good?(bookmark_data["href"])
               skipped += 1
               Whirly.status = Paint["skipping #{sprintf("%7d", counter)}: #{bookmark_data["href"]}", :yellow]
               next
