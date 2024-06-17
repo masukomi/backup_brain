@@ -1,11 +1,9 @@
   <% if thing.errors.any? %>
     <div class="row">
       <div class="col" style="color: red">
-        <h2>
-		  <%= I18n.t("generic.errors.num_errors_prevented_save",
-			  pluralize(thing.errors.count, "error"),
-			  thing.class.name.humanize
-			  ) %>
+		  <%= t("misc.errors.num_errors_prevented_save",
+          number: pluralize(thing.errors.count, "error"),
+          thing_type: thing.class.name.humanize) %>
         <ul>
           <% thing.errors.each do |error| %>
             <li><%= error.full_message %></li>

@@ -96,6 +96,10 @@ en:
   misc:
     missing_alt_text: 'missing alt text. please file a bug'
     app_name: "Backup Brain"
+    dont_click: "No clicky!"
+    errors:
+        num_errors_prevented_save: "%{number} errors prohibited this %{thing_type} from being saved:"
+
     browser_extensions:
         firefox_link: "Coming Soon"
         firefox_icon_alt: "Firefox logo"

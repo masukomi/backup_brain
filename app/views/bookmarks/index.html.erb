@@ -1,7 +1,7 @@
 <div class="container">
   <div class="row">
     <div class="col-9">
-      <h2><%= link_to(t("bookmarks.heading"), bookmarks_path) %></h2>
+      <heading><%= link_to(t("bookmarks.heading"), bookmarks_path) %></heading>
       <% if @total_bookmarks != 0 %>
         <span class="bookmark-count">
         <%= t('bookmarks.counter',

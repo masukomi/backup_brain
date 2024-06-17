@@ -7,7 +7,7 @@ h1 {
 	max-height: 2rem;
 	margin-bottom: 1.5rem;
 }
-header {
+heading {
 	font-size: 120%;
 	font-weight: bold;
 }
@@ -176,4 +176,13 @@ header {
 .safe-space{
 	margin-top: 2rem;
 	margin-bottom: 2rem;
+}
+
+debugging{
+	border: solid 2px red;
+	background: #ff6e67;
+
+}
+debugging::before{
+	content: "🐞(debugging)";
 }

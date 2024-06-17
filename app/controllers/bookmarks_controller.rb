@@ -11,6 +11,7 @@ class BookmarksController < ApplicationController
   before_action :set_page, only: %i[index tagged_with search unarchived to_read]
   before_action :set_closeable, only: %i[new edit create update show]
   before_action :set_total_bookmarks, only: %i[index unarchived to_read tagged_with search]
+  before_action :authenticate_user!, only: %i[new create update destroy]
 
   # GET /bookmarks or /bookmarks.json
   def index
@@ -69,7 +70,7 @@ class BookmarksController < ApplicationController
     }
 
     # if we were searching for _any_ record we'd use `filtered_by_class: false`
-    raw_results = Bookmark.search(@query, options: options, filtered_by_class: true)
+    raw_results = privatize(Bookmark.search(@query, options: options, filtered_by_class: true))
     @pagy = pagify_search(raw_results["search_result_metadata"]["nbHits"])
     @bookmarks = raw_results["matches"]
 
@@ -94,7 +95,7 @@ class BookmarksController < ApplicationController
     end
     if @bookmark.present?
       flash[:notice] = t("bookmarks.create_existing_warning")
-      redirect_to edit_bookmark_url(@bookmark)
+      redirect_to edit_bookmark_url(@bookmark, layout: @layout, closeable: @closeable)
       return
     end
     url = params[:url].strip if params[:url].present?
@@ -111,10 +112,18 @@ class BookmarksController < ApplicationController
   # POST /bookmarks or /bookmarks.json
   def create
     @bookmark = Bookmark.new(split_tag_params)
+    @bookmark.user = current_user
 
     respond_to do |format|
       if @bookmark.save
-        format.html { redirect_to bookmark_url(@bookmark), notice: t("bookmarks.creation_success") }
+        format.html {
+          flash[:notice] = t("bookmarks.creation_success")
+          if @closeable.present?
+            redirect_to bookmarks_success_path(layout: @layout, closeable: @closeable)
+          else
+            redirect_to bookmark_url(@bookmark), notice: t("bookmarks.creation_success")
+          end
+        }
         format.json { render :show, status: :created, location: @bookmark }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -137,7 +146,7 @@ class BookmarksController < ApplicationController
   # PATCH/PUT /bookmarks/1 or /bookmarks/1.json
   def update
     respond_to do |format|
-      # FIXME: there's got to be a better way to do this  --------------vvv
+      # FIXME: there's got to be a better way to do this than my split_tag_params
       if @bookmark.update(split_tag_params)
         format.html {
           flash[:notice] = t("bookmarks.update_success")
@@ -174,7 +183,7 @@ class BookmarksController < ApplicationController
   # Use callbacks to share common setup or constraints between actions.
   def set_bookmark
     @bookmark = Bookmark.find(params[:id])
-    if @bookmark.user != current_user
+    if @bookmark.private? && !user_signed_in?
       @bookmark = nil
       flash[:error] = t("accounts.access_denied")
       redirect_to bookmarks_url
@@ -216,7 +225,7 @@ class BookmarksController < ApplicationController
     # closeable comes in via new & edit,
     # then gets passed along to create and update
     # and finally to show, where the view will invoke it
-    @closeable = params[:closeable].present? ? params[:closable] == "true" : false
+    @closeable = params[:closeable].present? ? params[:closeable] == "true" : false
   end
 
   def set_total_bookmarks
@@ -224,6 +233,6 @@ class BookmarksController < ApplicationController
   end
 
   def privatize(query)
-    current_user.present? ? query : query.where(private: false)
+    user_signed_in? ? query : query.where(private: false)
   end
 end
