@@ -8,6 +8,18 @@
         <li><%= link_to t('navigation.to_read_link'), bookmarks_to_read_path %></li>
         <li><%= link_to t('navigation.unarchived_link'), bookmarks_unarchived_path %></li>
         <!-- if logged in logout li -->
+
+
+        <% if current_user %>
+          <!--<li><%#= link_to t('accounts.links.edit_account'), edit_user_registration_path, class: "nav-link" %><li>-->
+          <li><%= button_to t('accounts.links.sign_out'), destroy_user_session_path, method: :delete, class: "btn btn-small btn-primary mx-2 compact-button safe-space" %></li>
+        <% elsif @user_count > 0 %>
+          <li><%= link_to t('accounts.links.sign_in'), new_user_session_path, class: "nav-link"  %></li>
+        <% else %>
+          <%# for now we're keeping this a single user app %>
+          <li><%= link_to t('accounts.links.sign_up'), new_user_registration_path, class: "nav-link"  %></li>
+        <% end %>
+
       </ul>
     </div>
   </div>

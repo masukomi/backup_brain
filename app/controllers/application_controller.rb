@@ -4,6 +4,8 @@ class ApplicationController < ActionController::Base
   layout :get_layout
 
   before_action :set_layout
+  before_action :set_user_count
+  before_action :configure_permitted_devise_params, if: :devise_controller?
 
   protected
 
@@ -17,5 +19,13 @@ class ApplicationController < ActionController::Base
 
   def set_layout
     @layout = get_layout
+  end
+
+  def set_user_count
+    @user_count = User.count
+  end
+
+  def configure_permitted_devise_params
+    devise_parameter_sanitizer.permit(:sign_up, keys: [:username])
   end
 end

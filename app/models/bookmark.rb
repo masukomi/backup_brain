@@ -16,6 +16,7 @@ class Bookmark
 
   field :title,       type: String
   field :url,         type: String
+  field :domain,      type: String
   field :description, type: String
   field :tags,        type: Array
   field :private,     type: Boolean, default: false
@@ -23,11 +24,14 @@ class Bookmark
 
   embeds_many :archives
 
+  belongs_to :user
+
   validates :title, presence: true
   validates :url, presence: true
   validates :url, uniqueness: true
 
   before_save  :emojify_default_fields
+  before_save  :set_domain
   after_create :generate_archive
 
   # enabled?() is controlled by the SEARCH_ENABLED environment variable
@@ -49,6 +53,15 @@ class Bookmark
     return nil unless has_archive?
     return sorted_archives.first if mime_type.nil?
     sorted_archives.where(mime_type: mime_type).first
+  end
+
+  def set_domain
+    return (self.domain = nil) if url.blank?
+    self.domain = begin
+      URI.parse(url).host
+    rescue
+      nil
+    end
   end
 
   def generate_archive

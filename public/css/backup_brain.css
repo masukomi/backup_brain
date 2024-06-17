@@ -7,6 +7,10 @@ h1 {
 	max-height: 2rem;
 	margin-bottom: 1.5rem;
 }
+header {
+	font-size: 120%;
+	font-weight: bold;
+}
 .inline-icon{
 	max-height: inherit;
 	padding-right: 0.25rem;
@@ -76,6 +80,11 @@ h1 {
 	margin-left: 0.25rem;
 }
 /* BOOKMARKS */
+
+.favicon {
+	max-width: 1.5rem;
+	display: inline-block;
+}
 #bookmark-archives-listing {
 	list-style-type: none;
 }
