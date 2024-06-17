@@ -69,7 +69,7 @@ en:
     edit_this_link: "Edit This Bookmark…"
     delete: "delete"
     archives_list_heading: "Recorded Archives:"
-    no_tags_message: "No tags"
+    no_tags_message: "(no tags)"
     archived_date_message: "Archived on %{archive_date}"
     view_archive_alt_text: "View archived copy"
     view_archive_link_text: "Archived"

@@ -129,6 +129,12 @@ header {
 	color: #aaa;
 }
 
+.quiet-notice {
+	font-style: italic;
+	font-size: 0.8rem;
+	color: #aaa;
+}
+
 /* footer */
 #footer > div > div {
 	background: aliceblue;
