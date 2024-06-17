@@ -28,7 +28,7 @@ if [ -z "$port" ]; then
   echo "Lots of development tools use 3000, so this won't interfere with them."
   exit 78 # EX_CONFIG (78)  Something was found in an unconfigured or misconfigured state.
 else
-  echo "PORT is set to \"$hostname\""
+  echo "PORT is set to \"$port\""
   echo "If this is not correct please update the .env file"
 fi
 
@@ -48,4 +48,4 @@ else
   echo "meilisearch is already running"
 fi
 
-bundle exec rails server -p 3334
+bundle exec rails server -p $port
