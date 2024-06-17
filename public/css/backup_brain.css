@@ -80,6 +80,11 @@ header {
 	margin-left: 0.25rem;
 }
 /* BOOKMARKS */
+
+.favicon {
+	max-width: 1.5rem;
+	display: inline-block;
+}
 #bookmark-archives-listing {
 	list-style-type: none;
 }
