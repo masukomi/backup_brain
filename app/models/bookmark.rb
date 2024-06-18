@@ -77,9 +77,9 @@ class Bookmark
       return false
     end
     if now
-      ArchiveUrlJob.perform_now(_id.to_s) # returns true / false
+      ArchiveUrlJob.perform_now(bookmark_id: _id.to_s) # returns true / false
     else
-      ArchiveUrlJob.perform_later(_id.to_s)
+      ArchiveUrlJob.perform_later(bookmark_id: _id.to_s)
       true
     end
   end
