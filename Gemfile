@@ -56,6 +56,7 @@ gem "mongoid-pagination"
 gem "dotenv-rails"
 gem "omniauth"
 gem "devise"
+gem "daemons" # used by Delayed Job
 # official Delayed Job https://github.com/collectiveidea/delayed_job MongoDB support
 gem "delayed_job_mongoid"
 # gem "delayed_job_web" # instructions here: https://github.com/ejschmitt/delayed_job_web
