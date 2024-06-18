@@ -266,6 +266,9 @@ Delayed Job handles tasks in the background for us. Before we can use it we need
 rails runner 'Delayed::Backend::Mongoid::Job.create_indexes'
 ```
 
+The `serve` script will take care of starting the appropriate number of background worker processes & killing them when it's closed. 
+
+⚠ This will kill ALL delayed job workers, even ones from other tasks. The default tool for stopping processes isn't working.
 
 ### Starting the Server
 
