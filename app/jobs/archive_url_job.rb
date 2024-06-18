@@ -27,10 +27,14 @@ class ArchiveUrlJob < ApplicationJob
 
   queue_as :low_priority # :default
 
-  # args contains
-  # bookmark
-  def perform(*bookmarks)
-    bookmark = bookmarks.first
+  def perform(bookmark_id:)
+    bookmark = begin
+      Bookmark.find(bookmark_id)
+    rescue
+      nil
+    end
+    return unless bookmark
+
     response = download(bookmark.url)
     core_content = get_core_content(response.body)
     markdown = ReverseMarkdown.convert core_content
