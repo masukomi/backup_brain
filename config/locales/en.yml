@@ -77,6 +77,7 @@ en:
     archive_now: "create a new archive"
     update_success: "Successfully Updated"
     creation_success: "Successfully Created"
+    deletion_success: "Successfully Deleted"
     add: "Add a Bookmark…"
     list_link: "Show All Bookmarks"
     counter: "(%{formatted_count} and counting…)"
