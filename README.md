@@ -226,6 +226,7 @@ Now, open that new `.env` file in your favorite text editor.  E.g. run `code .en
 ```
 HOST_NAME=localhost
 PORT=3334
+DELAYED_JOB_WORKERS=2
 SEARCH_ENABLED=true
 MEILISEARCH_API_KEY=
 MEILISEARCH_URL=http://127.0.0.1:7700
@@ -241,7 +242,7 @@ Simply add a new line to your `/etc/hosts` file. You'll have to do this as root.
 127.0.0.1	backupbrain
 ```
 
-Then replace `HOST=localhost` in your `.env` file (see above).
+Then replace `HOST_NAME=localhost` in your `.env` file (see above).
 
 After you boot the app you'll be able to visit `http://backupbrain:3334` instead of `http://localhost:3334`
 
@@ -256,6 +257,14 @@ This presumes you've got Ruby 3.x or newer installed (see above).
    The `config/mongoid.yml` controls how Rails talks to MongoDB. I've given you a default file that should "just work" _if you've got a MongoDB installation running on the same computer_. You do if you followed the instructions above. If you've installed it elsewhere I'm going to assume you know how to tweak this configuration accordingly.
 3. in console: boot the server by running `./serve`
   - This also checks if meilisearch is running, and starts it if needed.
+
+
+## Delayed Job
+Delayed Job handles tasks in the background for us. Before we can use it we need to configure a place in the database to store queued Jobs for it to work on. 
+
+``` bash
+rails runner 'Delayed::Backend::Mongoid::Job.create_indexes'
+```
 
 
 ### Starting the Server

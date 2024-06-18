@@ -36,5 +36,9 @@ module BackupBrain
 
     # let folks add backupbrain to their /etc/hosts file
     config.hosts << 'backupbrain'
+
+    # Use delayed_job for ActiveJob
+    config.active_job.queue_adapter = :delayed_job
+
   end
 end

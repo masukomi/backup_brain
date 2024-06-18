@@ -1,11 +1,7 @@
 #!/usr/bin/env bash
 
-if [[ $OSTYPE == "darwin"* ]]; then
-  ps -ax | grep meili | grep -v 'grep' > /dev/null
-else
-  ps -AH S | grep meili | grep -v 'grep' > /dev/null
-fi
 
+# Make sure you've defined a host name
 hostname=$(cat .env | grep "^HOST_NAME" | sed -e "s/HOST_NAME=//" -e "s/#.*//")
 if [ -z "$hostname" ]; then
   echo "HOST_NAME is not set"
@@ -19,6 +15,8 @@ else
   echo "If this is not correct please update the .env file"
   echo "It will effect your ability to log in."
 fi
+
+# Make sure you've defined a port (defaults in .env.sample is 3334)
 port=$(cat .env | grep "^PORT" | sed -e "s/PORT=//" -e "s/#.*//")
 if [ -z "$port" ]; then
   echo "PORT is not set"
@@ -31,7 +29,13 @@ else
   echo "PORT is set to \"$port\""
   echo "If this is not correct please update the .env file"
 fi
-
+# Test if meilisearch is running
+if [[ $OSTYPE == "darwin"* ]]; then
+  ps -ax | grep meili | grep -v 'grep' > /dev/null
+else
+  ps -AH S | grep meili | grep -v 'grep' > /dev/null
+fi
+#Start it if it isn't.
 if [ $? -ne 0 ]; then
   echo "booting meilisearch too..."
   api_key=$(cat .env | grep "^MEILISEARCH_API_KEY" | sed -e "s/MEILISEARCH_API_KEY=//" -e "s/#.*//")
@@ -48,4 +52,21 @@ else
   echo "meilisearch is already running"
 fi
 
+
+# Make sure you've defined a port (defaults in .env.sample is 3334)
+worker_count=$(cat .env | grep "^DELAYED_JOB_WORKERS" | sed -e "s/DELAYED_JOB_WORKERS=//" -e "s/#.*//")
+if [ -z "$workercount" ]; then
+  echo "DELAYED_JOB_WORKERS is not set"
+  echo "Will use 2 workers by default."
+  echo "Configure this as an integer in your .env file"
+  worker_count=2
+else
+  echo "DELAYED_JOB_WORKERS is set to \"$worker_count\""
+  echo "If this is not correct please update the .env file"
+fi
+
+# Start the Delayed Job Workers
+bin/delayed_job -n $worker_count start
+
+# Start Rails
 bundle exec rails server -p $port

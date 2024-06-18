@@ -54,8 +54,11 @@ gem "mongodb_meilisearch"
 gem "pagy", "~> 6.0"
 gem "mongoid-pagination"
 gem "dotenv-rails"
+gem "omniauth"
 gem "devise"
-gem "omniauth-apple" # https://github.com/nhosoya/omniauth-apple
+# official Delayed Job https://github.com/collectiveidea/delayed_job MongoDB support
+gem "delayed_job_mongoid"
+# gem "delayed_job_web" # instructions here: https://github.com/ejschmitt/delayed_job_web
 
 gem "gemoji"
 

@@ -64,12 +64,24 @@ class Bookmark
     end
   end
 
-  def generate_archive
+  # Kicks off the ArchiveUrlJob which creates a text-only
+  # archive of the page. By default this will run in the background
+  # but some processes (like the cleanup task) need to know if it worked
+  # or not.
+  #
+  # @param[Boolean] now - Determines if the job is run now, or asynchronously. Defaults to false (asynchronous).
+  def generate_archive(now = false)
     if url.blank?
       # only a warning because this shouldn't be a surprise.
       Rails.logger.warning(t("errors.bookmarks.cant_archive_without_url"))
-      return
+      return false
     end
-    ArchiveUrlJob.perform_now(self)
+    if now
+      ArchiveUrlJob.perform_now(self) # returns true / false
+    else
+      ArchiveUrlJob.perform_later(self)
+      true
+    end
   end
+  # handle_asynchronously :generate_archive, queue: "archiving"
 end

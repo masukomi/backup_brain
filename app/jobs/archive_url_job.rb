@@ -7,6 +7,7 @@ class UnarchivableUrl < StandardError; end
 
 class ArchiveUrlJob < ApplicationJob
   include BackupBrain::ArchiveTools
+  queue_as :archiving
 
   # it seems ridiculous that i have to specify all the effing tags
   # in order to get it to just give me the core content.

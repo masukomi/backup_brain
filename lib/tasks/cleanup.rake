@@ -21,7 +21,7 @@ namespace :cleanup do
       # Whirly.status = "checking: #{bookmark.title} @ #{bookmark.url}"
       puts "checking: #{bookmark.title} @ #{bookmark.url}"
       success = begin
-        bookmark.generate_archive
+        bookmark.generate_archive(true)
       rescue
         false
       end
