@@ -1,5 +1,18 @@
 #!/usr/bin/env bash
 
+# Exit on error
+set -e
+
+trap ctrl_c INT
+
+function ctrl_c() {
+ pids=$(ps -ef | grep delayed_job | grep -v grep | awk '{print $2}')
+ while [ "$pids" != ""  ]; do
+   echo "Killing Delayed Job Workers"
+   ps -ef | grep delayed_job | grep -v grep | awk '{print $2}' | xargs kill
+   pids=$(ps -ef | grep delayed_job | grep -v grep | awk '{print $2}')
+ done
+}
 
 # Make sure you've defined a host name
 hostname=$(cat .env | grep "^HOST_NAME" | sed -e "s/HOST_NAME=//" -e "s/#.*//")
@@ -29,6 +42,7 @@ else
   echo "PORT is set to \"$port\""
   echo "If this is not correct please update the .env file"
 fi
+
 # Test if meilisearch is running
 if [[ $OSTYPE == "darwin"* ]]; then
   ps -ax | grep meili | grep -v 'grep' > /dev/null
@@ -55,7 +69,7 @@ fi
 
 # Make sure you've defined a port (defaults in .env.sample is 3334)
 worker_count=$(cat .env | grep "^DELAYED_JOB_WORKERS" | sed -e "s/DELAYED_JOB_WORKERS=//" -e "s/#.*//")
-if [ -z "$workercount" ]; then
+if [ -z "$worker_count" ]; then
   echo "DELAYED_JOB_WORKERS is not set"
   echo "Will use 2 workers by default."
   echo "Configure this as an integer in your .env file"
@@ -65,8 +79,18 @@ else
   echo "If this is not correct please update the .env file"
 fi
 
+echo "Starting $worker_count Delayed Job Workers"
 # Start the Delayed Job Workers
-bin/delayed_job -n $worker_count start
+bin/delayed_job -n $worker_count start & disown
 
+
+
+echo "Starting Rails Server on port $port"
 # Start Rails
 bundle exec rails server -p $port
+
+
+
+
+#TODO nothing in delayed_job_pids
+#TODO maybe background the rails server too?
