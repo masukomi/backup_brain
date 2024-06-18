@@ -76,7 +76,7 @@ namespace :importer do
               title: bookmark_data["description"],
               description: bookmark_data["extended"],
               created_at: bookmark_data["time"],
-              private: bookmark_data["shared"] == "yes",
+              private: bookmark_data["shared"] != "yes",
               to_read: bookmark_data["toread"] == "yes",
               tags: bookmark_data["tags"].split(" ")
             )
