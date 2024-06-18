@@ -196,7 +196,7 @@ class BookmarksController < ApplicationController
   end
 
   def split_tag_params
-    tags = params[:tags].present? ? params[:tags].split(/\s+/) : []
+    tags = params[:bookmark][:tags].present? ? params[:bookmark][:tags].split(/\s+/) : []
     bookmark_params.merge({tags: tags})
   end
 
