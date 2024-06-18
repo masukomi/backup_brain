@@ -19,6 +19,9 @@ heading {
 	max-height: 1rem;
 	padding-right: 0.25rem;
 }
+heading > .inline-icon{
+	max-height: 1.5rem;
+}
 
 .compact-button{
 	padding: 0.2rem 1rem;
