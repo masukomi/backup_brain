@@ -89,11 +89,7 @@ The system will automatically attempt to create a local archive of the web page.
 
 Clicking "Archived" will bring up the archived version of the web page. 
 
-Notes:
-
-1. It currently won't be able to archive pages that require a user to be logged in to be viewed.
-2. Archived text is not _yet_ being indexed by the search engine. 
-  There's [an open ticket](https://github.com/masukomi/backup_brain/issues/27) to address that.
+Notes. The archiver won't be able to archive pages that require a user to be logged in to be viewed.
 
 ### Importing from Pinboard.in
 ⚠ If you've got thousands of bookmarks this can take _hours_. On my computer it's This is because it's not parallelized _yet_ and it's creating an archive for every page it can. 
