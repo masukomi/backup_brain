@@ -5,6 +5,8 @@ require "reverse_markdown"
 
 class UnarchivableUrl < StandardError; end
 
+# ArchiveUrlWithoutRetriesJob can be found at the bottom of this file
+
 class ArchiveUrlJob < ApplicationJob
   include BackupBrain::ArchiveTools
   queue_as :archiving
@@ -86,4 +88,10 @@ class ArchiveUrlJob < ApplicationJob
   #   end
   #   response
   # end
+end
+
+class ArchiveUrlWithoutRetriesJob < ArchiveUrlJob
+  def max_attempts
+    1
+  end
 end
