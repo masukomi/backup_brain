@@ -23,20 +23,8 @@
       </div>
       <div class="row">
         <div class="col">
-          <!-- TODO: link this to a search for things with this tag -->
-          <% if bookmark.tags.present? %>
-            <% bookmark.tags.each do | tag | %>
-              <%= icon_link(
-                  "tag",
-                  bookmarks_tagged_with_path(tags: tag),
-                  link_css: "inline-link-icon",
-                  alt: t('icons.tag_alt')
-                ) %>
-              <%= link_to(tag, bookmarks_tagged_with_path(tags: tag)) %>
-            <% end %>
-          <% else %>
-            <span class="quiet-notice"><%= t('bookmarks.no_tags_message') %></span>
-          <% end %>
+          <%= render partial: 'shared/inline_tag_list',
+              locals: {tags: bookmark.tags} %>
         </div>
       </div>
     </div>

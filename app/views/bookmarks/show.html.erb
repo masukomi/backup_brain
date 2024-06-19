@@ -1,17 +1,21 @@
 <div class="container">
 
   <% if @archive.present?  %>
-  <div class="row">
-    <div class="col">
-      <div><%=t('bookmarks.archived_date_message',
-                   archive_date: I18n.l(@archive.created_at.to_date, format: :default)
-                ) %></div>
-
-      <hr />
-    </div>
-  </div>
     <div class="row">
       <div class="col">
+        <heading><%=@bookmark.title %></heading>
+        <div>
+          <%= render partial: 'shared/inline_tag_list',
+              locals: {tags: @bookmark.tags} %>
+
+        </div>
+        <div class="archive-date">
+          <%=t('bookmarks.archived_date_message',
+              archive_date: archive_date_string(@archive)
+          ) %>
+        </div>
+
+
         <%#TODO deal with rendering archives that might not be markdown %>
         <%= render partial: 'bookmark_md_archive',
             locals: {archive: @archive} %>

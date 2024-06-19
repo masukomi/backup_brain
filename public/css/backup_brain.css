@@ -95,6 +95,11 @@ heading > .inline-icon{
 
 .archive-link-icon {
 }
+.archive-date {
+	font-style: italic;
+	font-size: 0.8rem;
+	color: slategray;
+}
 .current-archive-item{
 	font-weight: bold;
 }
