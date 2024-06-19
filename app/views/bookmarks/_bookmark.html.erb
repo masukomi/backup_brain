@@ -70,11 +70,18 @@
           text: t('bookmarks.edit')) %>
       </div>
       <div class="action-icon">
-      <%= confirmation_icon_link("delete", bookmark_path(bookmark),
-          link_css: "inline-link-icon delete-link-icon",
-          method: :put,
-          alt: t('bookmarks.delete'),
-          text: t('bookmarks.delete')) %>
+      <%== link_to  image_tag('/images/icons/delete.svg', class: 'inline-link-icon delete-link-icon') + t('bookmarks.delete_link'),
+          bookmark_path(bookmark, method: :delete),
+          class: "inline-link-icon delete-link-icon",
+          method: :delete,
+          data:   {
+           confirm: t('misc.are_your_sure'),
+           turbo_method: :delete,
+           turbo_confirm: t('misc.are_you_sure')
+          }
+
+          %>
+
       </div>
       <% if bookmark.private? %>
         <div class="action-icon">

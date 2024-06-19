@@ -67,8 +67,9 @@ en:
     new_heading: "Add A Bookmark"
     edit: "edit"
     edit_this_link: "Edit This Bookmark…"
-    delete: "delete"
+    delete_link: "delete"
     archives_list_heading: "Recorded Archives:"
+    added_to_queue: "I'll archive that shortly"
     no_tags_message: "(no tags)"
     archived_date_message: "Archived on %{archive_date}"
     view_archive_alt_text: "View archived copy"
@@ -98,6 +99,7 @@ en:
     missing_alt_text: 'missing alt text. please file a bug'
     app_name: "Backup Brain"
     dont_click: "No clicky!"
+    are_you_sure: "Are you sure?"
     errors:
         num_errors_prevented_save: "%{number} errors prohibited this %{thing_type} from being saved:"
 
