@@ -7,6 +7,11 @@ class ApplicationController < ActionController::Base
   before_action :set_user_count
   before_action :configure_permitted_devise_params, if: :devise_controller?
 
+  def flash_message(type, text)
+    flash[type] ||= []
+    flash[type] << text if text.present?
+  end
+
   protected
 
   def get_layout
