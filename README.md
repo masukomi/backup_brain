@@ -115,12 +115,9 @@ There is no danger to running this process multiple times. If your import includ
 
 
 ## Search
-The search engine allows full text search of the title, url, description, and tags of every Bookmark. Leave it on "Best Match" to have results shown in the order of the best match. "Newest"
- will, unsurprisingly, sort by the age of the bookmark, with the newest ones shown first.
+The search engine allows full text search of the title, url, description, and arhives, and tags of every Bookmark. Leave it on "Best Match" to have results shown in the order of the best match. "Newest" will, unsurprisingly, sort by the age of the bookmark, with the newest ones shown first.
 
- 
-There's [an open ticket](https://github.com/masukomi/backup_brain/issues/27) to include archives in the searches.
-
+Note: if you have made multiple archives of a bookmark at different points in time, the search will match against the old copies too. If you don't understand why a Bookmark matched, check its archives.
 
 # Setup
 Unless stated otherwise, you should run the specified commands in the terminal, and from within the directory you cloned BackupBrain into.
