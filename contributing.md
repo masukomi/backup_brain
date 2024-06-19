@@ -21,6 +21,11 @@ If you're interested in adding something completely different, please make sure 
 
 See the VISION.md document for more details.
 
+### Graphics Folks
+There is an "orphan" branch called `graphical_resources` that contains a `resources` directory with Affinity Designer files for all of the images used in this app. 
+
+There is also a `screenshots` directory where you should store any new / updated screenshots needed for the README or other documentation.
+
 ## Faster Responses
 GitHub notifications are a firehose I'm having trouble taming. Giving me a heads-up about your PR or Issue is _very_ helpful. If you're on the fediverse please message me at [@masukomi@connectified.com](https://connectified.com/@masukomi) or email me at [masukomi@masukomi.org](mailto:masukomi@masukomi.org) and put "Backup Brain" in the title. I'm not spectacular at email, but I'll try to read it in a timely manner.
 
