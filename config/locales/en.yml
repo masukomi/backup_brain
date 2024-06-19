@@ -63,6 +63,7 @@ en:
     search_button: "Go"
   bookmarks:
     heading: "Bookmarks"
+    all_link: "All Bookmarks"
     edit_heading: "Editing Bookmark"
     new_heading: "Add A Bookmark"
     edit: "edit"
