@@ -50,6 +50,17 @@ module ApplicationHelper
     )
   end
 
+  ## Finds the appropriate Bootstrap css class for the
+  ## type of alert we're using
+  def class_for_flash(type)
+    {
+      notice: "alert-primary",
+      error: "alert-warning",
+      alert: "alert-danger"
+    }[type] || "alert-dark"
+    # dark seemed as good a default as anything.
+  end
+
   private
 
   def icon_link_text(text)
