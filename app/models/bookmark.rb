@@ -8,7 +8,7 @@ class Bookmark
   include BackupBrain::EmojiHelper
 
   CLASS_PREFIXED_SEARCH_IDS  = true
-  SEARCHABLE_ATTRIBUTE_NAMES = %w[title url description tags created_at updated_at]
+  SEARCHABLE_ATTRIBUTE_NAMES = %w[title url description tags latest_archive created_at updated_at]
   SEARCH_INDEX_NAME          = "backup_brain_general"
 
   # Fields where it'll look for Slack-style emoji aliases
@@ -84,4 +84,27 @@ class Bookmark
     end
   end
   # handle_asynchronously :generate_archive, queue: "archiving"
+
+  # Needed for two reasons:
+  # 1. archives is an embedded array
+  #    Tthat alone would be fine (See tags) but…
+  # 2. we just want the latest archive's content
+  def search_indexable_hash
+    archive_text = latest_archive.present? ? latest_archive.string_data : nil
+
+    {
+      # vv because of class prefixed search ids
+      "id" => "#{self.class.name}_#{id}",
+      "object_class" => self.class.name,
+      "original_document_id" => _id.to_s,
+      # ^^ end class prefixed search id stuff
+      "title" => title,
+      "url" => url,
+      "description" => description,
+      "tags" => tags,
+      "latest_archive" => archive_text,
+      "created_at" => created_at,
+      "updated_at" => updated_at
+    }
+  end
 end
