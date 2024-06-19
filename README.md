@@ -301,8 +301,6 @@ _Make sure these files are being backed up to another computer in case yours die
 
 NOTE: these scripts use the `MONGODB_URI` and `DATABASE_NAME` environment variables. If you don't set those, then it'll assume you haven't changed the database name, and that it's running on localhost. If your MongoDB installation is on a different server from your BackupBrain then you'll need to set the `MONGODB_URI` according to the [connection string documentation](https://www.mongodb.com/docs/manual/reference/connection-string/). This can be set in the environment or you can just hardcode it into the scripts.
 
-
-
 ### Example Backup using Cron
 Here's an example cronjob that will
 
@@ -317,3 +315,12 @@ Here's an example cronjob that will
 See [this post about using cron](https://www.howtogeek.com/devops/what-is-a-cron-job-and-how-do-you-use-them/) if you're unfamiliar. Note that cron's default editor is Vim, but that page includes instructions on how to edit your crontab (list of cron jobs) without using Vim. 
 
 Assuming your computer has automatic backups running, these files should get included. 
+
+## Contributing
+I'm always happy to accept contributions. Just fork the repo, and make a Pull Request. See the contributing.md file for more information. 
+
+## License
+This software is distributed under the AGPL + the Commons Clause license condition. See the LICENSE.md file for details.
+
+The basic gist is that you can do all the normal open source things with it, except you can't sell it. 
+
