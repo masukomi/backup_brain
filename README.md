@@ -3,6 +3,15 @@ BackupBrain is a self-hosted single-user bookmarking app that automatically crea
 
 Over time the things it can ingest for you will expand to include "Bookmarked" posts on Mastodon
 
+A list of all your bookmarks…
+
+![screenshot of bookmarks list](https://github.com/masukomi/backup_brain/blob/graphical_resources/screenshots/list_screenshot@2x.png?raw=true)
+
+Text Archives of each one…
+
+![screenshot of archive](https://github.com/masukomi/backup_brain/blob/graphical_resources/screenshots/archive_screenshot@2x.png?raw=true)
+
+
 This project is still new, and as such there's no one-click installation. It requires executing a series of commands in the terminal. They're well documented though, so as long as you can open a terminal and `cd` to a directory, you should be fine.
 
 
