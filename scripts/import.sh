@@ -13,11 +13,18 @@
 if [[ -z ${MONGODB_URI:-""} ]]; then
     MONGODB_URI="mongodb://localhost/"
 fi
+if [[ -z ${DATABASE_NAME:-""} ]]; then
+    DATABASE_NAME="backup_brain_development"
+fi
+
+echo "Exporting the \"$DATABASE_NAME\" database found on"
+echo "$MONGODB_URI"
+echo "----------------------------------------------"
 
 declare -a collections=("bookmarks", "users")
 
 for collection in "${collections[@]}"
     do
     echo "replacing $collection with exported data..."
-    mongoimport --uri="$MONGODB_URI" --drop --collection=$collection --db=devgood_development --file=mongo_exports/$collection.json
+    mongoimport --uri="$MONGODB_URI" --drop --collection=$collection --db=$DATABASE_NAME --file=mongo_exports/$collection.json
 done

@@ -9,18 +9,26 @@
 #
 # A connection string might look like this
 # mongodb://mongodb0.example.com:27017/reporting
+#
 # The form is documented here:
 # https://www.mongodb.com/docs/manual/reference/connection-string/
 if [[ -z ${MONGODB_URI:-""} ]]; then
     MONGODB_URI="mongodb://localhost/"
 fi
+if [[ -z ${DATABASE_NAME:-""} ]]; then
+    DATABASE_NAME="backup_brain_development"
+fi
+
+echo "Exporting the \"$DATABASE_NAME\" database found on"
+echo "$MONGODB_URI"
+echo "----------------------------------------------"
 
 mkdir -p mongo_exports
 
-declare -a collections=("bookmarks", "users")
+declare -a collections=("bookmarks" "users")
 
 for collection in "${collections[@]}"
     do
-      echo "exporting $collection ..."
-      mongoexport --uri="$MONGODB_URI" --jsonFormat=canonical --collection=$collection --db=devgood_development --out=mongo_exports/$collection.json
+      echo "exporting $collection …"
+      mongoexport --uri="$MONGODB_URI" --jsonFormat=canonical --collection=$collection --db=$DATABASE_NAME --out=mongo_exports/$collection.json
 done

@@ -281,3 +281,30 @@ _THAT'S IT._ Everything's installed. Sorry it was so much manual geekery. I will
 
 Now it's time to actually _use_ what you've set up. Head back to [Usage](#usage). 
 
+## Backing Up Data
+I don't have your data, so I can't back it up for you.
+
+In the `scripts` directory you'll find an export and import script. I'd recommend setting up a cron job to run the `export` script a couple times a day. It'll create a `mongo_exports` directory, and save a file for each data type. Running the import script on a fresh database will load all of them from the last backup. 
+
+⚠️ Running the import script on an _existing_ database will _delete and replace_ the existing data.
+
+_Make sure these files are being backed up to another computer in case yours dies 🔥._
+
+NOTE: these scripts use the `MONGODB_URI` and `DATABASE_NAME` environment variables. If you don't set those, then it'll assume you haven't changed the database name, and that it's running on localhost. If your MongoDB installation is on a different server from your BackupBrain then you'll need to set the `MONGODB_URI` according to the [connection string documentation](https://www.mongodb.com/docs/manual/reference/connection-string/). This can be set in the environment or you can just hardcode it into the scripts.
+
+
+
+### Example Backup using Cron
+Here's an example cronjob that will
+
+- cd into the directory where I cloned devgood on my computer
+- run the export script
+- send its output to `log/cron.log`  (overwriting output from the last run)
+
+``` cron
+0 * * * * /bin/bash -l -c 'cd ~/workspace/devgood && ./scripts/export.sh > ~/workspace/backup_brain/log/cron.log 2>&1'
+```
+
+See [this post about using cron](https://www.howtogeek.com/devops/what-is-a-cron-job-and-how-do-you-use-them/) if you're unfamiliar. Note that cron's default editor is Vim, but that page includes instructions on how to edit your crontab (list of cron jobs) without using Vim. 
+
+Assuming your computer has automatic backups running, these files should get included. 
