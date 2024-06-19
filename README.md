@@ -42,7 +42,7 @@ This project is still new, and as such there's no one-click installation. It req
 ## Data Security
 Bookmarks are _public_ by default. This is so that you can - for example - share a link to bookmarks tagged with "dogs" or to an archive of a web page that no longer exists. Bookmarks marked "Private" are only visible _to you_ after logging in.
 
-Data is not encrypted, but passwords are hashed. 
+Bookmarks and archives are not encrypted, but your password is. 
 
 BackupBrain works like most of the apps that you run locally on your computer. Anyone who has access to your computer can, for example, open your text editor, and create and edit files on your computer. People who can't access your computer, can't. The same applies to the database and search engine it uses. 
 
