@@ -155,7 +155,7 @@ class BookmarksController < ApplicationController
             redirect_to bookmarks_success_path(layout: @layout, closeable: @closeable)
             # redirect_to bookmarks_success_path, layout: @layout
           else
-            redirect_to edit_bookmark_url(@bookmark), notice: t("bookmarks.update_success")
+            redirect_to bookmarks_path, notice: t("bookmarks.update_success")
           end
         }
         format.json { render :show, status: :ok, location: @bookmark }
