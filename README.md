@@ -1,7 +1,7 @@
 # BackupBrain
-BackupBrain is a self-hosted single-user bookmarking app that automatically creates local text-only archives of whatever you bookmark.
+BackupBrain is a self-hosted single-user bookmarking app that automatically creates local text-only archives of whatever you bookmark. If you make your instance publicly accessible your friends will be able to see all bookmarks that aren't marked private.
 
-Over time the things it can ingest for you will expand to include "Bookmarked" posts on Mastodon
+Check out the VISION.md document to get an idea for the future plans of this project.
 
 A list of all your bookmarks…
 
