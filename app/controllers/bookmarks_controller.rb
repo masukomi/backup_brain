@@ -50,7 +50,7 @@ class BookmarksController < ApplicationController
   def search
     @query = params[:query]
     if @query.blank?
-      flash[:notice] = t("search.missing_query")
+      flash_message(:notice, t("search.missing_query"))
       redirect_to action: "index"
       return
     end
@@ -94,7 +94,7 @@ class BookmarksController < ApplicationController
       @bookmark = Bookmark.where(url: params[:url]).first
     end
     if @bookmark.present?
-      flash[:notice] = t("bookmarks.create_existing_warning")
+      flash_message(:notice, t("bookmarks.create_existing_warning"))
       redirect_to edit_bookmark_url(@bookmark, layout: @layout, closeable: @closeable)
       return
     end
@@ -117,7 +117,8 @@ class BookmarksController < ApplicationController
     respond_to do |format|
       if @bookmark.save
         format.html {
-          flash[:notice] = t("bookmarks.creation_success")
+          flash_message(:notice, t("bookmarks.creation_success"))
+          flash_message(:notice, t("bookmarks.added_to_queue"))
           if @closeable.present?
             redirect_to bookmarks_success_path(layout: @layout, closeable: @closeable)
           else
@@ -134,11 +135,11 @@ class BookmarksController < ApplicationController
 
   # PATCH/PUT
   def archive
-    if @bookmark.generate_archive
-      flash[:notice] = t("bookmarks.archiving_success")
+    if @bookmark.generate_archive(true)
+      flash_message(:notice, t("bookmarks.archiving_success"))
       redirect_to bookmark_url(@bookmark)
     else
-      flash[:error] = t("bookmarks.archiving_error")
+      flash_message(:error, t("bookmarks.archiving_error"))
       redirect_back
     end
   end
@@ -149,7 +150,7 @@ class BookmarksController < ApplicationController
       # FIXME: there's got to be a better way to do this than my split_tag_params
       if @bookmark.update(split_tag_params)
         format.html {
-          flash[:notice] = t("bookmarks.update_success")
+          flash_message(:notice, t("bookmarks.update_success"))
           if @closeable.present?
             redirect_to bookmarks_success_path(layout: @layout, closeable: @closeable)
             # redirect_to bookmarks_success_path, layout: @layout
@@ -185,7 +186,7 @@ class BookmarksController < ApplicationController
     @bookmark = Bookmark.find(params[:id])
     if @bookmark.private? && !user_signed_in?
       @bookmark = nil
-      flash[:error] = t("accounts.access_denied")
+      flash_message(:error, t("accounts.access_denied"))
       redirect_to bookmarks_url
     end
   end
