@@ -67,7 +67,6 @@ else
 fi
 
 
-# Make sure you've defined a port (defaults in .env.sample is 3334)
 worker_count=$(cat .env | grep "^DELAYED_JOB_WORKERS" | sed -e "s/DELAYED_JOB_WORKERS=//" -e "s/#.*//")
 if [ -z "$worker_count" ]; then
   echo "DELAYED_JOB_WORKERS is not set"
@@ -87,7 +86,8 @@ bin/delayed_job -n $worker_count start & disown
 
 echo "Starting Rails Server on port $port"
 # Start Rails
-bundle exec rails server -p $port
+# bundle exec rails server -p $port -u puma
+bundle exec rails server -u puma
 
 
 
