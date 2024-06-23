@@ -41,3 +41,40 @@ pidfile ENV.fetch("PIDFILE") { "tmp/pids/server.pid" }
 
 # Allow puma to be restarted by `bin/rails restart` command.
 plugin :tmp_restart
+
+if Rails.env.development?
+  force_ssl = (ENV.fetch("FORCE_SSL") { "false" }).strip == "true"
+
+  host_name = (ENV.fetch("HOST_NAME") { "localhost" }).strip
+  ssl_port  = (ENV.fetch("SSL_PORT") { "3335" }).to_i
+
+  begin
+    if force_ssl && host_name != "localhost"
+      ip_address = (ENV.fetch("IP_ADDRESS") { "127.0.0.1" }).strip
+      key_path   = File.join("config", "ssl", "#{host_name}_key.pem")
+      cert_path  = File.join("config", "ssl", "#{host_name}_cert.pem")
+      key_path_exists = File.exist?(key_path)
+      cert_path_exists = File.exist?(cert_path)
+      if key_path_exists && cert_path_exists
+        ssl_bind ip_address, ssl_port, {
+          key: key_path,
+          cert: cert_path,
+          verify_mode: "none"
+        }
+
+        Rails.logger.debug Paint["Configured Puma with SSL certs for #{host_name}", :green]
+      else
+        require "paint"
+        Rails.logger.debug Paint["⚠️  SSL Configuration was wrong. Won't use SSL.", :red]
+        Rails.logger.debug Paint["→ missing #{key_path}", :yellow] unless key_path_exists
+        Rails.logger.debug Paint["→ missing #{cert_path}", :yellow] unless cert_path_exists
+
+      end
+
+    else
+      Rails.logger.debug "SSL for Puma config is disabled. Skipping"
+    end
+  rescue
+    Rails.logger.debug "⚠️  Something went wrong when atttempting to configure puma for SSL"
+  end
+end
