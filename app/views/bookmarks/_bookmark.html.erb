@@ -1,5 +1,7 @@
-<% privacy_class = bookmark.private? ? 'private-bookmark' : '' %>
-<div id="<%= dom_id bookmark %>" class="container bookmark-list-item <%= privacy_class %>">
+<% privacy_class = (bookmark.private? ? 'private-bookmark' : '')
+   to_read_class = (bookmark.to_read? ? 'to-read-list-item' : '')
+   %>
+<div id="<%= dom_id bookmark %>" class="container bookmark-list-item <%= privacy_class %> <%= to_read_class %>">
   <div class="row">
     <div class="col-8">
       <div class="row">
@@ -77,6 +79,13 @@
           <span class="private-hint"><%=t('bookmarks.private_hint') %></span>
         </div>
       <% end %>
+      <% if bookmark.to_read? %>
+        <div class="action-icon">
+          <%= inline_icon("to_read", icon_class: "inline-body-icon to-read-icon") %>
+          <span class="to-read-hint"><%=t('bookmarks.to_read_hint') %></span>
+        </div>
+      <% end %>
+
 
     </div>
   </div>

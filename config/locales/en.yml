@@ -86,6 +86,7 @@ en:
     list_link: "Show All Bookmarks"
     counter: "(%{formatted_count} and counting…)"
     private_hint: "Shhh…"
+    to_read_hint: "Read Me"
     create_existing_warning: "⚠️ You've already got a bookmark for that."
     archiving_error: "A problem was encountered while trying to archive that."
     archiving_success: "Archive successfully created."
