@@ -61,6 +61,8 @@ en:
     match_sort_label: "Best Match"
     newest_sort_label: "Newest"
     search_button: "Go"
+    missing_index: "See https://BackupBrain.app/troubleshooting for suggestions."
+    no_bookmarks: "Search will start working once you add some bookmarks."
   bookmarks:
     heading: "Bookmarks"
     all_link: "All Bookmarks"
@@ -101,6 +103,11 @@ en:
     app_name: "Backup Brain"
     dont_click: "No clicky!"
     are_you_sure: "Are you sure?"
+    alerts:
+        notice: "Notice"
+        error: "Error"
+        alert: "Alert"
+        other: "Note"
     errors:
         num_errors_prevented_save: "%{number} errors prohibited this %{thing_type} from being saved:"
 

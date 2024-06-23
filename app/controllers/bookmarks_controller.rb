@@ -69,12 +69,24 @@ class BookmarksController < ApplicationController
       offset: (@limit * (@page - 1)) # number of resources skipped
     }
 
-    # if we were searching for _any_ record we'd use `filtered_by_class: false`
-    raw_results = privatize(Bookmark.search(@query, options: options, filtered_by_class: true))
-    @pagy = pagify_search(raw_results["search_result_metadata"]["nbHits"])
-    @bookmarks = raw_results["matches"]
+    begin
+      # if we were searching for _any_ record we'd use `filtered_by_class: false`
+      raw_results = privatize(Bookmark.search(@query, options: options, filtered_by_class: true))
+      @pagy = pagify_search(raw_results["search_result_metadata"]["nbHits"])
+      @bookmarks = raw_results["matches"]
 
-    render :index
+      render :index
+    rescue MeiliSearch::ApiError => e
+      flash_message(:error, e.message)
+      if e.message.include?("Index `backup_brain_general` not found")
+        if Bookmark.count > 0
+          flash_message(:notice, t("search.missing_index"))
+        else
+          flash_message(:notice, t("search.no_bookmarks"))
+        end
+      end
+      redirect_to bookmarks_path
+    end
   end
 
   # GET /bookmarks/1 or /bookmarks/1.json
@@ -122,7 +134,7 @@ class BookmarksController < ApplicationController
           if @closeable.present?
             redirect_to bookmarks_success_path(layout: @layout, closeable: @closeable)
           else
-            redirect_to bookmark_url(@bookmark), notice: t("bookmarks.creation_success")
+            redirect_to bookmarks_path, notice: t("bookmarks.creation_success")
           end
         }
         format.json { render :show, status: :created, location: @bookmark }
