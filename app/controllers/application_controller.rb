@@ -9,7 +9,10 @@ class ApplicationController < ActionController::Base
 
   def flash_message(type, text)
     flash[type] ||= []
-    flash[type] << text if text.present?
+    if text.present? && flash[type].exclude?(text)
+      # was accidentally getting duplicate flash messages
+      flash[type] << text
+    end
   end
 
   protected
