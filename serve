@@ -51,11 +51,7 @@ fi
 
 set +e # don't exit on error because meilisearch may not be running
 # Test if meilisearch is running
-if [[ $OSTYPE == "darwin"* ]]; then
-  ps -ax | grep meili  | grep -v 'grep'  > /dev/null
-else
-  ps -AH S | grep meili | grep -v 'grep' > /dev/null
-fi
+pgrep -x meilisearch > /dev/null
 
 meili_status=$?
 set -e
@@ -71,6 +67,7 @@ if [ $meili_status -ne 0 ]; then
     echo "start it by running `meilisearch` with no arguments"
     exit 78 # EX_CONFIG (78)  Something was found in an unconfigured or misconfigured state.
   fi
+  echo $RED"XXX meilisearch api key: $api_key"$NOCOLOR
   meilisearch --master-key "$api_key"  > /dev/null 2>&1 &
   disown
 else
