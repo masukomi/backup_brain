@@ -3,8 +3,9 @@
     <div class="col">
       <ul id="side-nav-items">
         <li><%= link_to t('bookmarks.all_link'), bookmarks_path %>
-        <li><%= link_to t('bookmarks.add'), new_bookmark_path %>
-        </li>
+        <% if current_user %>
+        <li><%= link_to t('bookmarks.add'), new_bookmark_path %> </li>
+        <% end %>
         <li><%= link_to t('navigation.to_read_link'), bookmarks_to_read_path %></li>
         <li><%= link_to t('navigation.unarchived_link'), bookmarks_unarchived_path %></li>
 
