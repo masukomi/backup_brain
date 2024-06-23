@@ -54,9 +54,9 @@ module ApplicationHelper
   ## type of alert we're using
   def class_for_flash(type)
     {
-      notice: "alert-primary",
-      error: "alert-warning",
-      alert: "alert-danger"
+      "notice" => "alert-primary",
+      "error" => "alert-warning",
+      "alert" => "alert-danger"
     }[type] || "alert-dark"
     # dark seemed as good a default as anything.
   end
