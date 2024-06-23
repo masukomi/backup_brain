@@ -60,4 +60,13 @@ Rails.application.configure do
 
   # Uncomment if you wish to allow Action Cable access from any origin.
   # config.action_cable.disable_request_forgery_protection = true
+
+  ## SSL STUFF
+  config.force_ssl = ENV.fetch("FORCE_SSL") { "false" } == "true"
+
+  host_name = (ENV.fetch("HOST_NAME") { "localhost" }).strip
+  if host_name != "localhost"
+    config.hosts << host_name.strip
+  end
+  # END SSL STUFF
 end
