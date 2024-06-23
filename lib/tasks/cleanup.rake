@@ -4,6 +4,23 @@ require "whirly"
 namespace :cleanup do
   # defaults to true if response code is ambiguous
 
+  desc "Reindexes all bookmarks"
+  task reindex_all: [:environment] do
+    # Puts we could just run Bookmark.reindex
+    # but it's possible it'll timeout if you have
+    # too many bookmarks. So we'll do it manually
+    # Bookmark.reindex
+    puts "Reindexing has begun. This may take a little while to finish."
+    puts "Don't close this window until it's completed."
+    Whirly.configure spinner: "dots"
+    Whirly.start do
+      Bookmark.all.each do |mark|
+        mark.update_in_search
+      end
+    end
+    puts "DONE REINDEXING"
+  end
+
   desc "Destroy useless bookmarks"
   task destroy_useless_bookmarks: [:environment] do
     unarchived = Bookmark
