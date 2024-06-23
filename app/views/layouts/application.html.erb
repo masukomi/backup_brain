@@ -64,19 +64,10 @@
       <% flash.each do |type, msg| %>
         <% Array(msg).each do |m| %>
             <div class="alert <%=class_for_flash(type) %>">
-                <%= m %>
+                <%= t("misc.alerts.#{type}") %>: <%= m %>
             </div>
         <% end %>
       <% end %>
-
-    <% flash.each do |type, msg| %>
-
-      <% Array(msg).each do %>
-        <div class="alert <%=class_for_flash(type) %>">
-            <%= msg %>
-        </div>
-      <% end %>
-    <% end %>
 
     <div class="container" id="body-sections">
       <div class="row">
