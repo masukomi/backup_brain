@@ -60,6 +60,7 @@ gem "daemons" # used by Delayed Job
 # official Delayed Job https://github.com/collectiveidea/delayed_job MongoDB support
 gem "delayed_job_mongoid"
 # gem "delayed_job_web" # instructions here: https://github.com/ejschmitt/delayed_job_web
+gem "public_suffix" # for extracting domain names from urls
 
 gem "gemoji"
 
