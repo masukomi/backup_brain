@@ -41,8 +41,7 @@ class BookmarksController < ApplicationController
     @tags = params[:tags].split(",")
     @pagy, @bookmarks = pagify(
       privatize(Bookmark.where(tags: {"$in" => @tags})
-        .order_by([[:created_at, :desc]])),
-      items: @limit
+        .order_by([[:created_at, :desc]]))
     )
     render :index
   end
