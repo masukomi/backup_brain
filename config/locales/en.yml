@@ -104,6 +104,10 @@ en:
     app_name: "Backup Brain"
     dont_click: "No clicky!"
     are_you_sure: "Are you sure?"
+    file_a_ticket: "Hopes? Bugs?"
+    file_a_ticket_icon_title: "click me to file a new ticket"
+    file_a_ticket_icon_alt: "a silly little person with some text coming out of their mouth"
+    launched_with_version: "Launched w/version %{version}"
     alerts:
         notice: "Notice"
         error: "Error"
