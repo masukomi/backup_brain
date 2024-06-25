@@ -95,7 +95,7 @@ class BookmarksController < ApplicationController
     @archive = if params[:archive_id].blank?
       @bookmark.latest_archive("text/markdown")
     else
-      @bookmark.archives.where(_id: params[:archive_id])
+      @bookmark.archives.where(_id: params[:archive_id]).first
     end
   end
 
