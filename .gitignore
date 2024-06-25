@@ -9,6 +9,7 @@
 /mongo_exports/*
 .env
 *.bak
+routes.txt
 # Ignore all logfiles and tempfiles.
 /log/*
 /tmp/*
