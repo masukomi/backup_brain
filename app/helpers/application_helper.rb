@@ -17,7 +17,8 @@ module ApplicationHelper
     method: :get,
     alt: nil,
     title: nil,
-    text: nil)
+    text: nil,
+    target: nil)
     link_to(
       image_tag(
         "/images/icons/#{icon_name}.svg",
@@ -27,7 +28,8 @@ module ApplicationHelper
       class: link_css,
       method: method,
       alt: (alt.presence || t("misc.missing_alt_text")),
-      title: (title.presence || "")
+      title: (title.presence || ""),
+      target: target
     )
   end
 
