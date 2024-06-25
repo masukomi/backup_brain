@@ -90,6 +90,7 @@ en:
     create_existing_warning: "⚠️ You've already got a bookmark for that."
     archiving_error: "A problem was encountered while trying to archive that."
     archiving_success: "Archive successfully created."
+    inline_deletion_message: "⛔ Deleted"
     none_message: "
         <h4>You poor thing. You've got no bookmarks!</h4>
         <p>Go click the \"Add a bookmark\" link on the right
@@ -104,7 +105,7 @@ en:
     app_name: "Backup Brain"
     dont_click: "No clicky!"
     are_you_sure: "Are you sure?"
-    file_a_ticket: "Hopes? Bugs?"
+    file_a_ticket: "File a ticket."
     file_a_ticket_icon_title: "click me to file a new ticket"
     file_a_ticket_icon_alt: "a silly little person with some text coming out of their mouth"
     launched_with_version: "Launched w/version %{version}"

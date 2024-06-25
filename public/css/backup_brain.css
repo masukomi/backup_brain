@@ -92,6 +92,10 @@ heading > .inline-icon{
 	max-height: 32px;
 	display: inline-block;
 }
+.deleted{
+	background-color: #ff9c97;
+}
+
 #bookmark-archives-listing {
 	list-style-type: none;
 }
