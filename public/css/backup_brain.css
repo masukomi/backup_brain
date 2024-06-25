@@ -7,6 +7,9 @@ h1 {
 	max-height: 2rem;
 	margin-bottom: 1.5rem;
 }
+archive > h1 {
+	max-height: unset;
+}
 heading {
 	font-size: 120%;
 	font-weight: bold;
