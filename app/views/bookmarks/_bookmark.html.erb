@@ -26,7 +26,7 @@
       <div class="row">
         <div class="col">
           <% if bookmark.description.present? %>
-            <%= Orgmode::Parser.new(bookmark.description).to_html.html_safe %>
+            <%== ::Rendering::Markdown.instance.render(bookmark.description) %>
           <% else %>
             &nbsp;
           <% end %>
