@@ -129,11 +129,10 @@ class BookmarksController < ApplicationController
       if @bookmark.save
         format.html {
           flash_message(:notice, t("bookmarks.creation_success"))
-          flash_message(:notice, t("bookmarks.added_to_queue"))
           if @closeable.present?
             redirect_to bookmarks_success_path(layout: @layout, closeable: @closeable)
           else
-            redirect_to bookmarks_path, notice: t("bookmarks.creation_success")
+            redirect_to bookmarks_path
           end
         }
         format.json { render :show, status: :created, location: @bookmark }
