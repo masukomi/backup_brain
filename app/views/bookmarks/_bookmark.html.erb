@@ -4,6 +4,12 @@
 <div id="<%= dom_id bookmark %>" class="container bookmark-list-item <%= privacy_class %> <%= to_read_class %>">
   <div class="row">
     <div class="col-8">
+      <% if defined?(error) %>
+        <div class="alert <%=class_for_flash('error') %>">
+            <%= t("misc.alerts.error") %>: <%= error %>
+        </div>
+      <% end  %>
+
       <div class="row">
         <div class="col">
           <% if bookmark.domain.present? %>
@@ -53,42 +59,73 @@
               alt: t('bookmarks.archive_now')) %>
         <% end %>
         </div>
-        <div class="action-icon">
-        <%= icon_link("edit", edit_bookmark_path(bookmark),
-            link_css: "inline-link-icon edit-link-icon",
-            method: :put,
-            alt: t('bookmarks.edit'),
-            text: t('bookmarks.edit')) %>
-        </div>
-        <div class="action-icon">
-        <%== link_to  image_tag(
-            '/images/icons/delete.svg',
-            class: 'inline-link-icon delete-link-icon') + t('bookmarks.delete_link'),
-              bookmark_path(bookmark, method: :delete),
-              class: "inline-link-icon delete-link-icon",
-              method: :delete,
-              data:   {
-              confirm: t('misc.are_your_sure'),
-              turbo_method: :delete,
-              turbo_confirm: t('misc.are_you_sure')
-              }
-
-            %>
-
-        </div>
-        <% if bookmark.private? %>
+        <% if user_signed_in? %>
           <div class="action-icon">
-            <%= inline_icon("private", icon_class: "inline-body-icon") %>
-            <span class="private-hint"><%=t('bookmarks.private_hint') %></span>
+          <%= icon_link("edit", edit_bookmark_path(bookmark),
+              link_css: "inline-link-icon edit-link-icon",
+              method: :put,
+              alt: t('bookmarks.edit'),
+              text: t('bookmarks.edit')) %>
           </div>
-        <% end %>
-        <% if bookmark.to_read? %>
-          <div class="action-icon">
-            <%= inline_icon("to_read", icon_class: "inline-body-icon to-read-icon") %>
-            <span class="to-read-hint"><%=t('bookmarks.to_read_hint') %></span>
+          <% if bookmark.to_read? %>
+            <div class="action-icon">
+            <%== link_to  image_tag(
+                            '/images/icons/to_read.svg',
+                            class: 'inline-link-icon to-read-icon'
+                          ) + t('bookmarks.mark_as_read_link'),
+                          mark_as_read_bookmark_path(bookmark, method: :put),
+                          class: "inline-link-icon to-read-link-icon",
+                  method: :put,
+                  data:   {
+                    turbo_method: :put,
+                  }
+
+                %>
+
+            </div>
+          <% else %>
+
+            <div class="action-icon">
+              <%== link_to  image_tag(
+                            '/images/icons/to_read.svg',
+                            class: 'inline-link-icon to-read-link-icon'
+                          ) + t('bookmarks.mark_to_read'),
+                          mark_to_read_bookmark_path(bookmark, method: :put),
+                          class: "inline-link-icon to-read-link-icon",
+                  method: :put,
+                  data:   {
+                    turbo_method: :put,
+                  }
+
+                %>
+            </div>
+          <% end %>
+          <% if bookmark.private? %>
+            <div class="action-icon">
+              <%= inline_icon("private", icon_class: "inline-body-icon") %>
+              <span class="private-hint"><%=t('bookmarks.private_hint') %></span>
+            </div>
+          <% end %>
+          <div class="action-icon delete-action-icon">
+            <%== link_to  image_tag(
+                '/images/icons/delete.svg',
+                class: 'inline-link-icon delete-icon') + t('bookmarks.delete_link'),
+                  bookmark_path(bookmark, method: :delete),
+                  class: "inline-link-icon delete-link-icon",
+                  method: :delete,
+                  data:   {
+                  confirm: t('misc.are_your_sure'),
+                  turbo_method: :delete,
+                  turbo_confirm: t('misc.are_you_sure')
+                  }
+
+                %>
+
           </div>
-        <% end %>
-      </div><!-- end action-icons -->
+        </div>
+        <!-- end requires login -->
+      <% end %>
+      <!-- end action-icons -->
 
 
     </div>

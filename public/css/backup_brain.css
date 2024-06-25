@@ -122,9 +122,14 @@ heading > .inline-icon{
 
 .edit-link-icon {
 }
-.delete-link-icon {
-}
 */
+.delete-icon {
+	filter: invert(30%) sepia(13%) saturate(1706%) hue-rotate(314deg) brightness(108%) contrast(95%);
+	/* filter: invert(43%) sepia(29%) saturate(752%) hue-rotate(314deg) brightness(97%) contrast(97%); */
+}
+.delete-action-icon {
+	margin-top: 0.75rem;
+}
 .bookmark-list-item {
 	border: 1px dashed #ccc;
 	border-radius: 0.5rem;

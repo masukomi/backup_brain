@@ -155,6 +155,16 @@ class BookmarksController < ApplicationController
     end
   end
 
+  # PATCH/PUT
+  def mark_as_read
+    set_to_read(false)
+  end
+
+  # PATCH/PUT
+  def mark_to_read
+    set_to_read(true)
+  end
+
   # PATCH/PUT /bookmarks/1 or /bookmarks/1.json
   def update
     respond_to do |format|
@@ -253,5 +263,33 @@ class BookmarksController < ApplicationController
 
   def privatize(query)
     user_signed_in? ? query : query.where(private: false)
+  end
+
+  def set_to_read(to_read)
+    @bookmark = Bookmark.find(params[:id])
+    respond_to do |format|
+      @bookmark.to_read = to_read
+      if @bookmark.save
+        format.turbo_stream {
+          render turbo_stream: turbo_stream.replace(
+            @bookmark,
+            partial: "bookmark",
+            locals: {bookmark: @bookmark}
+          )
+        }
+      else
+        error = to_read ? t("bookmarks.mark_to_read_error") : t("bookmarks.mark_as_read_error")
+        format.turbo_stream {
+          render turbo_stream: turbo_stream.replace(
+            @bookmark,
+            partial: "bookmark",
+            locals: {
+              bookmark: @bookmark,
+              error: error
+            }
+          )
+        }
+      end
+    end
   end
 end

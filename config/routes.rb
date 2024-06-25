@@ -14,6 +14,8 @@ Rails.application.routes.draw do
   resources :bookmarks do
     member do
       put "archive"
+      put "mark_as_read"
+      put "mark_to_read"
     end
   end
 
