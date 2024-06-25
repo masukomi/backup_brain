@@ -33,58 +33,62 @@
 
     <!--- action icons -->
     <div class="col">
-      <div class="action-icon">
-      <% if bookmark.has_archive? %>
-        <%= icon_link("archive", bookmark_path(bookmark),
-            link_css: "inline-link-icon archive-link-icon",
-            alt: t('bookmarks.view_archive_alt_text'),
-            title: t('bookmarks.view_archive_title',
-                    archive_date: I18n.l(bookmark.latest_archive.created_at.to_date,
-                                        format: :default)
-            ),
-            text:  t('bookmarks.view_archive_link_text')
+      <div class="action-icons">
+        <div class="action-icon">
+        <% if bookmark.has_archive? %>
+          <%= icon_link("archive", bookmark_path(bookmark),
+              link_css: "inline-link-icon archive-link-icon",
+              alt: t('bookmarks.view_archive_alt_text'),
+              title: t('bookmarks.view_archive_title',
+                      archive_date: I18n.l(bookmark.latest_archive.created_at.to_date,
+                                          format: :default)
+              ),
+              text:  t('bookmarks.view_archive_link_text')
 
-        )%>
-      <% else %>
-        <%= icon_link("download", archive_bookmark_path(bookmark),
-            link_css: "inline-link-icon download-link-icon",
+          )%>
+        <% else %>
+          <%= icon_link("download", archive_bookmark_path(bookmark),
+              link_css: "inline-link-icon download-link-icon",
+              method: :put,
+              alt: t('bookmarks.archive_now')) %>
+        <% end %>
+        </div>
+        <div class="action-icon">
+        <%= icon_link("edit", edit_bookmark_path(bookmark),
+            link_css: "inline-link-icon edit-link-icon",
             method: :put,
-            alt: t('bookmarks.archive_now')) %>
-      <% end %>
-      </div>
-      <div class="action-icon">
-      <%= icon_link("edit", edit_bookmark_path(bookmark),
-          link_css: "inline-link-icon edit-link-icon",
-          method: :put,
-          alt: t('bookmarks.edit'),
-          text: t('bookmarks.edit')) %>
-      </div>
-      <div class="action-icon">
-      <%== link_to  image_tag('/images/icons/delete.svg', class: 'inline-link-icon delete-link-icon') + t('bookmarks.delete_link'),
-          bookmark_path(bookmark, method: :delete),
-          class: "inline-link-icon delete-link-icon",
-          method: :delete,
-          data:   {
-           confirm: t('misc.are_your_sure'),
-           turbo_method: :delete,
-           turbo_confirm: t('misc.are_you_sure')
-          }
-
-          %>
-
-      </div>
-      <% if bookmark.private? %>
-        <div class="action-icon">
-          <%= inline_icon("private", icon_class: "inline-body-icon") %>
-          <span class="private-hint"><%=t('bookmarks.private_hint') %></span>
+            alt: t('bookmarks.edit'),
+            text: t('bookmarks.edit')) %>
         </div>
-      <% end %>
-      <% if bookmark.to_read? %>
         <div class="action-icon">
-          <%= inline_icon("to_read", icon_class: "inline-body-icon to-read-icon") %>
-          <span class="to-read-hint"><%=t('bookmarks.to_read_hint') %></span>
+        <%== link_to  image_tag(
+            '/images/icons/delete.svg',
+            class: 'inline-link-icon delete-link-icon') + t('bookmarks.delete_link'),
+              bookmark_path(bookmark, method: :delete),
+              class: "inline-link-icon delete-link-icon",
+              method: :delete,
+              data:   {
+              confirm: t('misc.are_your_sure'),
+              turbo_method: :delete,
+              turbo_confirm: t('misc.are_you_sure')
+              }
+
+            %>
+
         </div>
-      <% end %>
+        <% if bookmark.private? %>
+          <div class="action-icon">
+            <%= inline_icon("private", icon_class: "inline-body-icon") %>
+            <span class="private-hint"><%=t('bookmarks.private_hint') %></span>
+          </div>
+        <% end %>
+        <% if bookmark.to_read? %>
+          <div class="action-icon">
+            <%= inline_icon("to_read", icon_class: "inline-body-icon to-read-icon") %>
+            <span class="to-read-hint"><%=t('bookmarks.to_read_hint') %></span>
+          </div>
+        <% end %>
+      </div><!-- end action-icons -->
 
 
     </div>

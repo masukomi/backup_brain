@@ -182,6 +182,13 @@ class BookmarksController < ApplicationController
     @bookmark.destroy
 
     respond_to do |format|
+      format.turbo_stream {
+        render turbo_stream: turbo_stream.replace(
+          @bookmark,
+          partial: "removed_bookmark",
+          locals: {bookmark: @bookmark}
+        )
+      }
       format.html { redirect_to bookmarks_url, notice: t("bookmarks.deletion_success") }
       format.json { head :no_content }
     end
