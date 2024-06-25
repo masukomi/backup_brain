@@ -11,7 +11,7 @@ class BookmarksController < ApplicationController
   before_action :set_page, only: %i[index tagged_with search unarchived to_read]
   before_action :set_closeable, only: %i[new edit create update show]
   before_action :set_total_bookmarks, only: %i[index unarchived to_read tagged_with search]
-  before_action :authenticate_user!, only: %i[new create update destroy]
+  before_action :authenticate_user!, only: %i[new create update destroy archive mark_as_read mark_to_read]
 
   # GET /bookmarks or /bookmarks.json
   def index
