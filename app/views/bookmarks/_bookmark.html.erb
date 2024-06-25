@@ -10,6 +10,7 @@
         </div>
       <% end  %>
 
+      <%# favicon %>
       <div class="row">
         <div class="col">
           <% if bookmark.domain.present? %>
@@ -20,6 +21,8 @@
           <%= link_to(bookmark.title, bookmark.url) %>
         </div>
       </div>
+
+      <%# description %>
       <div class="row">
         <div class="col">
           <% if bookmark.description.present? %>
@@ -29,62 +32,70 @@
           <% end %>
         </div>
       </div>
+
+      <%# tags %>
       <div class="row">
         <div class="col">
           <%= render partial: 'shared/inline_tag_list',
               locals: {tags: bookmark.tags} %>
         </div>
       </div>
-    </div>
+
+    </div> <%# end col-8 main bookmark section %>
 
     <!--- action icons -->
     <div class="col">
       <div class="action-icons">
-        <div class="action-icon">
+        <!-- archive action -->
         <% if bookmark.has_archive? %>
-          <%= icon_link("archive", bookmark_path(bookmark),
-              link_css: "inline-link-icon archive-link-icon",
-              alt: t('bookmarks.view_archive_alt_text'),
-              title: t('bookmarks.view_archive_title',
-                      archive_date: I18n.l(bookmark.latest_archive.created_at.to_date,
-                                          format: :default)
-              ),
-              text:  t('bookmarks.view_archive_link_text')
-
-          )%>
-        <% else %>
-          <%= icon_link("download", archive_bookmark_path(bookmark),
-              link_css: "inline-link-icon download-link-icon",
-              method: :put,
-              alt: t('bookmarks.archive_now')) %>
-        <% end %>
-        </div>
-        <% if user_signed_in? %>
           <div class="action-icon">
-          <%= icon_link("edit", edit_bookmark_path(bookmark),
-              link_css: "inline-link-icon edit-link-icon",
-              method: :put,
-              alt: t('bookmarks.edit'),
-              text: t('bookmarks.edit')) %>
+            <%= icon_link("archive", bookmark_path(bookmark),
+                link_css: "inline-link-icon archive-link-icon",
+                alt: t('bookmarks.view_archive_alt_text'),
+                title: t('bookmarks.view_archive_title',
+                        archive_date: I18n.l(bookmark.latest_archive.created_at.to_date,
+                                            format: :default)
+                ),
+                text:  t('bookmarks.view_archive_link_text')
+
+            )%>
           </div>
+        <% elsif user_signed_in? %>
+          <div class="action-icon">
+            <%= icon_link("download", archive_bookmark_path(bookmark),
+                link_css: "inline-link-icon download-link-icon",
+                method: :put,
+                alt: t('bookmarks.archive_now')) %>
+          </div>
+        <% end %>
+
+        <% if user_signed_in? %>
+        <!-- restricted actions -->
+          <!-- edit -->
+          <div class="action-icon">
+            <%= icon_link("edit", edit_bookmark_path(bookmark),
+                link_css: "inline-link-icon edit-link-icon",
+                method: :put,
+                alt: t('bookmarks.edit'),
+                text: t('bookmarks.edit')) %>
+          </div>
+          <!-- read status toggle -->
           <% if bookmark.to_read? %>
             <div class="action-icon">
-            <%== link_to  image_tag(
-                            '/images/icons/to_read.svg',
-                            class: 'inline-link-icon to-read-icon'
-                          ) + t('bookmarks.mark_as_read_link'),
-                          mark_as_read_bookmark_path(bookmark, method: :put),
-                          class: "inline-link-icon to-read-link-icon",
-                  method: :put,
-                  data:   {
-                    turbo_method: :put,
-                  }
-
+              <%== link_to  image_tag(
+                              '/images/icons/to_read.svg',
+                              class: 'inline-link-icon to-read-icon'
+                            ) + t('bookmarks.mark_as_read_link'),
+                            mark_as_read_bookmark_path(bookmark, method: :put),
+                            class: "inline-link-icon to-read-link-icon",
+                    method: :put,
+                    data:   {
+                      turbo_method: :put,
+                    }
                 %>
 
             </div>
           <% else %>
-
             <div class="action-icon">
               <%== link_to  image_tag(
                             '/images/icons/to_read.svg',
@@ -100,12 +111,16 @@
                 %>
             </div>
           <% end %>
+
+          <!-- privacy reminder -->
           <% if bookmark.private? %>
             <div class="action-icon">
               <%= inline_icon("private", icon_class: "inline-body-icon") %>
               <span class="private-hint"><%=t('bookmarks.private_hint') %></span>
             </div>
           <% end %>
+
+          <!-- delete action -->
           <div class="action-icon delete-action-icon">
             <%== link_to  image_tag(
                 '/images/icons/delete.svg',
