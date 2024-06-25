@@ -29,9 +29,9 @@
         // 	trigger: 'focus'
         // })
     </script>
-    <link rel="icon" href="/images/logo_32x32.png" sizes="32x32">
-    <link rel="icon" href="/images/logo_128x128.png" sizes="128x128">
-    <link rel="icon" href="/images/logo_180x180.png" sizes="180x180">
+    <link rel="icon" href="/images/icons/logo_32x32.png" sizes="32x32">
+    <link rel="icon" href="/images/icons/logo_128x128.png" sizes="128x128">
+    <link rel="icon" href="/images/icons/logo_180x180.png" sizes="180x180">
   </head>
 
   <body>
@@ -113,6 +113,12 @@
                     title: t('misc.browser_extensions.safari_link')
                     )%>
                 </span>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col version-info">
+            <%= t('misc.launched_with_version', version: Rails.configuration.x.git_version) %>
             </div>
         </div>
     </div>

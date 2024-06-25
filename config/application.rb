@@ -40,5 +40,13 @@ module BackupBrain
     # Use delayed_job for ActiveJob
     config.active_job.queue_adapter = :delayed_job
 
+    begin
+      latest_tag = `git tag --sort=v:refname | tail -1`.strip
+      latest_tag = "no parent tag" if latest_tag.blank?
+      latest_commit = `git log -n1 --pretty='%h'`.strip
+      config.x.git_version = "#{latest_tag} -> #{latest_commit}"
+    rescue => e
+      config.x.git_version = "UNKNOWN: #{e.message}"
+    end
   end
 end
