@@ -78,6 +78,9 @@ heading > .inline-icon{
 .inline-link-icon {
 	margin-right: 0.25rem;
 }
+.download-link-icon::before {
+	content: unset !important;
+}
 .inline-link-icon img {
 	max-width: 1rem;
 }
@@ -115,6 +118,7 @@ heading > .inline-icon{
 .current-archive-item > a::before {
 	content: "▶ ";
 }
+
 /*.action-icons {
 }
 .action-icon {

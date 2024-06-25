@@ -94,6 +94,7 @@ en:
     mark_to_read_link: "Mark to read"
     mark_as_read_link: "Mark as read"
     inline_deletion_message: "⛔ Deleted"
+    download_archive_link: "Download Markdown"
     none_message: "
         <h4>You poor thing. You've got no bookmarks!</h4>
         <p>Go click the \"Add a bookmark\" link on the right

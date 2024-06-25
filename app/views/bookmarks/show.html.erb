@@ -13,6 +13,7 @@
           <%=t('bookmarks.archived_date_message',
               archive_date: archive_date_string(@archive)
           ) %>
+
         </div>
 
 
@@ -58,6 +59,11 @@
              %>
             <li class="<%= current ? 'current-archive-item' : '' %>">
               <%= show_archive_link(an_archive) %>
+              <%= icon_link("download",
+                    download_bookmark_path(@bookmark, archive_id: @archive._id),
+                  link_css: "inline-link-icon download-link-icon",
+                  method: :put,
+                  alt: t('bookmarks.download_archive_link')) %>
             </li>
           <% end %>
         </ul>

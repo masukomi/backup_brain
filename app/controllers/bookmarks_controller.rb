@@ -6,10 +6,11 @@ class BookmarksController < ApplicationController
   # you allow multiple accounts to be created.
   # Don't do that. This is a single-user instance.
 
-  before_action :set_bookmark, only: %i[show edit update archive destroy]
+  before_action :set_bookmark, only: %i[show download edit update archive destroy]
   before_action :set_limit, only: %i[index tagged_with search unarchived to_read]
   before_action :set_page, only: %i[index tagged_with search unarchived to_read]
   before_action :set_closeable, only: %i[new edit create update show]
+  before_action :set_archive, only: %i[show download]
   before_action :set_total_bookmarks, only: %i[index unarchived to_read tagged_with search]
   before_action :authenticate_user!, only: %i[new create update destroy archive mark_as_read mark_to_read]
 
@@ -96,13 +97,20 @@ class BookmarksController < ApplicationController
 
   # GET /bookmarks/1 or /bookmarks/1.json
   def show
-    # display with the most recent archive
-    # TODO: handle the archive_id parameter
-    @archive = if params[:archive_id].blank?
-      @bookmark.latest_archive("text/markdown")
-    else
-      @bookmark.archives.where(_id: params[:archive_id]).first
-    end
+    # set_archive is invoked before this
+  end
+
+  def download
+    # set_archive is invoked before this
+    mime_type = @archive.mime_type || "text/markdown"
+    filename = (@bookmark.title || "bookmark")
+      .downcase
+      .gsub(/\W+/, "_")
+      .sub(/_*$/, "") + ".md"
+    send_data(@archive.string_data,
+      type: mime_type,
+      filename: filename,
+      disposition: "attachment")
   end
 
   # GET /bookmarks/new
@@ -264,6 +272,18 @@ class BookmarksController < ApplicationController
 
   def set_total_bookmarks
     @total_bookmarks = Bookmark.count
+  end
+
+  def set_archive
+    if @bookmark.blank?
+      @archive = nil
+      return
+    end
+    @archive = if params[:archive_id].blank?
+      @bookmark.latest_archive("text/markdown")
+    else
+      @bookmark.archives.where(_id: params[:archive_id]).first
+    end
   end
 
   def privatize(query)
