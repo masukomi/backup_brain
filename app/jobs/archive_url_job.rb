@@ -13,7 +13,7 @@ class ArchiveUrlJob < ApplicationJob
 
   # it seems ridiculous that i have to specify all the effing tags
   # in order to get it to just give me the core content.
-  # note: these are all the tags that markdown supports
+  # NOTE: THESE ARE ALL THE TAGS THAT MARKDOWN SUPPORTS
   READABILITY_TAGS = %w[
     div
     p br
@@ -25,6 +25,8 @@ class ArchiveUrlJob < ApplicationJob
     ol ul li
     dd dt
     code pre tt
+
+    table
   ]
 
   queue_as :low_priority # :default
@@ -39,7 +41,7 @@ class ArchiveUrlJob < ApplicationJob
 
     response = download(bookmark.url)
     core_content = get_core_content(response.body)
-    markdown = ReverseMarkdown.convert core_content
+    markdown = ReverseMarkdown.convert(core_content, unknown_tags: :bypass)
     bookmark.archives << Archive.new(
       mime_type: "text/markdown",
       string_data: markdown
@@ -73,19 +75,4 @@ class ArchiveUrlJob < ApplicationJob
       raise UnarchivableUrl("Failed to download #{url} - #{response.code}")
     end
   end
-  # def fetch(uri_str, limit = 10)
-  #   # You should choose better exception.
-  #   raise ArgumentError, "HTTP redirect too deep" if limit == 0
-
-  #   url = URI.parse(uri_str)
-  #   req = Net::HTTP::Get.new(url.path, {"User-Agent" => "Mozilla/5.0 (etc...)"})
-  #   response = Net::HTTP.start(url.host, url.port, use_ssl: true) { |http| http.request(req) }
-  #   case response
-  #   when Net::HTTPSuccess     then response
-  #   when Net::HTTPRedirection then fetch(response["location"], limit - 1)
-  #   else
-  #     response.error!
-  #   end
-  #   response
-  # end
 end
