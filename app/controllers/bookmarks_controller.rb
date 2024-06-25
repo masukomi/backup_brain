@@ -67,10 +67,16 @@ class BookmarksController < ApplicationController
       sort: sort_params,
       offset: (@limit * (@page - 1)) # number of resources skipped
     }
+    unless user_signed_in?
+      options[:filter] = "private = false"
+    end
 
     begin
       # if we were searching for _any_ record we'd use `filtered_by_class: false`
-      raw_results = privatize(Bookmark.search(@query, options: options, filtered_by_class: true))
+      # note: already privatized via filter
+      # raw_results is a hash see the following for details
+      # https://github.com/masukomi/mongodb_meilisearch?tab=readme-ov-file#searching
+      raw_results = Bookmark.search(@query, options: options, filtered_by_class: true)
       @pagy = pagify_search(raw_results["search_result_metadata"]["nbHits"])
       @bookmarks = raw_results["matches"]
 
