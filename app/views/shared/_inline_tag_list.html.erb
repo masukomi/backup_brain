@@ -1,12 +1,14 @@
 <% if tags.present? %>
     <% tags.each do | tag | %>
-        <%= icon_link(
-            "tag",
-            bookmarks_tagged_with_path(tags: tag),
-            link_css: "inline-link-icon",
-            alt: t('icons.tag_alt')
-        ) %>
-        <%= link_to(tag, bookmarks_tagged_with_path(tags: tag)) %>
+        <span class="no-wrap">
+            <%= icon_link(
+                "tag",
+                bookmarks_tagged_with_path(tags: tag),
+                link_css: "inline-link-icon",
+                alt: t('icons.tag_alt')
+            ) %>
+            <%= link_to(tag, bookmarks_tagged_with_path(tags: tag)) %>
+        </span>
     <% end %>
 <% else %>
     <span class="quiet-notice"><%= t('bookmarks.no_tags_message') %></span>

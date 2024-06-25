@@ -134,10 +134,15 @@ heading > .inline-icon{
 .private-bookmark {
 	background-color: #ffecc5;
 }
-.private-hint {
+.private-hint,
+.file-a-ticket-link-icon,
+#side-nav-items > li > a.file-a-ticket-link-icon{
 	font-style: italic;
 	font-size: 0.8rem;
 	color: #aaa;
+}
+.file-a-ticket-link-icon > img{
+	filter: invert(76%) sepia(7%) saturate(8%) hue-rotate(346deg) brightness(91%) contrast(83%);
 }
 .to-read-hint {
 	font-style: italic;
@@ -196,7 +201,9 @@ heading > .inline-icon{
 	margin-top: 2rem;
 	margin-bottom: 2rem;
 }
-
+.no-wrap{
+	white-space: nowrap;
+}
 debugging{
 	border: solid 2px red;
 	background: #ff6e67;
