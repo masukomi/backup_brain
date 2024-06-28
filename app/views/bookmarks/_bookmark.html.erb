@@ -50,22 +50,24 @@
         <% if bookmark.has_archive? %>
           <div class="action-icon">
             <%= icon_link("archive", bookmark_path(bookmark),
-                link_css: "inline-link-icon archive-link-icon",
-                alt: t('bookmarks.view_archive_alt_text'),
-                title: t('bookmarks.view_archive_title',
-                        archive_date: I18n.l(bookmark.latest_archive.created_at.to_date,
-                                            format: :default)
-                ),
-                text:  t('bookmarks.view_archive_link_text')
-
-            )%>
+                  link_css: "inline-link-icon archive-link-icon",
+                  alt: t('bookmarks.view_archive_alt_text'),
+                  title: t('bookmarks.view_archive_title',
+                          archive_date: I18n.l(bookmark.latest_archive.created_at.to_date,
+                                              format: :default)
+                  ),
+                  text:  t('bookmarks.view_archive_link_text')
+                )
+                %>
           </div>
         <% elsif user_signed_in? %>
           <div class="action-icon">
             <%= icon_link("download", archive_bookmark_path(bookmark),
                 link_css: "inline-link-icon download-link-icon",
                 method: :put,
-                alt: t('bookmarks.archive_now')) %>
+                alt: t('bookmarks.archive_now'),
+                text: t('bookmarks.archive_now_link_text')
+                ) %>
           </div>
         <% end %>
 
