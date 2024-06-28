@@ -3,10 +3,6 @@ require "uri"
 require "readability"
 require "reverse_markdown"
 
-class UnarchivableUrl < StandardError; end
-
-# ArchiveUrlWithoutRetriesJob can be found at the bottom of this file
-
 class ArchiveUrlJob < ApplicationJob
   include BackupBrain::ArchiveTools
   queue_as :archiving
@@ -59,11 +55,14 @@ class ArchiveUrlJob < ApplicationJob
       ignore_image_format: [],
       tags: READABILITY_TAGS,
       attributes: %w[src href]
-    ).content.gsub(/<\/p><p>/i, "</p>\n<p>")
+    )
+      .content
+      .gsub(/<\/p><p>/i, "</p>\n<p>")
   end
 
   def download(url)
-    raise UnarchivableUrl("Server says no: #{url}") unless url_downloadable?(url)
+    downloadable, error_code = url_downloadable?(url, include_code: true)
+    raise BackupBrain::Errors::UnarchivableUrl.new("Remote server prevented download. Status code: #{error_code}") unless downloadable
     response = HTTParty.get(url,
       verify: false,
       timeout: 5,
