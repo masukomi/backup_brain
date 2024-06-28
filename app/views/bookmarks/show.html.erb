@@ -3,7 +3,7 @@
   <% if @archive.present?  %>
     <div class="row">
       <div class="col">
-        <heading><%=@bookmark.title %></heading>
+        <heading><%=link_to(@bookmark.title, @bookmark.url) %></heading>
         <div>
           <%= render partial: 'shared/inline_tag_list',
               locals: {tags: @bookmark.tags} %>
