@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+#
+# called by serve when it receives ^c
+
+function kill_delayed_jobs() {
+	echo "Killing Delayed Job Workers…"
+	pids=$(ps -ef | grep delayed_job | grep -v grep | awk '{print $2}')
+	while [ "$pids" != ""  ]; do
+	ps -ef | grep delayed_job | grep -v grep | awk '{print $2}' | xargs kill
+	pids=$(ps -ef | grep delayed_job | grep -v grep | awk '{print $2}')
+	done
+}
+
+# only call the function if we're NOT being sourced
+if [ "$(basename -- "$0")" == "kill_delayed_jobs" ]; then
+	kill_delayed_jobs
+# else
+# 	echo 'being sourced'
+fi
+
