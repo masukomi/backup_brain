@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+source "$SCRIPT_DIR/kill_delayed_jobs"
+
+echo "Killing Rails Server (puma)…"
+SERVER_PID=$(cat $SCRIPT_DIR/../tmp/pids/server.pid 2> /dev/null)
+if [ "$SERVER_PID" != "" ]; then
+    kill $SERVER_PID
+else
+    echo "Unable to find server's process id. Maybe it's not running?"
+
+    if [[ $OSTYPE == "darwin"* ]]; then
+        echo "run this to find out
+ps -awx | grep $(basename $PWD)/serve"
+    else
+        echo "run
+ps -AH S | grep $(basename $PWD)/serve"
+    fi
+
+    echo "If you find a result then kill the process id that is listed in the left column.
+
+    kill <process_id>
+    "
+
+fi
+
+source 'bin/kill_delayed_jobs'
+kill_delayed_jobs
