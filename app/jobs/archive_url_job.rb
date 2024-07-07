@@ -6,7 +6,7 @@ class ArchiveUrlJob < ApplicationJob
   include BackupBrain::ArchiveTools
   queue_as :low_priority # :default
 
-  MD_LINK_REGEXP = /((\[.*?\])\(\s*?(?!https?:\/\/)(.*?)\s*?\))/i
+  SIMPLE_MD_LINK_REGEXP = /((\[.*?\])\(\s*?(?!https?:\/\/)(.*?)\s*?\))/i
   def perform(bookmark_id:)
     bookmark = begin
       Bookmark.find(bookmark_id)
@@ -115,42 +115,45 @@ class ArchiveUrlJob < ApplicationJob
     # be more efficent than tons of concatenation
     buffer = StringIO.new
     # iterate over each line
-    markdown.split(/\r\n|\n/).each_with_index do |line, index|
-      # TODO handle src="/foo" and data="/foo" (the latter may be tricky)
-      matches = line.match?(MD_LINK_REGEXP)
-      if !matches
-        buffer.write(line + "\n")
-      else
-        match_datas = line.to_enum(:scan, MD_LINK_REGEXP).map { Regexp.last_match }
-        # given this string:
-        # "this line 4 [link1](foo), ![link2](/boo.jpg) has two & one's an image"
-        #
+    markdown.split(/\r\n|\n/).each do |line|
+      processed_line = process_simple_md_links(line, domain, directory)
 
-        # "this line 4 "
-        first_match_start = (match_datas[0].offset(0)[0] - 1)
-        buffer.write(line[0..first_match_start]) unless first_match_start == -1
-
-        match_datas.each_with_index do |m_d, index|
-          # #<MatchData "[link1](foo)" 1:"[link1](foo)" 2:"[link1]" 3:"foo">
-          post_match = m_d.offset(0)[1]
-
-          buffer.write(m_d[2] + "(#{fully_qualify_path(m_d[3], domain, directory)})")
-
-          has_next = match_datas.size > index + 1
-          if !has_next
-            buffer.write(line[post_match..] + "\n")
-            break # not needed, but makes behavior clearer
-          else
-            next_match_start = match_datas[index + 1].offset(0)[0] - 1
-            buffer.write(line[post_match..next_match_start])
-          end
-        end
-        # Yes, I DID just reimplement gsub 🤦‍♀️
-        # The problem is that backreferences like '\2' aren't actually converted
-        # into what they point to until AFTER the replacement is handled. It's weird.
-      end
+      buffer.write(processed_line)
+      buffer.write("\n")
     end
     buffer.string
+  end
+
+  # takes in a line, processes its simple [foo](bar) links
+  # and returns the line.
+  def process_simple_md_links(line, domain, directory)
+    # TODO handle src="/foo" and data="/foo" (the latter may be tricky)
+    matches = line.match?(SIMPLE_MD_LINK_REGEXP)
+    return line unless matches
+    new_line = ""
+    match_datas = line.to_enum(:scan, SIMPLE_MD_LINK_REGEXP).map { Regexp.last_match }
+    first_match_start = (match_datas[0].offset(0)[0] - 1)
+    new_line += line[0..first_match_start] unless first_match_start == -1
+
+    match_datas.each_with_index do |m_d, index|
+      # #<MatchData "[link1](foo)" 1:"[link1](foo)" 2:"[link1]" 3:"foo">
+      post_match = m_d.offset(0)[1]
+
+      new_line += m_d[2] + "(#{fully_qualify_path(m_d[3], domain, directory)})"
+
+      has_next = match_datas.size > index + 1
+      if !has_next
+        new_line += line[post_match..]
+        break # not needed, but makes behavior clearer
+      else
+        next_match_start = match_datas[index + 1].offset(0)[0] - 1
+        new_line += line[post_match..next_match_start]
+      end
+    end
+    # Yes, I DID just reimplement gsub 🤦‍♀️
+    # The problem is that backreferences like '\2' aren't actually converted
+    # into what they point to until AFTER the replacement is handled. It's weird.
+    new_line
   end
 
   # because this is only used when we've matched that it's NOT
