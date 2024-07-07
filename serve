@@ -6,19 +6,24 @@ GREEN="${ESCAPE}[92m"
 YELLOW="${ESCAPE}[33m"
 NOCOLOR="${ESCAPE}[0m"
 
+
 # Exit on error
 set -e
 
 trap ctrl_c INT
+trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT
 
 function ctrl_c() {
- pids=$(ps -ef | grep delayed_job | grep -v grep | awk '{print $2}')
- while [ "$pids" != ""  ]; do
-   echo "Killing Delayed Job Workers"
-   ps -ef | grep delayed_job | grep -v grep | awk '{print $2}' | xargs kill
-   pids=$(ps -ef | grep delayed_job | grep -v grep | awk '{print $2}')
- done
+ echo "Shutting down"
+ echo "Killing Rails Server (puma)…"
+ kill $(cat ./tmp/pids/server.pid)
+
+ source 'bin/kill_delayed_jobs'
+ kill_delayed_jobs
+
+ kill -- -$$
 }
+
 
 # Make sure you've defined a host name
 hostname=$(cat .env | grep "^HOST_NAME" | sed -e "s/HOST_NAME=//" -e "s/#.*//")
