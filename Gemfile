@@ -46,7 +46,6 @@ gem "mongoid"
 
 gem "org-ruby" # org-mode markup renderer
 gem "redcarpet" # markdown renderer
-gem "ruby-readability", require: "readability"
 gem "reverse_markdown"
 gem "pygments.rb"
 gem "meilisearch"

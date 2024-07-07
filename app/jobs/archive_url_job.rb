@@ -1,32 +1,12 @@
-require "net/http"
 require "uri"
-require "readability"
-require "reverse_markdown"
+require "tempfile"
+require "open3"
 
 class ArchiveUrlJob < ApplicationJob
   include BackupBrain::ArchiveTools
-  queue_as :archiving
-
-  # it seems ridiculous that i have to specify all the effing tags
-  # in order to get it to just give me the core content.
-  # NOTE: THESE ARE ALL THE TAGS THAT MARKDOWN SUPPORTS
-  READABILITY_TAGS = %w[
-    div
-    p br
-    img
-    a
-    strong em i b
-    h1 h2 h3 h4 h5 h6
-    blockquote
-    ol ul li
-    dd dt
-    code pre tt
-
-    table
-  ]
-
   queue_as :low_priority # :default
 
+  MD_LINK_REGEXP = /((\[.*?\])\(\s*?(?!https?:\/\/)(.*?)\s*?\))/i
   def perform(bookmark_id:)
     bookmark = begin
       Bookmark.find(bookmark_id)
@@ -35,43 +15,161 @@ class ArchiveUrlJob < ApplicationJob
     end
     return unless bookmark
 
-    response = download(bookmark.url)
-    core_content = get_core_content(response.body)
-    markdown = ReverseMarkdown.convert(core_content, unknown_tags: :bypass)
-    bookmark.archives << Archive.new(
-      mime_type: "text/markdown",
-      string_data: markdown
-    )
-    bookmark.save!
+    unless ENV["I_INSTALLED_READER"] == "true" && viable_reader_install?
+      Rails.logger.warn("ArchiveUrlJob can't run without reader installed")
+    end
+
+    begin
+      tempfile = download(bookmark)
+      markdown_string = run_reader(tempfile) # potentially Raises
+      markdown_string = fully_qualify_urls(markdown_string, bookmark)
+      tempfile.close
+
+      bookmark.archives << Archive.new(
+        mime_type: "text/markdown",
+        string_data: markdown_string
+      )
+      bookmark.save!
+    rescue BackupBrain::Errors::UnarchivableUrl => e
+      Rails.logger.error(e.message)
+      begin
+        tempfile.close
+      rescue
+        nil
+      end
+    end
   rescue => e
     Rails.logger.warn("couldn't archive #{bookmark.url} - #{e.message}")
   end
 
-  def get_core_content(full_html)
-    Readability::Document.new(
-      full_html,
-      remove_empty_nodes: true,
-      min_image_width: 200,
-      ignore_image_format: [],
-      tags: READABILITY_TAGS,
-      attributes: %w[src href]
-    )
-      .content
-      .gsub(/<\/p><p>/i, "</p>\n<p>")
+  def viable_reader_install?
+    File.executable?(reader_path)
   end
 
-  def download(url)
-    downloadable, error_code = url_downloadable?(url, include_code: true)
+  def reader_path
+    Rails.root.join("bin/reader")
+  end
+
+  def download(bookmark)
+    # NOTE: reader CAN download this itself,
+    # but i want to have control over the User-Agent
+    # and know that retries & redirects will be
+    # handled well. So I'm downloading it with HTTParty.
+    downloadable, error_code = url_downloadable?(bookmark.url, include_code: true)
     raise BackupBrain::Errors::UnarchivableUrl.new("Remote server prevented download. Status code: #{error_code}") unless downloadable
-    response = HTTParty.get(url,
+    response = HTTParty.get(bookmark.url,
       verify: false,
       timeout: 5,
       headers: {"User-Agent" => "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.79 Safari/537.36"})
     if response.code < 400
-      response
+      file = Tempfile.new(bookmark._id.to_s)
+      file.write(response.body)
+      file
     else
-      Rails.logger.warn("Failed to download #{url} - #{response.code}")
-      raise UnarchivableUrl("Failed to download #{url} - #{response.code}")
+      Rails.logger.warn("Failed to download #{bookmark.url} - #{response.code}")
+      raise UnarchivableUrl("Failed to download #{bookmark.url} - #{response.code}")
+    end
+  end
+
+  def run_reader(tempfile)
+    # Given that this is a single-user self-hosted site, it'd be pretty
+    # weird for someone to create a malicious url to hack the system.
+    # But it's possible they reused a password that got leaked
+    # and now some a-hole is trying to hack into their stuff.
+    # Incredibly unlikely, but hey. Best Practices are "BEST" practices
+    # for a reason. We'll make sure to escape that input.
+
+    # reader doesn't care if the file path ends in .html or not
+
+    _, stdout, stderr, wait_thr = Open3.popen3(
+      reader_path.to_path,
+      "-o",
+      "--image-mode",
+      "none",
+      tempfile.path
+    )
+    markdown_string = stdout.gets(nil)&.chomp
+    stdout.close
+    error_string = stderr.gets(nil)&.chomp # hopefully nil
+    stderr.close
+    exit_code = wait_thr.value
+    return markdown_string if exit_code == 0
+    raise BackupBrain::Errors::UnarchivableUrl.new("problems invoking reader: (Exit Code:  #{exit_code}) #{error_string}")
+  end
+
+  def fully_qualify_urls(markdown, bookmark)
+    # ![text](/foo/bar.gif) -> [text](https://example.com/foo/bar.gif)
+    # ![text](bar.gif) -> [text](https://example.com/bar.gif)
+    # [text](#foo) -> [text](#foo)
+    # the ! (image url) doesn't effect anything here
+
+    return if markdown.nil? || (markdown.size == 0)
+    uri = URI.parse(bookmark.url)
+    # given bookmark.url of: "https://example.com/foo/bar.html"
+    # uri.origin => "https://example.com"
+    # File.dirname(bookmark.url) => "https://example.com/foo"
+    domain    = uri.origin
+    directory = get_directory_url(bookmark)
+
+    # create a string buffer because it'll probably
+    # be more efficent than tons of concatenation
+    buffer = StringIO.new
+    # iterate over each line
+    markdown.split(/\r\n|\n/).each_with_index do |line, index|
+      # TODO handle src="/foo" and data="/foo" (the latter may be tricky)
+      matches = line.match?(MD_LINK_REGEXP)
+      if !matches
+        buffer.write(line + "\n")
+      else
+        match_datas = line.to_enum(:scan, MD_LINK_REGEXP).map { Regexp.last_match }
+        # given this string:
+        # "this line 4 [link1](foo), ![link2](/boo.jpg) has two & one's an image"
+        #
+
+        # "this line 4 "
+        first_match_start = (match_datas[0].offset(0)[0] - 1)
+        buffer.write(line[0..first_match_start]) unless first_match_start == -1
+
+        match_datas.each_with_index do |m_d, index|
+          # #<MatchData "[link1](foo)" 1:"[link1](foo)" 2:"[link1]" 3:"foo">
+          post_match = m_d.offset(0)[1]
+
+          buffer.write(m_d[2] + "(#{fully_qualify_path(m_d[3], domain, directory)})")
+
+          has_next = match_datas.size > index + 1
+          if !has_next
+            buffer.write(line[post_match..] + "\n")
+            break # not needed, but makes behavior clearer
+          else
+            next_match_start = match_datas[index + 1].offset(0)[0] - 1
+            buffer.write(line[post_match..next_match_start])
+          end
+        end
+        # Yes, I DID just reimplement gsub 🤦‍♀️
+        # The problem is that backreferences like '\2' aren't actually converted
+        # into what they point to until AFTER the replacement is handled. It's weird.
+      end
+    end
+    buffer.string
+  end
+
+  # because this is only used when we've matched that it's NOT
+  # starting with http(s) I'm going to assume it's "/foo" or "foo"
+  def fully_qualify_path(path, domain, directory)
+    # note domain & directory do NOT have trailing slashes
+    return (domain + path) if path.start_with? "/"
+    # path may be ../foo/bar.jpg
+    # but loading
+    # https://example.com/bar/../foo/bar.jpg should work just fine
+    "#{directory}/#{path}"
+  end
+
+  def get_directory_url(bookmark)
+    qs_less = bookmark.url.sub(/\?.*/, "")
+    if !qs_less.end_with?("/")
+      File.dirname(bookmark.url)
+    else
+      qs_less.sub(/\/$/, "")
     end
   end
 end

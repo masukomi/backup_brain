@@ -78,6 +78,11 @@ class Bookmark
   #
   # @param[Boolean] now - Determines if the job is run now, or asynchronously. Defaults to false (asynchronous).
   def generate_archive(now = false)
+    # FIXME: this is hack until we can replace the "reader"
+    # command line tool with a ruby library that actually works
+    # https://github.com/masukomi/backup_brain/issues/55
+    return unless ENV["I_INSTALLED_READER"] == "true"
+
     if url.blank?
       # only a warning because this shouldn't be a surprise.
       Rails.logger.warning(t("errors.bookmarks.cant_archive_without_url"))
