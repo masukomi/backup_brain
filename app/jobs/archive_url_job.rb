@@ -7,6 +7,7 @@ class ArchiveUrlJob < ApplicationJob
   queue_as :low_priority # :default
 
   SIMPLE_MD_LINK_REGEXP = /((\[.*?\])\(\s*?(?!https?:\/\/)(.*?)\s*?\))/i
+  IMAGE_MD_LINK_REGEXP = /((\[.*?\])\(\s*?(?!https?:\/\/)(.*?)\s*?\))/i
   def perform(bookmark_id:)
     bookmark = begin
       Bookmark.find(bookmark_id)
@@ -116,7 +117,8 @@ class ArchiveUrlJob < ApplicationJob
     buffer = StringIO.new
     # iterate over each line
     markdown.split(/\r\n|\n/).each do |line|
-      processed_line = process_simple_md_links(line, domain, directory)
+      processed_line = process_md_links(SIMPLE_MD_LINK_REGEXP, line, domain, directory)
+      processed_line = process_md_links(IMAGE_MD_LINK_REGEXP, processed_line, domain, directory)
 
       buffer.write(processed_line)
       buffer.write("\n")
@@ -126,12 +128,12 @@ class ArchiveUrlJob < ApplicationJob
 
   # takes in a line, processes its simple [foo](bar) links
   # and returns the line.
-  def process_simple_md_links(line, domain, directory)
+  def process_md_links(regexp, line, domain, directory)
     # TODO handle src="/foo" and data="/foo" (the latter may be tricky)
-    matches = line.match?(SIMPLE_MD_LINK_REGEXP)
+    matches = line.match?(regexp)
     return line unless matches
     new_line = ""
-    match_datas = line.to_enum(:scan, SIMPLE_MD_LINK_REGEXP).map { Regexp.last_match }
+    match_datas = line.to_enum(:scan, regexp).map { Regexp.last_match }
     first_match_start = (match_datas[0].offset(0)[0] - 1)
     new_line += line[0..first_match_start] unless first_match_start == -1
 

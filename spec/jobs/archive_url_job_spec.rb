@@ -89,7 +89,6 @@ RSpec.describe ArchiveUrlJob do
     end
 
     it "handles images in links" do
-      pending("just haven't implemented this yet")
       line_6 = "[![an_image](https://example.com/image.png)](https://example.com/thats/a/link)"
       expect(processed_lines[5]).to(eq(line_6))
     end
