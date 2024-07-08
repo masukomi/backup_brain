@@ -10,8 +10,9 @@ h1 {
 archive h1 {
 	max-height: unset;
 }
-archive img {
-	max-width: 50rem;
+archive img,
+archive svg {
+	max-width: 50rem !important;
 }
 heading {
 	font-size: 120%;
