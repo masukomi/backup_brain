@@ -7,8 +7,11 @@ h1 {
 	max-height: 2rem;
 	margin-bottom: 1.5rem;
 }
-archive > h1 {
+archive h1 {
 	max-height: unset;
+}
+archive img {
+	max-width: 50rem;
 }
 heading {
 	font-size: 120%;
