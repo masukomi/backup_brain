@@ -8,14 +8,22 @@ class ApplicationController < ActionController::Base
   before_action :configure_permitted_devise_params, if: :devise_controller?
 
   def flash_message(type, text)
-    flash[type] ||= []
-    if text.present? && flash[type].exclude?(text)
-      # was accidentally getting duplicate flash messages
-      flash[type] << text
-    end
+    generic_flash_message(flash, type, text)
+  end
+
+  def inline_flash_message(type, text)
+    generic_flash_message((@inline_flash ||= {}), type, text)
   end
 
   protected
+
+  def generic_flash_message(hash, type, text)
+    hash[type] ||= []
+    if text.present? && hash[type].exclude?(text)
+      # was accidentally getting duplicate hash messages
+      hash[type] << text
+    end
+  end
 
   def get_layout
     if params[:layout].present? && VALID_ALTERNATE_LAYOUTS.include?(params[:layout])

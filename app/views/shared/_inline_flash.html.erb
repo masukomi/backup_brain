@@ -1,0 +1,7 @@
+<% inline_flash.each do |type, msg| %>
+    <% Array(msg).each do |m| %>
+        <div class="alert <%=class_for_flash(type) %>">
+            <%= t("misc.alerts.#{type}") %>: <%= m %>
+        </div>
+    <% end %>
+<% end %>

@@ -4,11 +4,10 @@
 <div id="<%= dom_id bookmark %>" class="container bookmark-list-item <%= privacy_class %> <%= to_read_class %>">
   <div class="row">
     <div class="col-8">
-      <% if defined?(error) %>
-        <div class="alert <%=class_for_flash('error') %>">
-            <%= t("misc.alerts.error") %>: <%= error %>
-        </div>
-      <% end  %>
+      <% if defined?(inline_flash) %>
+        <%= render partial: 'shared/inline_flash',
+            locals: {inline_flash: inline_flash} %>
+      <% end %>
 
       <%# favicon %>
       <div class="row">
@@ -61,13 +60,22 @@
                 %>
           </div>
         <% elsif user_signed_in? %>
-          <div class="action-icon">
-            <%= icon_link("download", archive_bookmark_path(bookmark),
-                link_css: "inline-link-icon download-link-icon",
-                method: :put,
-                alt: t('bookmarks.archive_now'),
-                text: t('bookmarks.archive_now_link_text')
-                ) %>
+
+          <div class="action-icon delete-action-icon">
+            <%== link_to  image_tag(
+                '/images/icons/download.svg',
+                 class: 'inline-link-icon download-icon'
+                 ) +
+                 t('bookmarks.archive_now_link_text'),
+                  archive_bookmark_path(bookmark, method: :put),
+                  class: "inline-link-icon archive-link-icon",
+                  method: :put,
+                  data:   {
+                  turbo_method: :put
+                  }
+
+                %>
+
           </div>
         <% end %>
 

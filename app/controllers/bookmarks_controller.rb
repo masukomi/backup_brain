@@ -159,12 +159,33 @@ class BookmarksController < ApplicationController
 
   # PATCH/PUT
   def archive
-    if @bookmark.generate_archive(true)
-      flash_message(:notice, t("bookmarks.archiving_success"))
-      redirect_to bookmark_url(@bookmark)
+    success = @bookmark.generate_archive(true)
+    if success
+      inline_flash_message(:notice, t("bookmarks.archiving_success"))
+      @bookmark.reload
     else
-      flash_message(:error, t("bookmarks.archiving_error"))
-      redirect_back
+      inline_flash_message(:error, t("bookmarks.archiving_error"))
+    end
+
+    respond_to do |format|
+      format.turbo_stream {
+        render turbo_stream: turbo_stream.replace(
+          @bookmark,
+          partial: "bookmark",
+          locals: {
+            bookmark: @bookmark,
+            inline_flash: @inline_flash
+          }
+        )
+      }
+
+      format.html {
+        if success
+          redirect_to bookmark_url(@bookmark)
+        else
+          redirect_back
+        end
+      }
     end
   end
 
@@ -295,26 +316,17 @@ class BookmarksController < ApplicationController
     respond_to do |format|
       @bookmark.to_read = to_read
       if @bookmark.save
-        format.turbo_stream {
-          render turbo_stream: turbo_stream.replace(
-            @bookmark,
-            partial: "bookmark",
-            locals: {bookmark: @bookmark}
-          )
-        }
       else
         error = to_read ? t("bookmarks.mark_to_read_error") : t("bookmarks.mark_as_read_error")
-        format.turbo_stream {
-          render turbo_stream: turbo_stream.replace(
-            @bookmark,
-            partial: "bookmark",
-            locals: {
-              bookmark: @bookmark,
-              error: error
-            }
-          )
-        }
+        flash_message(:error, error) if error
       end
+      format.turbo_stream {
+        render turbo_stream: turbo_stream.replace(
+          @bookmark,
+          partial: "bookmark",
+          locals: {bookmark: @bookmark}
+        )
+      }
     end
   end
 end

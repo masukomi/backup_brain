@@ -143,6 +143,10 @@ heading > .inline-icon{
 	border-radius: 0.5rem;
 	margin-bottom: 0.5rem;
 }
+.bookmark-list-item .alert {
+	padding: 0.15rem;
+	text-align: center;
+}
 .to-read-list-item {
 	border-left: solid 0.25rem #64b2fd;
 }
