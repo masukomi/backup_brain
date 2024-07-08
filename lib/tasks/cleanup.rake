@@ -27,12 +27,20 @@ namespace :cleanup do
     Whirly.configure spinner: "dots"
     Whirly.start do
       Bookmark.all.each do |bookmark|
+        # if you've archived some, and need to rerun this and skip them
+        # update the date to be just before you last ran this
+        # next if bookmark.archives.size > 0 && bookmark.archives.last.created_at > DateTime.parse("08 Jul 2024 00:00:00")
         counter += 1
-        Whirly.status = Paint["Re-archiving: #{bookmark.title} @ #{bookmark.url}", :green]
+        title = bookmark.title
+        title = title[0..25] + "…" if title.length > 25
+        url = bookmark.url
+        url = url[0..25] + "…" if url.length > 25
+
+        Whirly.status = Paint["Re-archiving: #{title} @ #{url}", :green]
         begin
           bookmark.generate_archive(true)
         rescue
-          Whirly.status = Paint["Failed to rearchive: #{bookmark.title} @ #{bookmark.url}", :yellow]
+          Whirly.status = Paint["Failed to rearchive: #{title} @ #{url}", :yellow]
         end
       end
     end
