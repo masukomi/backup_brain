@@ -21,6 +21,24 @@ namespace :cleanup do
     puts "DONE REINDEXING"
   end
 
+  desc "Rearchive all bookmarks"
+  task rearchive_all: [:environment] do
+    counter = 0
+    Whirly.configure spinner: "dots"
+    Whirly.start do
+      Bookmark.all.each do |bookmark|
+        counter += 1
+        Whirly.status = Paint["Re-archiving: #{bookmark.title} @ #{bookmark.url}", :green]
+        begin
+          bookmark.generate_archive(true)
+        rescue
+          Whirly.status = Paint["Failed to rearchive: #{bookmark.title} @ #{bookmark.url}", :yellow]
+        end
+      end
+    end
+    puts "Re-archived #{counter} bookmarks"
+  end
+
   desc "Destroy useless bookmarks"
   task destroy_useless_bookmarks: [:environment] do
     unarchived = Bookmark
