@@ -97,6 +97,16 @@ class Bookmark
   end
 
   def archives_text
-    archives.map { |a| a.string_data }
+    return nil unless has_archive?
+    # NOTE: intentionally NOT searching the text of ALL the archives
+    #      because Meilisearch has an artificial limitation of 65,535
+    #      "positions" per attribute, and anything after that will
+    #      be ignored. It's kinda, but not quote a count a words.
+    #      If anyone chooses to create semi-regular archives we'll
+    #      likely exceed that.
+    #
+    #      The documentation pages on search & archives will note this limitation.
+    #      https://www.meilisearch.com/docs/learn/advanced/known_limitations#maximum-number-of-words-per-attribute
+    archives.min { |a| a.created_at }.string_data
   end
 end
