@@ -59,6 +59,14 @@
                 )
                 %>
           </div>
+        <% elsif (bookmark.created_at < 2.minutes.ago) %>
+            <%= icon_link("archiving", '#',
+                  link_css: "inline-link-icon archive-link-icon",
+                  alt: t('bookmarks.archiving_now_alt'),
+                  title: t('bookmarks.archiving_now_title'),
+                  text:  t('bookmarks.archiving_now_text')
+                )
+                %>
         <% elsif user_signed_in? %>
 
           <div class="action-icon delete-action-icon">
