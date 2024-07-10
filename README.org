@@ -1,0 +1,9 @@
+* BackupBrain
+:PROPERTIES:
+:CUSTOM_ID: backupbrain
+:END:
+BackupBrain is a self-hosted single-user bookmark manager that
+automatically creates local text-only archives of whatever you bookmark.
+
+
+For all the details, and the latest installation instructions, please visit [[https://BackupBrain.app][BackupBrain.app]]
