@@ -8,6 +8,7 @@
 /.bundle
 /mongo_exports/*
 .env
+bin/reader
 *.bak
 routes.txt
 # Ignore all logfiles and tempfiles.
