@@ -39,6 +39,10 @@ else
   echo "If this is not correct please update the .env file"
   echo "It will effect your ability to log in."
 fi
+ssh_host=$(cat .env | grep "^HOST_USES_SSH" | sed -e "s/HOST_USES_SSH=//" -e "s/#.*//")
+if [ -z "$ssh_host" ]; then
+  ssh_host="false"
+fi
 
 # Make sure you've defined a port (defaults in .env.sample is 3334)
 port=$(cat .env | grep "^PORT" | sed -e "s/PORT=//" -e "s/#.*//")
@@ -115,11 +119,16 @@ echo "Starting $worker_count Delayed Job Workers"
 bin/delayed_job -n $worker_count start & disown
 
 
-
-echo "Starting Rails Server on port $port"
+if [ "$ssh_host" == "false" ]; then
+  visitable_url="http://$hostname:$port"
+else
+  visitable_url="https://$hostname"
+fi
+echo $GREEN"VISIT YOUR BACKUP BRAIN AT $visitable_url"$NOCOLOR
 # Start Rails
 # bundle exec rails server -p $port -u puma
 bundle exec rails server -u puma
+
 
 
 
