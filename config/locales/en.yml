@@ -142,7 +142,7 @@ en:
       edit_account: "Edit Account"
       sign_in: "Sign In"
       sign_out: "Sign Out"
-      sign_up: "Sign Up"
+      sign_up: "Create An Account"
 
   pagination:
     next: "Next 〉"
