@@ -6,7 +6,7 @@ source "$SCRIPT_DIR/kill_delayed_jobs"
 echo "Killing Rails Server (puma)…"
 SERVER_PID=$(cat $SCRIPT_DIR/../tmp/pids/server.pid 2> /dev/null)
 if [ "$SERVER_PID" != "" ]; then
-    kill $SERVER_PID
+    kill $SERVER_PID 2&> /dev/null
 else
     echo "Unable to find server's process id. Maybe it's not running?"
 

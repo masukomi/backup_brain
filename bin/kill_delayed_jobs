@@ -6,15 +6,13 @@ function kill_delayed_jobs() {
 	echo "Killing Delayed Job Workers…"
 	pids=$(ps -ef | grep delayed_job | grep -v grep | awk '{print $2}')
 	while [ "$pids" != ""  ]; do
-	ps -ef | grep delayed_job | grep -v grep | awk '{print $2}' | xargs kill
+	ps -ef | grep delayed_job | grep -v grep | awk '{print $2}' | xargs kill 2> /dev/null
 	pids=$(ps -ef | grep delayed_job | grep -v grep | awk '{print $2}')
 	done
+	echo "No more Delayed Job Workers…"
 }
 
-# only call the function if we're NOT being sourced
+# only call the function if we're NOT being "source"d
 if [ "$(basename -- "$0")" == "kill_delayed_jobs" ]; then
 	kill_delayed_jobs
-# else
-# 	echo 'being sourced'
 fi
-
