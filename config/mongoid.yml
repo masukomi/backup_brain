@@ -27,7 +27,7 @@ development:
         # :secondary_preferred, :primary, :primary_preferred, :nearest
         # (default: primary)
         # read:
-        #   mode: :secondary_preferred
+        #   mode: :primary
         #   tag_sets:
         #     - use: web
 
