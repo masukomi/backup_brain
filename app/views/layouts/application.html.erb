@@ -83,36 +83,8 @@
     <!-- FOOTER -->
     <div class="container non-essential" id="footer">
         <div class="row">
-            <div class="col">
-              <a href="https://github.com/masukomi/backup_brain/"><%=t('navigation.source_link')%></a>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col extension-links">
-                <span class="extension-link-container">
-                <%= icon_link("external/firefox", '#',
-                    link_css: "extension-link",
-                    icon_css: "extension-link",
-                    alt: t('misc.browser_extensions.firefox_icon_alt'),
-                    title: t('misc.browser_extensions.firefox_link')
-                    )%>
-                </span>
-                <span class="extension-link-container">
-                <%= icon_link("external/chrome", '#',
-                    link_css: "extension-link",
-                    icon_css: "extension-link",
-                    alt: t('misc.browser_extensions.chrome_icon_alt'),
-                    title: t('misc.browser_extensions.chrome_link')
-                    )%>
-                </span>
-                <span class="extension-link-container">
-                <%= icon_link("external/safari", '#',
-                    link_css: "extension-link",
-                    icon_css: "extension-link",
-                    alt: t('misc.browser_extensions.safari_icon_alt'),
-                    title: t('misc.browser_extensions.safari_link')
-                    )%>
-                </span>
+            <div class="col bookmarklet">
+                <a href="javascript:url=location.href; if(document.getSelection){selection=document.getSelection();}else{selection='';}; title=document.title; void(open('<%= request.base_url %>/bookmarks/new?url='+encodeURIComponent(url)+'&description='+encodeURIComponent(selection)+'&title='+encodeURIComponent(title)+'&closeable=true&layout=webextension','Backup Brain','toolbar=no,width=800,height=550'));"><%= t('misc.bookmarklet.link_text') %></a> <%= t('misc.bookmarklet.inline_instructions') %>
             </div>
         </div>
 

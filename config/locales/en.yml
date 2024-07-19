@@ -132,6 +132,9 @@ en:
         chrome_icon_alt: "Chrome logo"
         safari_link: "Coming even less soon"
         safari_icon_alt: "Safari logo"
+    bookmarklet:
+        link_text: "Brain It!"
+        inline_instructions: "← Drag this to you bookmarks toolbar for easy bookmarking."
   sidebar:
       page_actions_header: "Page Actions…"
   accounts:
