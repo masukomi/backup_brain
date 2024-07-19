@@ -6,6 +6,15 @@
 
     <div class="row">
       <div class="col-2">
+        <%= form.label :url, style: "display: block" %>
+      </div>
+      <div class="col-6">
+        <%= form.text_field :url, class: 'bookmark-input-field'  %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-2">
         <%= form.label :title, style: "display: block" %>
       </div>
       <div class="col-6">
@@ -13,14 +22,6 @@
       </div>
     </div>
 
-    <div class="row">
-      <div class="col-2">
-        <%= form.label :url, style: "display: block" %>
-      </div>
-      <div class="col-6">
-        <%= form.text_field :url, class: 'bookmark-input-field'  %>
-      </div>
-    </div>
     <div class="row">
       <div class="col-2">
         <%= form.label :description, style: "display: block" %>
