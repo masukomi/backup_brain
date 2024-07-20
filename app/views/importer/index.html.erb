@@ -1,0 +1,45 @@
+<div class="row">
+  <div class="col">
+    <%== t('importer.instructions') %>
+  </div>
+
+    <%= form_with url: {:action=>'import'}, method: :post, html: {multipart: true} do |f| %>
+  <div class="row form-row">
+    <div class="col-3">
+        <%= f.label :uploaded_file, t('importer.file_field_label') %>
+    </div>
+    <div class="col-6">
+        <%= f.file_field :uploaded_file , class: "btn btn-secondary" %>
+    </div>
+  </div>
+  <div class="row form-row">
+    <div class="col-3">
+        <%= f.label :tags, t('importer.tags_field_label') %>
+    </div>
+    <div class="col-6">
+        <%= f.text_field :tags , class: "tags-input-field", placeholder: "foo bar" %>
+    </div>
+  </div>
+  <div class="row form-row">
+    <div class="col-3">
+        <%= t('importer.file_flavor_radio_group_label') %>
+    </div>
+    <div class="col-6">
+      <span class="radio-label-and-button no-wrap">
+        <%= f.label :file_flavor, t('importer.file_flavor_html_radio_label'), value: 'html' %>
+        <%= f.radio_button :file_flavor, 'html', checked: true %>
+      </span>
+      <span class="radio-label-and-button no-wrap">
+        <%= f.label :file_flavor, t('importer.file_flavor_json_radio_label'), value: 'json' %>
+        <%= f.radio_button :file_flavor, 'json' %>
+      </span>
+    </div>
+  </div>
+  <div class="row form-row">
+    <div class="col">
+      <%= f.submit t('importer.submit_button_text'), class: "btn btn-primary" %>
+    </div>
+  </div>
+
+    <% end %>
+</div>

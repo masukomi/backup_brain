@@ -18,7 +18,7 @@ class Bookmark
   field :url,         type: String
   field :domain,      type: String
   field :description, type: String
-  field :tags,        type: Array
+  field :tags,        type: Array,   default: []
   field :private,     type: Boolean, default: false
   field :to_read,     type: Boolean, default: false
 
@@ -39,6 +39,76 @@ class Bookmark
     after_create  :add_to_search
     after_update  :update_in_search
     after_destroy :remove_from_search
+  end
+
+  def self.split_tags(tags)
+    return [] if tags.blank?
+    tags.split(/,?\s+/)
+  end
+
+  def self.tagged_with(tag)
+    where(:tags.in => [tag])
+  end
+
+  def self.tagged_with_any(tags)
+    where(:tags.in => tags)
+  end
+
+  def self.tagged_with_all(tags)
+    tags = tags.map { |tag| /#{tag}/ }
+    where(:tags.all => tags)
+  end
+
+  def self.to_read
+    where(to_read: true)
+  end
+
+  def self.not_to_read
+    where(to_read: false)
+  end
+
+  def self.public
+    where(private: false)
+  end
+
+  def self.private
+    where(private: true)
+  end
+
+  def self.searchable
+    where(private: false)
+  end
+
+  def self.searchable_with_user(user)
+    where(user_id: user.id, private: false)
+  end
+
+  def self.searchable_with_user_and_tags(user, tags)
+    where(:user_id => user.id, :private => false, :tags.all => tags)
+  end
+
+  def self.searchable_with_tags(tags)
+    where(:private => false, :tags.all => tags)
+  end
+
+  def self.searchable_with_user_and_title(user, title)
+    where(user_id: user.id, private: false, title: /#{title}/i)
+  end
+
+  def self.searchable_with_user_and_description(user, description)
+    where(user_id: user.id, private: false, description: /#{description}/i)
+  end
+
+  def self.searchable_with_user_and_url(user, url)
+    where(user_id: user.id, private: false, url: /#{url}/i)
+  end
+
+  def self.searchable_with_user_and_domain(user, domain)
+    where(user_id: user.id, private: false, domain: /#{domain}/i)
+  end
+
+  def self.searchable_with_user_and_tags_and_title(user, tags, title)
+    where(:user_id => user.id, :private => false, :tags.all => tags, :title => /#{title}/i)
   end
 
   def has_archive?

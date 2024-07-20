@@ -83,7 +83,7 @@ class BookmarksController < ApplicationController
 
       render :index
     rescue MeiliSearch::ApiError => e
-      flash_message(:error, e.message)
+      flash_message(:error, t("importer.no_file_error"))
       if e.message.include?("Index `backup_brain_general` not found")
         if Bookmark.count > 0
           flash_message(:notice, t("search.missing_index"))
@@ -259,7 +259,8 @@ class BookmarksController < ApplicationController
   end
 
   def split_tag_params
-    tags = params.dig(:bookmark, :tags).present? ? params[:bookmark][:tags].split(/\s+/) : []
+    unsplit_tags = params.dig(:bookmark, :tags)
+    tags = Bookmark.split_tags(unsplit_tags)
     bookmark_params.merge({tags: tags})
   end
 

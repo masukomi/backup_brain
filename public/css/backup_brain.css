@@ -68,7 +68,7 @@ heading > .inline-icon{
 #side-nav-items > li {
 	font-weight: bold;
 }
-#side-nav-items > li > a {
+#side-nav-items > li  a {
 	color: #484337;
 	text-decoration: none;
 }
@@ -168,13 +168,16 @@ heading > .inline-icon{
 }
 .private-hint,
 .file-a-ticket-link-icon,
+.importer-link-icon,
 .version-info,
-#side-nav-items > li > a.file-a-ticket-link-icon{
+#side-nav-items > li > a.file-a-ticket-link-icon,
+#side-nav-items > li > a.importer-link-icon{
 	font-style: italic;
 	font-size: 0.8rem;
-	color: #aaa;
+	color: #aaa !important;
 }
-.file-a-ticket-link-icon > img{
+.file-a-ticket-link-icon > img,
+.importer-link-icon > img {
 	filter: invert(76%) sepia(7%) saturate(8%) hue-rotate(346deg) brightness(91%) contrast(83%);
 }
 .to-read-hint {
@@ -245,4 +248,16 @@ debugging{
 }
 debugging::before{
 	content: "🐞(debugging)";
+}
+
+.vertically-separated {
+	margin-top: 1rem;
+}
+.form-row {
+	margin-bottom: 1rem;
+}
+
+.radio-label-and-button {
+	display: inline-block;
+	margin-right: 1rem;
 }

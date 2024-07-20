@@ -67,6 +67,7 @@ gem "whirly" # spinner for rake tasks
 gem "paint"  # colorize terminal output (mostly for whirly)
 
 gem "httparty" # for importer to check if urls are serving.
+# gem "carrierwave-mongoid" # for file uploads
 
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]

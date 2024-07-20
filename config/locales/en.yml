@@ -109,6 +109,30 @@ en:
         from Pinboard.in on our site <a href='https://BackupBrain.app'>BackupBrain.app</a>
         </p>
         "
+    default_title_for_blank: "Untitled"
+  importer:
+      instructions: "
+      <p>Backup Brain can import the <a href='https://learn.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/platform-apis/aa753582(v=vs.85)'>standard
+      HTML bookmark export file</a> that most browsers & bookmark managers generate.
+      It can also process JSON files exported
+      from Pinboard.in</p>
+
+      <p>Your bookmarks will import fairly quickly, but archives will be
+      generated in the background & will take a bit longer</p>
+      "
+      file_field_label: "Choose a file"
+      tags_field_label: "Tag these with…"
+      file_flavor_radio_group_label: "What kind of file is it?"
+      file_flavor_html_radio_label: "HTML"
+      file_flavor_json_radio_label: "JSON"
+      submit_button_text: "Upload"
+      no_file_error: "Um. I need a file with actual content please."
+      choose_file_flavor_error: "Please select the file type"
+      unreadable_file_error: "I couldn't read the file you uploaded: %{error}"
+      success_message: "Imported %{count} Bookmarks Successfully. Feel free to add more."
+      import_link: "Import Bookmarks"
+      import_link_icon_alt: "Importing Icon"
+
   misc:
     missing_alt_text: 'missing alt text. please file a bug'
     app_name: "Backup Brain"
