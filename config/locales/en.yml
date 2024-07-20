@@ -86,6 +86,7 @@ en:
     creation_success: "🎉 Created and queued the archive creation."
     added_to_queue: "I'll archive that shortly"
     deletion_success: "Successfully Deleted"
+    success_close_button_text: "Close Window"
     add: "Add a Bookmark…"
     list_link: "Show All Bookmarks"
     counter: "(%{formatted_count} and counting…)"
