@@ -121,7 +121,7 @@ en:
       generated in the background & will take a bit longer</p>
       "
       file_field_label: "Choose a file"
-      tags_field_label: "Tag these with…"
+      tags_field_label: "Add these tags:"
       file_flavor_radio_group_label: "What kind of file is it?"
       file_flavor_html_radio_label: "HTML"
       file_flavor_json_radio_label: "JSON"
