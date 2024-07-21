@@ -25,6 +25,9 @@ module BackupBrain
           Rails.logger.info("skipping import of #{bookmark_data["href"]}")
           next
         end
+        (Bookmark.split_tags(bookmark_data["tags"]) + @tags)
+          .uniq
+          .map { |t| t.strip.downcase.gsub(/\s+/, "_") }
         params = {
           url: bookmark_data["href"],
           title: bookmark_data["description"],
@@ -32,7 +35,7 @@ module BackupBrain
           created_at: bookmark_data["time"],
           private: bookmark_data["shared"] != "yes",
           to_read: bookmark_data["toread"] == "yes",
-          tags: (Bookmark.split_tags(bookmark_data["tags"]) + @tags).map(&:downcase)
+          tags:
         }
         bookmarks << if @create
           Bookmark.create(params)

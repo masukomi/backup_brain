@@ -41,9 +41,11 @@ class Bookmark
     after_destroy :remove_from_search
   end
 
+  # splits a string of tags, downcases them,
+  # replaces spaces with underscores, and returns an array
   def self.split_tags(tags)
     return [] if tags.blank?
-    tags.split(/,?\s+/)
+    tags.strip.split(/,?\s+/).map { |t| t.strip.downcase.gsub(/\s+/, "_") }
   end
 
   def self.tagged_with(tag)

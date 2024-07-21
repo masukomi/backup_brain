@@ -31,7 +31,7 @@ class ImporterController < ApplicationController
       end
 
       begin
-        tags = Bookmark.split_tags(params[:tags]&.strip || "")
+        tags = Bookmark.split_tags(params[:tags] || "")
         bookmarks = if params[:file_flavor] == "html"
           BackupBrain::HtmlImporter.import(
             html: file_data,

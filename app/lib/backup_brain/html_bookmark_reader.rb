@@ -44,7 +44,10 @@ module BackupBrain
         title = I18n.t("bookmarks.default_title_for_blank") if title.blank?
 
         # Firefox has users separate tags with commas and supports spaces in tags.
-        anchor_tags = (anchor["tags"]&.strip || "").split(",").map { |t| t.strip.downcase.gsub(/\s+/, "_") }
+        anchor_tags = (anchor["tags"]&.strip || "").split(",")
+        combined_tags = (@tags + anchor_tags)
+          .uniq
+          .map { |t| t.strip.downcase.gsub(/\s+/, "_") }
 
         next if Bookmark.where(url: url).count > 0
         unless HtmlBookmarkReader.url_potentially_good?(url)
@@ -54,7 +57,7 @@ module BackupBrain
         params = {
           url: url,
           title: title,
-          tags: @tags + anchor_tags,
+          tags: combined_tags,
           # created_at: created_at,
           # updated_at: updated_at,
           user: @user
