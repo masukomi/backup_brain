@@ -32,7 +32,7 @@ module BackupBrain
           created_at: bookmark_data["time"],
           private: bookmark_data["shared"] != "yes",
           to_read: bookmark_data["toread"] == "yes",
-          tags: Bookmark.split_tags(bookmark_data["tags"]) + @tags
+          tags: (Bookmark.split_tags(bookmark_data["tags"]) + @tags).map(&:downcase)
         }
         bookmarks << if @create
           Bookmark.create(params)
