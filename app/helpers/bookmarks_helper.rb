@@ -1,8 +1,4 @@
 module BookmarksHelper
-  def is_fresh?(bookmark)
-    bookmark.created_at > 2.minutes.ago
-  end
-
   def show_archive_link(archive)
     link_to(
       archive_date_string(archive),

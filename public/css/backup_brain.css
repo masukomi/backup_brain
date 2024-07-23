@@ -138,6 +138,13 @@ heading > .inline-icon{
 .delete-action-icon {
 	margin-top: 0.75rem;
 }
+.archive-error-code a{
+	font-weight: bold;
+	font-style: italic;
+	color: red;
+	font-size: 80%;
+	text-decoration: none;
+}
 .bookmark-list-item {
 	border: 1px dashed #ccc;
 	border-radius: 0.5rem;

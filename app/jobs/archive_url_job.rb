@@ -58,12 +58,17 @@ class ArchiveUrlJob < ApplicationJob
   end
 
   def download(bookmark)
-    # NOTE: reader CAN download this itself,
+    # NOTE: the "reader" cli tool CAN download this itself,
     # but i want to have control over the User-Agent
     # and know that retries & redirects will be
     # handled well. So I'm downloading it with HTTParty.
     downloadable, error_code = url_downloadable?(bookmark.url, include_code: true)
-    raise BackupBrain::Errors::UnarchivableUrl.new("Remote server prevented download. Status code: #{error_code}") unless downloadable
+    unless downloadable
+      failed_attempt = FailedArchiveAttempt.new(status_code: error_code)
+      bookmark.failed_archive_attempts << failed_attempt
+      bookmark.save!
+      raise BackupBrain::Errors::UnarchivableUrl.new("Remote server prevented download. Status code: #{error_code}")
+    end
     response = HTTParty.get(bookmark.url,
       verify: false,
       timeout: 5,
@@ -81,6 +86,9 @@ class ArchiveUrlJob < ApplicationJob
                      replace: ""))
       file
     else
+      failed_attempt = FailedArchiveAttempt.new(status_code: error_code)
+      bookmark.failed_archive_attempts << failed_attempt
+      bookmark.save!
       Rails.logger.warn("Failed to download #{bookmark.url} - #{response.code}")
       raise UnarchivableUrl("Failed to download #{bookmark.url} - #{response.code}")
     end

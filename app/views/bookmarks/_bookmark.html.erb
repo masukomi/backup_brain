@@ -3,11 +3,15 @@
    %>
 <div id="<%= dom_id bookmark %>" class="container bookmark-list-item <%= privacy_class %> <%= to_read_class %>">
   <div class="row">
-    <div class="col-8">
+    <div class="col">
       <% if defined?(inline_flash) %>
         <%= render partial: 'shared/inline_flash',
             locals: {inline_flash: inline_flash} %>
       <% end %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-8">
 
       <%# favicon %>
       <div class="row">
@@ -60,7 +64,7 @@
                 )
                 %>
           </div>
-        <% elsif is_fresh?(bookmark) %>
+        <% elsif bookmark.is_fresh? && ! bookmark.last_archive_attempt_failed? %>
             <%= icon_link("archiving", '#',
                   link_css: "inline-link-icon archive-link-icon",
                   alt: t('bookmarks.archiving_now_alt'),
@@ -69,7 +73,7 @@
                 )
                 %>
         <% elsif user_signed_in? %>
-          <div class="action-icon delete-action-icon">
+          <div class="action-icon archive-action-icon">
             <%== link_to  image_tag(
                 '/images/icons/download.svg',
                  class: 'inline-link-icon download-icon'
@@ -83,7 +87,16 @@
                   }
 
                 %>
-
+            <% if bookmark.last_archive_attempt_failed?
+               code=bookmark.failed_archive_attempts.last.status_code
+               %>
+              <span class="archive-error-code" >
+                <%= link_to(code,
+                    "https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/#{code}",
+                    title: t('bookmarks.error_code_link', code: code),
+                    target: '_blank') %>
+              </span>
+            <% end %>
           </div>
         <% end %>
 

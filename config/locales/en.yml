@@ -89,6 +89,7 @@ en:
     success_close_button_text: "Close Window"
     add: "Add a Bookmark…"
     list_link: "Show All Bookmarks"
+    error_code_link: "A %{code} error was encountered when attempting to archive this"
     counter: "(%{formatted_count} and counting…)"
     private_hint: "Shhh…"
     create_existing_warning: "⚠️ You've already got a bookmark for that."

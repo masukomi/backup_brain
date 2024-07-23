@@ -23,6 +23,7 @@ class Bookmark
   field :to_read,     type: Boolean, default: false
 
   embeds_many :archives
+  embeds_many :failed_archive_attempts
 
   belongs_to :user
 
@@ -113,8 +114,21 @@ class Bookmark
     where(:user_id => user.id, :private => false, :tags.all => tags, :title => /#{title}/i)
   end
 
+  def is_fresh?
+    created_at > 2.minutes.ago
+  end
+
   def has_archive?
     archives.present?
+  end
+
+  def last_archive_attempt_failed?
+    return false if failed_archive_attempts.blank?
+    return true unless has_archive?
+    if has_archive? && failed_archive_attempts.last.created_at > archives.last.created_at
+      return true
+    end
+    false # can't happen. I think.
   end
 
   def sorted_archives

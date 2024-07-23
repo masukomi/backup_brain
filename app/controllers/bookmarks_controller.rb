@@ -159,12 +159,13 @@ class BookmarksController < ApplicationController
 
   # PATCH/PUT
   def archive
-    success = @bookmark.generate_archive(true)
-    if success
+    updated_bookmark = @bookmark.generate_archive(true)
+    if updated_bookmark
       inline_flash_message(:notice, t("bookmarks.archiving_success"))
-      @bookmark.reload
+      @bookmark = updated_bookmark
     else
       inline_flash_message(:error, t("bookmarks.archiving_error"))
+      @bookmark.reload
     end
 
     respond_to do |format|
