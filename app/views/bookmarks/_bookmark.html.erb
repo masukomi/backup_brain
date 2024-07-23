@@ -13,7 +13,8 @@
       <div class="row">
         <div class="col">
           <% if bookmark.domain.present? %>
-            <img class="favicon" src="http://www.google.com/s2/favicons?sz=64&domain=<%= bookmark.domain %>" />
+            <img class="favicon"
+                 src="<%= request.protocol %>www.google.com/s2/favicons?sz=64&domain=<%= bookmark.domain %>" />
           <% else %>
             <%= inline_icon("missing_image", icon_class: "favicon") %>
           <% end %>
@@ -59,7 +60,7 @@
                 )
                 %>
           </div>
-        <% elsif (bookmark.created_at < 2.minutes.ago) %>
+        <% elsif is_fresh?(bookmark) %>
             <%= icon_link("archiving", '#',
                   link_css: "inline-link-icon archive-link-icon",
                   alt: t('bookmarks.archiving_now_alt'),
@@ -68,7 +69,6 @@
                 )
                 %>
         <% elsif user_signed_in? %>
-
           <div class="action-icon delete-action-icon">
             <%== link_to  image_tag(
                 '/images/icons/download.svg',
