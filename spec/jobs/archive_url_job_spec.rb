@@ -116,4 +116,20 @@ RSpec.describe ArchiveUrlJob do
       )).to(eq("https://example.com/boo"))
     end
   end
+
+  describe "#download" do
+    # TODO: figure out how to make a string I can test this with.
+    # The goal here is to test this code
+    #   file.write(response
+    #                .body
+    #                .encode!('UTF-8', 'binary',
+    #                         invalid: :replace,
+    #                         undef: :replace,
+    #                         replace: '')
+    #             )
+    # it WAS blowing up when trying to write
+    # https://blog.pinboard.in/2017/06/pinboard_acquires_delicious/
+    # to the temp file, so I added that funky .encode!(…) stuff
+    it "doesn't break when encountering a badly encoded response body"
+  end
 end

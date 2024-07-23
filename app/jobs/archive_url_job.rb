@@ -8,16 +8,19 @@ class ArchiveUrlJob < ApplicationJob
 
   SIMPLE_MD_LINK_REGEXP = /((\[.*?\])\(\s*?(?!https?:\/\/)(.*?)\s*?\))/i
   IMAGE_MD_LINK_REGEXP = /((\[.*?\])\(\s*?(?!https?:\/\/)(.*?)\s*?\))/i
+
+  # @return [Bookmark, nil] the bookmark if it was archived, nil if it wasn't
   def perform(bookmark_id:)
     bookmark = begin
       Bookmark.find(bookmark_id)
     rescue
       nil
     end
-    return unless bookmark
+    return false unless bookmark
 
     unless ENV["I_INSTALLED_READER"] == "true" && viable_reader_install?
       Rails.logger.warn("ArchiveUrlJob can't run without reader installed")
+      return false
     end
 
     begin
@@ -31,6 +34,7 @@ class ArchiveUrlJob < ApplicationJob
         string_data: markdown_string
       )
       bookmark.save!
+      bookmark
     rescue BackupBrain::Errors::UnarchivableUrl => e
       Rails.logger.error(e.message)
       begin
@@ -38,9 +42,11 @@ class ArchiveUrlJob < ApplicationJob
       rescue
         nil
       end
+      nil
     end
   rescue => e
     Rails.logger.warn("couldn't archive #{bookmark.url} - #{e.message}")
+    nil
   end
 
   def viable_reader_install?
@@ -64,7 +70,15 @@ class ArchiveUrlJob < ApplicationJob
       headers: {"User-Agent" => "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.79 Safari/537.36"})
     if response.code < 400
       file = Tempfile.new(bookmark._id.to_s)
-      file.write(response.body)
+
+      # see https://thoughtbot.com/blog/fight-back-utf-8-invalid-byte-sequences
+      # for details on wtf is going on here.
+      file.write(response
+                   .body
+                   .encode!("UTF-8", "binary",
+                     invalid: :replace,
+                     undef: :replace,
+                     replace: ""))
       file
     else
       Rails.logger.warn("Failed to download #{bookmark.url} - #{response.code}")
