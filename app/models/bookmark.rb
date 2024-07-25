@@ -193,6 +193,7 @@ class Bookmark
     #
     #      The documentation pages on search & archives will note this limitation.
     #      https://www.meilisearch.com/docs/learn/advanced/known_limitations#maximum-number-of-words-per-attribute
-    archives.min { |a| a.created_at }.string_data
+    archives.last.string_data
+    # archives.max{ |a| a.created_at }.string_data
   end
 end
