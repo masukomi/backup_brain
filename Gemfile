@@ -88,4 +88,5 @@ group :development, :test do
   gem "rubocop-rails"
   gem "rubocop-rspec"
   gem "rubocop-factory_bot"
+  gem "factory_bot_rails"
 end
