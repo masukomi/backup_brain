@@ -44,8 +44,12 @@ class ArchiveUrlJob < ApplicationJob
       end
       nil
     end
+  rescue Net::ReadTimeout
+    # 408 Request Timeout
+    record_failed_attempt(bookmark, 408, should_raise: false)
   rescue => e
     Rails.logger.warn("couldn't archive #{bookmark.url} - #{e.message}")
+
     nil
   end
 
@@ -64,33 +68,33 @@ class ArchiveUrlJob < ApplicationJob
     # handled well. So I'm downloading it with HTTParty.
     downloadable, error_code = url_downloadable?(bookmark.url, include_code: true)
     unless downloadable
-      failed_attempt = FailedArchiveAttempt.new(status_code: error_code)
-      bookmark.failed_archive_attempts << failed_attempt
-      bookmark.save!
-      raise BackupBrain::Errors::UnarchivableUrl.new("Remote server prevented download. Status code: #{error_code}")
+      record_failed_attempt(bookmark, error_code,
+        message: "Remote server prevented download. Status code: #{error_code}")
     end
-    response = HTTParty.get(bookmark.url,
-      verify: false,
-      timeout: 5,
-      headers: {"User-Agent" => "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.79 Safari/537.36"})
-    if response.code < 400
-      file = Tempfile.new(bookmark._id.to_s)
 
-      # see https://thoughtbot.com/blog/fight-back-utf-8-invalid-byte-sequences
-      # for details on wtf is going on here.
-      file.write(response
-                   .body
-                   .encode!("UTF-8", "binary",
-                     invalid: :replace,
-                     undef: :replace,
-                     replace: ""))
-      file
-    else
-      failed_attempt = FailedArchiveAttempt.new(status_code: error_code)
-      bookmark.failed_archive_attempts << failed_attempt
-      bookmark.save!
-      Rails.logger.warn("Failed to download #{bookmark.url} - #{response.code}")
-      raise UnarchivableUrl("Failed to download #{bookmark.url} - #{response.code}")
+    begin
+      response = HTTParty.get(bookmark.url,
+        verify: false,
+        timeout: 5,
+        headers: {"User-Agent" => "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.79 Safari/537.36"})
+      if response.code < 400
+        file = Tempfile.new(bookmark._id.to_s)
+
+        # see https://thoughtbot.com/blog/fight-back-utf-8-invalid-byte-sequences
+        # for details on wtf is going on here.
+        file.write(response
+                    .body
+                    .encode!("UTF-8", "binary",
+                      invalid: :replace,
+                      undef: :replace,
+                      replace: ""))
+        file
+      else
+        record_failed_attempt(bookmark, error_code)
+      end
+    rescue Net::ReadTimeout
+      # 408 Request Timeout
+      record_failed_attempt(bookmark, 408)
     end
   end
 
@@ -198,5 +202,14 @@ class ArchiveUrlJob < ApplicationJob
     else
       qs_less.sub(/\/$/, "")
     end
+  end
+
+  def record_failed_attempt(bookmark, error_code, message: nil, should_raise: true)
+    failed_attempt = FailedArchiveAttempt.new(status_code: error_code)
+    bookmark.failed_archive_attempts << failed_attempt
+    bookmark.save!
+    message ||= "Failed to download #{bookmark.url} - #{error_code}"
+    Rails.logger.warn(message)
+    raise BackupBrain::Errors::UnarchivableUrl.new(message) if should_raise
   end
 end
