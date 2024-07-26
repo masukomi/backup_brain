@@ -160,16 +160,15 @@ class BookmarksController < ApplicationController
   # PATCH/PUT
   def archive
     updated_bookmark = @bookmark.generate_archive(true)
-    if updated_bookmark
-      inline_flash_message(:notice, t("bookmarks.archiving_success"))
-      @bookmark = updated_bookmark
-    else
-      inline_flash_message(:error, t("bookmarks.archiving_error"))
-      @bookmark.reload
-    end
+    @bookmark = updated_bookmark || @bookmark.reload
 
     respond_to do |format|
       format.turbo_stream {
+        if updated_bookmark
+          inline_flash_message(:notice, t("bookmarks.archiving_success"))
+        else
+          inline_flash_message(:error, t("bookmarks.archiving_error"))
+        end
         render turbo_stream: turbo_stream.replace(
           @bookmark,
           partial: "bookmark",
@@ -181,11 +180,12 @@ class BookmarksController < ApplicationController
       }
 
       format.html {
-        if success
-          redirect_to bookmark_url(@bookmark)
+        if updated_bookmark
+          flash_message(:notice, t("bookmarks.archiving_success"))
         else
-          redirect_back
+          flash_message(:error, t("bookmarks.archiving_error"))
         end
+        redirect_to bookmark_url(@bookmark)
       }
     end
   end

@@ -65,12 +65,19 @@ heading > .inline-icon{
 	list-style-type: none;
 	padding-left: 0px;
 }
-#side-nav-items > li {
+#side-nav-items li {
 	font-weight: bold;
 }
-#side-nav-items > li  a {
+
+#side-nav-items li a {
 	color: #484337;
 	text-decoration: none;
+}
+#page-actions ul {
+	list-style-type: none;
+}
+#page-actions ul li {
+	margin-bottom: 0.5rem;
 }
 /* Search */
 .search-form {

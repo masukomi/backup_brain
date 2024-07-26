@@ -33,40 +33,47 @@
 
 <% content_for :sidebar do %>
   <%= render partial: 'shared/sidebar_page_actions_top' %>
-  <div class="container">
-    <div class="row">
-      <div class="col">
-         <%= link_to t('bookmarks.edit_this_link'), edit_bookmark_path(@bookmark),
-             class: 'btn btn-primary compact-button' %>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col">
-        <div class="safe-space">
-          <%= button_to "Destroy this bookmark", @bookmark,
-              method: :delete ,
-              class: 'btn btn-danger compact-button'%>
+  <div id="page-actions">
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <ul>
+          <li><%= link_to t('bookmarks.edit_this_link'), edit_bookmark_path(@bookmark),
+              class: 'btn btn-primary compact-button' %></li>
+
+          <li><%= link_to t('bookmarks.rearchive_this_link'), archive_bookmark_path(@bookmark),
+              class: 'btn btn-primary compact-button' %></li>
+          </ul>
+        </div>
+      </row>
+      <div class="row">
+        <div class="col">
+          <div class="safe-space">
+            <%= button_to "Destroy this bookmark", @bookmark,
+                method: :delete ,
+                class: 'btn btn-danger compact-button'%>
+          </div>
         </div>
       </div>
-    </div>
-    <!-- archives list -->
-    <div class="row">
-      <div class="col">
-        <em><%= t("bookmarks.archives_list_heading") %></em>
-        <ul id="bookmark-archives-listing">
-          <% @bookmark.sorted_archives.each do | an_archive |
-             current = (an_archive.id == @archive&.id)
-             %>
-            <li class="<%= current ? 'current-archive-item' : '' %>">
-              <%= show_archive_link(an_archive) %>
-              <%= icon_link("download",
-                    download_bookmark_path(@bookmark, archive_id: @archive._id),
-                  link_css: "inline-link-icon download-link-icon",
-                  method: :put,
-                  alt: t('bookmarks.download_archive_link')) %>
-            </li>
-          <% end %>
-        </ul>
+      <!-- archives list -->
+      <div class="row">
+        <div class="col">
+          <em><%= t("bookmarks.archives_list_heading") %></em>
+          <ul id="bookmark-archives-listing">
+            <% @bookmark.sorted_archives.each do | an_archive |
+              current = (an_archive.id == @archive&.id)
+              %>
+              <li class="<%= current ? 'current-archive-item' : '' %>">
+                <%= show_archive_link(an_archive) %>
+                <%= icon_link("download",
+                      download_bookmark_path(@bookmark, archive_id: @archive._id),
+                    link_css: "inline-link-icon download-link-icon",
+                    method: :put,
+                    alt: t('bookmarks.download_archive_link')) %>
+              </li>
+            <% end %>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
