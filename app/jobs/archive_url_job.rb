@@ -45,8 +45,8 @@ class ArchiveUrlJob < ApplicationJob
       nil
     end
   rescue Net::ReadTimeout
-    # 408 Request Timeout
-    record_failed_attempt(bookmark, 408, should_raise: false)
+    # 599 Network Connect Timeout Error
+    record_failed_attempt(bookmark, 599, should_raise: false)
   rescue => e
     Rails.logger.warn("couldn't archive #{bookmark.url} - #{e.message}")
 
@@ -93,8 +93,8 @@ class ArchiveUrlJob < ApplicationJob
         record_failed_attempt(bookmark, error_code)
       end
     rescue Net::ReadTimeout
-      # 408 Request Timeout
-      record_failed_attempt(bookmark, 408)
+      # 599 Network Connect Timeout Error
+      record_failed_attempt(bookmark, 599)
     end
   end
 
