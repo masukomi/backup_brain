@@ -26,6 +26,7 @@ class ArchiveUrlJob < ApplicationJob
     begin
       tempfile = download(bookmark)
       markdown_string = run_reader(tempfile) # potentially Raises
+      record_failed_attempt(bookmark, 600) if markdown_string.blank?
       markdown_string = fully_qualify_urls(markdown_string, bookmark)
       tempfile.close
 

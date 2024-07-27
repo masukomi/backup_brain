@@ -88,12 +88,13 @@
 
                 %>
             <% if bookmark.last_archive_attempt_failed?
-               code=bookmark.failed_archive_attempts.last.status_code
+               link_details = bookmark.failed_archive_attempts.last.link_details
                %>
               <span class="archive-error-code" >
-                <%= link_to(code,
-                    "https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/#{code}",
-                    title: t('bookmarks.error_code_link', code: code),
+
+                <%= link_to(link_details[:status_code],
+                    (link_details.fetch(:url, '#')),
+                    title: link_details.fetch(:title),
                     target: '_blank') %>
               </span>
             <% end %>
