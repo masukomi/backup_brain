@@ -275,3 +275,7 @@ debugging::before{
 	display: inline-block;
 	margin-right: 1rem;
 }
+.search-go-button {
+	max-width: 3.5rem;
+	margin-left: 0.25rem;
+}
