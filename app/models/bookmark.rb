@@ -33,6 +33,7 @@ class Bookmark
 
   before_save  :emojify_default_fields
   before_save  :set_domain
+  before_save  :maybe_generate_archive
   after_create :generate_archive
 
   # enabled?() is controlled by the SEARCH_ENABLED environment variable
@@ -155,6 +156,10 @@ class Bookmark
     # calling .domain on it gets you the
     # domain without the subdomains.
     # eg myUsername.medium.com returns medium.com
+  end
+
+  def maybe_generate_archive
+    generate_archive(false) if url_changed?
   end
 
   # Kicks off the ArchiveUrlJob which creates a text-only
