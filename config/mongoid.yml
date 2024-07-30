@@ -13,7 +13,7 @@ development:
       # Provides the hosts the default client can connect to. Must be an array
       # of host:port pairs. (required)
       hosts:
-        - localhost:27017
+        - <%= ENV['MONGODB_URL'].sub(/^mongodb:\/\//, '') %>
       options:
         # Note that all options listed below are Ruby driver client options (the mongo gem).
         # Please refer to the driver documentation of the version of the mongo gem you are using
@@ -26,10 +26,10 @@ development:
         # Change the default read preference. Valid options for mode are: :secondary,
         # :secondary_preferred, :primary, :primary_preferred, :nearest
         # (default: primary)
-        # read:
-        #   mode: :primary
-        #   tag_sets:
-        #     - use: web
+        read:
+          mode: :primary
+          # tag_sets:
+          #   - use: web
 
         # The name of the user for authentication.
         # user: 'user'
@@ -178,7 +178,7 @@ test:
     default:
       database: backup_brain_test
       hosts:
-        - localhost:27017
+        - <%= ENV['MONGODB_URL'].sub(/^mongodb:\/\//, '') %>
       options:
         read:
           mode: :primary

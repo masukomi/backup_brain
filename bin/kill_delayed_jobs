@@ -2,12 +2,15 @@
 #
 # called by serve when it receives ^c
 
+function get_delayed_job_pids(){
+	ps -ef | grep delayed_job | grep -v grep | awk '{print $2}'
+}
 function kill_delayed_jobs() {
 	echo "Killing Delayed Job Workers…"
-	pids=$(ps -ef | grep delayed_job | grep -v grep | awk '{print $2}')
+	pids=$(get_delayed_job_pids)
 	while [ "$pids" != ""  ]; do
-	ps -ef | grep delayed_job | grep -v grep | awk '{print $2}' | xargs kill 2> /dev/null
-	pids=$(ps -ef | grep delayed_job | grep -v grep | awk '{print $2}')
+		get_delayed_job_pids | xargs kill 2> /dev/null
+		pids=$(get_delayed_job_pids)
 	done
 	echo "No more Delayed Job Workers…"
 }

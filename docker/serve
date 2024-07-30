@@ -1,31 +1,44 @@
 #!/usr/bin/env bash
 
+
+echo "Starting docker/serve"
+
 ESCAPE=$(printf "\033")
 RED="${ESCAPE}[91m"
 GREEN="${ESCAPE}[92m"
 YELLOW="${ESCAPE}[33m"
 NOCOLOR="${ESCAPE}[0m"
 
-ENV_FILE=".env"
+
 # Exit on error
 set -e
 
-trap ctrl_c INT
-trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT
+# I don't know why this error is happening or even what is calling git
+# BUUUTT it happens after or during the bundle install
+# bb_rails-1        | fatal: detected dubious ownership in repository at '/app'
+# bb_rails-1        | To add an exception for this directory, call:
+# bb_rails-1        |
+# bb_rails-1        | 	git config --global --add safe.directory /app
+git config --global --add safe.directory /app
 
-function ctrl_c() {
- echo "Shutting down"
- echo "Killing Rails Server (puma)…"
- kill $(cat ./tmp/pids/server.pid)
 
- source 'bin/kill_delayed_jobs'
- kill_delayed_jobs
 
- kill -- -$$
-}
-
+ENV_FILE=".env"
+DELAYED_JOB_FILE="bin/delayed_job"
+cd /app # move to the root of the project
 source "scripts/bash_helpers/get_env_key.sh"
 
+
+# clean up after the last run
+# any old server.pid file at this point is guaranteed bad
+if [ -f tmp/pids/server.pid ]; then
+  echo "Removing old server.pid file"
+  rm tmp/pids/server.pid
+fi
+
+cd /app
+echo "BUNDLE_PATH: ${BUNDLE_PATH}"
+bundle install
 
 # Make sure you've defined a host name
 hostname=$(get_env_key 'HOST_NAME')
@@ -41,7 +54,7 @@ else
   echo "If this is not correct please update the .env file"
   echo "It will effect your ability to log in."
 fi
-ssh_host=$(cat $ENV_FILE | grep "^HOST_USES_SSH" | sed  "s/HOST_USES_SSH=//" | sed "s/#.*//")
+ssh_host=$(get_env_key 'HOST_USES_SSH')
 if [ -z "$ssh_host" ]; then
   ssh_host="false"
 fi
@@ -60,20 +73,21 @@ else
   echo "If this is not correct please update the .env file"
 fi
 
+# and a mongodb url
 mongodb_url=$(get_env_key 'MONGODB_URL')
 if [ -z "$mongodb_url" ]; then
   echo $RED"MONGODB_URL is not set"$NOCOLOR
   echo "Set it in the .env file"
-  echo "By default you probably want to set it to 'mongodb://localhost:27017'"
-  echo "ex: MONGODB_URL=mongodb://localhost:27017"
+  echo "By default you probably want to set it to 'mongodb://bb_mongodb:27017'"
+  echo "ex: MONGODB_URL=mongodb://bb_mongodb:27017"
   exit 78 # EX_CONFIG (78)  Something was found in an unconfigured or misconfigured state.
 else
   echo $GREEN"MONGODB_URL is set to \"$mongodb_url\""$NOCOLOR
   echo "If this is not correct please update the .env file"
 fi
 
-search_enabled=$(get_env_key 'SEARCH_ENABLED')
 
+search_enabled=$(get_env_key 'SEARCH_ENABLED')
 if [ -z "$search_enabled" ]; then
   echo $RED"SEARCH_ENABLED is not set"$NOCOLOR
   echo "Search will be unavailable"
@@ -81,57 +95,8 @@ if [ -z "$search_enabled" ]; then
   echo "ex: SEARCH_ENABLED=true"
 
 elif [ "$search_enabled" == "true" ]; then
-
-  set +e # don't exit on error because meilisearch may not be running
-  # Test if meilisearch is running
-  pgrep -x meilisearch > /dev/null
-
-  meili_status=$?
-
-  #Start it if it isn't.
-  if [ $meili_status -ne 0 ]; then
-    echo $GREEN"booting Meilisearch too..."$NOCOLOR
-    meili_master_key=$(get_env_key 'MEILI_MASTER_KEY')
-    if [ -z "$meili_master_key" ]; then
-      echo $RED"MEILI_MASTER_KEY is not set"$NOCOLOR
-      echo "You can run the following to generate a usable key:"
-      echo "openssl rand -base64 32 | sed 's/=$//'"
-      echo "Store that in your .env file where noted."
-      echo "start it by running `meilisearch` with no arguments"
-      exit 78 # EX_CONFIG (78)  Something was found in an unconfigured or misconfigured state.
-    fi
-
-    meilisearch_search_key=$(get_env_key 'MEILISEARCH_SEARCH_KEY')
-    if [ -z "$meilisearch_search_key" ]; then
-        echo "⚠️ MEILISEARCH_SEARCH_KEY not found in .env"
-        echo "⚠️ PLEASE ADD MEILISEARCH_SEARCH_KEY to .env to improve security"
-        echo "   See Getting Started instructions for details."
-    else
-        echo "✅ MEILISEARCH_SEARCH_KEY found in .env Good for you!"
-    fi
-
-    meilisearch_admin_key=$(get_env_key 'MEILISEARCH_ADMIN_KEY')
-    if [ -z "$meilisearch_admin_key" ]; then
-        echo "⚠️ MEILISEARCH_ADMIN_KEY not found in .env"
-        echo "⚠️ PLEASE ADD MEILISEARCH_ADMIN_KEY to .env to improve security"
-        echo "   See Getting Started instructions for details."
-    else
-        echo "✅ MEILISEARCH_ADMIN_KEY found in .env Good for you!"
-    fi
-
-    meilisearch --master-key "$meili_master_key"  > /dev/null 2>&1 &
-    meilisearch_status=$?
-    if [ $meilisearch_status -ne 0 ]; then
-      echo $RED"Meilisearch failed to start"$NOCOLOR
-      echo $RED"Search will be unavailable"$NOCOLOR
-      echo "Check the output above for more information"
-    fi
-    disown
-  else
-    echo $GREEN"Meilisearch is already running"$NOCOLOR
-  fi
-
-  set -e
+  echo $GREEN"Search is enabled"$NOCOLOR
+  echo "If this is not correct please update the .env file"
 else
   echo $YELLOW"Search is disabled via .env"$NOCOLOR
 fi
@@ -149,7 +114,7 @@ fi
 
 echo "Starting $worker_count Delayed Job Workers"
 # Start the Delayed Job Workers
-bin/delayed_job -n $worker_count start & disown
+$DELAYED_JOB_FILE -n $worker_count start & disown
 
 
 if [ "$ssh_host" == "false" ]; then
@@ -160,11 +125,4 @@ fi
 echo $GREEN"VISIT YOUR BACKUP BRAIN AT $visitable_url"$NOCOLOR
 # Start Rails
 # bundle exec rails server -p $port -u puma
-bundle exec rails server -u puma
-
-
-
-
-
-#TODO nothing in delayed_job_pids
-#TODO maybe background the rails server too?
+bundle exec rails server -b '0.0.0.0' -p $port -u puma

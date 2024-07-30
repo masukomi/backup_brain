@@ -64,9 +64,10 @@ Rails.application.configure do
   ## SSL STUFF
   config.force_ssl = ENV.fetch("FORCE_SSL") { "false" } == "true"
 
-  host_name = (ENV.fetch("HOST_NAME") { "localhost" }).strip
-  if host_name != "localhost"
-    config.hosts << host_name.strip
-  end
+  config.hosts.clear
+  # host_name = (ENV.fetch("HOST_NAME") { "localhost" }).strip
+  # if host_name != "localhost"
+  #   config.hosts << host_name.strip
+  # end
   # END SSL STUFF
 end

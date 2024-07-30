@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  bb_meilisearch:
+    image: getmeili/meilisearch:v1.9
+    env_file: .env
+    # networks:
+    #   - bb-network
+    restart: unless-stopped
+    depends_on:
+      bb_setup:
+        condition: service_completed_successfully
+    ports:
+      - '7700:7700'
+    healthcheck:
+      test: wget --no-verbose --spider http://localhost:7700/health
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+  bb_mongodb:
+    image: mongo:7-jammy
+    ports:
+      - '27017:27017'
+    depends_on:
+      bb_meilisearch:
+        condition: service_healthy
+    volumes:
+      - mongodata:/data/db
+      - ./:/app
+    env_file: .env
+    restart: unless-stopped
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
+  bb_setup:
+    image: golang:1.22.5
+    volumes:
+        - ./:/app
+    command: ["/app/docker/handle_required_setup.sh"]
+
+  bb_rails:
+    image: ruby:3.3.4
+    environment:
+      - BUNDLE_PATH=/app/gems
+    depends_on:
+      bb_mongodb:
+        condition: service_healthy
+      bb_meilisearch:
+        condition: service_healthy
+    volumes:
+        - ./:/app
+    ports:
+      - "${PORT}:${PORT}"
+    command: ["/app/docker/serve"]
+
+
+volumes:
+  mongodata:
+

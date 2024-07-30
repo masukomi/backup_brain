@@ -11,9 +11,13 @@
 bin/reader
 *.bak
 routes.txt
+gems/*
+# the tailscale container
+# stores some temp data that shouldn't be committed
+bb_tailscale/*
 # Ignore all logfiles and tempfiles.
-/log/*
-/tmp/*
+log/*
+tmp/*
 !/log/.keep
 !/tmp/.keep
 

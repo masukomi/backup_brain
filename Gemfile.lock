@@ -145,7 +145,7 @@ GEM
     minitest (5.24.1)
     mongo (2.20.1)
       bson (>= 4.14.1, < 6.0.0)
-    mongodb_meilisearch (2.0.0)
+    mongodb_meilisearch (2.1.0)
       meilisearch
       mongoid (~> 7.0)
       rails
@@ -169,6 +169,8 @@ GEM
     net-smtp (0.5.0)
       net-protocol
     nio4r (2.7.3)
+    nokogiri (1.16.6-aarch64-linux)
+      racc (~> 1.4)
     nokogiri (1.16.6-arm64-darwin)
       racc (~> 1.4)
     omniauth (2.1.2)
@@ -333,7 +335,9 @@ GEM
     zeitwerk (2.6.16)
 
 PLATFORMS
+  aarch64-linux
   arm64-darwin-22
+  arm64-darwin-23
 
 DEPENDENCIES
   bootsnap
@@ -348,7 +352,7 @@ DEPENDENCIES
   importmap-rails
   jbuilder
   meilisearch
-  mongodb_meilisearch
+  mongodb_meilisearch (~> 2.1.0)
   mongoid
   mongoid-pagination
   omniauth
@@ -375,7 +379,7 @@ DEPENDENCIES
   whirly
 
 RUBY VERSION
-   ruby 3.2.0p0
+   ruby 3.3.4p94
 
 BUNDLED WITH
    2.4.10
