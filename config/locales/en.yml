@@ -163,8 +163,8 @@ en:
         safari_link: "Coming even less soon"
         safari_icon_alt: "Safari logo"
     bookmarklet:
-        link_text: "Brain It!"
-        inline_instructions: "← Drag this to you bookmarks toolbar for easy bookmarking."
+        link_text: "🧠→☁️"
+        inline_instructions: "← Drag this <a href='https://en.wikipedia.org/wiki/Bookmarklet' style='padding-left: 0.25rem; padding-right: 0.25rem;'>Bookmarklet</a> to you bookmarks toolbar for easy bookmarking."
   sidebar:
       page_actions_header: "Page Actions…"
   accounts:
