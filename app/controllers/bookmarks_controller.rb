@@ -83,13 +83,22 @@ class BookmarksController < ApplicationController
 
       render :index
     rescue MeiliSearch::ApiError => e
-      flash_message(:error, t("importer.no_file_error"))
       if e.message.include?("Index `backup_brain_general` not found")
         if Bookmark.count > 0
           flash_message(:notice, t("search.missing_index"))
         else
           flash_message(:notice, t("search.no_bookmarks"))
         end
+      elsif e.message.include?("The provided API key is invalid")
+        search_key = ENV.fetch("MEILISEARCH_SEARCH_KEY", nil)
+        admin_key = ENV.fetch("MEILISEARCH_ADMIN_KEY", nil)
+        if search_key.present? && admin_key.present?
+          flash_message(:error, t("search.invalid_api_key"))
+        else
+          flash_message(:error, t("search.invalid_master_api_key"))
+        end
+      else
+        flash_message(:error, t("search.unknown_error", error: e.message))
       end
       redirect_to bookmarks_path
     end

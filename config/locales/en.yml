@@ -65,6 +65,9 @@ en:
     search_button: "Go"
     missing_index: "See https://BackupBrain.app/troubleshooting for suggestions."
     no_bookmarks: "Search will start working once you add some bookmarks."
+    unknown_error: "Search encountered an unknown error: %{error}"
+    invalid_api_key: "Your MEILISEARCH_SEARCH_KEY and/or MEILISEARCH_ADMIN_KEY are invalid"
+    invalid_master_api_key: "Your MEILI_MASTER_KEY is invalid"
   bookmarks:
     heading: "Bookmarks"
     all_link: "All Bookmarks"
