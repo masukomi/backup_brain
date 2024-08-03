@@ -130,7 +130,7 @@ en:
       file_flavor_html_radio_label: "HTML"
       file_flavor_json_radio_label: "JSON"
       submit_button_text: "Upload"
-      no_file_error: "Please upload a file, with content please."
+      no_file_error: "Please upload a file with content."
       file_flavor_error: "File doesn't appear to match selected file kind.<br />Supported extensions: .html, .htm, .json, .js<br/>Provided file name: \"%{filename}\""
       choose_file_flavor_error: "Please select the file type"
       unreadable_file_error: "I couldn't read the file you uploaded: %{error}"
