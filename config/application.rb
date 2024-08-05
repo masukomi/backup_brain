@@ -48,5 +48,9 @@ module BackupBrain
     rescue => e
       config.x.git_version = "UNKNOWN: #{e.message}"
     end
+
+    # disable whiny requests in web console
+    # e.g.: Cannot render console from <IP HERE>! Allowed networks: 127.0.0.0/127.255.255.255, ::1
+    config.web_console.whiny_requests = false
   end
 end
