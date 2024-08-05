@@ -33,8 +33,9 @@ services:
     env_file: .env
     restart: unless-stopped
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
-      interval: 10s
+      # test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      test: cd /app && scripts/export.sh
+      interval: 10m
       retries: 5
       start_period: 30s
       timeout: 10s
