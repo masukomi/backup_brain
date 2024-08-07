@@ -47,7 +47,7 @@ heading > .inline-icon{
 	display: inline-block;
 }
 #header{
-    background: aliceblue;
+    background: #f0f8ff;
     min-height: 2rem;
 	font-weight: bold;
 }
@@ -58,7 +58,7 @@ heading > .inline-icon{
 }
 
 #side-navigation {
-	border-left: dashed 1px #ccc;
+	border-left: dashed 1px #aaaaaa;
 	padding-left: 0px;
 }
 #side-nav-items {
@@ -82,7 +82,7 @@ heading > .inline-icon{
 /* Search */
 .search-form {
 	padding-left: 1rem;
-	border-left: solid 1px #ccc;
+	border-left: solid 1px #aaaaaa;
 }
 
 /* Links */
@@ -107,7 +107,7 @@ heading > .inline-icon{
 	display: inline-block;
 }
 .deleted{
-	background-color: #e9ecef;
+	background-color: #aaaaa;
 	text-align: center;
 	font-style: italic;
 }
@@ -148,12 +148,12 @@ heading > .inline-icon{
 .archive-error-code a{
 	font-weight: bold;
 	font-style: italic;
-	color: red;
+	color: #ff6e67;
 	font-size: 80%;
 	text-decoration: none;
 }
 .bookmark-list-item {
-	border: 1px dashed #ccc;
+	border: 1px dashed #aaaaaa;
 	border-radius: 0.5rem;
 	margin-bottom: 0.5rem;
 }
@@ -178,7 +178,7 @@ heading > .inline-icon{
 	color: slategray;
 }
 .private-bookmark {
-	background-color: #ffecc5;
+	background-color: #f0f8ff;
 }
 .private-hint,
 .file-a-ticket-link-icon,
@@ -197,7 +197,7 @@ heading > .inline-icon{
 .to-read-hint {
 	font-style: italic;
 	font-size: 0.8rem;
-	color: #dark-gray;
+	color: #aaaaaa;
 }
 .to-read-icon{
 	filter: invert(60%) sepia(86%) saturate(693%) hue-rotate(181deg) brightness(99%) contrast(102%);
@@ -211,7 +211,7 @@ heading > .inline-icon{
 
 /* footer */
 #footer > div > div {
-	background: aliceblue;
+	background: #f0f8ff;
 	justify-content: center;
 	display: flex;
 }
@@ -233,8 +233,8 @@ heading > .inline-icon{
 
 /* form elements */
 .toggle {
-	background-color: #f4f4f4;
-    border: solid #767676;
+	background-color: #f0f8ff;
+    border: solid slategray;
 }
 
 #privacySwitch,
@@ -256,7 +256,7 @@ heading > .inline-icon{
 	white-space: nowrap;
 }
 debugging{
-	border: solid 2px red;
+	border: solid 2px #ff6e67;
 	background: #ff6e67;
 
 }
