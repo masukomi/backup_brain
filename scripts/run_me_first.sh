@@ -100,7 +100,7 @@ if [ $docker_intended == "y" ] || [ $docker_intended == "Y" ]; then
     fi
     # MONGODB With Docker
     mongodb_url=$(get_env_key 'MONGODB_URL')
-    if [ "$mongodb_url" == 'mongodb://bb_mongodb:27017']; then
+    if [ "$mongodb_url" == 'mongodb://bb_mongodb:27017' ]; then
         echo "✅ $GREEN MONGODB_URL is mongodb://bb_mongodb:27017 $NOCOLOR"
     elif [ -z "$mongodb_url" ]; then
         echo "MONGODB_URL=mongodb://bb_mongodb:27017" >> .env
@@ -116,7 +116,7 @@ else
 
     # MONGODB Without Docker
     mongodb_url=$(get_env_key 'MONGODB_URL')
-    if [ "$mongodb_url" == 'mongodb://localhost:27017']; then
+    if [ "$mongodb_url" == 'mongodb://localhost:27017' ]; then
         echo "✅ $GREEN MONGODB_URL is mongodb://localhost:27017 $NOCOLOR"
     elif [ -z "$mongodb_url" ]; then
         echo "MONGODB_URL=localhost:27017" >> .env
