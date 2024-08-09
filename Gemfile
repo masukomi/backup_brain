@@ -4,7 +4,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 ruby "3.3.4"
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails", "~> 7.0.4", ">= 7.0.4.3"
+gem "rails", "~> 7.1"
 
 # The original asset pipeline for Rails [https://github.com/rails/sprockets-rails]
 gem "sprockets-rails"
@@ -42,14 +42,14 @@ gem "bootsnap", require: false
 # Use Sass to process CSS
 # gem "sassc-rails"
 
-gem "mongoid"
+gem "mongoid", "~> 9.0"
 
 gem "org-ruby" # org-mode markup renderer
 gem "redcarpet" # markdown renderer
 gem "reverse_markdown"
 gem "pygments.rb"
 gem "meilisearch"
-gem "mongodb_meilisearch", "~> 2.1.0"
+gem "mongodb_meilisearch", "~> 2.2.0"
 gem "pagy", "~> 6.0"
 gem "mongoid-pagination"
 gem "dotenv-rails"
