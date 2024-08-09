@@ -1,0 +1,66 @@
+<%= form_with(model: setting) do |form| %>
+  <div class="container">
+    <%= render partial: 'shared/errors_row', locals: {thing: setting} %>
+    <div class="row">
+      <div class="col-2">
+      <%= form.label :lookup_key, style: "display: block" %>
+      </div>
+      <div class="col">
+      <%= form.text_field :lookup_key, dir: "auto" %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-2">
+        <%= form.label :summary, style: "display: block" %>
+      </div>
+      <div class="col">
+        <%= form.text_field :summary %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-2">
+        <%= form.label :description, style: "display: block" %>
+      </div>
+      <div class="col">
+        <%= form.text_area :description,
+            cols: 60,
+            rows: text_area_rows(setting.description, minimum: 4),
+            dir: "auto" %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-2">
+        <%= form.label :value_type, style: "display: block" %>
+      </div>
+      <div class="col">
+        <%= form.select :value_type,
+            options_for_select(Setting::VALID_VALUE_TYPES,
+            selected: (setting.value_type || :boolean)) %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-2">
+        <%= form.label :value, style: "display: block" %>
+      </div>
+      <div class="col">
+        <div class="metadata">Note: this must be valid JSON</div>
+        <%= form.text_area :value,
+            value: setting.value[:value].to_json,
+            cols: 60,
+            rows: text_area_rows(setting.value[:value]),
+            dir: "auto" %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <%= form.submit class: 'btn btn-primary' %>
+
+      </div>
+    </div>
+  </div>
+<% end %>

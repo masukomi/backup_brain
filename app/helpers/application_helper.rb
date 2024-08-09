@@ -27,8 +27,8 @@ module ApplicationHelper
       url,
       class: link_css,
       method: method,
-      alt: (alt.presence || t("misc.missing_alt_text")),
-      title: (title.presence || ""),
+      alt: alt.presence || t("misc.missing_alt_text"),
+      title: title.presence || "",
       target: target
     )
   end
@@ -46,8 +46,8 @@ module ApplicationHelper
       url,
       class: link_css,
       method: method,
-      alt: (alt.presence || t("misc.missing_alt_text")),
-      title: (title.presence || ""),
+      alt: alt.presence || t("misc.missing_alt_text"),
+      title: title.presence || "",
       data: {confirm: t("misc.are_you_sure")}
     )
   end
@@ -61,6 +61,22 @@ module ApplicationHelper
       "alert" => "alert-danger"
     }[type] || "alert-dark"
     # dark seemed as good a default as anything.
+  end
+
+  # Calculates how many rows a text area should have
+  # based on the number of lines in its content.
+  def text_area_rows(text, minimum: 8)
+    lines = text.to_s.split("\n")
+    lines_count = lines.map { |l|
+      c = (l.chars.count / 80)
+      (c == 0) ? 1 : c
+    }.sum + 4
+    # +4 because the correct number is always cut off
+    # with my large fonts and 4 gives it just enough
+    # buffer that it feels like it's encouraging you
+    # to add "just a little more.. if you want" ;)
+
+    (lines_count > minimum) ? lines_count : minimum
   end
 
   private

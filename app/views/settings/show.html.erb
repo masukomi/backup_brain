@@ -1,0 +1,41 @@
+<div class="container">
+  <div class="row">
+    <div class="col">
+        <h3><%= @setting.lookup_key %>
+
+          <% if @setting.visible || @setting_administration_enabled %>
+            <%= icon_link("edit", edit_setting_path(@setting),
+                link_css: "inline-link-icon edit-link-icon",
+                method: :put,
+                alt: t('settings.edit_icon_alt'),
+                text: nil) %>
+          <% end %>
+        </h3>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <%= ::Rendering::Markdown.instance.render(@setting.summary.to_s).html_safe %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <%= ::Rendering::Markdown.instance.render(@setting.description.to_s).html_safe %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col heading">
+      <h4>Value</h4>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <pre><tt><%= @setting.inner_value %></tt></pre>
+    </div>
+  </div>
+  <div class="row submit_div">
+    <div class="col">
+      <%= button_to "Destroy this setting", @setting, method: :delete, form: { data: { turbo_confirm: 'Are you sure?' } }, class: 'btn btn-danger' %>
+    </div>
+  </div>
+</div>

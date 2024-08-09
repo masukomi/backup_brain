@@ -68,6 +68,17 @@ en:
     unknown_error: "Search encountered an unknown error: %{error}"
     invalid_api_key: "Your MEILISEARCH_SEARCH_KEY and/or MEILISEARCH_ADMIN_KEY are invalid"
     invalid_master_api_key: "Your MEILI_MASTER_KEY is invalid"
+  settings:
+    nav_link: "Settings"
+    icon_alt: "Gear icon with central heart"
+    create_link: "Create A Setting"
+    lookup_key: "Name"
+    summary: "Summary"
+    value: "Value"
+    no_settings_text: "<em>That's odd. There are no Settings.</em>"
+    edit_link: "Edit"
+    edit_icon_alt: "Edit icon"
+    update_success: "Update successful"
   bookmarks:
     heading: "Bookmarks"
     all_link: "All Bookmarks"

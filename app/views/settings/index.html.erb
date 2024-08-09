@@ -1,0 +1,50 @@
+<div class="container">
+  <div class="row">
+    <div class="col"><h3 class='stylized-header'>Settings</h3></div>
+  </div>
+  <% if @setting_administration_enabled %>
+  <div class="row mini-nav-links">
+    <div class="col">
+      <%= link_to t('settings.create_link'), new_setting_path %>
+    </div>
+  </div>
+  <% end %>
+</div>
+<div id="settings" class="container tableish">
+
+  <% if @settings.count > 0 %>
+    <div class="row header">
+      <div class="col-1">&nbsp;</div>
+      <div class="col-3"><%= t('settings.lookup_key') %></div>
+      <div class="col"><%= t('settings.summary') %></div>
+      <div class="col"><%= t('settings.value') %></div>
+    </div>
+    <% @settings.each do |setting| %>
+      <div class="row">
+        <div class="col-1">
+          <%= icon_link("edit", edit_setting_path(setting),
+              link_css: "inline-link-icon edit-link-icon",
+              method: :put,
+              alt: t('settings.edit_icon_alt'),
+              text: nil) %>
+        </div>
+        <div class="col-3">
+          <%= setting.lookup_key %>
+        </div>
+        <div class="col">
+          <%= setting.summary %>
+        </div>
+        <div class="col">
+          <%=setting.value[:value] %>
+        </div>
+      </div>
+    <% end %>
+
+  <% else %>
+    <div class="row">
+      <div class="col">
+        <%== t('settings.no_settings_text') %>
+      </div>
+    </div>
+  <% end %>
+</div>
