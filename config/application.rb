@@ -51,6 +51,9 @@ module BackupBrain
 
     # disable whiny requests in web console
     # e.g.: Cannot render console from <IP HERE>! Allowed networks: 127.0.0.0/127.255.255.255, ::1
-    config.web_console.whiny_requests = false
+    if config.respond_to?(:web_console)
+      # no web_console when running specs
+      config.web_console.whiny_requests = false
+    end
   end
 end
