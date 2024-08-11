@@ -77,6 +77,11 @@
         <div class="col" id="side-navigation">
           <%= render partial: 'shared/side_navigation' %>
           <%= yield :sidebar %>
+
+          <% if defined?(@tags_list) %>
+            <%= render partial: 'shared/side_tags' %>
+          <% end %>
+          <%= render partial: 'shared/side_administration' %>
         </div>
       </div>
     </div>

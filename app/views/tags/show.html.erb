@@ -1,0 +1,41 @@
+<div class="container">
+  <div class="row">
+    <div class="col">
+        <h3><%= @tag.lookup_key %>
+
+          <% if @tag.visible || @tag_administration_enabled %>
+            <%= icon_link("edit", edit_tag_path(@tag),
+                link_css: "inline-link-icon edit-link-icon",
+                method: :put,
+                alt: t('tags.edit_icon_alt'),
+                text: nil) %>
+          <% end %>
+        </h3>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <%= ::Rendering::Markdown.instance.render(@tag.summary.to_s).html_safe %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <%= ::Rendering::Markdown.instance.render(@tag.description.to_s).html_safe %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col heading">
+      <h4>Value</h4>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <pre><tt><%= @tag.inner_value %></tt></pre>
+    </div>
+  </div>
+  <div class="row submit_div">
+    <div class="col">
+      <%= button_to "Destroy this tag", @tag, method: :delete, form: { data: { turbo_confirm: 'Are you sure?' } }, class: 'btn btn-danger' %>
+    </div>
+  </div>
+</div>

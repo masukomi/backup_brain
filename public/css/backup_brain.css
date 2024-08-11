@@ -65,7 +65,9 @@ heading > .inline-icon{
 	list-style-type: none;
 	padding-left: 0px;
 }
-#side-nav-items li {
+#tags-list-heading,
+#side-nav-items li,
+#bottom-side-nav-items li {
 	font-weight: bold;
 }
 
@@ -73,6 +75,11 @@ heading > .inline-icon{
 	color: #484337;
 	text-decoration: none;
 }
+#tags-list-heading {
+	font-style: italic;
+	font-size: 0.8rem;
+}
+
 #page-actions ul {
 	list-style-type: none;
 }
@@ -184,8 +191,8 @@ heading > .inline-icon{
 .file-a-ticket-link-icon,
 .importer-link-icon,
 .version-info,
-#side-nav-items > li > a.file-a-ticket-link-icon,
-#side-nav-items > li > a.importer-link-icon{
+#bottom-side-nav-items > li > a.file-a-ticket-link-icon,
+#bottom-side-nav-items > li > a.importer-link-icon{
 	font-style: italic;
 	font-size: 0.8rem;
 	color: #aaa !important;
@@ -248,8 +255,8 @@ heading > .inline-icon{
 	font-size: 10rem;
 }
 .safe-space{
-	margin-top: 2rem;
-	margin-bottom: 2rem;
+	margin-top: 1rem;
+	margin-bottom: 1rem;
 }
 .action-icon,
 .no-wrap{

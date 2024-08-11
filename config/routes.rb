@@ -21,6 +21,7 @@ Rails.application.routes.draw do
   end
 
   resources :settings
+  resources :tags
 
   get "importer", controller: :importer, action: :index, as: :importer_form
   post "importer/import", controller: :importer, action: :import, as: :importer_import

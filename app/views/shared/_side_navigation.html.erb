@@ -22,42 +22,6 @@
           <li><%= link_to t('accounts.links.sign_up'), new_user_registration_path, class: "nav-link"  %></li>
         <% end %>
 
-        <% if current_user %>
-          <li><div class="vertically-separated">
-               <%= icon_link('importing',
-                  importer_form_path,
-                  text: t('importer.import_link'),
-                  alt: t('importer.import_link_icon_alt'),
-                  link_css: "inline-link-icon importer-link-icon"
-                  ) %>
-              </div>
-          </li>
-          <li><div>
-              <%= icon_link('settings',
-                  settings_path,
-                  text: t('settings.nav_link'),
-                  alt: t('settings.icon_alt'),
-                  link_css: "inline-link-icon importer-link-icon"
-                  ) %>
-              </div>
-          </li>
-
-
-
-        <% end %>
-        <li class="file-ticket">
-          <div class="vertically-separated">
-            <%= icon_link('file_a_ticket',
-                "https://github.com/masukomi/backup_brain/issues/new/choose",
-                text: t('misc.file_a_ticket'),
-                title: t('misc.file_a_ticket_icon_title'),
-                alt: t('misc.file_a_ticket_icon_alt'),
-                link_css: "inline-link-icon file-a-ticket-link-icon",
-                target: '_blank'
-                ) %>
-          </div>
-        </li>
-
       </ul>
     </div>
   </div>

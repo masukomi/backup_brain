@@ -11,6 +11,9 @@
 # The form is documented here:
 # https://www.mongodb.com/docs/manual/reference/connection-string/
 
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+source $SCRIPT_DIR/bash_helpers/colors.sh
+
 # Inside and outside of the bb_mongodb docker container
 # AND in the host OS
 # we want to connect to localhost
@@ -23,10 +26,16 @@ echo "Importing to the \"$DATABASE_NAME\" database found on"
 echo "$MONGODB_URL"
 echo "----------------------------------------------"
 
-declare -a collections=("bookmarks" "users")
+declare -a collections=("bookmarks" "users" "tags" "settings")
 
-for collection in "${collections[@]}"
-    do
-    echo "replacing $collection with exported data..."
-    mongoimport --uri="$MONGODB_URL" --drop --collection=$collection --db=$DATABASE_NAME --file=mongo_exports/$collection.json
+for collection in "${collections[@]}"; do
+  import_file=mongo_exports/$collection.json
+  echo "replacing $collection with exported data..."
+  mongoimport --uri="$MONGODB_URL" --drop --collection=$collection --db=$DATABASE_NAME --file=$import_file
+
+  if [ $? -eq 0 ]; then
+      echo $GREEN"✅ imported $collection from $import_file"$NOCOLOR
+  else
+      echo $RED"‼ couldn't import $collection from $import_file"$NOCOLOR
+  fi
 done

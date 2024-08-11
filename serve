@@ -1,11 +1,5 @@
 #!/usr/bin/env bash
 
-ESCAPE=$(printf "\033")
-RED="${ESCAPE}[91m"
-GREEN="${ESCAPE}[92m"
-YELLOW="${ESCAPE}[33m"
-NOCOLOR="${ESCAPE}[0m"
-
 ENV_FILE=".env"
 # Exit on error
 set -e
@@ -24,7 +18,9 @@ function ctrl_c() {
  kill -- -$$
 }
 
+source "scripts/bash_helpers/colors.sh"
 source "scripts/bash_helpers/get_env_key.sh"
+source "scripts/bash_helpers/migrations.sh"
 
 
 # Make sure you've defined a host name
@@ -71,6 +67,9 @@ else
   echo $GREEN"MONGODB_URL is set to \"$mongodb_url\""$NOCOLOR
   echo "If this is not correct please update the .env file"
 fi
+
+run_next_migration_file_if_present
+
 
 search_enabled=$(get_env_key 'SEARCH_ENABLED')
 

@@ -69,12 +69,14 @@ en:
     invalid_api_key: "Your MEILISEARCH_SEARCH_KEY and/or MEILISEARCH_ADMIN_KEY are invalid"
     invalid_master_api_key: "Your MEILI_MASTER_KEY is invalid"
   tags:
+    overlapping_tags: "Overlapping Tags:"
     list_heading: "Tags"
     edit_link: "Edit"
     edit_icon_alt: "Edit Icon"
     destroy_icon_alt: "Destroy icon"
     destroy_link: "Destroy"
     no_tags_text: "No tags found"
+    deletion_success: "Successfully removed from use"
     errors:
       invalid_tag_names: "These tags are invalid: %{names}"
       invalid_tag_name: "Tag names must contain no spaces or commas"
@@ -100,6 +102,7 @@ en:
       unsupported_value_type: "%{type} is not a supported value type"
   bookmarks:
     heading: "Bookmarks"
+    tagged_with_heading: "Bookmarks tagged with %{tags}"
     all_link: "All Bookmarks"
     edit_heading: "Editing Bookmark"
     new_heading: "Add A Bookmark"

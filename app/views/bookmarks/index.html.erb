@@ -1,7 +1,13 @@
 <div class="container">
   <div class="row">
     <div class="col-9">
-      <heading><%= link_to(t("bookmarks.heading"), bookmarks_path) %></heading>
+      <heading>
+        <% if ! defined?(@tags) %>
+          <%= link_to(t("bookmarks.heading"), bookmarks_path) %>
+        <% else %>
+          <%= link_to(t("bookmarks.tagged_with_heading", tags: @tags.join(', ')), bookmarks_tagged_with_path(tags: @tags)) %>
+        <% end %>
+      </heading>
       <% if @total_bookmarks != 0 %>
         <span class="bookmark-count">
         <%= t('bookmarks.counter',

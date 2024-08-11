@@ -1,0 +1,30 @@
+<div class="container">
+  <div class="row">
+    <div class="col"><h3 class='stylized-header'><%= t('tags.list_heading') %></h3></div>
+  </div>
+</div>
+<div id="tags" class="container">
+
+  <% if @tags.count > 0 %>
+    <% @tags.each do |tag| %>
+      <div class="row">
+        <div class="col-1">
+          <%= icon_link("edit", edit_tag_path(tag),
+              link_css: "inline-link-icon edit-link-icon",
+              method: :put,
+              text: nil) %>
+        </div>
+        <div class="col">
+          <%= link_to(tag.name, bookmarks_tagged_with_path(tags: tag.name)) %>
+        </div>
+      </div>
+    <% end %>
+
+  <% else %>
+    <div class="row">
+      <div class="col">
+        <%== t('tags.no_tags_text') %>
+      </div>
+    </div>
+  <% end %>
+</div>

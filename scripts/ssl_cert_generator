@@ -1,0 +1,134 @@
+#!/usr/bin/env bash
+
+# Hello geeky person.
+
+
+
+ESCAPE=$(printf "\033")
+RED="${ESCAPE}[91m"
+GREEN="${ESCAPE}[92m"
+YELLOW="${ESCAPE}[33m"
+NOCOLOR="${ESCAPE}[0m"
+
+echo "This script will enable you to access your
+Backup Brain installation with an https:// url
+which is good because then your plugin manager
+won't complain every time you log in. 😉
+
+Prerequisites:
+- have a domain name set up & working
+  Can be a free local-only or dynamic name.
+  See https://BackupBrain.app/setting_up_remote_access
+  and https://BackupBrain.app/configuring_ssl
+- install mkcert
+  See https://github.com/FiloSottile/mkcert for details.
+
+We're using mkcert because it dramatically simplifies
+the process of creating and installing an
+SSL Certificate for your domain name
+
+NOTE: if you're
+
+Have you configured a domain name,
+and confirmed that it works? [y/n]: "
+
+read configured
+if [ $configured != "y" ] && [ $configured != "Y" ]; then
+	echo "No worries. Run me when you've set up a domanin"
+	exit 75 # EX_TEMPFAIL
+fi
+
+
+echo "What domain name are you using [ex. backupbrain.local]?: "
+read domain_name
+
+if [[ $domain_name == "http"* ]] || [[ $domain_name == *"/"* ]]; then
+	echo $YELLOW"Sorry. I need you to enter ONLY the domain name.
+For example, just backupbrain.local with nothing
+before or after it"$NOCOLOR
+	echo "Please start over."
+	exit 64 # EX_USAGE
+fi
+
+echo "Confirming that domain is reachable…"
+if ping -c 1 $domain_name &> /dev/null
+then
+  echo $GREEN"Domain is reachable via ping"$NOCOLOR
+else
+  echo $RED"Domain is not reachable via ping"$NOCOLOR
+  echo "🤔 I'm testing by running ping. Try this (use control c to stop it)
+$GREEN"ping $domain_name"$NOCOLOR
+
+You want to see output like this:
+
+PING $domain_name (127.0.0.1): 56 data bytes
+64 bytes from 127.0.0.1: icmp_seq=0 ttl=64 time=0.118 ms
+64 bytes from 127.0.0.1: icmp_seq=1 ttl=64 time=0.254 ms
+
+Once you've got that working, come back and try again.
+"
+  exit 68 # EX_NOHOST
+fi
+
+
+echo "Checking for mkcert…"
+
+if ! command -v mkcert &> /dev/null; then
+	echo $RED"mkcert could not be found. Please install mkcert and try again."$NOCOLOR
+	echo "See https://github.com/FiloSottile/mkcert for details."
+	exit 127 # EX_UNAVAILABLE
+fi
+
+# it doesn't hurt to run --install multiple times.
+# So, let's run it to make sure everything's ready.
+mkcert --install
+
+if [ $? -ne 0 ]; then
+	echo $RED"mkcert had a probem when I tried to confirm it was installed.$NOCOLOR
+Please confirm that you can run the following command before proceeding.
+Note that it's ok if it has 'Warning:' lines about a tool not being available.
+
+$GREEN""mkcert --install$NOCOLOR
+
+"
+	exit 78 # EX_CONFIG
+fi
+
+# make sure the config/ssl directory exists
+mkdir -p config/ssl
+
+mkcert \
+	--key-file "config/ssl/$domain_name"_key.pem \
+	--cert-file "config/ssl/$domain_name"_cert.pem \
+	$domain_name
+
+
+if [ $? -ne 0 ]; then
+	echo $RED"Well shoot. That didn't work."$NOCOLOR
+	echo "Umm. Not sure what to do now.
+Here's the command I was trying to run:
+
+$YELLOW"mkcert --key-file "config/ssl/$domain_name"_key.pem --cert-file "config/ssl/$domain_name"_cert.pem $domain_name"$NOCOLOR"
+	exit 73 # EX_CANTCREAT
+fi
+
+echo "
+Here's a checklist with a few more steps for you to take care of manually.
+
+I'm sorry that this is so complicated & geeky. I wish
+OS & Browser makers weren't so terrified of self-signed
+certificates. 😿
+"
+
+echo "
+[  ] edit your .env file
+     & make sure it says HOST_NAME=$domain_name
+    [  ] uncomment the IP_ADDRESS line and set it to
+         the appropriate IP address (probably 127.0.0.1)
+    [  ] uncomment the FORCE_SSL=true line
+    [  ] uncomment SSL_PORT=3335
+[  ] Tell Firefox that you're ok with this self-signed certificate.
+     See https://BackupBrain.app/configuring_ssl for details.
+[  ] Tell Chrome that you're ok with this self-signed certificate.
+	 See https://BackupBrain.app/configuring_ssl for details.
+"

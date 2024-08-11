@@ -1,0 +1,36 @@
+<%= form_with(model: tag) do |form| %>
+  <div class="container">
+    <div class="row">
+      <div class="col-2">
+      <%= form.label :name, style: "display: block" %>
+      </div>
+      <div class="col">
+      <%= form.text_field :name, dir: "auto" %>
+      </div>
+    </div>
+
+
+    <div class="row">
+      <div class="col">
+        <%= form.submit class: 'btn btn-primary' %>
+
+      </div>
+    </div>
+  </div>
+<% end %>
+<% content_for :sidebar do %>
+  <%= render partial: 'shared/sidebar_page_actions_top' %>
+  <div id="page-actions">
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <div class="safe-space">
+            <%= button_to t('tags.destroy_link'), @tag,
+                method: :delete ,
+                class: 'btn btn-danger compact-button'%>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

@@ -16,6 +16,7 @@ class BookmarksController < ApplicationController
 
   # GET /bookmarks or /bookmarks.json
   def index
+    @tags_list = Tag.all.order_by([[:name, :asc]]).pluck(:name)
     query = privatize(Bookmark.all.order_by([[:created_at, :desc]]))
 
     @pagy, @bookmarks = pagify(query)
@@ -40,9 +41,13 @@ class BookmarksController < ApplicationController
 
   def tagged_with
     @tags = params[:tags].split(",")
+    tagged_with_criteria = Bookmark.where(tags: {"$in" => @tags})
+    @tags_list = tagged_with_criteria.pluck(:tags).flatten.sort.uniq
     @pagy, @bookmarks = pagify(
-      privatize(Bookmark.where(tags: {"$in" => @tags})
-        .order_by([[:created_at, :desc]]))
+      privatize(
+        tagged_with_criteria
+        .order_by([[:created_at, :desc]])
+      )
     )
     render :index
   end
@@ -270,7 +275,7 @@ class BookmarksController < ApplicationController
 
   def split_tag_params
     unsplit_tags = params.dig(:bookmark, :tags)
-    tags = Bookmark.split_tags(unsplit_tags)
+    tags = Tag.split_tags(unsplit_tags)
     bookmark_params.merge({tags: tags})
   end
 
