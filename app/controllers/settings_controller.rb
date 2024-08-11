@@ -35,31 +35,22 @@ class SettingsController < ApplicationController
   def edit
   end
 
-  # POST /settings or /settings.json
-  def create
-    @setting = Setting.new(clean_params(setting_params))
-
-    respond_to do |format|
-      if @setting.save
-        format.html { redirect_to setting_url(@setting), notice: I18n.t("settings.creation_success") }
-        format.json { render :show, status: :created, location: @setting }
-      else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @setting.errors, status: :unprocessable_entity }
-      end
-    end
-  end
-
   # PATCH/PUT /settings/1 or /settings/1.json
   def update
     respond_to do |format|
       if @setting.update(clean_params(setting_params))
-        format.html { redirect_to setting_url(@setting), notice: I18n.t("settings.update_success") }
+        flash_message(:notice, I18n.t("settings.update_success"))
+        format.html { redirect_to setting_url(@setting) }
         format.json { render :show, status: :ok, location: @setting }
       else
+        flash_message(:error, I18n.t("settings.errors.update_error"))
         format.html { render :edit, status: :unprocessable_entity }
         format.json { render json: @setting.errors, status: :unprocessable_entity }
       end
+    rescue JSON::ParserError
+      flash_message(:error, I18n.t("settings.errors.invalid_json"))
+      format.html { redirect_to edit_setting_url(@setting) }
+      format.json { render json: @setting.errors, status: :unprocessable_entity }
     end
   end
 
@@ -86,18 +77,8 @@ class SettingsController < ApplicationController
   end
 
   def clean_params(params_hash)
-    # first the value type
-    value_type = params_hash[:value_type]
-    # nil isn't a valid type but the model validators will handle
-    # providing a nice error for that.
-    params_hash[:value_type] = value_type.present? ? value_type.to_sym : nil
-
-    # and then the value
-    cleaned_value = params_hash[:value].strip
     cleaned_value = if params_hash[:value].present?
-      {value: JSON.parse(cleaned_value)}
-    else
-      {value: nil}
+      JSON.parse(params_hash[:value].strip)
     end
     params_hash[:value] = cleaned_value
 

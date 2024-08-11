@@ -1,12 +1,11 @@
 <%= form_with(model: setting) do |form| %>
   <div class="container">
-    <%= render partial: 'shared/errors_row', locals: {thing: setting} %>
     <div class="row">
       <div class="col-2">
-      <%= form.label :lookup_key, style: "display: block" %>
+        <%= form.label :lookup_key, style: "display: block" %>
       </div>
       <div class="col">
-      <%= form.text_field :lookup_key, dir: "auto" %>
+        <%= form.text_field :lookup_key, dir: "auto" %>
       </div>
     </div>
 
@@ -33,25 +32,14 @@
 
     <div class="row">
       <div class="col-2">
-        <%= form.label :value_type, style: "display: block" %>
-      </div>
-      <div class="col">
-        <%= form.select :value_type,
-            options_for_select(Setting::VALID_VALUE_TYPES,
-            selected: (setting.value_type || :boolean)) %>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="col-2">
         <%= form.label :value, style: "display: block" %>
       </div>
       <div class="col">
-        <div class="metadata">Note: this must be valid JSON</div>
+        <div class="metadata"><%= t("settings.form.json_instructions") %></div>
         <%= form.text_area :value,
-            value: setting.value[:value].to_json,
+            value: setting.value.to_json,
             cols: 60,
-            rows: text_area_rows(setting.value[:value]),
+            rows: text_area_rows(setting.value),
             dir: "auto" %>
       </div>
     </div>
@@ -59,7 +47,6 @@
     <div class="row">
       <div class="col">
         <%= form.submit class: 'btn btn-primary' %>
-
       </div>
     </div>
   </div>

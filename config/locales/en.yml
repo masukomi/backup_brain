@@ -68,6 +68,17 @@ en:
     unknown_error: "Search encountered an unknown error: %{error}"
     invalid_api_key: "Your MEILISEARCH_SEARCH_KEY and/or MEILISEARCH_ADMIN_KEY are invalid"
     invalid_master_api_key: "Your MEILI_MASTER_KEY is invalid"
+  tags:
+    list_heading: "Tags"
+    edit_link: "Edit"
+    edit_icon_alt: "Edit Icon"
+    destroy_icon_alt: "Destroy icon"
+    destroy_link: "Destroy"
+    no_tags_text: "No tags found"
+    errors:
+      invalid_tag_names: "These tags are invalid: %{names}"
+      invalid_tag_name: "Tag names must contain no spaces or commas"
+      invalid_tag: "%{name} is not a valid tag"
   settings:
     nav_link: "Settings"
     icon_alt: "Gear icon with central heart"
@@ -79,6 +90,14 @@ en:
     edit_link: "Edit"
     edit_icon_alt: "Edit icon"
     update_success: "Update successful"
+    value: "Value"
+    form:
+      json_instructions: "Note: this must be valid JSON"
+    errors:
+      invalid_json: "The value you supplied is not valid JSON"
+      update_failure: "An error occurred while trying to update that"
+      value_doesnt_match_type: "The supplied value doesn't match the value type"
+      unsupported_value_type: "%{type} is not a supported value type"
   bookmarks:
     heading: "Bookmarks"
     all_link: "All Bookmarks"

@@ -13,11 +13,10 @@
 <div id="settings" class="container tableish">
 
   <% if @settings.count > 0 %>
-    <div class="row header">
+    <div class="row">
       <div class="col-1">&nbsp;</div>
       <div class="col-3"><%= t('settings.lookup_key') %></div>
       <div class="col"><%= t('settings.summary') %></div>
-      <div class="col"><%= t('settings.value') %></div>
     </div>
     <% @settings.each do |setting| %>
       <div class="row">
@@ -25,7 +24,6 @@
           <%= icon_link("edit", edit_setting_path(setting),
               link_css: "inline-link-icon edit-link-icon",
               method: :put,
-              alt: t('settings.edit_icon_alt'),
               text: nil) %>
         </div>
         <div class="col-3">
@@ -34,8 +32,14 @@
         <div class="col">
           <%= setting.summary %>
         </div>
+      </div>
+      <div class="row">
+        <div class="col-1">&nbsp;</div>
+        <div class="col-2">
+          <%= t("settings.value") %> »
+        </div>
         <div class="col">
-          <%=setting.value[:value] %>
+          <%=setting.value %>
         </div>
       </div>
     <% end %>

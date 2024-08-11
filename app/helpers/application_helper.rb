@@ -19,17 +19,30 @@ module ApplicationHelper
     title: nil,
     text: nil,
     target: nil)
+
+    link_options = {
+      class: link_css,
+      method: method,
+      target: target
+    }
+    link_options[:title] = title if title
+
+    image_options = {
+      class: icon_css
+    }
+    if alt.present?
+      image_options[:alt] = alt
+    else
+      image_options[:"aria-hidden"] = true
+    end
+
     link_to(
       image_tag(
         "/images/icons/#{icon_name}.svg",
-        class: icon_css
+        image_options
       ) + icon_link_text(text),
       url,
-      class: link_css,
-      method: method,
-      alt: alt.presence || t("misc.missing_alt_text"),
-      title: title.presence || "",
-      target: target
+      link_options
     )
   end
 
