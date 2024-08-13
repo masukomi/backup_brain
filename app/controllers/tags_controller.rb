@@ -39,7 +39,15 @@ class TagsController < ApplicationController
     downcased = tag_params[:name].downcase
     respond_to do |format|
       if @tag.name == downcased || @tag.rename!(downcased)
-        flash_message(:notice, I18n.t("tags.update_success"))
+        # renaming can result in deletion
+        # because renaming it to match an existing one deletes the
+        # one that got rename.
+        if Tag.where(id: @tag.id).count > 0
+          flash_message(:notice, I18n.t("tags.update_success"))
+        else
+          flash_message(:notice, I18n.t("tags.rename_deletion"))
+          format.html { redirect_to tags_url }
+        end
         format.html { redirect_to tags_url(@tag) }
         format.json { render :show, status: :ok, location: @tag }
       else

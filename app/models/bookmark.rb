@@ -4,6 +4,8 @@ class Bookmark
   include Mongoid::Pagination
 
   extend Search::ClassMethods
+  extend BackupBrain::Taggable::ClassMethods
+  include BackupBrain::Taggable::InstanceMethods
   include Search::InstanceMethods
   include BackupBrain::EmojiHelper
 
@@ -45,43 +47,6 @@ class Bookmark
     after_destroy :remove_from_search
   end
 
-  # splits a string of tags, downcases them,
-  # replaces spaces with underscores, and returns an array
-  def self.split_tags(tags)
-    return [] if tags.blank?
-    tags.strip.split(/,?\s+|,/)
-      .compact_blank
-      .uniq
-      .map { |t| t.strip.downcase.gsub(/\s+/, "_") }
-
-    raise BackupBrain::Errors::InvalidTag.new
-  end
-
-  def self.tagged_with(tag)
-    where(:tags.in => [tag])
-  end
-
-  def self.tagged_with_any(tags)
-    where(:tags.in => tags)
-  end
-
-  def self.replace_tag!(old, new)
-    tagged_with(old).each do |b|
-      b.replace_tag!(old, new)
-    end
-  end
-
-  def self.remove_tag!(tag_name)
-    tagged_with(tag_name).each do |b|
-      b.remove_tag!(tag_name)
-    end
-  end
-
-  def self.tagged_with_all(tags)
-    tags = tags.map { |tag| /#{tag}/ }
-    where(:tags.all => tags)
-  end
-
   def self.to_read
     where(to_read: true)
   end
@@ -107,43 +72,6 @@ class Bookmark
 
   def is_fresh?
     created_at > 2.minutes.ago
-  end
-
-  # Replaces a tag
-  #
-  # ⚠️ WARNING: this does NOT effect Tag models
-  # Instead it is expected that it will be called
-  # by Tag#rename! - Bookmark.replace_tag!
-  def replace_tag!(old, new)
-    unless Tag.valid_tags?([new])
-      raise BackupBrain::Errors::InvalidTag.new(
-        I18n.t("tags.errors.invalid_tag", name: new)
-      )
-    end
-    self.tags = (tags - [old] + [new]).uniq
-    save!
-    tags
-  end
-
-  def remove_tag!(tag_name)
-    new_tags = tags.present? ? (tags - [tag_name]) : []
-    tags = new_tags
-    save!
-    tags
-  end
-
-  # @return Boolean - true or false  indicating if the array of
-  #                    tag strings are all valid
-  def self.valid_tags?(array_o_strings)
-    valid_tags(array_o_strings).size == array_o_strings.size
-  end
-
-  # @return [Array[String]] - returns the subset of tag
-  #                           strings that are valid
-  def self.valid_tags(array_o_strings)
-    array_o_strings.select { |t|
-      t.present? || t.downcase == t
-    }
   end
 
   # BEGIN HOOKS
@@ -172,16 +100,6 @@ class Bookmark
     generate_archive(false) if url_changed?
   end
 
-  def update_central_tags_list
-    # NOTE: we _could_ do a has_and_belongs_to_many
-    # relationship here, but we don't need it YET
-    # and there are multiple advantages to having the raw
-    # string array embedded in the document
-    #  - faster loading of lists
-    #  - easier to pass the tags to Meilisearch
-
-    Tag.create_many_by_name_if_needed(tags)
-  end
   # END HOOKS
 
   # BEGIN ARCHIVES

@@ -52,3 +52,7 @@ RSpec/ExampleLength:
     - array
     - hash
     - heredoc
+
+#I'll nest if i wanna!
+RSpec/NestedGroups:
+  Enabled: false
