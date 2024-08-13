@@ -5,7 +5,15 @@
         <div id="tags-list-heading"><%= t('tags.overlapping_tags') %></div>
       <% end %>
       <% @tags_list.each do |tag| %>
-        <%= link_to(tag, bookmarks_tagged_with_path(tags: tag)) %>
+        <% if defined?(@tags) %>
+          <% tags_query_param=(@tags + [tag]).join(',') %>
+          <%= icon_link("add", bookmarks_tagged_with_path(tags: tags_query_param),
+                link_css: "inline-icon-link add-tag-icon",
+                alt: t('tags.add_tag_to_query'),
+                title: t('tags.add_tag_to_query')
+              %>
+        <% end %>
+        <%= link_to(tag, bookmarks_tagged_with_path(tags: tag) %>
       <% end %>
     </div>
   </div>
