@@ -7,7 +7,7 @@
                 link_css: "inline-link-icon",
                 alt: t('icons.tag_alt')
             ) %>
-            <%= link_to(tag, bookmarks_tagged_with_path(tags: tag)) %>
+            <%= link_to(decode_entities(tag), bookmarks_tagged_with_path(tags: tag)) %>
         </span>
     <% end %>
 <% else %>

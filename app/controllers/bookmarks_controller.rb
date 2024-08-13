@@ -93,9 +93,13 @@ class BookmarksController < ApplicationController
       # note: already privatized via filter
       # raw_results is a hash see the following for details
       # https://github.com/masukomi/mongodb_meilisearch?tab=readme-ov-file#searching
-      raw_results = Bookmark.search(@query, options: options, filtered_by_class: true)
-      @pagy = pagify_search(raw_results["search_result_metadata"]["nbHits"])
-      @bookmarks = raw_results["matches"]
+      raw_results = Bookmark.search(@query,
+        options: options,
+        ids_only: true,
+        filtered_by_class: true)
+      @bookmarks = Bookmark.where(:id.in => raw_results["matches"])
+      @tags_list = @bookmarks.pluck(:tags).flatten.sort.uniq
+      @pagy      = pagify_search(raw_results["search_result_metadata"]["nbHits"])
 
       render :index
     rescue MeiliSearch::ApiError => e
