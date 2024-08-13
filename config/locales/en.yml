@@ -71,6 +71,7 @@ en:
   tags:
     overlapping_tags: "Overlapping Tags:"
     list_heading: "Tags"
+    link: "Tags"
     edit_link: "Edit"
     edit_icon_alt: "Edit Icon"
     destroy_icon_alt: "Destroy icon"
