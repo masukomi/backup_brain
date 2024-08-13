@@ -98,6 +98,13 @@ class BookmarksController < ApplicationController
         ids_only: true,
         filtered_by_class: true)
       @bookmarks = Bookmark.where(:id.in => raw_results["matches"])
+
+      # is this a search with tag filtering?
+      if params[:tags].present?
+        @tags = params[:tags].split(",")
+        @bookmarks = @bookmarks.tagged_with_all(@tags)
+      end
+
       @tags_list = @bookmarks.pluck(:tags).flatten.sort.uniq
       @pagy      = pagify_search(raw_results["search_result_metadata"]["nbHits"])
 

@@ -8,7 +8,25 @@
         <span class="sidebar-tag">
           <% if defined?(@tags) %>
             <% tags_query_param=(@tags + [tag]).join(',') %>
-            <%= icon_link("add", bookmarks_tagged_with_path(tags: tags_query_param),
+            <% if action_name == 'search' %>
+              <%= icon_link("add", bookmarks_search_path(query: params[:query], tags: tags_query_param),
+                    link_css: "inline-icon-link",
+                    icon_css: "add-tag-icon",
+                    alt: t('tags.add_tag_to_query'),
+                    title: t('tags.add_tag_to_query')
+                  )
+                  %>
+            <% else %>
+              <%= icon_link("add", bookmarks_tagged_with_path(tags: tags_query_param),
+                    link_css: "inline-icon-link",
+                    icon_css: "add-tag-icon",
+                    alt: t('tags.add_tag_to_query'),
+                    title: t('tags.add_tag_to_query')
+                  )
+                  %>
+            <% end %>
+          <% elsif action_name == 'search' %>
+            <%= icon_link("add", bookmarks_search_path(query: params[:query], tags: tag),
                   link_css: "inline-icon-link",
                   icon_css: "add-tag-icon",
                   alt: t('tags.add_tag_to_query'),
