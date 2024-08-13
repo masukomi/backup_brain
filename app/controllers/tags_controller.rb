@@ -46,9 +46,8 @@ class TagsController < ApplicationController
           flash_message(:notice, I18n.t("tags.update_success"))
         else
           flash_message(:notice, I18n.t("tags.rename_deletion"))
-          format.html { redirect_to tags_url }
         end
-        format.html { redirect_to tags_url(@tag) }
+        format.html { redirect_to tags_url }
         format.json { render :show, status: :ok, location: @tag }
       else
         format.html { redirect_to tags_url(@tag) }
