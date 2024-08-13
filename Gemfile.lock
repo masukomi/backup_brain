@@ -120,6 +120,7 @@ GEM
     globalid (1.2.1)
       activesupport (>= 6.1)
     hashie (5.0.0)
+    htmlentities (4.3.4)
     httparty (0.22.0)
       csv
       mini_mime (>= 1.0.0)
@@ -364,6 +365,7 @@ DEPENDENCIES
   dotenv-rails
   factory_bot_rails
   gemoji
+  htmlentities
   httparty
   importmap-rails
   jbuilder

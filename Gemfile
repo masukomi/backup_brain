@@ -65,6 +65,7 @@ gem "gemoji"
 
 gem "whirly" # spinner for rake tasks
 gem "paint"  # colorize terminal output (mostly for whirly)
+gem "htmlentities" # escape html entities https://github.com/threedaymonk/htmlentities
 
 gem "httparty" # for importer to check if urls are serving.
 # gem "carrierwave-mongoid" # for file uploads

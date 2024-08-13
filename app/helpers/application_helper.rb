@@ -1,3 +1,4 @@
+require "htmlentities"
 module ApplicationHelper
   include Pagy::Frontend
 
@@ -90,6 +91,12 @@ module ApplicationHelper
     # to add "just a little more.. if you want" ;)
 
     (lines_count > minimum) ? lines_count : minimum
+  end
+
+  def decode_entities(text)
+    @@html_entities ||= HTMLEntities.new
+
+    @@html_entities.decode(text)
   end
 
   private

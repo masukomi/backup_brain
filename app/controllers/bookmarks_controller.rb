@@ -16,7 +16,10 @@ class BookmarksController < ApplicationController
 
   # GET /bookmarks or /bookmarks.json
   def index
-    @tags_list = Tag.all.order_by([[:name, :asc]]).pluck(:name)
+    @tags_list = Tag.all
+      .order_by([[:name, :asc]])
+      .pluck(:name)
+      .map { |t| helpers.decode_entities(t) }
     query = privatize(Bookmark.all.order_by([[:created_at, :desc]]))
 
     @pagy, @bookmarks = pagify(query)
@@ -55,6 +58,8 @@ class BookmarksController < ApplicationController
         .order_by([[:created_at, :desc]])
       )
     )
+
+    @tags_list = @tags_list.map { |t| helpers.decode_entities(t) }
     render :index
   end
 
