@@ -41,7 +41,13 @@ class BookmarksController < ApplicationController
 
   def tagged_with
     @tags = params[:tags].split(",")
-    tagged_with_criteria = Bookmark.where(tags: {"$in" => @tags})
+    if @tags.blank?
+      flash_message(:notice, t("tags.errors.no_tags_provided"))
+      redirect_to :index
+      return
+    end
+
+    tagged_with_criteria = Bookmark.tagged_with_all(@tags)
     @tags_list = tagged_with_criteria.pluck(:tags).flatten.sort.uniq
     @pagy, @bookmarks = pagify(
       privatize(

@@ -80,6 +80,7 @@ en:
     add_tag_to_query: "Filter results by this tag too"
     rename_deletion: "Renaming resulted in merge with existing tag with the new name."
     errors:
+      no_tags_provided: "Can't list tagged bookmarks without some provided tags"
       invalid_tag_names: "These tags are invalid: %{names}"
       invalid_tag_name: "Tag names must contain no spaces or commas"
       invalid_tag: "%{name} is not a valid tag"
