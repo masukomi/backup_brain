@@ -22,6 +22,7 @@ heading {
 	max-height: inherit;
 	padding-right: 0.25rem;
 }
+.add-tag-icon,
 .inline-body-icon{
 	max-height: 1rem;
 	padding-right: 0.25rem;
@@ -136,6 +137,19 @@ heading > .inline-icon{
 .current-archive-item > a::before {
 	content: "▶ ";
 }
+
+.sidebar-tag {
+	white-space: nowrap;
+}
+.sidebar-tag img {
+	filter: invert(66%) sepia(5%) saturate(7087%) hue-rotate(183deg) brightness(100%) contrast(108%);
+}
+.add-tag-icon {
+	max-height: 1rem;
+	padding-right: 0.05rem;
+	margin-left: 0.3rem;
+}
+
 
 /*.action-icons {
 }
