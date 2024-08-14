@@ -11,6 +11,7 @@ class Tag
   before_save :downcase_name
   before_destroy { |tag| Bookmark.remove_tag!(tag.name) }
 
+  # BEGIN CLASS METHODS
   class << self
     # splits a string of tags, downcases them,
     # replaces spaces with underscores, and returns an array
@@ -73,7 +74,18 @@ class Tag
       return true if names.empty?
       Tag.collection.insert_many(names.map { |n| {name: n} })
     end
+
+    def delete_orphaned_tags!
+      bookmark_tags = Bookmark.pluck(:tags).flatten.uniq
+      # Insert tags of other models here
+      extant_tags = Tag.where(:name.in => names).pluck(:name)
+
+      orphaned_tags = extant_tags - bookmark_tags
+      Tag.where(:name.in => orphaned_tags).destroy_all
+    end
   end
+
+  # END CLASS METHODS
 
   def rename!(new_name)
     existing_tag = Tag.where(name: new_name).first

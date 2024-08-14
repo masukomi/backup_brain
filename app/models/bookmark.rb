@@ -33,12 +33,14 @@ class Bookmark
   validates :url, presence: true
   validates :url, uniqueness: true
 
-  before_save  :emojify_default_fields
-  before_save  :set_domain
-  before_save  :maybe_generate_archive
+  before_save    :emojify_default_fields
+  before_save    :set_domain
+  before_save    :maybe_generate_archive
+  before_save    :clean_orphaned_tags
+  after_create   :generate_archive
+  before_destroy :clean_orphaned_tags
 
-  after_create :generate_archive
-  after_save   :update_central_tags_list
+  after_save     :update_central_tags_list
 
   # enabled?() is controlled by the SEARCH_ENABLED environment variable
   if Search::Client.instance.enabled?
@@ -98,6 +100,12 @@ class Bookmark
   #  - if the url has changed
   def maybe_generate_archive
     generate_archive(false) if url_changed?
+  end
+
+  def clean_orphaned_tags
+    if changed_attributes.keys.include?("tags")
+      DeleteOrphanedTagsJob.perform_later
+    end
   end
 
   # END HOOKS
