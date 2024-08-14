@@ -84,7 +84,7 @@ module BackupBrain
 
       ## HOOKS
 
-      # Call me after_create
+      # Call me after_save
       # The Central tag list is used as an easy way to
       # know what ALL the tags are, and (eventually) to
       # retrieve all the items with a tag
