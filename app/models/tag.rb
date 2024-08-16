@@ -92,7 +92,6 @@ class Tag
     if !existing_tag
       old_name = name.dup
       save! # don't proceed if this doesn't work
-
     else
       destroy! # dun dun DUUUUNNNNN!
     end

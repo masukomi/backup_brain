@@ -75,10 +75,10 @@ en:
     edit_link: "Edit"
     edit_icon_alt: "Edit Icon"
     destroy_icon_alt: "Destroy icon"
-    deletion_success: "Successfully deleted"
     destroy_link: "Destroy"
     no_tags_text: "No tags found"
     deletion_success: "Successfully removed from use"
+    update_success: "Successfully updated"
     add_tag_to_query: "Filter results by this tag too"
     rename_deletion: "Renaming resulted in merge with existing tag with the new name."
     errors:
@@ -243,3 +243,4 @@ en:
         significant: false
         # If set, the zeros after the decimal separator will always be stripped (e.g.: 1.200 will be 1.2)
         strip_insignificant_zeros: false
+  deletion_success: "Successfully deleted"
