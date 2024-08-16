@@ -4,7 +4,15 @@ class TagsController < ApplicationController
 
   # GET /tags or /tags.json
   def index
+    @starting_with = params[:starting_with]
     @tags = Tag.order([:name, :asc])
+    # get all possible first chars
+    @tags_first_characters = @tags.map { |t| t.name[0] }.uniq
+    # then narrow it down to what was requested (if anything)
+    if @starting_with
+      regexp_char = /\w/.match?(@starting_with) ? @starting_with : "\\#{@starting_with}"
+      @tags = @tags.where(name: /^#{regexp_char}/)
+    end
   end
 
   # GET /tags/1 or /tags/1.json

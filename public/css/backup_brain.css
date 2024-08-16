@@ -107,6 +107,11 @@ heading > .inline-icon{
 	display: inline;
 	margin-left: 0.25rem;
 }
+
+.tags-page-link {
+	padding: 0.1rem 0.2rem;
+	/* top & bottom, left & right */
+}
 /* BOOKMARKS */
 
 .favicon {
@@ -144,11 +149,13 @@ heading > .inline-icon{
 .sidebar-tag img {
 	filter: invert(66%) sepia(5%) saturate(7087%) hue-rotate(183deg) brightness(100%) contrast(108%);
 }
-.add-tag-icon {
+.add-tag-icon,
+.edit-tag-icon {
 	max-height: 1rem;
 	padding-right: 0.05rem;
 	margin-left: 0.3rem;
 }
+
 
 
 /*.action-icons {

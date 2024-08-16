@@ -6,6 +6,20 @@
 <div id="tags" class="container">
 
   <% if @tags.count > 0 %>
+    <div class="row">
+      <div class="col">
+        <nav class="pagy-bootstrap-nav" role="navigation">
+        <ul class="pagination">
+        <% @tags_first_characters.each do | char | %>
+          <li class="page-item<% if @starting_with == char %> active<% end %>">
+            <%= link_to(char, tags_path(starting_with: char),
+                class: "page-link tags-page-link"
+                ) %>
+          </li>
+        <% end %>
+        </ul>
+      </div>
+    </div>
     <% @tags.each do |tag| %>
       <div class="row">
         <div class="col-1">
