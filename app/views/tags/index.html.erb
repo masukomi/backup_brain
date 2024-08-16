@@ -1,6 +1,6 @@
 <div class="container">
   <div class="row">
-    <div class="col"><h3 class='stylized-header'><%= t('tags.list_heading') %></h3></div>
+    <div class="col"><h3 class='stylized-header'><%= link_to(t('tags.list_heading'), tags_path()) %></h3></div>
   </div>
 </div>
 <div id="tags" class="container">
@@ -9,7 +9,7 @@
     <div class="row">
       <div class="col">
         <nav class="pagy-bootstrap-nav" role="navigation">
-        <ul class="pagination">
+        <ul class="pagination tag-admin-list">
         <% @tags_first_characters.each do | char | %>
           <li class="page-item<% if @starting_with == char %> active<% end %>">
             <%= link_to(char, tags_path(starting_with: char),
@@ -20,19 +20,22 @@
         </ul>
       </div>
     </div>
-    <% @tags.each do |tag| %>
       <div class="row">
-        <div class="col-1">
+        <div class="col">
+          <ul class="admin-tags-list">
+    <% @tags.each do |tag| %>
+          <li>
           <%= icon_link("edit", edit_tag_path(tag),
               link_css: "inline-link-icon edit-link-icon",
               method: :put,
               text: nil) %>
-        </div>
-        <div class="col">
-          <%= link_to(tag.name, bookmarks_tagged_with_path(tags: tag.name)) %>
+            <%= link_to(tag.name, bookmarks_tagged_with_path(tags: tag.name)) %>
+
+          </li>
+    <% end %>
+          </li>
         </div>
       </div>
-    <% end %>
 
   <% else %>
     <div class="row">

@@ -108,9 +108,17 @@ heading > .inline-icon{
 	margin-left: 0.25rem;
 }
 
+/* TAGS */
 .tags-page-link {
 	padding: 0.1rem 0.2rem;
 	/* top & bottom, left & right */
+}
+.admin-tags-list {
+	list-style-type: none;
+}
+.admin-tags-list li {
+	margin-right: 1.7rem;
+	white-space: nowrap;
 }
 /* BOOKMARKS */
 
