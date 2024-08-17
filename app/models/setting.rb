@@ -14,6 +14,10 @@ class Setting
   validates :lookup_key, uniqueness: true
   validate :valid_value
 
+  def is_boolean?
+    [TrueClass, FalseClass].include? value.class
+  end
+
   private
 
   def valid_value
