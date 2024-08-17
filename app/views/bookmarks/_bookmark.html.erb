@@ -16,11 +16,13 @@
       <%# favicon %>
       <div class="row">
         <div class="col">
-          <% if bookmark.domain.present? %>
-            <img class="favicon"
-                 src="<%= request.protocol %>www.google.com/s2/favicons?sz=64&domain=<%= bookmark.domain %>" />
-          <% else %>
-            <%= inline_icon("missing_image", icon_class: "favicon") %>
+          <% if get_setting('enable_favicons') == true %>
+            <% if bookmark.domain.present? %>
+              <img class="favicon"
+                  src="<%= request.protocol %>www.google.com/s2/favicons?sz=64&domain=<%= bookmark.domain %>" />
+            <% else %>
+              <%= inline_icon("missing_image", icon_class: "favicon") %>
+            <% end %>
           <% end %>
           <%= link_to(bookmark.title, bookmark.url) %>
         </div>
