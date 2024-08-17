@@ -99,6 +99,15 @@ module ApplicationHelper
     @@html_entities.decode(text)
   end
 
+  def get_setting(lookup_key)
+    @@settings_cache ||= Hash[* Setting.all.map { |s| [s.lookup_key, s.value] }.flatten]
+    @@settings_cache[lookup_key]
+  end
+
+  def bust_settings_cache
+    @@settings_cache = nil
+  end
+
   private
 
   def icon_link_text(text)
