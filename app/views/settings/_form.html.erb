@@ -34,6 +34,19 @@
       <div class="col-2">
         <%= form.label :value, style: "display: block" %>
       </div>
+        <% if setting.is_boolean? %>
+      <div class="col-2">
+
+          <span class="form-check form-switch">
+            <%= form.check_box :value,
+                {class: 'bookmark-checkbox-field form-check-input toggle',
+                role: "switch",
+                id: "booleanSettingSwitch",
+                checked: setting.value},
+                "true", "false"
+                %>
+          </span>
+        <% else %>
       <div class="col">
         <div class="metadata"><%= t("settings.form.json_instructions") %></div>
         <%= form.text_area :value,
@@ -41,6 +54,7 @@
             cols: 60,
             rows: text_area_rows(setting.value),
             dir: "auto" %>
+        <% end %>
       </div>
     </div>
 

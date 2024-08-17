@@ -39,8 +39,9 @@ class SettingsController < ApplicationController
   def update
     respond_to do |format|
       if @setting.update(clean_params(setting_params))
+        helpers.bust_settings_cache
         flash_message(:notice, I18n.t("settings.update_success"))
-        format.html { redirect_to setting_url(@setting) }
+        format.html { redirect_to settings_url }
         format.json { render :show, status: :ok, location: @setting }
       else
         flash_message(:error, I18n.t("settings.errors.update_error"))
@@ -78,7 +79,11 @@ class SettingsController < ApplicationController
 
   def clean_params(params_hash)
     cleaned_value = if params_hash[:value].present?
-      JSON.parse(params_hash[:value].strip)
+      if @setting.is_boolean?
+        params_hash[:value] = params_hash[:value] == "true"
+      else
+        JSON.parse(params_hash[:value].strip)
+      end
     end
     params_hash[:value] = cleaned_value
 

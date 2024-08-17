@@ -105,6 +105,7 @@ en:
       update_failure: "An error occurred while trying to update that"
       value_doesnt_match_type: "The supplied value doesn't match the value type"
       unsupported_value_type: "%{type} is not a supported value type"
+      update_error: "An error was encountered while updating that setting."
   bookmarks:
     heading: "Bookmarks"
     tagged_with_heading: "Bookmarks tagged with %{tags}"
@@ -244,3 +245,5 @@ en:
         # If set, the zeros after the decimal separator will always be stripped (e.g.: 1.200 will be 1.2)
         strip_insignificant_zeros: false
   deletion_success: "Successfully deleted"
+  true: "True"
+  false: "False"
