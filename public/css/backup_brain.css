@@ -280,6 +280,13 @@ heading > .inline-icon{
 	background-image: var(--bs-form-switch-bg) !important;
 }
 
+.form-switch .form-check-input{
+	background-position: left center;
+}
+.form-switch .form-check-input:checked{
+	background-position: right center;
+}
+
 /* misc */
 .giant-emoji {
 	font-size: 10rem;
