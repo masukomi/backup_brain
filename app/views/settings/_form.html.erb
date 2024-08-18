@@ -1,5 +1,8 @@
 <%= form_with(model: setting) do |form| %>
+
   <div class="container">
+  <% if @setting_administration_enabled %>
+
     <div class="row">
       <div class="col-2">
         <%= form.label :lookup_key, style: "display: block" %>
@@ -30,31 +33,73 @@
       </div>
     </div>
 
+    <% else
+# setting administration disabled
+       %>
+    <div class="row">
+      <div class="col">
+        <%= t('settings.lookup_key') %>
+      </div>
+      <div class="col">
+        <%= setting.lookup_key %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <%= t('settings.summary') %>
+      </div>
+      <div class="col">
+        <%= setting.summary %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <%= t('settings.description') %>
+      </div>
+      <div class="col">
+        <p>
+          <%= setting.description %>
+        </p>
+      </div>
+    </div>
+
+    <% end %>
+
     <div class="row">
       <div class="col-2">
-        <%= form.label :value, style: "display: block" %>
-      </div>
         <% if setting.is_boolean? %>
-      <div class="col-2">
+          <%= form.label :value,
+              style: "display: block",
+              "aria-label": t('settings.enable_disable_toggle_label')
+              %>
+        <% else %>
+          <%= form.label :value, style: "display: block" %>
+        <% end %>
 
+      </div>
+      <% if setting.is_boolean? %>
+        <div class="col-2">
           <span class="form-check form-switch">
             <%= form.check_box :value,
-                {class: 'bookmark-checkbox-field form-check-input toggle',
-                role: "switch",
-                id: "booleanSettingSwitch",
-                checked: setting.value},
+                {
+                  class: 'bookmark-checkbox-field form-check-input toggle',
+                  role: "switch",
+                  checked: setting.value
+                },
                 "true", "false"
                 %>
           </span>
-        <% else %>
-      <div class="col">
-        <div class="metadata"><%= t("settings.form.json_instructions") %></div>
-        <%= form.text_area :value,
-            value: setting.value.to_json,
-            cols: 60,
-            rows: text_area_rows(setting.value),
-            dir: "auto" %>
-        <% end %>
+      <% else %>
+        <div class="col">
+          <div class="metadata"><%= t("settings.form.json_instructions") %></div>
+          <%= form.text_area :value,
+              value: setting.value.to_json,
+              cols: 60,
+              rows: text_area_rows(setting.value),
+              dir: "auto" %>
+      <% end %>
       </div>
     </div>
 

@@ -62,7 +62,7 @@ en:
     form_label: "Search for:"
     match_sort_label: "Best Match"
     newest_sort_label: "Newest"
-    search_button: "Go"
+    search_button: "Begin Search"
     missing_index: "See https://BackupBrain.app/troubleshooting for suggestions."
     no_bookmarks: "Search will start working once you add some bookmarks."
     unknown_error: "Search encountered an unknown error: %{error}"
@@ -98,6 +98,10 @@ en:
     edit_icon_alt: "Edit icon"
     update_success: "Update successful"
     value: "Value"
+    enable_disable_toggle_label: "toggle this behavior"
+    lookup_key: "Internal lookup key"
+    description: "Description"
+    summary: "Summary"
     form:
       json_instructions: "Note: this must be valid JSON"
     errors:
