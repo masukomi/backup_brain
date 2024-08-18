@@ -35,39 +35,45 @@
   </head>
 
   <body>
-        <div class="container" id="header">
-          <div class="row" id="navigation">
-              <div class="col-3 home-link-col">
-                <%= icon_link("logo", root_path,
-                    link_css: "home-nav-icon",
-                    alt: t('navigation.home_icon_alt'),
-                    title: t('navigation.home_icon_title'),
-                    text: t('misc.app_name')
-                    )%>
-
-              </div>
-
-              <% if Search::Client.instance.enabled? %>
-                <div class="col">
-                    <%= render partial: 'shared/search_form', locals: {
-                        query: (@query || '')
-                    }%>
-
-                </div>
-              <% end %>
-
-
+    <!-- HEADER ROW -->
+    <div class="container" id="header">
+      <div class="row" id="navigation">
+          <div class="col-3 home-link-col">
+            <%= icon_link("logo", root_path,
+                link_css: "home-nav-icon",
+                alt: t('navigation.home_icon_alt'),
+                title: t('navigation.home_icon_title'),
+                text: t('misc.app_name')
+                )%>
 
           </div>
-      </div>
 
-      <% flash.each do |type, msg| %>
-        <% Array(msg).each do |m| %>
-            <div class="alert <%=class_for_flash(type) %>">
-                <%= t("misc.alerts.#{type}") %>: <%== m %>
+          <% if Search::Client.instance.enabled? %>
+            <div class="col">
+                <%= render partial: 'shared/search_form', locals: {
+                    query: (@query || '')
+                }%>
+
             </div>
-        <% end %>
-      <% end %>
+          <% end %>
+      </div>
+    </div>
+      <!-- END HEADER ROW -->
+      <!-- START ALERTS -->
+    <div class="container" id="alerts">
+      <div class="row" id="navigation">
+        <div class="col">
+          <% flash.each do |type, msg| %>
+            <% Array(msg).each do |m| %>
+                <div class="alert <%=class_for_flash(type) %>">
+                    <%= t("misc.alerts.#{type}") %>: <%== m %>
+                </div>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+      <!-- END ALERTS -->
 
     <div class="container" id="body-sections">
       <div class="row">
