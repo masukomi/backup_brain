@@ -1,41 +1,6 @@
 <%
-  if ! defined?(@query)
+  if defined?(@query)
 
-
-    link = Proc.new {|pagy, link_extra|
-            link_to(
-                    pagy,
-                    bookmarks_path(page: pagy,
-                        limit: @limit,
-                        tags: defined?(@tags) ? @tags.join(",") : ""
-                    ),
-                    method: :get,
-                    class: 'page-link',
-                    aria_label: I18n.t("pagination.aria_next")
-            )
-    }
-    previous_link = link_to(
-           t('pagination.previous'),
-           bookmarks_path(page: pagy.prev,
-             limit: @limit,
-             tags: defined?(@tags) ? @tags.join(",") : ""
-           ),
-           method: :get,
-           class: 'page-link',
-           aria_label: I18n.t("pagination.aria_previous"),
-        )
-    next_link = link_to(
-           t('pagination.next'),
-           bookmarks_path(page: pagy.next,
-             limit: @limit,
-             tags: defined?(@tags) ? @tags.join(",") : ""
-           ),
-           method: :get,
-           class: 'page-link',
-           aria_label: I18n.t("pagination.aria_next")
-        )
-
-   else
     link = Proc.new {|pagy, link_extra|
             link_to(
                     pagy,
@@ -65,6 +30,71 @@
            bookmarks_search_path(page: pagy.next,
              limit: @limit,
              query: @query,
+             tags: defined?(@tags) ? @tags.join(",") : ""
+           ),
+           method: :get,
+           class: 'page-link',
+           aria_label: I18n.t("pagination.aria_next")
+        )
+  elsif action_name == 'unarchived'
+
+    link = Proc.new {|pagy, link_extra|
+            link_to(
+                    pagy,
+                    bookmarks_unarchived_path(page: pagy,
+                        limit: @limit
+                    ),
+                    method: :get,
+                    class: 'page-link',
+                    aria_label: I18n.t("pagination.aria_next")
+            )
+    }
+    previous_link = link_to(
+           t('pagination.previous'),
+           bookmarks_unarchived_path(page: pagy.prev,
+             limit: @limit
+           ),
+           method: :get,
+           class: 'page-link',
+           aria_label: I18n.t("pagination.aria_previous"),
+        )
+    next_link = link_to(
+           t('pagination.next'),
+           bookmarks_unarchived_path(page: pagy.next,
+             limit: @limit
+           ),
+           method: :get,
+           class: 'page-link',
+           aria_label: I18n.t("pagination.aria_next")
+        )
+  else
+
+    link = Proc.new {|pagy, link_extra|
+            link_to(
+                    pagy,
+                    bookmarks_path(page: pagy,
+                        limit: @limit,
+                        tags: defined?(@tags) ? @tags.join(",") : ""
+                    ),
+                    method: :get,
+                    class: 'page-link',
+                    aria_label: I18n.t("pagination.aria_next")
+            )
+    }
+    previous_link = link_to(
+           t('pagination.previous'),
+           bookmarks_path(page: pagy.prev,
+             limit: @limit,
+             tags: defined?(@tags) ? @tags.join(",") : ""
+           ),
+           method: :get,
+           class: 'page-link',
+           aria_label: I18n.t("pagination.aria_previous"),
+        )
+    next_link = link_to(
+           t('pagination.next'),
+           bookmarks_path(page: pagy.next,
+             limit: @limit,
              tags: defined?(@tags) ? @tags.join(",") : ""
            ),
            method: :get,
