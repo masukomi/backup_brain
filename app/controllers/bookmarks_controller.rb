@@ -20,7 +20,13 @@ class BookmarksController < ApplicationController
       .order_by([[:name, :asc]])
       .pluck(:name)
       .map { |t| helpers.decode_entities(t) }
-    query = privatize(Bookmark.all.order_by([[:created_at, :desc]]))
+
+    query = Bookmark.all.order_by([[:created_at, :desc]])
+    if params[:tags].present?
+      @tags = params[:tags].split(",")
+      query = query.tagged_with_all(@tags)
+    end
+    query = privatize(query)
 
     @pagy, @bookmarks = pagify(query)
   end
@@ -88,6 +94,11 @@ class BookmarksController < ApplicationController
       options[:filter] = "private = false"
     end
 
+    if params[:tags].present?
+      @tags = params[:tags].split(",")
+      options = add_tags_to_search_options(@tags, options)
+    end
+
     begin
       # if we were searching for _any_ record we'd use `filtered_by_class: false`
       # note: already privatized via filter
@@ -98,10 +109,9 @@ class BookmarksController < ApplicationController
         ids_only: true,
         filtered_by_class: true)
       @bookmarks = Bookmark.where(:id.in => raw_results["matches"])
-
-      # is this a search with tag filtering?
-      if params[:tags].present?
-        @tags = params[:tags].split(",")
+      if @tags&.present?
+        # in theory, this is redundant because the search criteria
+        # would have filtered on tags BUT I'd rather be sure
         @bookmarks = @bookmarks.tagged_with_all(@tags)
       end
 
@@ -366,5 +376,23 @@ class BookmarksController < ApplicationController
         )
       }
     end
+  end
+
+  # adds tags to the search options being passed to Meilisearch
+  #
+  #
+  # Documentation on the query we're building
+  # can be found here:
+  # https://www.meilisearch.com/docs/learn/filtering_and_sorting/filter_expression_reference#in
+  #
+  def add_tags_to_search_options(tags, options)
+    options[:filter] ||= ""
+
+    if tags.size > 0
+      options[:filter] += " AND " if options[:filter].present?
+      options[:filter] += "tags IN [#{tags.join(", ")}]"
+    end
+
+    options
   end
 end
