@@ -32,8 +32,7 @@ class BookmarksController < ApplicationController
   end
 
   def unarchived
-    query = Bookmark
-      .or({:archives.exists => false}, {archives: {"$size": 0}})
+    query = Bookmark.unarchived
       .order_by([[:created_at, :desc]])
     query = privatize(query)
     @pagy, @bookmarks = pagify(query)

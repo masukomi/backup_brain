@@ -72,6 +72,11 @@ class Bookmark
     where(private: true)
   end
 
+  # @return Mongoid::Criteria for unarchived bookmarks
+  def self.unarchived
+    Bookmark.or({:archives.exists => false}, {archives: {"$size": 0}})
+  end
+
   def is_fresh?
     created_at > 2.minutes.ago
   end
