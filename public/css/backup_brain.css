@@ -12,7 +12,7 @@ archive h1 {
 }
 archive img,
 archive svg {
-	max-width: 50rem !important;
+	max-width: 100% !important;
 }
 heading {
 	font-size: 120%;
@@ -226,13 +226,16 @@ heading > .inline-icon{
 	font-size: 0.8rem;
 	color: #aaa !important;
 }
+#bottom-side-nav-items {
+	list-style-type: none;
+	padding-left: 0.25rem;
+}
 .support img {
 	max-width: 1rem;
-	margin-right: 0.25rem;
 }
 #bottom-side-nav-items > li.support > a,
 #bottom-side-nav-items > li.support > a:visited {
-	font-style: normal;
+	font-style: italic;
 	color: #64b2fd !important;
 }
 .file-a-ticket-link-icon > img,
