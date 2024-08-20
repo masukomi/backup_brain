@@ -12,7 +12,7 @@ archive h1 {
 }
 archive img,
 archive svg {
-	max-width: 50rem !important;
+	max-width: 100% !important;
 }
 heading {
 	font-size: 120%;
