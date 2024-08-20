@@ -76,6 +76,7 @@ heading > .inline-icon{
 	color: #484337;
 	text-decoration: none;
 }
+
 #tags-list-heading {
 	font-style: italic;
 	font-size: 0.8rem;
@@ -220,11 +221,22 @@ heading > .inline-icon{
 .file-a-ticket-link-icon,
 .importer-link-icon,
 .version-info,
-#bottom-side-nav-items > li > a.file-a-ticket-link-icon,
-#bottom-side-nav-items > li > a.importer-link-icon{
+#bottom-side-nav-items > li > a{
 	font-style: italic;
 	font-size: 0.8rem;
 	color: #aaa !important;
+}
+#bottom-side-nav-items {
+	list-style-type: none;
+	padding-left: 0.25rem;
+}
+.support img {
+	max-width: 1rem;
+}
+#bottom-side-nav-items > li.support > a,
+#bottom-side-nav-items > li.support > a:visited {
+	font-style: italic;
+	color: #64b2fd !important;
 }
 .file-a-ticket-link-icon > img,
 .importer-link-icon > img {
