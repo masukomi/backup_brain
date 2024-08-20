@@ -193,6 +193,7 @@ en:
     file_a_ticket_icon_title: "click me to file a new ticket"
     file_a_ticket_icon_alt: "a silly little person with some text coming out of their mouth"
     launched_with_version: "Launched w/version %{version}"
+    support_me_link: "<img src=\"/images/logos/ko-fi@2x.png\">Support Backup Brain"
     alerts:
         notice: "Notice"
         error: "Error"
