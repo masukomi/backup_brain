@@ -2,6 +2,10 @@
   <div class="row">
     <div class="col">
       <ul id="side-nav-items">
+        <% unless current_user %>
+          <li><span class="learn-more"><a href="https://BackupBrain.app" title="<%= t('misc.learn_more_title')%>"><%==t('misc.learn_more_link')%></a></span></li>
+        <% end  %>
+
         <li><%= link_to t('bookmarks.all_link'), bookmarks_path %>
         <% if current_user %>
           <li><%= link_to t('bookmarks.add'), new_bookmark_path %> </li>
