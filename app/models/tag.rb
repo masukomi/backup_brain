@@ -1,6 +1,7 @@
 class Tag
   include Mongoid::Document
   include Mongoid::Timestamps
+  include BackupBrain::HtmlEntityEncoding
 
   field :name, type: String
 
@@ -88,11 +89,11 @@ class Tag
   # END CLASS METHODS
 
   def rename!(new_name)
-    existing_tag = Tag.where(name: new_name).first
+    existing_tag = Tag.where(name: encode_unless_encoded(new_name)).first
     if !existing_tag
-      old_name = name.dup
       save! # don't proceed if this doesn't work
     else
+      old_name = name.dup # for replace_tag call below
       destroy! # dun dun DUUUUNNNNN!
     end
 
