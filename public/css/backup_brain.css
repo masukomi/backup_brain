@@ -77,6 +77,10 @@ heading > .inline-icon{
 	text-decoration: none;
 }
 
+#side-nav-items .learn-more img {
+	max-width: 2rem;
+}
+
 #tags-list-heading {
 	font-style: italic;
 	font-size: 0.8rem;

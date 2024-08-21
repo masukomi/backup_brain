@@ -194,6 +194,8 @@ en:
     file_a_ticket_icon_alt: "a silly little person with some text coming out of their mouth"
     launched_with_version: "Launched w/version %{version}"
     support_me_link: "<img src=\"/images/logos/ko-fi@2x.png\">Support Backup Brain"
+    learn_more_link: "<img src=\"/images/icons/logo_128x128.png\"> Learn More"
+    learn_more_title: "Get all the details about Backup Brain"
     alerts:
         notice: "Notice"
         error: "Error"
