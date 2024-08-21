@@ -5,7 +5,7 @@
       <%= form.label :name, style: "display: block" %>
       </div>
       <div class="col">
-      <%= form.text_field :name, dir: "auto" %>
+      <%= form.text_field :name, dir: "auto", value: tag.name.html_safe %>
       </div>
     </div>
 

@@ -29,7 +29,7 @@
               link_css: "inline-link-icon edit-link-icon",
               method: :put,
               text: nil) %>
-            <%= link_to(tag.name, bookmarks_tagged_with_path(tags: tag.name)) %>
+            <%= link_to(tag.name.html_safe, bookmarks_tagged_with_path(tags: tag.name)) %>
 
           </li>
     <% end %>
