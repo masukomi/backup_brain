@@ -8,7 +8,7 @@
       <div class="col-2">
         <%= form.label :url, style: "display: block" %>
       </div>
-      <div class="col-6">
+      <div class="col-9">
         <%= form.text_field :url, class: 'bookmark-input-field'  %>
       </div>
     </div>
@@ -17,7 +17,7 @@
       <div class="col-2">
         <%= form.label :title, style: "display: block" %>
       </div>
-      <div class="col-6">
+      <div class="col-9">
         <%= form.text_field :title, class: 'bookmark-input-field'  %>
       </div>
     </div>
@@ -26,15 +26,17 @@
       <div class="col-2">
         <%= form.label :description, style: "display: block" %>
       </div>
-      <div class="col-6">
+      <div class="col-9">
         <%= form.text_area :description, class: 'bookmark-textarea-field' %>
+        <div style="float: right;"><%== t('misc.markdown_supported_here') %></div>
       </div>
     </div>
-    <div class="row">
+
+    <div class="row safe-space">
       <div class="col-2">
         <%= form.label :tags, style: "display: block" %>
       </div>
-      <div class="col-6">
+      <div class="col-9">
         <%= form.text_field :tags, class: 'bookmark-input-field' %>
       </div>
     </div>

@@ -210,8 +210,8 @@ heading > .inline-icon{
 }
 .bookmark-textarea-field{
 	width: 100%;
-	height: 5rem;
-
+	min-height: 5rem;
+	height: 7rem;
 }
 .bookmark-count {
 	font-style: italic;
@@ -338,4 +338,18 @@ debugging::before{
 .search-go-button {
 	max-width: 3.5rem;
 	margin-left: 0.25rem;
+}
+
+.markdown-supported-here,
+.markdown-supported-here a{
+	white-space: nowrap;
+	display: inline-block;
+	font-size: 0.8rem;
+	color: #aaa !important;
+}
+.markdown-supported-here img {
+	max-width: 1.5rem;
+	positin: relative;
+	top: -0.05rem;
+	filter: invert(76%) sepia(7%) saturate(8%) hue-rotate(346deg) brightness(91%) contrast(83%);
 }
