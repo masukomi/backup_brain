@@ -55,17 +55,17 @@ module BackupBrain
             I18n.t("tags.errors.invalid_tag", name: new)
           )
         end
-        tags ||= []
-        tags = (tags - [old] + [new]).uniq
+        self.tags ||= []
+        self.tags = (tags - [old] + [new]).uniq
         save!
-        tags
+        self.tags
       end
 
       def remove_tag!(tag_name)
-        new_tags = tags.present? ? (tags - [tag_name]) : []
-        tags = new_tags
+        new_tags = self.tags.present? ? (self.tags - [tag_name]) : []
+        self.tags = new_tags
         save!
-        tags
+        self.tags
       end
 
       # @return Boolean - true or false  indicating if the array of

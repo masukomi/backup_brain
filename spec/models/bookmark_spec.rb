@@ -94,7 +94,7 @@ RSpec.describe Bookmark do
     describe "replace_tag!" do
       describe "class method" do
         before do
-          allow(described_class).to(receive(:tagged_with).with(anything).and_return([bookmark]))
+          allow(described_class).to(receive(:tagged_with_all).with(anything).and_return([bookmark]))
         end
 
         it "replaces tags in bookmarks" do
@@ -110,9 +110,30 @@ RSpec.describe Bookmark do
           new_tags = bookmark.replace_tag!("bar", "yay")
           expect(new_tags.include?("yay")).to(be(true))
           expect(new_tags.include?("bar")).to(be(false))
+          expect(bookmark.tags).to(match_array(new_tags))
         end
       end
       # rubocop:enable RSpec/StubbedMock
+    end
+
+    describe "remove_tag!" do
+      describe "class methods" do
+        before do
+          allow(described_class).to(receive(:tagged_with_all).with(anything).and_return([bookmark]))
+        end
+
+        it "replaces tags in bookmarks" do
+          expect(bookmark).to(receive(:remove_tag!).with("bar"))
+          described_class.remove_tag!("bar")
+        end
+      end
+
+      describe "instance method" do
+        it "removes the tag" do
+          bookmark.remove_tag!("bar")
+          expect(bookmark.tags.include?("bar")).to(be(false))
+        end
+      end
     end
     # rubocop:enable RSpec/MultipleMemoizedHelpers
   end

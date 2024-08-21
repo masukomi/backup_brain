@@ -90,10 +90,11 @@ class Tag
 
   def rename!(new_name)
     existing_tag = Tag.where(name: encode_unless_encoded(new_name)).first
+    old_name  = name.dup
     if !existing_tag
+      self.name = new_name
       save! # don't proceed if this doesn't work
     else
-      old_name = name.dup # for replace_tag call below
       destroy! # dun dun DUUUUNNNNN!
     end
 
