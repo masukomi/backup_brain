@@ -22,10 +22,15 @@ heading {
 	max-height: inherit;
 	padding-right: 0.25rem;
 }
+.unaddable-tag-icon,
 .add-tag-icon,
 .inline-body-icon{
 	max-height: 1rem;
 	padding-right: 0.25rem;
+}
+.used-tag-spacer {
+	max-width: 1.5rem;
+	display: inline-block;
 }
 heading > .inline-icon{
 	max-height: 1.5rem;
@@ -162,6 +167,7 @@ heading > .inline-icon{
 .sidebar-tag img {
 	filter: invert(66%) sepia(5%) saturate(7087%) hue-rotate(183deg) brightness(100%) contrast(108%);
 }
+.unaddable-tag-icon,
 .add-tag-icon,
 .edit-tag-icon {
 	max-height: 1rem;
@@ -242,6 +248,7 @@ heading > .inline-icon{
 	font-style: italic;
 	color: #64b2fd !important;
 }
+.sidebar-tag .unaddable-tag-icon,
 .file-a-ticket-link-icon > img,
 .importer-link-icon > img {
 	filter: invert(76%) sepia(7%) saturate(8%) hue-rotate(346deg) brightness(91%) contrast(83%);
