@@ -217,6 +217,7 @@ heading > .inline-icon{
 	font-style: italic;
 	font-size: 0.8rem;
 	color: slategray;
+	white-space: nowrap;
 }
 .private-bookmark {
 	background-color: #f0f8ff;

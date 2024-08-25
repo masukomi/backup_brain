@@ -383,16 +383,15 @@ class BookmarksController < ApplicationController
   def add_tags_to_query_and_view(tags, query, include_tags_list: true)
     if tags.present?
       @tags = tags.split(",")
-      tagged_with_criteria = Bookmark.tagged_with_all(@tags)
-      if include_tags_list
-        @tags_list = tagged_with_criteria
-          .pluck(:tags)
-          .flatten
-          .sort
-          .uniq
-          .map { |t| helpers.decode_entities(t) }
-      end
       query = query.tagged_with_all(@tags)
+    end
+    if include_tags_list
+      @tags_list = query
+        .pluck(:tags)
+        .flatten
+        .sort
+        .uniq
+        .map { |t| helpers.decode_entities(t) }
     end
     query
   end

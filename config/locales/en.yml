@@ -111,8 +111,14 @@ en:
       unsupported_value_type: "%{type} is not a supported value type"
       update_error: "An error was encountered while updating that setting."
   bookmarks:
-    heading: "Bookmarks"
-    tagged_with_heading: "Bookmarks tagged with %{tags}"
+    headings:
+      simple: "Bookmarks"
+      unarchived: "Unarchived Bookmarks"
+      to_read: "Unread Bookmarks"
+      simple_and_tagged_with: "Bookmarks tagged with: %{tags}"
+      unarchived_and_tagged_with: "Unarchived Bookmarks tagged with: %{tags}"
+      to_read_and_tagged_with: "Unread Bookmarks tagged with: %{tags}"
+
     all_link: "All Bookmarks"
     edit_heading: "Editing Bookmark"
     new_heading: "Add A Bookmark"
