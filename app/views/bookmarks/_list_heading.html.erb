@@ -1,0 +1,37 @@
+<heading>
+  <% if ! defined?(@tags) %>
+    <% if action_name == 'index' || action_name == 'search' %>
+      <%= t('bookmarks.headings.simple')%>
+    <% elsif action_name == 'tagged_with' %>
+      <%= t('bookmarks.headings.unread')%>
+    <% elsif action_name == 'unarchived' %>
+      <%= t('bookmarks.headings.unarchived')%>
+    <% elsif action_name == 'to_read' %>
+      <%= t('bookmarks.headings.to_read')%>
+    <% else %>
+      <%= t('bookmarks.headings.simple')%>
+    <% end %>
+  <% else %>
+    <% if action_name == 'index' || action_name == 'search' %>
+      <%= t('bookmarks.headings.simple_and_tagged_with', tags: @tags.join(', '))%>
+    <% elsif action_name == 'tagged_with' %>
+      <%= t('bookmarks.headings.unread_and_tagged_with', tags: @tags.join(', '))%>
+    <% elsif action_name == 'unarchived' %>
+      <%= t('bookmarks.headings.unarchived_and_tagged_with', tags: @tags.join(', '))%>
+    <% elsif action_name == 'to_read' %>
+      <%= t('bookmarks.headings.to_read_and_tagged_with', tags: @tags.join(', '))%>
+    <% else %>
+      <%= t('bookmarks.headings.simple_and_tagged_with', tags: @tags.join(', '))%>
+    <% end %>
+  <% end %>
+</heading>
+<% if @total_bookmarks != 0 %>
+  <span class="bookmark-count">
+  <%= t('bookmarks.counter',
+        formatted_count: number_with_delimiter(
+                          @pagy.count || @bookmarks.count,
+                          delimiter: t('number.format.delimiter')
+        )
+      ) %>
+  </span>
+<% end %>

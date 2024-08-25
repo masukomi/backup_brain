@@ -16,15 +16,14 @@ class BookmarksController < ApplicationController
 
   # GET /bookmarks or /bookmarks.json
   def index
-    @tags_list = Tag.all
-      .order_by([[:name, :asc]])
-      .pluck(:name)
-      .map { |t| helpers.decode_entities(t) }
-
     query = Bookmark.all.order_by([[:created_at, :desc]])
-    if params[:tags].present?
-      @tags = params[:tags].split(",")
-      query = query.tagged_with_all(@tags)
+    query = add_tags_to_query_and_view(params[:tags], query,
+      include_tags_list: params[:tags].present?)
+    if params[:tags].blank?
+      @tags_list = Tag.all
+        .order_by([[:name, :asc]])
+        .pluck(:name)
+        .map { |t| helpers.decode_entities(t) }
     end
     query = privatize(query)
 
@@ -34,14 +33,18 @@ class BookmarksController < ApplicationController
   def unarchived
     query = Bookmark.unarchived
       .order_by([[:created_at, :desc]])
+    query = add_tags_to_query_and_view(params[:tags], query)
     query = privatize(query)
     @pagy, @bookmarks = pagify(query)
     render :index
   end
 
   def to_read
-    query = Bookmark.where(to_read: true)
+    query = Bookmark.to_read
       .order_by([[:created_at, :desc]])
+
+    query = add_tags_to_query_and_view(params[:tags], query)
+
     query = privatize(query)
     @pagy, @bookmarks = pagify(query)
     render :index
@@ -375,6 +378,22 @@ class BookmarksController < ApplicationController
         )
       }
     end
+  end
+
+  def add_tags_to_query_and_view(tags, query, include_tags_list: true)
+    if tags.present?
+      @tags = tags.split(",")
+      query = query.tagged_with_all(@tags)
+    end
+    if include_tags_list
+      @tags_list = query
+        .pluck(:tags)
+        .flatten
+        .sort
+        .uniq
+        .map { |t| helpers.decode_entities(t) }
+    end
+    query
   end
 
   # adds tags to the search options being passed to Meilisearch

@@ -91,7 +91,7 @@ class ArchiveUrlJob < ApplicationJob
                       replace: ""))
         file
       else
-        record_failed_attempt(bookmark, error_code)
+        record_failed_attempt(bookmark, response.code)
       end
     rescue Net::ReadTimeout
       # 599 Network Connect Timeout Error
