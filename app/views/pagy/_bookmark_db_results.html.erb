@@ -1,106 +1,32 @@
 <%
   if defined?(@query)
+    links_hash=get_pagination_links_for_query(
+            pagy: pagy,
+            query: @query,
+            limit: @limit,
+            tags: @tags
+    )
 
-    link = Proc.new {|pagy, link_extra|
-            link_to(
-                    pagy,
-                    bookmarks_search_path(page: pagy,
-                        limit: @limit,
-                        query: @query,
-                        tags: defined?(@tags) ? @tags.join(",") : ""
-                    ),
-                    method: :get,
-                    class: 'page-link',
-                    aria_label: I18n.t("pagination.aria_next")
-            )
-    }
-    previous_link = link_to(
-           t('pagination.previous'),
-           bookmarks_search_path(page: pagy.prev,
-             limit: @limit,
-             query: @query,
-             tags: defined?(@tags) ? @tags.join(",") : ""
-           ),
-           method: :get,
-           class: 'page-link',
-           aria_label: I18n.t("pagination.aria_previous"),
-        )
-    next_link = link_to(
-           t('pagination.next'),
-           bookmarks_search_path(page: pagy.next,
-             limit: @limit,
-             query: @query,
-             tags: defined?(@tags) ? @tags.join(",") : ""
-           ),
-           method: :get,
-           class: 'page-link',
-           aria_label: I18n.t("pagination.aria_next")
-        )
   elsif action_name == 'unarchived'
+    links_hash=get_pagination_links_for_unarchived(
+            pagy: pagy,
+            limit: @limit,
+            tags: @tags
+    )
 
-    link = Proc.new {|pagy, link_extra|
-            link_to(
-                    pagy,
-                    bookmarks_unarchived_path(page: pagy,
-                        limit: @limit
-                    ),
-                    method: :get,
-                    class: 'page-link',
-                    aria_label: I18n.t("pagination.aria_next")
-            )
-    }
-    previous_link = link_to(
-           t('pagination.previous'),
-           bookmarks_unarchived_path(page: pagy.prev,
-             limit: @limit
-           ),
-           method: :get,
-           class: 'page-link',
-           aria_label: I18n.t("pagination.aria_previous"),
-        )
-    next_link = link_to(
-           t('pagination.next'),
-           bookmarks_unarchived_path(page: pagy.next,
-             limit: @limit
-           ),
-           method: :get,
-           class: 'page-link',
-           aria_label: I18n.t("pagination.aria_next")
-        )
+  elsif action_name == 'to_read'
+    links_hash=get_pagination_links_for_unread(
+            pagy: pagy,
+            limit: @limit,
+            tags: @tags
+    )
   else
+    links_hash=get_pagination_links_for_default(
+            pagy: pagy,
+            limit: @limit,
+            tags: @tags
+    )
 
-    link = Proc.new {|pagy, link_extra|
-            link_to(
-                    pagy,
-                    bookmarks_path(page: pagy,
-                        limit: @limit,
-                        tags: defined?(@tags) ? @tags.join(",") : ""
-                    ),
-                    method: :get,
-                    class: 'page-link',
-                    aria_label: I18n.t("pagination.aria_next")
-            )
-    }
-    previous_link = link_to(
-           t('pagination.previous'),
-           bookmarks_path(page: pagy.prev,
-             limit: @limit,
-             tags: defined?(@tags) ? @tags.join(",") : ""
-           ),
-           method: :get,
-           class: 'page-link',
-           aria_label: I18n.t("pagination.aria_previous"),
-        )
-    next_link = link_to(
-           t('pagination.next'),
-           bookmarks_path(page: pagy.next,
-             limit: @limit,
-             tags: defined?(@tags) ? @tags.join(",") : ""
-           ),
-           method: :get,
-           class: 'page-link',
-           aria_label: I18n.t("pagination.aria_next")
-        )
 
    end
 
@@ -109,7 +35,7 @@
 <ul class="pagination">
 
 <% if pagy.prev                -%>
-      <%== previous_link        %>
+      <%== links_hash[:previous_link]        %>
 
 
 <% else                        -%>
@@ -117,8 +43,8 @@
 <% end                         -%>
 
 <% pagy.series.each do |item| # series example: [1, :gap, 7, 8, "9", 10, 11, :gap, 36] -%>
-<%   if    item.is_a?(Integer) -%>    <li class="page-item"><%== link.call(item) %></li>
-<%   elsif item.is_a?(String)  -%>    <li class="page-item active"><%== link.call(item) %></li>
+<%   if    item.is_a?(Integer) -%>    <li class="page-item"><%== links_hash[:link_proc].call(item) %></li>
+<%   elsif item.is_a?(String)  -%>    <li class="page-item active"><%== links_hash[:link_proc].call(item) %></li>
 <%   elsif item == :gap        -%>    <li class="page-item disabled gap"><a class="page-link"><%== t('pagination.page_gap') %></a></li>
 <%   end                       -%>
 <% end                         -%>
@@ -127,7 +53,7 @@
 <%# "next >" link at end %>
 <% if pagy.next                -%>
     <li class="page-item next">
-      <%== next_link %>
+      <%== links_hash[:next_link] %>
     </li>
 <% else                        -%>
     <li class="page-item next disabled">
