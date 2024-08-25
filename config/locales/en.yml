@@ -48,6 +48,7 @@ en:
       cant_archive_without_url: "Can't create an archive without an url."
     archives:
       custom_code_600: "BB: No content remained after processing"
+      custom_code_unknown: "BB: Unknown error"
   navigation:
     home: "Home"
     home_icon_alt: "A logo of a brain with an arrow pointing to a cloud. Click me to go home."
