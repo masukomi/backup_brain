@@ -59,6 +59,26 @@ class Tag
       true
     end
 
+    def ensure_no_orphans!
+      # WARNING: this is one of those cases where we're doing
+      # something that would never work at scale, but is
+      # totally fine because it's a single user instance.
+      # it runs too many times, and it performs a deletion
+
+      all_tags = Tag.pluck(:name)
+
+      used_tags = Bookmark
+        .tagged_with_any(all_tags)
+        .pluck(:tags)
+        .flatten
+        .uniq
+      # add other taggable models as needed
+
+      orphaned_tags = all_tags - used_tags
+      return 0 if orphaned_tags.empty?
+      Tag.where(:name.in => orphaned_tags).destroy_all
+    end
+
     # compares the provided tag names to the
     # existing tags and creates any new ones that are
     # missing - skips callbacks

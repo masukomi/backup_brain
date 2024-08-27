@@ -98,6 +98,7 @@ module BackupBrain
         #  - easier to pass the tags to Meilisearch
 
         Tag.create_many_by_name_if_needed(tags)
+        Tag.ensure_no_orphans!
       end
     end
   end
