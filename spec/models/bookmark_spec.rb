@@ -135,6 +135,58 @@ RSpec.describe Bookmark do
         end
       end
     end
+
+    describe "orphaned_tag_names" do
+      it "finds orphaned tags" do
+        orphan = Tag.find_or_create_by!(name: "orphan")
+        expect(Tag.orphaned_tag_names).to(include(orphan.name))
+      end
+
+      it "doesn't find unorphaned tags" do
+        testing_name = "testing"
+        Tag.find_or_create_by!(name: testing_name)
+        bookmark.tags << testing_name
+        bookmark.save
+        expect(Tag.orphaned_tag_names).not_to(include(testing_name))
+      end
+    end
+
+    # rubocop:disable RSpec/AnyInstance, RSpec/StubbedMock
+    describe "ensure_no_orphans!" do
+      let(:tag) { Tag.new(name: "testing") }
+
+      it "does not call destroy_all if there's nothing to destroy" do
+        allow(Tag).to(receive(:orphaned_tag_names).and_return([]))
+        expect_any_instance_of(Mongoid::Criteria).not_to(receive(:destroy_all))
+        Tag.ensure_no_orphans!
+      end
+
+      it "calls destroy_all if there is something to destroy" do
+        allow(Tag).to(receive(:orphaned_tag_names).and_return(["orphan"]))
+        expect_any_instance_of(Mongoid::Criteria).to(receive(:destroy_all).and_return(1))
+        Tag.ensure_no_orphans!
+      end
+
+      it "returns zero if there was nothing to destroy" do
+        allow(Tag).to(receive(:orphaned_tag_names).and_return([]))
+        expect(Tag.ensure_no_orphans!).to(eq(0))
+      end
+
+      it "returns the number of destroyed tags if there were" do
+        Tag.find_or_create_by!(name: "orphan")
+        allow(Tag).to(receive(:orphaned_tag_names).and_return(["orphan"]))
+        expect(Tag.ensure_no_orphans!).to(eq(1))
+      end
+    end
+    # rubocop:enable RSpec/AnyInstance, RSpec/StubbedMock
+
+    describe "clean_tags!" do
+      it "removes invalid tags" do
+        bookmark.tags = ["foo", " baz", "!!!"]
+        bookmark.clean_tags!
+        expect(bookmark.tags).to(contain_exactly("foo"))
+      end
+    end
     # rubocop:enable RSpec/MultipleMemoizedHelpers
   end
 end

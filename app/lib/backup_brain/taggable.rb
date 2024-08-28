@@ -44,6 +44,10 @@ module BackupBrain
     end
 
     module InstanceMethods
+      def clean_tags!
+        self.tags = valid_tags(tags).uniq
+      end
+
       # Replaces a tag
       #
       # ⚠️ WARNING: this does NOT effect Tag models
