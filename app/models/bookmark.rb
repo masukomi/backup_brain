@@ -34,6 +34,7 @@ class Bookmark
   validates :url, uniqueness: true
 
   before_save    :emojify_default_fields
+  before_save    :clean_tags!
   before_save    :set_domain
   before_save    :maybe_generate_archive
   before_save    :clean_orphaned_tags
