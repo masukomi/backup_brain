@@ -234,7 +234,9 @@ en:
       sign_in: "Sign In"
       sign_out: "Sign Out"
       sign_up: "Create An Account"
-
+  remote_authorization_types:
+    errors:
+      invalid_type: "invalid authorization type string"
   pagination:
     next: "Next 〉"
     aria_next: "next"

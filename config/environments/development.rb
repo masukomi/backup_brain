@@ -3,6 +3,15 @@ require "active_support/core_ext/integer/time"
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
+  env_log_level = ENV.fetch("LOG_LEVEL", nil)&.downcase&.to_sym
+  if %i[debug info warn error fatal unknown].include? env_log_level
+    config.log_level = env_log_level
+    # normally this is :fatal in development
+    # rubocop:disable Rails/Output
+    puts("ℹ️ set log level to #{env_log_level} via LOG_LEVEL evironment variable")
+    # rubocop:enable Rails/Output
+  end
+
   # In the development environment your application's code is reloaded any time
   # it changes. This slows down response time but is perfect for development
   # since you don't have to restart the web server when you make code changes.
