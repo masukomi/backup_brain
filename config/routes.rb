@@ -26,10 +26,23 @@ Rails.application.routes.draw do
   get "importer", controller: :importer, action: :index, as: :importer_form
   post "importer/import", controller: :importer, action: :import, as: :importer_import
 
+  match "/debugging/echo" => "debugging#echo", via: [:get, :post, :put, :patch, :delete]
+
+  # Tell those script kiddes to fuck off.
+  # Is this needed? no.
+  # Does it work? Depends on how you define "work"
+  # It does save bandwidth & cycles and makes my villainous heart cackle.
+  get "*env",        controller: :script_kiddies, action: :fuck_off
+  get "*env;",       controller: :script_kiddies, action: :fuck_off
+  get ".git/config", controller: :script_kiddies, action: :fuck_off
+  get "*.php*",      controller: :script_kiddies, action: :fuck_off
+  get "*.jsp*",      controller: :script_kiddies, action: :fuck_off
+
+
+
 
   # Defines the root path route ("/")
   root "bookmarks#index"
 
 
-  match "/debugging/echo" => "debugging#echo", via: [:get, :post, :put, :patch, :delete]
 end
