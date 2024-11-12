@@ -93,11 +93,13 @@
     </div>
     <!-- FOOTER -->
     <div class="container non-essential" id="footer">
+      <% if current_user %>
         <div class="row">
             <div class="col bookmarklet">
                 <a href="javascript:url=location.href; if(document.getSelection){selection=document.getSelection();}else{selection='';}; title=document.title; void(open('<%= request.base_url %>/bookmarks/new?url='+encodeURIComponent(url)+'&description='+encodeURIComponent(selection)+'&title='+encodeURIComponent(title)+'&closeable=true&layout=webextension','Backup Brain','toolbar=no,width=800,height=550'));"><%= t('misc.bookmarklet.link_text') %></a> <%== t('misc.bookmarklet.inline_instructions') %>
             </div>
         </div>
+      <% end %>
 
         <div class="row">
             <div class="col version-info">
