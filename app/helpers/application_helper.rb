@@ -5,11 +5,18 @@ module ApplicationHelper
   def inline_icon(icon_name,
     icon_class: "inline-icon",
     alt: nil,
-    title: nil)
-    image_tag("/images/icons/#{icon_name}.svg",
-      class: icon_class,
-      alt: alt,
-      title: title)
+    title: nil,
+    aria_hidden: false)
+
+    tag_options = {
+      class: icon_class
+    }
+    # don't waste html characters on useless attributes
+    tag_options[:alt] = alt if alt
+    tag_options[:title] = title if title
+    tag_options[:"aria-hidden"] = aria_hidden if aria_hidden
+
+    image_tag("/images/icons/#{icon_name}.svg", tag_options)
   end
 
   def icon_link(icon_name, url,
@@ -19,18 +26,16 @@ module ApplicationHelper
     alt: nil,
     title: nil,
     text: nil,
-    target: nil)
+    target: nil,
+    aria_hidden: false)
 
-    link_options = {
-      class: link_css,
-      method: method,
-      target: target
-    }
+    link_options = {method: method}
+    link_options[:class] = link_css if link_css
+    link_options[:target] = target if target
     link_options[:title] = title if title
+    link_options[:"aria-hidden"] = aria_hidden if aria_hidden
 
-    image_options = {
-      class: icon_css
-    }
+    image_options = {class: icon_css}
     if alt.present?
       image_options[:alt] = alt
     else

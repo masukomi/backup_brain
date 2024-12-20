@@ -5,7 +5,7 @@
                 "tag",
                 bookmarks_tagged_with_path(tags: tag),
                 link_css: "inline-link-icon",
-                alt: t('icons.tag_alt')
+                aria_hidden: true,
             ) %>
             <%= link_to(tag.html_safe, bookmarks_tagged_with_path(tags: tag)) %>
         </span>
