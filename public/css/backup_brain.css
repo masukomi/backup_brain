@@ -119,6 +119,12 @@ heading > .inline-icon{
 }
 
 /* TAGS */
+@media screen and (max-width: 600px) {
+	.sidebar-tags {
+		visibility: hidden;
+	}
+}
+
 .tags-page-link {
 	padding: 0.1rem 0.2rem;
 	/* top & bottom, left & right */
@@ -130,6 +136,16 @@ heading > .inline-icon{
 	margin-right: 1.7rem;
 	white-space: nowrap;
 }
+.bookmark-tags-and-date-row {
+	display: flex;
+	height: 100%;
+}
+.bookmark-date-col {
+	display: inline-block;
+	align-self: flex-end;
+	padding: 0px;
+}
+
 /* BOOKMARKS */
 
 .favicon {
@@ -228,6 +244,7 @@ heading > .inline-icon{
 .private-bookmark {
 	background-color: #f0f8ff;
 }
+.metadata,
 .private-hint,
 .file-a-ticket-link-icon,
 .importer-link-icon,
@@ -237,6 +254,7 @@ heading > .inline-icon{
 	font-size: 0.8rem;
 	color: #aaa !important;
 }
+
 #bottom-side-nav-items {
 	list-style-type: none;
 	padding-left: 0.25rem;
