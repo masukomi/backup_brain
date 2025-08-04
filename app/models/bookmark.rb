@@ -5,6 +5,7 @@ class Bookmark
 
   extend Search::ClassMethods
   extend BackupBrain::Taggable::ClassMethods
+  extend BackupBrain::ArchiveTools
   include BackupBrain::Taggable::InstanceMethods
   include Search::InstanceMethods
   include BackupBrain::EmojiHelper
@@ -73,9 +74,41 @@ class Bookmark
     where(private: true)
   end
 
+  # @return Mongoid::Criteria for archived bookmarks
+  def self.archived
+    Bookmark.and({:archives.exists => true}, {:archives.nin => [nil, []]})
+  end
+
+  # @param minutes_ago [Integer|NilClass] number of minutes ago for oldest creation date
+  #        Defaults to 1,440 minutes (24 hours ago)
+  # @return Mongoid::Criteria for recently archived bookmarks
+  def self.recently_archived(minutes_ago = 24 * 60)
+    now = Time.zone.now
+    created_since = now - minutes_ago.minutes
+
+    Bookmark.where("archives.created_at" => {"$gte" => created_since})
+  end
+
   # @return Mongoid::Criteria for unarchived bookmarks
   def self.unarchived
     Bookmark.or({:archives.exists => false}, {archives: {"$size": 0}})
+  end
+
+  # @return TrueClass if this bookmark is unarchived
+  # @return FalseClass if this bookmark is archived
+  def unarchived?
+    (archives.nil? or archives.size == 0)
+  end
+
+  # @return TrueClass if this bookmark is archived
+  # @return FalseClass if this bookmark is unarchived
+  def archived?
+    !unarchived?
+  end
+
+  def has_archived_images?
+    archives_folder = Bookmark.archive_folder_path_for_doc(self)
+    Dir.exist?(archives_folder) && !Dir.empty?(archives_folder)
   end
 
   def is_fresh?
