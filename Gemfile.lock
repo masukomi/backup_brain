@@ -161,6 +161,7 @@ GEM
     meilisearch (0.28.1)
       httparty (~> 0.17)
     mini_mime (1.1.5)
+    mini_portile2 (2.8.9)
     minitest (5.24.1)
     mongo (2.20.1)
       bson (>= 4.14.1, < 6.0.0)
@@ -190,9 +191,8 @@ GEM
     net-smtp (0.5.0)
       net-protocol
     nio4r (2.7.3)
-    nokogiri (1.16.6-aarch64-linux)
-      racc (~> 1.4)
-    nokogiri (1.16.6-arm64-darwin)
+    nokogiri (1.16.6)
+      mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
     oauth2 (2.0.9)
       faraday (>= 0.17.3, < 3.0)
@@ -377,6 +377,7 @@ PLATFORMS
   aarch64-linux
   arm64-darwin-22
   arm64-darwin-23
+  arm64-darwin-24
 
 DEPENDENCIES
   bootsnap
@@ -420,7 +421,7 @@ DEPENDENCIES
   whirly
 
 RUBY VERSION
-   ruby 3.3.4p94
+   ruby 3.4.5p51
 
 BUNDLED WITH
    2.4.10
