@@ -55,5 +55,10 @@ module BackupBrain
       # no web_console when running specs
       config.web_console.whiny_requests = false
     end
+
+    config.log_formatter = -> (severity, timestamp, progname, message) {
+      "[#{timestamp.strftime("%Y-%m-%d %H:%M:%S")}] #{severity.upcase} — #{message}\n"
+    }
+
   end
 end
