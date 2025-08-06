@@ -99,6 +99,9 @@ RSpec.describe ArchiveUrlJob do
   end
 
   describe "#fully_qualify_urls" do
+    let(:data_image_url) {
+      "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+    }
     let(:markdown) {
       <<~MD
         this line 1 [link](https://example.com/coolness) has one fully qualified link
@@ -107,44 +110,56 @@ RSpec.describe ArchiveUrlJob do
         this line 4 [link1](foo), ![link2](/boo.jpg) has two & one's an image
         [line 5](foo), starts & ends with a [link2](/boo.jpg)
         [![an_image](/image.png)](/thats/a/link)
+        ![](#{data_image_url}) a data image
       MD
     }
-    let(:processed_lines) {
-      allow(job).to(receive(:download_image).and_return("archived_image_url"))
-      job.fully_qualify_urls(markdown, bookmark).split("\n")
-    }
 
-    it "retains the number of lines" do
-      expect(processed_lines.size).to(eq(6))
+    context "when stubbing download_image" do
+      let(:processed_lines) {
+        allow(job).to(receive(:download_image).and_return("archived_image_url"))
+        job.fully_qualify_urls(markdown, bookmark).split("\n")
+      }
+
+      it "retains the number of lines" do
+        expect(processed_lines.size).to(eq(7))
+      end
+
+      it "leaves fully qualified paths alone" do
+        expect(processed_lines[0]).to(
+          eq("this line 1 [link](https://example.com/coolness) has one fully qualified link")
+        )
+      end
+
+      it "handles lines with only one link", :aggregate_failures do
+        expect(processed_lines[1]).to(
+          eq("this line 2 [link](https://example.com/bar) has one absolute link")
+        )
+        expect(processed_lines[2]).to(
+          eq("this line 3 [link](https://example.com/foo/bar) has one relative link")
+        )
+      end
+
+      it "handles lines with multiple links", :aggregate_failures do
+        line_4 = "this line 4 [link1](https://example.com/foo/foo), ![](archived_image_url) has two & one's an image"
+
+        line_5 = "[line 5](https://example.com/foo/foo), starts & ends with a [link2](https://example.com/boo.jpg)"
+
+        expect(processed_lines[3]).to(eq(line_4))
+        expect(processed_lines[4]).to(eq(line_5))
+      end
+
+      it "handles images in links" do
+        line_6 = "[![](archived_image_url)](https://example.com/thats/a/link)"
+        expect(processed_lines[5]).to(eq(line_6))
+      end
     end
 
-    it "leaves fully qualified paths alone" do
-      expect(processed_lines[0]).to(
-        eq("this line 1 [link](https://example.com/coolness) has one fully qualified link")
-      )
-    end
-
-    it "handles lines with only one link", :aggregate_failures do
-      expect(processed_lines[1]).to(
-        eq("this line 2 [link](https://example.com/bar) has one absolute link")
-      )
-      expect(processed_lines[2]).to(
-        eq("this line 3 [link](https://example.com/foo/bar) has one relative link")
-      )
-    end
-
-    it "handles lines with multiple links", :aggregate_failures do
-      line_4 = "this line 4 [link1](https://example.com/foo/foo), ![](archived_image_url) has two & one's an image"
-
-      line_5 = "[line 5](https://example.com/foo/foo), starts & ends with a [link2](https://example.com/boo.jpg)"
-
-      expect(processed_lines[3]).to(eq(line_4))
-      expect(processed_lines[4]).to(eq(line_5))
-    end
-
-    it "handles images in links" do
-      line_6 = "[![](archived_image_url)](https://example.com/thats/a/link)"
-      expect(processed_lines[5]).to(eq(line_6))
+    context "when not stubbing download_image" do
+      it "doesn't change data:image urls" do
+        data_image_line = "![](#{data_image_url}) a data image\n"
+        processed_line = job.fully_qualify_urls(data_image_line, bookmark)
+        expect(processed_line).to(eq(data_image_line))
+      end
     end
   end
 
@@ -191,10 +206,13 @@ RSpec.describe ArchiveUrlJob do
 
   describe "#download_image" do
     # bookmark_url: "https://example.com/foo/"
+    let(:data_image_url) {
+      "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+    }
+
     it "skips data:image/* urls" do
       # a teeny transparent gif
-      data_url = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-      expect(job.download_image(bookmark, data_url)).to(eq(data_url))
+      expect(job.download_image(bookmark, data_url)).to(eq(data_image_url))
     end
 
     it "creates a folder" do
