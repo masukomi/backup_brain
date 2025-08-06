@@ -29,7 +29,12 @@ class ArchiveImagesJob < ArchiveUrlJob
     skip_recent: false)
     bookmark_ids = []
     if bookmarks.blank?
-      bookmark_ids = Bookmark.archived.pluck(:_id)
+      bookmark_ids = if skip_recent
+        Rails.logger.info("XXX skipping ALL recently archived")
+        Bookmark.only_archived_before_ids(minutes_ago: skip_recent)
+      else
+        Bookmark.archived.pluck(:_id)
+      end
     elsif bookmarks.is_a? Mongoid::Criteria
       bookmark_ids = bookmarks.pluck(:_id)
     elsif bookmarks.is_a? Array
@@ -60,11 +65,11 @@ class ArchiveImagesJob < ArchiveUrlJob
         rescue
           nil
         end)
-          Rails.logger.debug "Thread #{n}: archiving images for bookmark: #{id}"
+          Rails.logger.info "Thread #{n}: archiving images for bookmark: #{id}"
           process_bookmark(bookmark_id: id,
             skip_those_with_archived_images: skip_those_with_archived_images,
             skip_recent: skip_recent)
-          Rails.logger.debug "Thread #{n}: #{queue.length} items remaining in queue to archive images of"
+          Rails.logger.info "Thread #{n}: #{queue.length} bookmarks remaining in queue to archive images"
         end
       end
     end
