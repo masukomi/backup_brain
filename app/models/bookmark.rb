@@ -115,7 +115,7 @@ class Bookmark
   end
 
   def clean_orphaned_tags
-    if changed_attributes.keys.include?("tags")
+    if tags_changed?
       DeleteOrphanedTagsJob.perform_later
     end
   end
