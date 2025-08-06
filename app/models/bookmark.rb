@@ -39,9 +39,9 @@ class Bookmark
   before_save    :set_domain
   before_save    :maybe_generate_archive
   before_save    :clean_orphaned_tags
+
   after_create   :generate_archive
   before_destroy :clean_orphaned_tags
-
   after_save     :update_central_tags_list
 
   # enabled?() is controlled by the SEARCH_ENABLED environment variable
