@@ -19,6 +19,7 @@
         <%#TODO deal with rendering archives that might not be markdown %>
         <%= render partial: 'bookmark_md_archive',
             locals: {archive: @archive} %>
+
       </div>
     </div>
   <% else %>
@@ -40,8 +41,10 @@
           <li><%= link_to t('bookmarks.edit_this_link'), edit_bookmark_path(@bookmark),
               class: 'btn btn-primary compact-button' %></li>
 
-          <li><%= link_to t('bookmarks.rearchive_this_link'), archive_bookmark_path(@bookmark),
-              class: 'btn btn-primary compact-button' %></li>
+          <li><%= link_to t('bookmarks.rearchive_this_link'),
+               archive_bookmark_path(@bookmark),
+               method: :put,
+               class: 'btn btn-primary compact-button' %></li>
           </ul>
         </div>
       </row>
