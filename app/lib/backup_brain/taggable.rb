@@ -45,7 +45,10 @@ module BackupBrain
 
     module InstanceMethods
       def clean_tags!
-        self.tags = valid_tags(tags).uniq
+        unique_tags = valid_tags(tags).uniq
+        different = unique_tags.sort != tags.sort
+        self.tags = unique_tags if different
+        true
       end
 
       # Replaces a tag
