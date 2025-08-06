@@ -11,8 +11,8 @@ class Bookmark
   include BackupBrain::EmojiHelper
 
   CLASS_PREFIXED_SEARCH_IDS = true
-  SEARCHABLE_ATTRIBUTES = %w[private title url description tags archives_text created_at updated_at]
-  SEARCH_INDEX_NAME          = "backup_brain_general"
+  SEARCHABLE_ATTRIBUTES     = %w[title description tags archives_text url created_at updated_at private]
+  SEARCH_INDEX_NAME         = "backup_brain_general"
 
   # Fields where it'll look for Slack-style emoji aliases
   EMOJIFIABLE_FIELDS = [:description, :title]
