@@ -8,11 +8,6 @@ class ArchiveUrlJob < ApplicationJob
   include BackupBrain::ArchiveTools
   queue_as :low_priority # :default
 
-  # this will match images too
-  # SIMPLE_MD_LINK_REGEXP = /(\[(.*)\](?!\]\()\(\s*(.*?)\s*\))/i
-  SIMPLE_MD_LINK_REGEXP = /(?<!!)(\[(.*?)\]\((.*?)\))/i
-  IMAGE_MD_LINK_REGEXP = /((!\[.*?\])\(\s*?(.*?)\s*?\))/i
-
   # @return [Bookmark, nil] the bookmark if it was archived, nil if it wasn't
   def perform(bookmark_id:)
     bookmark = begin
@@ -80,7 +75,7 @@ class ArchiveUrlJob < ApplicationJob
     unless downloadable
       # raise BackupBrain::Errors::UnarchivableUrl.new("foo")
       record_failed_attempt(bookmark, error_code,
-        message: "Remote server prevented download. Status code: #{error_code}",
+        message: "Remote server prevented image download. Status code: #{error_code} URL: #{url.sub(/\?.*?$/, "?…<query_string>")}",
         should_raise: !(error_code > 399 && error_code < 500))
       # if it's a 404 variant don't raise and return our default missing image image url
       return MISSING_IMAGE_IMAGE_URL
@@ -220,41 +215,6 @@ class ArchiveUrlJob < ApplicationJob
     buffer.string
   end
 
-  # extracts all the image links
-  # - fully qualifies the URLs
-  # - replaces them with a sha256 hash
-  # - returns a hash where the keys are the sha256 hashes
-  #   and the values are the md links to the potentially archived images
-  #
-  # @example
-  #
-  # my [![](foo.jpg)](/link/to/something) favorite [links](/links)
-  # becomes
-  # my [abc123](/link/to/something) favorite [links](/links)
-  # and the hash
-  # {"abc123" => "![](foo.jpg)}
-  #
-  def extract_image_links(line)
-    match_datas = line.to_enum(:scan, IMAGE_MD_LINK_REGEXP).map { Regexp.last_match }
-    # ex. [#<MatchData "![](/bar.jpg)" 1:"![](/bar.jpg)" 2:"![]" 3:"/bar.jpg">,
-    #      #<MatchData "![](/beeb.png)" 1:"![](/beeb.png)" 2:"![]" 3:"/beeb.png">]
-
-    image_url_hashes = {}
-    # replacements = {} #sha256 -> offsets_array
-
-    return line, image_url_hashes if match_datas.size == 0
-
-    line_copy = line.dup
-    match_datas.each_with_index do |md, index|
-      url = md[3]
-      sha_hash = Digest::SHA2.hexdigest(url)
-      image_url_hashes[sha_hash] = url
-      # replacements[sha_hash] = md.offset(3)
-      line_copy.sub!(md[1], sha_hash)
-    end
-    [line_copy, image_url_hashes]
-  end
-
   # takes in a line, processes its simple [foo](bar) links
   # and returns the line.
   #
@@ -268,7 +228,7 @@ class ArchiveUrlJob < ApplicationJob
   #   than you'd expect when we don't have the images already.
   #   It's fine for single user BUT…
   def process_md_links(bookmark, line, domain, directory)
-    line, image_url_hashes = extract_image_links(line)
+    line, image_url_hashes = Archive.extract_image_links_from_line(line)
     # TODO handle src="/foo" and data="/foo" (the latter may be tricky)
 
     # NOTE: this weird-ass 2-stage function is because
@@ -276,7 +236,7 @@ class ArchiveUrlJob < ApplicationJob
     # that can handle [![](/foo.jpg)](/link/to/something)
     # when there are multiple links/images on the same line.
     # I gave up, and I acutally LIKE regexp.
-    match_datas = line.to_enum(:scan, SIMPLE_MD_LINK_REGEXP).map { Regexp.last_match }
+    match_datas = line.to_enum(:scan, Archive::SIMPLE_MD_LINK_REGEXP).map { Regexp.last_match }
     return line if image_url_hashes.empty? && match_datas.empty?
 
     new_line = line.dup
@@ -287,14 +247,24 @@ class ArchiveUrlJob < ApplicationJob
       new_line.sub!(md[1], "[#{md[2]}](#{url})")
       # would be extra work if there were multiple identical links on the same line
     end
-    # fully qualify image urls
-    image_url_hashes.each do |sha, url|
-      full_url = fully_qualify_path(url, domain, directory)
-      image_url_hashes[sha] = download_image(bookmark, full_url)
-      new_line.sub!(sha, "![](#{image_url_hashes[sha]})")
-    end
 
-    new_line
+    new_line = qualify_and_apply_image_url_hashes(bookmark, image_url_hashes, new_line, domain, directory)
+  end
+
+  # @param hashes [Hash] hash of sha256 hashes as keys
+  #        and url strings as values
+  # @param line [String] the line to replace sha256 hashes in
+  #        with the fully qualified urls
+  # @return modified string
+  def qualify_and_apply_image_url_hashes(bookmark, hashes, line, domain, directory)
+    hashes.each do |sha, url|
+      if url != MISSING_IMAGE_IMAGE_URL && !url.start_with?("/images/archival/#{bookmark._id}/")
+        full_url = fully_qualify_path(url, domain, directory)
+        hashes[sha] = download_image(bookmark, full_url)
+      end
+      line.sub!(sha, "![](#{hashes[sha]})")
+    end
+    line
   end
 
   # because this is only used when we've matched that it's NOT
@@ -330,7 +300,7 @@ class ArchiveUrlJob < ApplicationJob
     bookmark.failed_archive_attempts << failed_attempt
     bookmark.save!
     message ||= "Failed to download #{bookmark.url} - #{error_code}"
-    Rails.logger.warn(message)
+    Rails.logger.info(message)
     raise BackupBrain::Errors::UnarchivableUrl.new(message) if should_raise
   end
 end

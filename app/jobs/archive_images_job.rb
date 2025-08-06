@@ -4,7 +4,7 @@ require "open3"
 require "digest"
 
 class ArchiveImagesJob < ArchiveUrlJob
-  THREAD_COUNT = 10
+  MAX_THREAD_COUNT = 10
   # NOTE: to find all the bookmarks with archive
   # that contain image links use the regexp from
   # Bookmark.where(archives: {"$elemMatch" => {string_data: ArchiveUrlJob::IMAGE_MD_LINK_REGEXP}}).count
@@ -14,7 +14,13 @@ class ArchiveImagesJob < ArchiveUrlJob
 
   # @param bookmark [String|NilClass|BSON::ObjectId::Mongoid::Criteria] - Pass in a single bookmark id to archive images for just that bookmark,
   # or NilClass to archive images on all bookmarks that don't already have archived images.
-  def perform(bookmarks:)
+  # @param skip_those_with_archived_images [TrueClass|FalseClass]
+  #        if true this will ignore any bookmark where
+  #        has_archived_images? returns true
+  #        This would indicate we've already done the work.
+  #        Only set to false if you've deleted archives created
+  #        after image archiving was added.
+  def perform(bookmarks:, skip_those_with_archived_images: true)
     bookmark_ids = []
     if bookmarks.blank?
       bookmark_ids = Bookmark.archived.pluck(:_id)
@@ -22,25 +28,35 @@ class ArchiveImagesJob < ArchiveUrlJob
       bookmark_ids = bookmarks.pluck(:_id)
     elsif bookmarks.is_a? Array
       bookmark_ids = bookmarks
+      if bookmarks.first.is_a? Bookmark
+        bookmark_ids = bookmark_ids.map { |b| b._id }
+      end
+    elsif bookmarks.is_a? Bookmark
+      bookmark_ids = [bookmark._id]
+    elsif bookmark.is_a? String
+      bookmark_ids = [bookmark]
+    else
+      raise TypeError.new("Unsupported input type")
     end
 
-    bookmark_ids.delete(nil)
+    bookmark_ids.delete(nil) # never trust user input
 
-    bookmark_ids = Bookmark.archived.pluck(:_id)
     Rails.logger.debug "#{bookmark_ids.size} bookmarks to process…"
     queue = Queue.new
     bookmark_ids.each { |e| queue << e }
     threads = []
-    THREAD_COUNT.times do
+    num_threads = (bookmark_ids.size > 100) ? MAX_THREAD_COUNT : 1
+    Rails.logger.info("Launching #{num_threads} Thread(s) to download images from archives")
+    (1..num_threads).each do |n|
       threads << Thread.new do
         while (id = begin
           queue.pop(true)
         rescue
           nil
         end)
-          Rails.logger.debug "processing bookmark: #{id}"
-          process_bookmark(bookmark_id: id)
-          Rails.logger.debug "#{queue.length} items remaining in queue to archive images of"
+          Rails.logger.debug "Thread #{n}: archiving images for bookmark: #{id}"
+          process_bookmark(bookmark_id: id, skip_those_with_archived_images: skip_those_with_archived_images)
+          Rails.logger.debug "Thread #{n}: #{queue.length} items remaining in queue to archive images of"
         end
       end
     end
@@ -49,14 +65,14 @@ class ArchiveImagesJob < ArchiveUrlJob
   end
 
   # @return [Bookmark, nil] the bookmark if it was archived, nil if it wasn't
-  def process_bookmark(bookmark_id:)
+  def process_bookmark(bookmark_id:, skip_those_with_archived_images:)
     bookmark = begin
       Bookmark.find(bookmark_id)
     rescue
       nil
     end
     return false unless bookmark
-    if bookmark.has_archived_images?
+    if skip_those_with_archived_images && bookmark.has_archived_images?
       Rails.logger.warn("Bookmark already has archived images. #{bookmark_id}")
       return true
     end
@@ -106,18 +122,12 @@ class ArchiveImagesJob < ArchiveUrlJob
   # Unlike ArchiveUrlJob this _only_ touches image links.
   # Since we're working on an existing archive it's assumed that
   # all the text links have already been fully qualified.
+  #
+  # @return line with fully qualified image links
   def process_md_links(bookmark, line, domain, directory)
-    line, image_url_hashes = extract_image_links(line)
+    line, image_url_hashes = Archive.extract_image_links_from_line(line)
     return line if image_url_hashes.empty?
 
-    new_line = line.dup
-
-    image_url_hashes.each do |sha, url|
-      full_url = fully_qualify_path(url, domain, directory)
-      image_url_hashes[sha] = download_image(bookmark, full_url)
-      new_line.sub!(sha, "![](#{image_url_hashes[sha]})")
-    end
-
-    new_line
+    qualify_and_apply_image_url_hashes(bookmark, image_url_hashes, line.dup, domain, directory)
   end
 end
