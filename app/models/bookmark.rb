@@ -126,10 +126,8 @@ class Bookmark
   # @param minutes_ago [Integer|NilClass] number of minutes ago for oldest creation date
   #        Defaults to 1,440 minutes (24 hours ago)
   def self.recently_archived(minutes_ago = 24 * 60)
-    now = Time.zone.now
-    created_since = now - minutes_ago.minutes
-
-    Bookmark.where("archives.created_at" => {"$gte" => created_since})
+    raise unless minutes_ago.is_a? Numeric
+    Bookmark.where("archives.created_at" => {"$gte" => minutes_ago.minutes.ago})
   end
 
   # @return TrueClass if this bookmark is unarchived
@@ -217,23 +215,22 @@ class Bookmark
   # @param minutes_ago [Integer|NilClass] number of minutes ago for oldest creation date
   #        Defaults to 1,440 minutes (24 hours ago)
   #
-  def self.destroy_archives_since(minutes_ago = 24 * 60)
+  def self.destroy_archives_since(minutes_ago:)
+    raise unless minutes_ago.is_a? Numeric
     Bookmark
       .recently_archived(minutes_ago)
       .each do |b|
-      b.destroy_archives_since(minutes_ago)
+      b.destroy_archives_since(minutes_ago: minutes_ago)
       b.save
     end
   end
 
   # @param minutes_ago [Integer|NilClass] number of minutes ago for oldest creation date
   #        Defaults to 1,440 minutes (24 hours ago)
-  def destroy_archives_since(minutes_ago = 24 * 60)
+  def destroy_archives_since(minutes_ago:)
     raise unless minutes_ago.is_a? Numeric
-    now = Time.zone.now
-    created_since = now - minutes_ago.minutes
     archives
-      .select { |a| a.created_at >= created_since }
+      .select { |a| a.created_at >= minutes_ago.minutes.ago }
       .each { |a| a.destroy }
   end
 
