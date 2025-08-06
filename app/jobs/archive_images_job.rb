@@ -12,15 +12,21 @@ class ArchiveImagesJob < ArchiveUrlJob
 
   queue_as :low_priority # :default
 
-  # @param bookmark [String|NilClass|BSON::ObjectId::Mongoid::Criteria] - Pass in a single bookmark id to archive images for just that bookmark,
-  # or NilClass to archive images on all bookmarks that don't already have archived images.
+  # @param bookmark [String|NilClass|BSON::ObjectId::Mongoid::Criteria]
+  #        Pass in a single bookmark id to archive images for just that bookmark,
+  #        or NilClass to archive images on all bookmarks that don't already have archived images.
   # @param skip_those_with_archived_images [TrueClass|FalseClass]
   #        if true this will ignore any bookmark where
   #        has_archived_images? returns true
   #        This would indicate we've already done the work.
   #        Only set to false if you've deleted archives created
   #        after image archiving was added.
-  def perform(bookmarks:, skip_those_with_archived_images: true)
+  # @param skip_recent [FalseClass|Numeric]  If you pass in a number
+  #        it will skip processing any archive created
+  #        since that many minutes ago.
+  def perform(bookmarks:,
+    skip_those_with_archived_images: true,
+    skip_recent: false)
     bookmark_ids = []
     if bookmarks.blank?
       bookmark_ids = Bookmark.archived.pluck(:_id)
@@ -55,7 +61,9 @@ class ArchiveImagesJob < ArchiveUrlJob
           nil
         end)
           Rails.logger.debug "Thread #{n}: archiving images for bookmark: #{id}"
-          process_bookmark(bookmark_id: id, skip_those_with_archived_images: skip_those_with_archived_images)
+          process_bookmark(bookmark_id: id,
+            skip_those_with_archived_images: skip_those_with_archived_images,
+            skip_recent: skip_recent)
           Rails.logger.debug "Thread #{n}: #{queue.length} items remaining in queue to archive images of"
         end
       end
@@ -65,7 +73,9 @@ class ArchiveImagesJob < ArchiveUrlJob
   end
 
   # @return [Bookmark, nil] the bookmark if it was archived, nil if it wasn't
-  def process_bookmark(bookmark_id:, skip_those_with_archived_images:)
+  def process_bookmark(bookmark_id:,
+    skip_those_with_archived_images:,
+    skip_recent:)
     bookmark = begin
       Bookmark.find(bookmark_id)
     rescue
@@ -84,6 +94,13 @@ class ArchiveImagesJob < ArchiveUrlJob
 
     latest_archive = bookmark.latest_archive("text/markdown")
     return false unless latest_archive
+
+    if skip_recent.is_a? Numeric
+      if latest_archive.created_since?(minutes_ago: skip_recent)
+        timestamp = latest_archive.created_at.strftime("%Y/%m/%d %H:%M %p")
+        Rails.logger.warn("XXX skipping recent archive: #{timestamp}")
+      end
+    end
 
     begin
       markdown = latest_archive.string_data
