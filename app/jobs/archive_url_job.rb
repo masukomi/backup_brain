@@ -70,6 +70,9 @@ class ArchiveUrlJob < ApplicationJob
   # @raise UnarchivableUrl
   # @raise StorageError
   def download_image(bookmark, url)
+    # you'd never download a data:image url
+    return url if url.start_with? "data:image"
+
     # see if its downloadable
     downloadable, error_code = url_downloadable?(url, include_code: true)
     unless downloadable
@@ -273,6 +276,7 @@ class ArchiveUrlJob < ApplicationJob
     # note domain & directory do NOT have trailing slashes
     return (domain + path) if path.start_with? "/"
     return path if /^https?:\/\//.match? path.downcase
+    return path if path.start_with? "data:image"
     # path may be ../foo/bar.jpg
     # but loading
     # https://example.com/bar/../foo/bar.jpg should work just fine

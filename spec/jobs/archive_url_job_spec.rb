@@ -191,6 +191,12 @@ RSpec.describe ArchiveUrlJob do
 
   describe "#download_image" do
     # bookmark_url: "https://example.com/foo/"
+    it "skips data:image/* urls" do
+      # a teeny transparent gif
+      data_url = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+      expect(job.download_image(bookmark, data_url)).to(eq(data_url))
+    end
+
     it "creates a folder" do
       FileUtils.rm_r(bookmark_image_dir, force: true) if File.exist?(bookmark_image_dir)
       allow(job).to(
