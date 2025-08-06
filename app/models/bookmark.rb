@@ -125,9 +125,59 @@ class Bookmark
   # BEGIN ARCHIVES
   # @param minutes_ago [Integer|NilClass] number of minutes ago for oldest creation date
   #        Defaults to 1,440 minutes (24 hours ago)
-  def self.recently_archived(minutes_ago = 24 * 60)
+  def self.recently_archived(minutes_ago: 24 * 60)
     raise unless minutes_ago.is_a? Numeric
     Bookmark.where("archives.created_at" => {"$gte" => minutes_ago.minutes.ago})
+  end
+
+  # Finds the BSON::ObjectId for all Bookmarks that have an
+  # archive, and the newest archive is older than minutes_ago
+  # @param minutes_ago [Numeric] number of minutes ago for newest creation date
+  # @return [Array[BSON::ObjectId]]
+  # @warning ⚠ This relies on a slow aggregation.
+  def self.only_archived_before_ids(minutes_ago:)
+    raise unless minutes_ago.is_a? Numeric
+
+    Bookmark.collection.aggregate([
+      {
+        "$match" => {
+          "archives" => {"$exists" => true, "$not" => {"$size" => 0}}
+        }
+      },
+      {
+        "$unwind" => "$archives"
+      },
+      {
+        "$group" => {
+          "_id" => "$_id",
+          "archives" => {"$push" => "$archives"},
+          "last_archive" => {"$last" => "$archives"}
+        }
+      },
+      {
+        "$match" => {
+          "last_archive.created_at" => {"$lt" => minutes_ago.minutes.ago}
+        }
+      },
+      {
+        "$project" => {
+          "_id" => 1
+        }
+      }
+    ]).pluck("_id")
+  end
+
+  # Finds the all Bookmarks that have an
+  # archive, and the newest archive is older than minutes_ago
+  # @param minutes_ago [Numeric] number of minutes ago for newest creation date
+  # @return [Array[BSON::ObjectId]]
+  # @warning ⚠ This relies on a slow aggregation.
+  def self.only_archived_before(minutes_ago:)
+    raise unless minutes_ago.is_a? Numeric
+    Bookmark.where(:id.in => Bookmark
+                               .only_archived_before_ids(
+                                 minutes_ago: minutes_ago
+                               ))
   end
 
   # @return TrueClass if this bookmark is unarchived
