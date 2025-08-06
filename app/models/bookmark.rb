@@ -79,36 +79,9 @@ class Bookmark
     Bookmark.and({:archives.exists => true}, {:archives.nin => [nil, []]})
   end
 
-  # @param minutes_ago [Integer|NilClass] number of minutes ago for oldest creation date
-  #        Defaults to 1,440 minutes (24 hours ago)
-  # @return Mongoid::Criteria for recently archived bookmarks
-  def self.recently_archived(minutes_ago = 24 * 60)
-    now = Time.zone.now
-    created_since = now - minutes_ago.minutes
-
-    Bookmark.where("archives.created_at" => {"$gte" => created_since})
-  end
-
   # @return Mongoid::Criteria for unarchived bookmarks
   def self.unarchived
     Bookmark.or({:archives.exists => false}, {archives: {"$size": 0}})
-  end
-
-  # @return TrueClass if this bookmark is unarchived
-  # @return FalseClass if this bookmark is archived
-  def unarchived?
-    (archives.nil? or archives.size == 0)
-  end
-
-  # @return TrueClass if this bookmark is archived
-  # @return FalseClass if this bookmark is unarchived
-  def archived?
-    !unarchived?
-  end
-
-  def has_archived_images?
-    archives_folder = Bookmark.archive_folder_path_for_doc(self)
-    Dir.exist?(archives_folder) && !Dir.empty?(archives_folder)
   end
 
   def is_fresh?
@@ -150,6 +123,32 @@ class Bookmark
   # END HOOKS
 
   # BEGIN ARCHIVES
+  # @param minutes_ago [Integer|NilClass] number of minutes ago for oldest creation date
+  #        Defaults to 1,440 minutes (24 hours ago)
+  def self.recently_archived(minutes_ago = 24 * 60)
+    now = Time.zone.now
+    created_since = now - minutes_ago.minutes
+
+    Bookmark.where("archives.created_at" => {"$gte" => created_since})
+  end
+
+  # @return TrueClass if this bookmark is unarchived
+  # @return FalseClass if this bookmark is archived
+  def unarchived?
+    (archives.nil? or archives.size == 0)
+  end
+
+  # @return TrueClass if this bookmark is archived
+  # @return FalseClass if this bookmark is unarchived
+  def archived?
+    !unarchived?
+  end
+
+  def has_archived_images?
+    archives_folder = Bookmark.archive_folder_path_for_doc(self)
+    Dir.exist?(archives_folder) && !Dir.empty?(archives_folder)
+  end
+
   def has_archive?
     archives.present?
   end
@@ -209,8 +208,34 @@ class Bookmark
     #
     #      The documentation pages on search & archives will note this limitation.
     #      https://www.meilisearch.com/docs/learn/advanced/known_limitations#maximum-number-of-words-per-attribute
-    archives.last.string_data
+    latest_archive.string_data
     # archives.max{ |a| a.created_at }.string_data
   end
-  # BEGIN ARCHIVES
+
+  # Finds all the Bookmarks with recent archives and destroys
+  # archives with creation dates within range.
+  # @param minutes_ago [Integer|NilClass] number of minutes ago for oldest creation date
+  #        Defaults to 1,440 minutes (24 hours ago)
+  #
+  def self.destroy_archives_since(minutes_ago = 24 * 60)
+    Bookmark
+      .recently_archived(minutes_ago)
+      .each do |b|
+      b.destroy_archives_since(minutes_ago)
+      b.save
+    end
+  end
+
+  # @param minutes_ago [Integer|NilClass] number of minutes ago for oldest creation date
+  #        Defaults to 1,440 minutes (24 hours ago)
+  def destroy_archives_since(minutes_ago = 24 * 60)
+    raise unless minutes_ago.is_a? Numeric
+    now = Time.zone.now
+    created_since = now - minutes_ago.minutes
+    archives
+      .select { |a| a.created_at >= created_since }
+      .each { |a| a.destroy }
+  end
+
+  # END ARCHIVES
 end
