@@ -44,6 +44,15 @@ class Archive
     [line_copy, image_url_hashes]
   end
 
+  # @param minutes_ago: [Numeric] the number of minutes
+  #        ago to test if this was created since.
+  # @return true if the archive has a created_at
+  #         that is on or after the specified number
+  #         of minutes ago
+  def created_since?(minutes_ago:)
+    created_at >= minutes_ago.minutes.ago
+  end
+
   # @return [Array] an Array of unique image URLs found in
   # the string_data of this Archive. They are in string format
   # and may not be valid.
