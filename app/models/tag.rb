@@ -100,12 +100,7 @@ class Tag
     end
 
     def delete_orphaned_tags!
-      bookmark_tags = Bookmark.pluck(:tags).flatten.uniq
-      # Insert tags of other models here
-      extant_tags = Tag.where(:name.in => names).pluck(:name)
-
-      orphaned_tags = extant_tags - bookmark_tags
-      Tag.where(:name.in => orphaned_tags).destroy_all
+      Tag.where(:name.in => orphaned_tag_names).destroy_all
     end
   end
 
