@@ -137,34 +137,9 @@ class Bookmark
   # @warning ⚠ This relies on a slow aggregation.
   def self.only_archived_before_ids(minutes_ago:)
     raise unless minutes_ago.is_a? Numeric
-
-    Bookmark.collection.aggregate([
-      {
-        "$match" => {
-          "archives" => {"$exists" => true, "$not" => {"$size" => 0}}
-        }
-      },
-      {
-        "$unwind" => "$archives"
-      },
-      {
-        "$group" => {
-          "_id" => "$_id",
-          "archives" => {"$push" => "$archives"},
-          "last_archive" => {"$last" => "$archives"}
-        }
-      },
-      {
-        "$match" => {
-          "last_archive.created_at" => {"$lt" => minutes_ago.minutes.ago}
-        }
-      },
-      {
-        "$project" => {
-          "_id" => 1
-        }
-      }
-    ]).pluck("_id")
+    Bookmark.pluck(:id) \
+      - Bookmark.unarchived.pluck(:id) \
+      - Bookmark.recently_archived(minutes_ago: minutes_ago).pluck(:id)
   end
 
   # Finds the all Bookmarks that have an
