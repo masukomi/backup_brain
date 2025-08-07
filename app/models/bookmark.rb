@@ -88,6 +88,10 @@ class Bookmark
     created_at > 2.minutes.ago
   end
 
+  def to_md(options = {})
+    latest_archive("text/markdown")&.string_data
+  end
+
   # modifies the normal as_json response to not
   # include the full contents of embedded archives
   def as_json(options = {})
