@@ -146,6 +146,19 @@ class BookmarksController < ApplicationController
   # GET /bookmarks/1 or /bookmarks/1.json
   def show
     # set_archive is invoked before this
+    respond_to do |format|
+      format.html { render :show }
+      format.json {
+        render json: @bookmark
+      }
+      format.md {
+        if @archive&.mime_type == "text/markdown"
+          render md: @archive
+        else
+          raise ActionController::RoutingError.new("No Markdown Archives Found")
+        end
+      }
+    end
   end
 
   def download
