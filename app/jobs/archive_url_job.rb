@@ -5,6 +5,7 @@ require "digest"
 
 class ArchiveUrlJob < ApplicationJob
   USER_AGENT_STRING = ENV.fetch("USER_AGENT_STRING", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.79 Safari/537.36")
+
   include BackupBrain::ArchiveTools
   queue_as :low_priority # :default
 
@@ -85,20 +86,21 @@ class ArchiveUrlJob < ApplicationJob
     end
 
     # File.join because maybe someone will try and run this on Windows
-    image_folder_path = File.join(
-      IMAGE_ARCHIVES_FOLDER,
+    archive_folder_path = File.join(
+      ARCHIVES_FOLDER,
+      "bookmarks",
       bookmark._id.to_s
     )
     begin
       # create folder to store it (if doesn't exist)
-      FileUtils.mkdir_p(image_folder_path)
+      FileUtils.mkdir_p(archive_folder_path)
     rescue => e
       Rails.logger.warn("Failed to create folder to store archivable images")
       raise BackupBrain::Errors::StorageError.new(e.message)
     end
     local_name = archived_image_name(url)
-    image_file_path = File.join(image_folder_path, local_name)
-    new_url = "/images/archival/#{bookmark._id}/#{local_name}"
+    image_file_path = File.join(archive_folder_path, local_name)
+    new_url = "/archives/bookmarks/#{bookmark._id}/#{local_name}"
     # no point in attempting to download if we already have it.
     # TODO: test if it's > 0 bytes
     return new_url if File.exist? image_file_path

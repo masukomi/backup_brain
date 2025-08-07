@@ -1,7 +1,8 @@
+require "rack/mime"
 module BackupBrain
   module ArchiveTools
     USER_AGENT_STRING = ENV.fetch("USER_AGENT_STRING", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.79 Safari/537.36")
-    IMAGE_ARCHIVES_FOLDER = File.join("public", "images", "archival")
+    ARCHIVES_FOLDER = File.join("archives")
     MISSING_IMAGE_IMAGE_URL = ENV.fetch("MISSING_IMAGE_IMAGE_URL", "/images/icons/missing_image_image.svg")
     ARCHIVE_TIMEOUT = ENV.fetch("ARCHIVE_TIMEOUT", "10").to_i
 
@@ -10,8 +11,10 @@ module BackupBrain
     # @note It's anticipated that the root folder will need to be
     #       different for different document types
     def archive_folder_path_for_doc(mongoid_doc)
-      File.join(IMAGE_ARCHIVES_FOLDER, mongoid_doc._id)
+      File.join(ARCHIVES_FOLDER, mongoid_doc._id)
     end
+
+    # DOWNLOAD HELPERS
 
     def url_downloadable?(url_string, include_code: false)
       begin
