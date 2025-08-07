@@ -88,6 +88,33 @@ class Bookmark
     created_at > 2.minutes.ago
   end
 
+  # modifies the normal as_json response to not
+  # include the full contents of embedded archives
+  def as_json(options = {})
+    # if anyone knows a more elegant or efficient way to do this
+    # please submit a PR. I feel dirty after writing this.
+
+    excluding_archives = Array(options[:except])&.include?(:archives)
+    only_but_not_archives = options.has_key?(:only) && Array(options[:only]).exclude?(:archives)
+    if !excluding_archives && !only_but_not_archives
+      hash = super(options.merge(except: :archives))
+      hash["archives"] = archives.map { |a| a.as_json(except: :string_data) }
+      hash
+    elsif only_but_not_archives || excluding_archives
+      super
+    else # only WITH archives
+      if options[:only].size > 1
+        onlies = Array(options[:only])
+        onlies.delete(:archives)
+        hash = super(options.merge(only: onlies))
+        hash["archives"] = archives.map { |a| a.as_json(except: :string_data) }
+        return hash
+      end
+      {archives: archives.map { |a| a.as_json(except: :string_data) }}
+    end
+  end
+  # end
+
   # BEGIN HOOKS
 
   def set_domain
@@ -168,7 +195,7 @@ class Bookmark
   end
 
   def has_archived_images?
-    archives_folder = Bookmark.archive_folder_path_for_doc(self)
+    archives_folder = Bookmark.archive_image_folder_path_for_doc(self)
     Dir.exist?(archives_folder) && !Dir.empty?(archives_folder)
   end
 
