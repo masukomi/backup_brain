@@ -44,6 +44,14 @@ class Archive
     [line_copy, image_url_hashes]
   end
 
+  # @param options [Hash] completely ignored
+  # @raise [RuntimeError] if this archive doesn't have
+  #        a mime-type of text/markdown
+  def to_md(options = {})
+    return string_data if mime_type == "text/markdown"
+    raise "this archive doesn't have markdown content"
+  end
+
   # @param minutes_ago: [Numeric] the number of minutes
   #        ago to test if this was created since.
   # @return true if the archive has a created_at
