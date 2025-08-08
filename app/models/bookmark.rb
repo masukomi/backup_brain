@@ -39,9 +39,10 @@ class Bookmark
   before_save    :set_domain
   before_save    :maybe_generate_archive
   before_save    :clean_orphaned_tags
-
   after_create   :generate_archive
+
   before_destroy :clean_orphaned_tags
+  after_destroy  :remove_archived_images
   after_save     :update_central_tags_list
 
   # enabled?() is controlled by the SEARCH_ENABLED environment variable
@@ -149,6 +150,11 @@ class Bookmark
     if tags_changed?
       DeleteOrphanedTagsJob.perform_later
     end
+  end
+
+  # Deletes the entire folder
+  def remove_archived_images
+    FileUtils.rm_rf(Bookmark.archive_folder_path_for_doc(self))
   end
 
   # END HOOKS
