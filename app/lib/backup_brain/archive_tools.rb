@@ -11,8 +11,13 @@ module BackupBrain
     # @note It's anticipated that the root folder will need to be
     #       different for different document types
     def archive_folder_path_for_doc(mongoid_doc)
-      doc_type = mongoid_doc.class.name.downcase
-      File.join(ARCHIVES_FOLDER, doc_type, mongoid_doc._id)
+      doc_type = mongoid_doc.class.name.downcase.pluralize
+      File.join(ARCHIVES_FOLDER, doc_type, mongoid_doc._id.to_s)
+    end
+
+    def archive_web_path_for_doc(mongoid_doc)
+      doc_type = mongoid_doc.class.name.downcase.pluralize
+      ["", "archives", doc_type, mongoid_doc._id.to_s].join("/")
     end
 
     # DOWNLOAD HELPERS

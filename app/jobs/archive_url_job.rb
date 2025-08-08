@@ -85,12 +85,7 @@ class ArchiveUrlJob < ApplicationJob
       return MISSING_IMAGE_IMAGE_URL
     end
 
-    # File.join because maybe someone will try and run this on Windows
-    archive_folder_path = File.join(
-      ARCHIVES_FOLDER,
-      "bookmarks",
-      bookmark._id.to_s
-    )
+    archive_folder_path = archive_folder_path_for_doc(bookmark)
     begin
       # create folder to store it (if doesn't exist)
       FileUtils.mkdir_p(archive_folder_path)
@@ -100,7 +95,7 @@ class ArchiveUrlJob < ApplicationJob
     end
     local_name = archived_image_name(url)
     image_file_path = File.join(archive_folder_path, local_name)
-    new_url = "/archives/bookmarks/#{bookmark._id}/#{local_name}"
+    new_url = archive_web_path_for_doc(bookmark) + "/#{local_name}"
     # no point in attempting to download if we already have it.
     # TODO: test if it's > 0 bytes
     return new_url if File.exist? image_file_path
