@@ -63,6 +63,7 @@ en:
     form_label: "Search for:"
     match_sort_label: "Best Match"
     newest_sort_label: "Newest"
+    archives_only_label: "Archives Only"
     search_button: "Begin Search"
     missing_index: "See https://BackupBrain.app/troubleshooting for suggestions."
     no_bookmarks: "Search will start working once you add some bookmarks."

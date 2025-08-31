@@ -102,6 +102,13 @@ heading > .inline-icon{
 	padding-left: 1rem;
 	border-left: solid 1px #aaaaaa;
 }
+.search_form_options {
+	padding-left: 1.5rem;
+
+	font-weight: normal;
+	font-style: italic;
+	font-size: 0.8em;
+}
 
 /* Links */
 .inline-link-icon {

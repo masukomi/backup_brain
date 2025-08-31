@@ -96,6 +96,11 @@ class BookmarksController < ApplicationController
       options[:filter] = "private = false"
     end
 
+    @archives_only = params[:archives_only] == "true"
+    unless @archives_only
+      options[:attributes_to_search_on] = %w[title description tags url]
+    end
+
     if params[:tags].present?
       @tags = params[:tags].split(",")
       options = add_tags_to_search_options(@tags, options)

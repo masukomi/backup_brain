@@ -3,18 +3,22 @@
 <div class="search-form" >
   <%= form_with url: bookmarks_search_path, data: {turbo: false}, method: :get do |form| %>
     <%= form.label :query, I18n.t("search.form_label"), class: "screen-readers-only" %>
-      <input type="text" name="query" value="<%= query %>" placeholder="<%= t("search.placeholder") %>" >
+    <input type="text" name="query" value="<%= @query %>" placeholder="<%= t("search.placeholder") %>" >
+    <%= form.submit I18n.t("search.search_button"),
+        type: :image,
+        src: "/images/icons/search_white.svg",
+        class: "btn btn-primary compact-button search-go-button" %>
+    <div class="search_form_options">
       <input type="radio" name="sort" value="match"
-      <% if ! @sort || @sort == "match" %>checked<% end %>
-      id="sort_radio_match" >
+        <% if ! @sort || @sort == "match" %>checked<% end %>
+        id="sort_radio_match" >
       <label for="sort_radio_match" ><%=I18n.t("search.match_sort_label")%></label>
       <input type="radio" name="sort" value="newest"
       <% if @sort == "newest" %>checked<% end %>
-      id="sort_radio_newest" >
+        id="sort_radio_newest" >
       <label for="sort_radio_newest" ><%=I18n.t("search.newest_sort_label")%></label>
-      <%= form.submit I18n.t("search.search_button"),
-          type: :image,
-          src: "/images/icons/search_white.svg",
-          class: "btn btn-primary compact-button search-go-button" %>
+      <%= form.check_box :archives_only, {id: "archives_only_checkbox", checked: @archives_only}, "true", "false"  %>
+      <label for="archives_only_checkbox" ><%=I18n.t("search.archives_only_label")%></label>
+    </div>
   <% end %>
 </div>
