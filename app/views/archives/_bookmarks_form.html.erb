@@ -1,0 +1,27 @@
+<div class="container">
+  <%= render partial: 'shared/errors_row', locals: {thing: @object} %>
+  <%= form_with(url: modify_archive_path(parent_id: @parent._id.to_s, id: @object._id.to_s, object_type: @object_type), method: "POST") do |form| %>
+    <div class="row">
+      <div class="col">
+        <div class="label">
+        <%= form.hidden_field :parent_id, value: @parent._id.to_s %>
+        <%= form.label :string_data, t('archives.attributes.labels.string_data'), style: "display: block" %>
+        </div>
+        <div class="big-text">
+          <%= form.text_area :string_data,
+           value: @object.string_data,
+           size: "80x#{@lines_of_text < 50 ? @lines_of_text : 50 }",
+           class: 'object-input-field'  %>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col ">
+        <%= form.submit class: "btn btn-primary" %>
+      </div>
+    </div>
+
+  <% end %>
+
+</div>

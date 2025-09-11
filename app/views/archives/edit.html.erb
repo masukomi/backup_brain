@@ -1,0 +1,9 @@
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <heading><%=t('archives.headings.edit_type', type: @object_type.singularize.capitalize) %></heading>
+      <note><%= t('archives.notes.new_copy')%></note>
+    </div>
+  </div>
+</div>
+<%= render "#{@object_type}_form", object: @object %>

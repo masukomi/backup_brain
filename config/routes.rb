@@ -23,7 +23,10 @@ Rails.application.routes.draw do
   resources :settings
   resources :tags
 
+  get "archives/:object_type/:parent_id/:id/edit", controller: :archives, action: :edit, as: :edit_archive
+  post "archives/:object_type/:parent_id/:id/modify", controller: :archives, action: :modify, as: :modify_archive
   get "archives/:object_type/:id/:filename", controller: :archives, action: :show
+
 
   get "importer", controller: :importer, action: :index, as: :importer_form
   post "importer/import", controller: :importer, action: :import, as: :importer_import

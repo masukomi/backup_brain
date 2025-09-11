@@ -65,13 +65,30 @@
             <% @bookmark.sorted_archives.each do | an_archive |
               current = (an_archive.id == @archive&.id)
               %>
-              <li class="<%= current ? 'current-archive-item' : '' %>">
-                <%= show_archive_link(an_archive) %>
-                <%= icon_link("download",
-                      download_bookmark_path(@bookmark, archive_id: @archive._id),
-                    link_css: "inline-link-icon download-link-icon",
-                    method: :put,
-                    alt: t('bookmarks.download_archive_link')) %>
+            <li class="<%= current ? 'current-archive-item' : '' %>">
+              <% if an_archive.manually_edited %>
+                <a><%= inline_icon("hand",
+                                icon_class: "inline-icon",
+                                alt: t('icons.alt_text.hand'),
+                                title: t('archives.notes.manually_edited')
+                   ) %></a>
+              <% end %>
+              <%= show_archive_link(an_archive, class: 'show-archive-link') %>
+              <%= icon_link("download",
+                            download_bookmark_path(@bookmark, archive_id: @archive._id),
+                            link_css: "inline-link-icon download-link-icon",
+                            method: :put,
+                            alt: t('bookmarks.download_archive_link')) %>
+
+              <% if current %>
+                <%= icon_link("edit",
+                              edit_archive_path(object_type: 'bookmarks',
+                                                id: @archive._id.to_s,
+                                                parent_id: @bookmark._id.to_s),
+                              link_css: "inline-link-icon edit-link-icon",
+                              method: :put,
+                              alt: t('bookmarks.edit_archive_link')) %>
+              <% end %>
               </li>
             <% end %>
           </ul>

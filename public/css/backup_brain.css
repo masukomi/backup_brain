@@ -14,6 +14,10 @@ archive img,
 archive svg {
 	max-width: 100% !important;
 }
+.big-text > textarea {
+	width: 100%;
+}
+
 heading {
 	font-size: 120%;
 	font-weight: bold;
@@ -21,6 +25,10 @@ heading {
 .inline-icon{
 	max-height: inherit;
 	padding-right: 0.25rem;
+}
+.inline-icon img,
+img.inline-icon {
+	max-width: 1rem;
 }
 .unaddable-tag-icon,
 .add-tag-icon,
@@ -179,11 +187,15 @@ heading > .inline-icon{
 }
 .current-archive-item{
 	font-weight: bold;
+	white-space: nowrap;
 }
-.current-archive-item > a::before {
+.current-archive-item > a.show-archive-link::before {
 	content: "▶ ";
 }
-
+.current-archive-item > a.inline-link-icon.edit-link-icon::before {
+	content: unset !important;
+	padding-left: 1em;
+}
 .sidebar-tag {
 	white-space: nowrap;
 }
@@ -251,6 +263,7 @@ heading > .inline-icon{
 .private-bookmark {
 	background-color: #f0f8ff;
 }
+note,
 .metadata,
 .private-hint,
 .file-a-ticket-link-icon,
@@ -260,6 +273,9 @@ heading > .inline-icon{
 	font-style: italic;
 	font-size: 0.8rem;
 	color: #aaa !important;
+}
+note {
+	display: block;
 }
 
 #bottom-side-nav-items {

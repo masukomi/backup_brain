@@ -1,8 +1,9 @@
 module BookmarksHelper
-  def show_archive_link(archive)
+  def show_archive_link(archive, options)
     link_to(
       archive_date_string(archive),
-      bookmark_path(archive.bookmark, archive_id: archive._id.to_s)
+      bookmark_path(archive.bookmark, archive_id: archive._id.to_s),
+      options
     )
   end
 

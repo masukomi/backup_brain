@@ -4,8 +4,9 @@ class Archive
 
   include Mongoid::Document
   include Mongoid::Timestamps
-  field :mime_type,   type: String
+  field :mime_type,   type: String, default: "text/markdown"
   field :string_data, type: String
+  field :manually_edited, type: Boolean, default: false
 
   embedded_in :bookmark
 
