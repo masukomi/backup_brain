@@ -2,6 +2,7 @@
   <%= render partial: 'shared/errors_row', locals: {thing: bookmark} %>
   <%= form_with(model: bookmark) do |form| %>
     <%= hidden_field_tag(:closeable, @closeable) %>
+    <%= hidden_field_tag(:referrer, @referrer) %>
     <%= hidden_field_tag(:layout, @layout) %>
 
     <div class="row">

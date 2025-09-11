@@ -198,6 +198,7 @@ class BookmarksController < ApplicationController
 
   # GET /bookmarks/1/edit
   def edit
+    @referrer = request.referer
   end
 
   # POST /bookmarks or /bookmarks.json
@@ -275,6 +276,9 @@ class BookmarksController < ApplicationController
           flash_message(:notice, t("bookmarks.update_success"))
           if @closeable.present?
             redirect_to bookmarks_success_path(layout: @layout, closeable: @closeable)
+          elsif params[:referrer].present?
+            # this is the one passed in in the form NOT the request.referrer
+            redirect_to params[:referrer], notice: t("bookmarks.update_success")
           else
             redirect_to bookmark_url(@bookmark), notice: t("bookmarks.update_success")
           end
