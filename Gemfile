@@ -49,7 +49,7 @@ gem "redcarpet" # markdown renderer
 gem "reverse_markdown"
 gem "pygments.rb"
 gem "meilisearch"
-gem "mongodb_meilisearch", "~> 2.2.0"
+gem "mongodb_meilisearch", "~> 2.2.1"
 gem "pagy", "~> 6.0"
 gem "mongoid-pagination"
 gem "dotenv-rails"
