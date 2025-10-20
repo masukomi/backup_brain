@@ -1,0 +1,9 @@
+[Unit]
+Description=Backup Brain
+
+[Service]
+ExecStart=/path/to/backup_brain/serve
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
