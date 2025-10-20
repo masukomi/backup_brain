@@ -2,7 +2,7 @@
 Description=Backup Brain
 
 [Service]
-ExecStart=/usr/bin/tailscale funnel 3334
+ExecStart=/path/to/backup_brain/serve
 Restart=on-failure
 
 [Install]
