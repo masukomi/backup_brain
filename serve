@@ -68,9 +68,6 @@ else
   echo "If this is not correct please update the .env file"
 fi
 
-run_next_migration_file_if_present
-
-
 search_enabled=$(get_env_key 'SEARCH_ENABLED')
 
 if [ -z "$search_enabled" ]; then
@@ -134,6 +131,10 @@ elif [ "$search_enabled" == "true" ]; then
 else
   echo $YELLOW"Search is disabled via .env"$NOCOLOR
 fi
+
+run_next_migration_file_if_present
+
+
 
 worker_count=$(get_env_key 'DELAYED_JOB_WORKERS')
 if [ -z "$worker_count" ]; then
