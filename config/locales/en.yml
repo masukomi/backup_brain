@@ -69,7 +69,7 @@ en:
     no_bookmarks: "Search will start working once you add some bookmarks."
     unknown_error: "Search encountered an unknown error: %{error}"
     invalid_api_key: "Your MEILISEARCH_SEARCH_KEY and/or MEILISEARCH_ADMIN_KEY are invalid"
-    invalid_master_api_key: "Your MEILI_MASTER_KEY is invalid"
+    invalid_master_api_key: "Your MEILISEARCH_MASTER_KEY is invalid"
   tags:
     overlapping_tags: "Overlapping Tags:"
     list_heading: "Tags"

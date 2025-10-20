@@ -21,19 +21,19 @@ else
     exit 78 # EX_CONFIG (78)  Something was found in an unconfigured or misconfigured state.
 fi
 
-## GENEREATE MEILI_MASTER_KEY
-meili_master_key=$(get_env_key 'MEILI_MASTER_KEY')
+## GENEREATE MEILISEARCH_MASTER_KEY
+meili_master_key=$(get_env_key 'MEILISEARCH_MASTER_KEY')
 
 if [ -z "$meili_master_key" ]; then
-    echo "✋ MEILI_MASTER_KEY not found in .env"
-    echo "Generating MEILI_MASTER_KEY"
+    echo "✋ MEILISEARCH_MASTER_KEY not found in .env"
+    echo "Generating MEILISEARCH_MASTER_KEY"
     meili_master_key=$(openssl rand -base64 32 | sed 's/=$//')
     echo "editing .env"
-    cat $ENV_FILE | sed -E "s/^.*MEILI_MASTER_KEY=.*/MEILI_MASTER_KEY=$meili_master_key/" > .env.temp
+    cat $ENV_FILE | sed -E "s/^.*MEILISEARCH_MASTER_KEY=.*/MEILISEARCH_MASTER_KEY=$meili_master_key/" > .env.temp
     mv .env.temp $ENV_FILE
-    echo "✅ NEW MEILI_MASTER_KEY generated and saved in .env"
+    echo "✅ NEW MEILISEARCH_MASTER_KEY generated and saved in .env"
 else
-    echo "✅ MEILI_MASTER_KEY found in .env"
+    echo "✅ MEILISEARCH_MASTER_KEY found in .env"
     meilisearch_search_key=$(get_env_key 'MEILISEARCH_SEARCH_KEY')
     if [ -z "$meilisearch_search_key" ]; then
         echo "⚠️ MEILISEARCH_SEARCH_KEY not found in .env"
