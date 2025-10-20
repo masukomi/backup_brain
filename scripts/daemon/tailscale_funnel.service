@@ -1,0 +1,9 @@
+[Unit]
+Description=Tailscale Funnel for Backup Brain
+
+[Service]
+ExecStart=/usr/bin/tailscale up && /usr/bin/tailscale funnel 3334
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

@@ -6,10 +6,7 @@ After=systemd-user-sessions.service
 Type=simple
 WorkingDirectory=/var/lib/meilisearch
 ExecStart=/usr/local/bin/meilisearch --config-file-path /etc/meilisearch.toml
-User=meilisearch
-Group=meilisearch
 Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
-EOF
