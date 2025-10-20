@@ -44,7 +44,7 @@ if [ $search_intended == "y" ] || [ $search_intended == "Y" ]; then
         echo "✅ $GREEN search is enabled$NOCOLOR"
     fi
     echo "
-ℹ If it's not already present, a MEILISEARCH_MASTER_KEY will be automatically
+ℹ If it's not already present, a MEILI_MASTER_KEY will be automatically
    generated and added to your .env file IF you use docker.
    You should also add an MEILISEARCH_ADMIN_KEY and MEILISEARCH_SEARCH_KEY
    for security if you intend to expose your Backup Brain to the internet.

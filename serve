@@ -90,9 +90,9 @@ elif [ "$search_enabled" == "true" ]; then
   #Start it if it isn't.
   if [ $meili_status -ne 0 ]; then
     echo $GREEN"booting Meilisearch too..."$NOCOLOR
-    meili_master_key=$(get_env_key 'MEILISEARCH_MASTER_KEY')
+    meili_master_key=$(get_env_key 'MEILI_MASTER_KEY')
     if [ -z "$meili_master_key" ]; then
-      echo $RED"MEILISEARCH_MASTER_KEY is not set"$NOCOLOR
+      echo $RED"MEILI_MASTER_KEY is not set"$NOCOLOR
       echo "You can run the following to generate a usable key:"
       echo "openssl rand -base64 32 | sed 's/=$//'"
       echo "Store that in your .env file where noted."
