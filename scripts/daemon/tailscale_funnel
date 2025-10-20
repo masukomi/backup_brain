@@ -1,0 +1,3 @@
+#!/bin/sh
+tailscale up
+tailscale funnel 3334
