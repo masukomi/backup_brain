@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
-
-ENV_FILE=".env"
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+cd $SCRIPT_DIR
+echo "SCRIPT_DIR: $SCRIPT_DIR"
+REPO_ROOT="$SCRIPT_DIR"
+echo "REPO_ROOT: $REPO_ROOT"
+ENV_FILE="$REPO_ROOT/.env"
 # Exit on error
 set -e
 
@@ -12,15 +16,15 @@ function ctrl_c() {
  echo "Killing Rails Server (puma)…"
  kill $(cat ./tmp/pids/server.pid)
 
- source 'bin/kill_delayed_jobs'
+ source "$REPO_ROOT/bin/kill_delayed_jobs"
  kill_delayed_jobs
 
  kill -- -$$
 }
 
-source "scripts/bash_helpers/colors.sh"
-source "scripts/bash_helpers/get_env_key.sh"
-source "scripts/bash_helpers/migrations.sh"
+source "$REPO_ROOT/scripts/bash_helpers/colors.sh"
+source "$REPO_ROOT/scripts/bash_helpers/get_env_key.sh"
+source "$REPO_ROOT/scripts/bash_helpers/migrations.sh"
 
 
 # Make sure you've defined a host name
@@ -149,7 +153,7 @@ fi
 
 echo "Starting $worker_count Delayed Job Workers"
 # Start the Delayed Job Workers
-bin/delayed_job -n $worker_count start & disown
+$REPO_ROOT/bin/delayed_job -n $worker_count start & disown
 
 
 if [ "$ssh_host" == "false" ]; then

@@ -2,7 +2,10 @@
 Description=Backup Brain
 
 [Service]
-ExecStart=/path/to/backup_brain/serve
+User=YOUR_USERNAME
+Group=USER_GROUP
+ExecStart=/bin/bash -lc /path/to/backup_brain/serve
+ExecReload=/bin/bash -lc /path/to/backup_brain/serve
 Restart=on-failure
 
 [Install]
