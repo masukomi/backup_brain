@@ -56,19 +56,12 @@ but it probably won't work."
   end
   desc "Reindexes all bookmarks"
   task reindex_all: [:environment] do
-    # Puts we could just run Bookmark.reindex
-    # but it's possible it'll timeout if you have
-    # too many bookmarks. So we'll do it manually
-    # Bookmark.reindex
-    puts "Reindexing has begun. This may take a little while to finish."
-    puts "Don't close this window until it's completed."
-    Whirly.configure spinner: "dots"
-    Whirly.start do
-      Bookmark.all.each do |mark|
-        mark.update_in_search
-      end
-    end
-    puts "DONE REINDEXING"
+    puts "Reindexing has begun, and will continue in the background."
+    puts "This may take a little while to finish."
+    puts "Feel free to close this window."
+    Bookmark.reindex # asynchronous
+    # if you try and run the synchronous one (.reindex!)
+    # it'll probably time out if you have lots of bookmarks.
   end
 
   desc "Retry unarchived bookmarks"
