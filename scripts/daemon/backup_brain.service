@@ -1,5 +1,9 @@
 [Unit]
 Description=Backup Brain
+Requires=mongod.service
+Requires=meilisearch.service
+After=mongod.service
+After=meilisearch.service
 
 [Service]
 User=YOUR_USERNAME
