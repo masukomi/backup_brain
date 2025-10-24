@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+
+PATH_TO_BUNDLE="$HOME/.rbenv/shims/bundle"
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $SCRIPT_DIR
 echo "SCRIPT_DIR: $SCRIPT_DIR"
@@ -164,7 +166,7 @@ fi
 echo $GREEN"VISIT YOUR BACKUP BRAIN AT $visitable_url"$NOCOLOR
 # Start Rails
 # bundle exec rails server -p $port -u puma
-bundle exec rails server -u puma
+$PATH_TO_BUNDLE exec rails server -u puma
 
 
 
