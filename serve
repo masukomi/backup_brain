@@ -1,6 +1,16 @@
 #!/usr/bin/env bash
 
-ENV_FILE=".env"
+if [ -e "$HOME/.rbenv/shims/bundle" ]; then
+  PATH_TO_BUNDLE="$HOME/.rbenv/shims/bundle"
+else
+  PATH_TO_BUNDLE="bundle"
+fi
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+cd $SCRIPT_DIR
+echo "SCRIPT_DIR: $SCRIPT_DIR"
+REPO_ROOT="$SCRIPT_DIR"
+echo "REPO_ROOT: $REPO_ROOT"
+ENV_FILE="$REPO_ROOT/.env"
 # Exit on error
 set -e
 
@@ -12,15 +22,15 @@ function ctrl_c() {
  echo "Killing Rails Server (puma)…"
  kill $(cat ./tmp/pids/server.pid)
 
- source 'bin/kill_delayed_jobs'
+ source "$REPO_ROOT/bin/kill_delayed_jobs"
  kill_delayed_jobs
 
  kill -- -$$
 }
 
-source "scripts/bash_helpers/colors.sh"
-source "scripts/bash_helpers/get_env_key.sh"
-source "scripts/bash_helpers/migrations.sh"
+source "$REPO_ROOT/scripts/bash_helpers/colors.sh"
+source "$REPO_ROOT/scripts/bash_helpers/get_env_key.sh"
+source "$REPO_ROOT/scripts/bash_helpers/migrations.sh"
 
 
 # Make sure you've defined a host name
@@ -67,9 +77,6 @@ else
   echo $GREEN"MONGODB_URL is set to \"$mongodb_url\""$NOCOLOR
   echo "If this is not correct please update the .env file"
 fi
-
-run_next_migration_file_if_present
-
 
 search_enabled=$(get_env_key 'SEARCH_ENABLED')
 
@@ -135,6 +142,10 @@ else
   echo $YELLOW"Search is disabled via .env"$NOCOLOR
 fi
 
+run_next_migration_file_if_present
+
+
+
 worker_count=$(get_env_key 'DELAYED_JOB_WORKERS')
 if [ -z "$worker_count" ]; then
   echo $YELLOW"DELAYED_JOB_WORKERS is not set"$NOCOLOR
@@ -148,7 +159,7 @@ fi
 
 echo "Starting $worker_count Delayed Job Workers"
 # Start the Delayed Job Workers
-bin/delayed_job -n $worker_count start & disown
+$REPO_ROOT/bin/delayed_job -n $worker_count start & disown
 
 
 if [ "$ssh_host" == "false" ]; then
@@ -159,7 +170,7 @@ fi
 echo $GREEN"VISIT YOUR BACKUP BRAIN AT $visitable_url"$NOCOLOR
 # Start Rails
 # bundle exec rails server -p $port -u puma
-bundle exec rails server -u puma
+$PATH_TO_BUNDLE exec rails server -p $port -b 0.0.0.0 -u puma
 
 
 
