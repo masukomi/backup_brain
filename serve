@@ -166,7 +166,7 @@ fi
 echo $GREEN"VISIT YOUR BACKUP BRAIN AT $visitable_url"$NOCOLOR
 # Start Rails
 # bundle exec rails server -p $port -u puma
-$PATH_TO_BUNDLE exec rails server -u puma
+$PATH_TO_BUNDLE exec rails server -p $port -b 0.0.0.0 -u puma
 
 
 
