@@ -19,9 +19,11 @@ heading {
 	font-weight: bold;
 }
 .inline-icon{
-	max-height: inherit;
+	max-height: 1.2;
 	padding-right: 0.25rem;
+	max-width: 1rem;
 }
+
 .unaddable-tag-icon,
 .add-tag-icon,
 .inline-body-icon{
@@ -104,12 +106,14 @@ heading > .inline-icon{
 }
 
 /* Links */
+.inline-icon,
 .inline-link-icon {
 	margin-right: 0.25rem;
 }
 .download-link-icon::before {
 	content: unset !important;
 }
+.inline-icon,
 .inline-link-icon img {
 	max-width: 1rem;
 }
@@ -322,6 +326,13 @@ heading > .inline-icon{
 	background-image: var(--bs-form-switch-bg) !important;
 }
 
+.form-switch img {
+	float: left;
+	padding: 0;
+	position: relative;
+    top: 0.25em;
+}
+}
 .form-switch .form-check-input{
 	background-position: left center;
 }
