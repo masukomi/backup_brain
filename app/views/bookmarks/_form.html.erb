@@ -51,6 +51,7 @@
             %>
       </div>
       <div class="col-1 form-check form-switch">
+        <%= inline_icon("private") %>
         <%= form.check_box :private,
             class: 'bookmark-checkbox-field form-check-input toggle',
             role: "switch",
@@ -65,10 +66,11 @@
         <%= form.label :to_read,
             style: "display: block",
             class: "form-check-label",
-            for: "privacySwitch"
+            for: "toReadSwitch"
             %>
       </div>
       <div class="col-1 form-check form-switch">
+        <%= inline_icon("to_read") %>
         <%= form.check_box :to_read,
             class: 'bookmark-checkbox-field form-check-input toggle',
             role: "switch",
