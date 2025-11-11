@@ -51,14 +51,14 @@ class BookmarksController < ApplicationController
   end
 
   def tagged_with
-    @tags = params[:tags].split(",")
-    if @tags.blank?
+    @query_tags = params[:tags].split(",")
+    if @query_tags.blank?
       flash_message(:notice, t("tags.errors.no_tags_provided"))
       redirect_to :index
       return
     end
 
-    tagged_with_criteria = Bookmark.tagged_with_all(@tags)
+    tagged_with_criteria = Bookmark.tagged_with_all(@query_tags)
     @tags_list = tagged_with_criteria.pluck(:tags).flatten.sort.uniq
     @pagy, @bookmarks = pagify(
       privatize(
@@ -102,8 +102,8 @@ class BookmarksController < ApplicationController
     end
 
     if params[:tags].present?
-      @tags = params[:tags].split(",")
-      options = add_tags_to_search_options(@tags, options)
+      @query_tags = params[:tags].split(",")
+      options = add_tags_to_search_options(@query_tags, options)
     end
 
     begin
@@ -116,10 +116,10 @@ class BookmarksController < ApplicationController
         ids_only: true,
         filtered_by_class: true)
       @bookmarks = Bookmark.where(:id.in => raw_results["matches"])
-      if @tags&.present?
+      if @query_tags&.present?
         # in theory, this is redundant because the search criteria
         # would have filtered on tags BUT I'd rather be sure
-        @bookmarks = @bookmarks.tagged_with_all(@tags)
+        @bookmarks = @bookmarks.tagged_with_all(@query_tags)
       end
 
       @tags_list = @bookmarks.pluck(:tags).flatten.sort.uniq
@@ -403,8 +403,8 @@ class BookmarksController < ApplicationController
 
   def add_tags_to_query_and_view(tags, query, include_tags_list: true)
     if tags.present?
-      @tags = tags.split(",")
-      query = query.tagged_with_all(@tags)
+      @query_tags = tags.split(",")
+      query = query.tagged_with_all(@query_tags)
     end
     if include_tags_list
       @tags_list = query
