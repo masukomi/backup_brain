@@ -290,9 +290,9 @@ class ArchiveUrlJob < ApplicationJob
   end
 
   def archived_image_name(original_url)
-    url_sans_query_string = original_url.sub(/\?.*/, "")
-    hex_digest = Digest::SHA2.hexdigest(url_sans_query_string) # => abc123
-    extension = File.extname(url_sans_query_string) # => .jpg
+    url_sans_trailing_crap = original_url.sub(/\?.*/, "").sub(/#.*$/, "")
+    hex_digest = Digest::SHA2.hexdigest(url_sans_trailing_crap) # => abc123
+    extension = File.extname(url_sans_trailing_crap) # => .jpg
     "#{hex_digest}#{extension}"
   end
 
