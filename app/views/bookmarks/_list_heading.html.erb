@@ -13,12 +13,12 @@
     <% end %>
   <% else %>
     <% tags_string = @query_tags.join(', ') %>
-    <% if action_name == 'index' %>
+    <% if action_name == 'index'  %>
       <%= t('bookmarks.headings.simple_and_tagged_with', tags: tags_string)%>
-    <% elsif action_name = 'search' %>
+    <% elsif action_name == 'search' %>
       <%= t('bookmarks.headings.search_and_tagged_with', query: @query, tags: @query_tags.join(', '))%>
     <% elsif action_name == 'tagged_with' %>
-      <%= t('bookmarks.headings.unread_and_tagged_with', tags: tags_string)%>
+      <%= t('bookmarks.headings.simple_and_tagged_with', tags: tags_string)%>
     <% elsif action_name == 'unarchived' %>
       <%= t('bookmarks.headings.unarchived_and_tagged_with', tags: tags_string)%>
     <% elsif action_name == 'to_read' %>
