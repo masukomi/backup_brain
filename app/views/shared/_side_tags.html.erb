@@ -16,7 +16,7 @@
                     title: t('tags.add_tag_to_query')
                   )
                   %>
-              <%= link_to(tag, bookmarks_search_path(query: params[:query], tags: tag)) %>
+              <%= link_to(tag, bookmarks_tagged_with_path(tags: tag)) %>
             <% elsif action_name == 'unarchived' %>
               <%= icon_link("add", bookmarks_unarchived_path(tags: tags_query_param),
                     link_css: "inline-icon-link",
