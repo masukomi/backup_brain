@@ -30,7 +30,6 @@ class ArchiveImagesJob < ArchiveUrlJob
     bookmark_ids = []
     if bookmarks.blank?
       bookmark_ids = if skip_recent
-        Rails.logger.info("XXX skipping ALL recently archived")
         Bookmark.only_archived_before_ids(minutes_ago: skip_recent)
       else
         Bookmark.archived.pluck(:_id)

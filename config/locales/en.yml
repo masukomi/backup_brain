@@ -82,6 +82,7 @@ en:
     deletion_success: "Successfully removed from use"
     update_success: "Successfully updated"
     add_tag_to_query: "Filter results by this tag too"
+    remove_tag_from_query: "Remove this tag from filter"
     rename_deletion: "Renaming resulted in merge with existing tag with the new name."
     errors:
       no_tags_provided: "Can't list tagged bookmarks without some provided tags"

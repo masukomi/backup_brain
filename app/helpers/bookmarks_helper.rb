@@ -11,6 +11,22 @@ module BookmarksHelper
     I18n.l(archive.created_at.to_date, format: :default)
   end
 
+  def get_tags_query_param(tag, query_tags)
+    return tag unless query_tags
+    ((query_tags - [tag]) + [tag]).join(",")
+  end
+
+  def get_tags_query_param_without(tag, query_tags)
+    return "" unless query_tags
+    (query_tags - [tag]).join(",")
+  end
+
+  def can_add_tag?(tag, query_tags)
+    return true unless query_tags
+    return true unless query_tags.include?(tag)
+    false
+  end
+
   def get_joined_tags(tags)
     tags.nil? ? "" : tags.join(",")
   end

@@ -292,7 +292,7 @@ class ArchiveUrlJob < ApplicationJob
   def archived_image_name(original_url)
     url_sans_trailing_crap = original_url.sub(/\?.*/, "").sub(/#.*$/, "")
     hex_digest = Digest::SHA2.hexdigest(url_sans_trailing_crap) # => abc123
-    extension = File.extname(url_sans_trailing_crap) # => .jpg
+    extension = File.extname(url_sans_trailing_crap).downcase # => .jpg
     "#{hex_digest}#{extension}"
   end
 

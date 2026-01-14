@@ -6,43 +6,99 @@
       <% end %>
       <% @tags_list.each do |tag| %>
         <span class="sidebar-tag">
-            <% tags_query_param= defined?(@tags) ? (@tags + [tag]).join(',') : tag %>
-            <% if action_name == 'search' %>
-
-              <%= icon_link("add", bookmarks_search_path(query: params[:query], tags: tags_query_param),
-                    link_css: "inline-icon-link",
-                    icon_css: "add-tag-icon",
-                    alt: t('tags.add_tag_to_query'),
-                    title: t('tags.add_tag_to_query')
-                  )
-                  %>
-              <%= link_to(tag, bookmarks_tagged_with_path(tags: tag)) %>
-            <% elsif action_name == 'unarchived' %>
-              <%= icon_link("add", bookmarks_unarchived_path(tags: tags_query_param),
-                    link_css: "inline-icon-link",
-                    icon_css: "add-tag-icon",
-                    alt: t('tags.add_tag_to_query'),
-                    title: t('tags.add_tag_to_query')
-                  )
-                  %>
-              <%= link_to(tag, bookmarks_unarchived_path(tags: tag)) %>
-            <% elsif action_name == 'to_read' %>
-              <%= icon_link("add", bookmarks_to_read_path(tags: tags_query_param),
-                    link_css: "inline-icon-link",
-                    icon_css: "add-tag-icon",
-                    alt: t('tags.add_tag_to_query'),
-                    title: t('tags.add_tag_to_query')
-                  ) 
-                  %>
-              <%= link_to(tag, bookmarks_to_read_path(tags: tag)) %>
+          <% tags_query_param = get_tags_query_param(tag, @query_tags) %>
+          <% if action_name == 'search' %>
+            <% if can_add_tag?(tag, @query_tags) %>
+              <%= icon_link("add", bookmarks_search_path(
+                                    query: params[:query],
+                                    tags: tags_query_param
+                                  ),
+                            link_css: "inline-icon-link",
+                            icon_css: "add-tag-icon",
+                            alt: t('tags.add_tag_to_query'),
+                            title: t('tags.add_tag_to_query')
+              )
+              %>
             <% else %>
-              <%= icon_link("add", bookmarks_tagged_with_path(tags: tags_query_param),
-                    link_css: "inline-icon-link",
-                    icon_css: "add-tag-icon",
-                    alt: t('tags.add_tag_to_query'),
-                    title: t('tags.add_tag_to_query')
-                  )
-                  %>
+              <%= icon_link("subtract",
+                            bookmarks_search_path(
+                              query: params[:query],
+                              tags: get_tags_query_param_without(tag, @query_tags)),
+                            link_css: "inline-icon-link",
+                            icon_css: "remove-tag-icon",
+                            alt: t('tags.remove_tag_from_query'),
+                            title: t('tags.remove_tag_from_query')
+              )
+              %>
+            <% end %>
+            <%= link_to(tag, bookmarks_tagged_with_path(tags: tag)) %>
+          <% elsif action_name == 'unarchived' %>
+            <% if can_add_tag?(tag, @query_tags) %>
+              <%= icon_link("add", bookmarks_unarchived_path(tags: tags_query_param),
+                            link_css: "inline-icon-link",
+                            icon_css: "add-tag-icon",
+                            alt: t('tags.add_tag_to_query'),
+                            title: t('tags.add_tag_to_query')
+              )
+              %>
+            <% else %>
+              <%= icon_link("subtract",
+                            bookmarks_unarchived_path(
+                              query: params[:query],
+                              tags: get_tags_query_param_without(tag, @query_tags)),
+                            link_css: "inline-icon-link",
+                            icon_css: "remove-tag-icon",
+                            alt: t('tags.remove_tag_from_query'),
+                            title: t('tags.remove_tag_from_query')
+              )
+              %>
+            <% end %>
+            <%= link_to(tag, bookmarks_unarchived_path(tags: tag)) %>
+          <% elsif action_name == 'to_read' %>
+            <% if can_add_tag?(tag, @query_tags) %>
+              <%= icon_link("add", bookmarks_to_read_path(tags: tags_query_param),
+                            link_css: "inline-icon-link",
+                            icon_css: "add-tag-icon",
+                            alt: t('tags.add_tag_to_query'),
+                            title: t('tags.add_tag_to_query')
+              )
+              %>
+            <% else %>
+              <%= icon_link("subtract",
+                            bookmarks_to_read_path(
+                              tags: get_tags_query_param_without(tag, @query_tags)),
+                            link_css: "inline-icon-link",
+                            icon_css: "remove-tag-icon",
+                            alt: t('tags.remove_tag_from_query'),
+                            title: t('tags.remove_tag_from_query')
+              )
+              %>
+            <% end %>
+            <%= link_to(tag, bookmarks_to_read_path(tags: tag)) %>
+          <% else
+            #index action
+          %>
+               <% if can_add_tag?(tag, @query_tags) %>
+                <%= icon_link("add",
+                              bookmarks_tagged_with_path(tags: tags_query_param),
+                      link_css: "inline-icon-link",
+                      icon_css: "add-tag-icon",
+                      alt: t('tags.add_tag_to_query'),
+                      title: t('tags.add_tag_to_query')
+                    )
+                    %>
+              <% else %>
+                <%= icon_link("subtract",
+                              bookmarks_tagged_with_path(
+                                tags: get_tags_query_param_without(tag, @query_tags)
+                              ),
+                              link_css: "inline-icon-link",
+                              icon_css: "remove-tag-icon",
+                              alt: t('tags.remove_tag_from_query'),
+                              title: t('tags.remove_tag_from_query')
+                )
+                %>
+              <% end %>
               <%= link_to(tag, bookmarks_tagged_with_path(tags: tag)) %>
             <% end %>
         </span>

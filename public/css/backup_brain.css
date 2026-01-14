@@ -33,6 +33,7 @@ img.inline-icon {
 }
 .unaddable-tag-icon,
 .add-tag-icon,
+.remove-tag-icon,
 .inline-body-icon{
 	max-height: 1rem;
 	padding-right: 0.25rem;
@@ -205,8 +206,12 @@ heading > .inline-icon{
 .sidebar-tag img {
 	filter: invert(66%) sepia(5%) saturate(7087%) hue-rotate(183deg) brightness(100%) contrast(108%);
 }
+.sidebar-tag img.remove-tag-icon {
+	filter: invert(66%) sepia(5%) saturate(7087%) hue-rotate(183deg) brightness(100%) contrast(108%);
+}
 .unaddable-tag-icon,
 .add-tag-icon,
+.remove-tag-icon,
 .edit-tag-icon {
 	max-height: 1rem;
 	padding-right: 0.05rem;
