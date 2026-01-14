@@ -20,7 +20,7 @@
               )
               %>
             <% else %>
-              <%= icon_link("subtract",
+              <%= icon_link("remove",
                             bookmarks_search_path(
                               query: params[:query],
                               tags: get_tags_query_param_without(tag, @query_tags)),
@@ -42,7 +42,7 @@
               )
               %>
             <% else %>
-              <%= icon_link("subtract",
+              <%= icon_link("remove",
                             bookmarks_unarchived_path(
                               query: params[:query],
                               tags: get_tags_query_param_without(tag, @query_tags)),
@@ -64,7 +64,7 @@
               )
               %>
             <% else %>
-              <%= icon_link("subtract",
+              <%= icon_link("remove",
                             bookmarks_to_read_path(
                               tags: get_tags_query_param_without(tag, @query_tags)),
                             link_css: "inline-icon-link",
@@ -88,7 +88,7 @@
                     )
                     %>
               <% else %>
-                <%= icon_link("subtract",
+                <%= icon_link("remove",
                               bookmarks_tagged_with_path(
                                 tags: get_tags_query_param_without(tag, @query_tags)
                               ),
