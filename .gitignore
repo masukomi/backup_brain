@@ -6,10 +6,13 @@
 
 # Ignore bundler config.
 /.bundle
-/mongo_exports/*
+scripts/mongo_exports/*
 .env
 bin/reader
 *.bak
+.idea/*
+data.ms/*
+
 routes.txt
 gems/*
 # the tailscale container
