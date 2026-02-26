@@ -151,7 +151,7 @@ en:
     error_code_link: "A %{code} error was encountered when attempting to archive this"
     counter: "(%{formatted_count} and counting…)"
     private_hint: "Shhh…"
-    create_existing_warning: "⚠️ You've already got a bookmark for that."
+    create_existing_warning: "⚠️ You've already got a bookmark for that. <a href='%{url}'>Check it out</a>"
     archiving_error: "A problem was encountered while trying to archive that."
     archiving_success: "Archive successfully created."
     mark_as_read_error: "A problem was encountered while marking that as read."

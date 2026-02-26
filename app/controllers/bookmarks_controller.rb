@@ -185,7 +185,7 @@ class BookmarksController < ApplicationController
       @bookmark = Bookmark.where(url: params[:url]).first
     end
     if @bookmark.present?
-      flash_message(:notice, t("bookmarks.create_existing_warning"))
+      flash_message(:notice, t("bookmarks.create_existing_warning", url: bookmark_url(@bookmark)))
       redirect_to edit_bookmark_url(@bookmark, layout: @layout, closeable: @closeable)
       return
     end
