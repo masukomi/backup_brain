@@ -31,6 +31,15 @@
                   ) %>
               </div>
           </li>
+          <li><div>
+              <%= icon_link('key',
+                  remote_credentials_path,
+                  text: t('oauth2.remote_credentials.nav_link'),
+                  alt: t('oauth2.remote_credentials.icon_alt'),
+                  link_css: "inline-link-icon admin-link-icon"
+                  ) %>
+              </div>
+          </li>
         <% end %>
         <li class="file-ticket">
           <div class="vertically-separated">

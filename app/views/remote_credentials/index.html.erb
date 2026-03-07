@@ -1,3 +1,28 @@
+<% if @sites_by_type.any? %>
+  <div class="row">
+    <div class="col">
+      <h2><%= t('oauth2.remote_credentials.authorized_heading') %></h2>
+    </div>
+  </div>
+  <% @sites_by_type.each do |site_type, sites| %>
+    <div class="row">
+      <div class="col">
+        <h4><%= site_type&.name %></h4>
+        <ul class="list-unstyled">
+          <% sites.each do |site| %>
+            <li>
+              <%= link_to(site.base_url, site.base_url, target: "_blank") %>
+              <span class="text-muted ms-2 small">
+                (<%= site.access_token.present? ? t('oauth2.remote_credentials.token_present') : t('oauth2.remote_credentials.token_missing') %>)
+              </span>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  <% end %>
+<% end %>
+
 <div class="row">
   <div class="col">
     <h2><%= t('oauth2.remote_credentials.heading') %></h2>

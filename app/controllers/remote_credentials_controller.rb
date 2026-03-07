@@ -3,6 +3,7 @@ require "oauth2"
 class RemoteCredentialsController < ApplicationController
   def index
     @site_types = OauthSiteType.all.order_by(name: :asc)
+    @sites_by_type = OauthSite.all.group_by(&:oauth_site_type)
   end
 
   # The user has entered a domain name, chosen a site type, and clicked "Connect".
