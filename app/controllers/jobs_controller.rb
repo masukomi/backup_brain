@@ -4,7 +4,7 @@ class JobsController < ApplicationController
   # Jobs that can be triggered from the UI, mapped to how they are enqueued.
   # Jobs that require per-record parameters (e.g. ArchiveUrlJob) are excluded.
   MANAGEABLE_JOBS = {
-    "FetchMastodonBookmarksJob" => -> { FetchMastodonBookmarksJob.perform_later },
+    "FetchMastodonBookmarksJob" => -> { FetchMastodonBookmarksJob.perform_now },
     "ArchiveImagesJob" => -> { ArchiveImagesJob.perform_later(bookmarks: nil) },
     "DeleteOrphanedTagsJob" => -> { DeleteOrphanedTagsJob.perform_later }
   }.freeze
