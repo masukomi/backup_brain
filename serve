@@ -159,6 +159,7 @@ fi
 
 echo "Starting $worker_count Delayed Job Workers"
 # Start the Delayed Job Workers
+# $PATH_TO_BUNDLE exec rake jobs:work & disown
 $REPO_ROOT/bin/delayed_job -n $worker_count start & disown
 
 
