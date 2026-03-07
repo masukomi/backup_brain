@@ -11,11 +11,11 @@ class JobsController < ApplicationController
 
   def index
     @jobs = MANAGEABLE_JOBS.keys.map do |class_name|
-      pending = Delayed::Backend::Mongoid::Job
+      pending_jobs = Delayed::Backend::Mongoid::Job
         .where(failed_at: nil, handler: /job_class: #{Regexp.escape(class_name)}\n/)
         .order_by(run_at: :asc)
-        .first
-      {class_name: class_name, label: humanize_job_name(class_name), pending_job: pending}
+        .to_a
+      {class_name: class_name, label: humanize_job_name(class_name), pending_jobs: pending_jobs}
     end
   end
 
@@ -26,6 +26,16 @@ class JobsController < ApplicationController
 
     enqueue_proc.call
     redirect_to jobs_path, notice: t("jobs.enqueued", name: humanize_job_name(class_name))
+  end
+
+  def unschedule_job
+    class_name = params[:job_class]
+    raise ActionController::RoutingError, "Unknown job" unless MANAGEABLE_JOBS.key?(class_name)
+
+    Delayed::Backend::Mongoid::Job
+      .where(failed_at: nil, handler: /job_class: #{Regexp.escape(class_name)}\n/)
+      .destroy_all
+    redirect_to jobs_path, notice: t("jobs.unscheduled", name: humanize_job_name(class_name))
   end
 
   def abort_job

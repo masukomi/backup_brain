@@ -19,19 +19,25 @@
           <tr>
             <td><%= job[:label] %></td>
             <td>
-              <% if job[:pending_job].nil? %>
-                <span class="text-muted"><%= t("jobs.status.not_scheduled") %></span>
-              <% elsif job[:pending_job].locked_at.present? %>
+              <% running = job[:pending_jobs].find { |j| j.locked_at.present? } %>
+              <% scheduled = job[:pending_jobs].reject { |j| j.locked_at.present? } %>
+              <% if running %>
                 <span class="text-warning"><%= t("jobs.status.running") %></span>
-              <% else %>
+              <% elsif scheduled.size == 1 %>
                 <span class="text-success">
-                  <%= t("jobs.status.scheduled_at", time: time_ago_in_words(job[:pending_job].run_at)) %>
+                  <%= t("jobs.status.scheduled_at", time: time_ago_in_words(scheduled.first.run_at)) %>
                 </span>
+              <% elsif scheduled.size > 1 %>
+                <span class="text-success">
+                  <%= t("jobs.status.scheduled_multiple", count: scheduled.size, time: time_ago_in_words(scheduled.first.run_at)) %>
+                </span>
+              <% else %>
+                <span class="text-muted"><%= t("jobs.status.not_scheduled") %></span>
               <% end %>
             </td>
             <td>
-              <% if job[:pending_job]&.locked_at.present? %>
-                <%= form_with url: abort_job_path(delayed_job_id: job[:pending_job].id),
+              <% if running %>
+                <%= form_with url: abort_job_path(delayed_job_id: running.id),
                               method: :delete,
                               data: { turbo: false } do |f| %>
                   <%= f.submit t("jobs.abort_run"), class: "btn btn-sm btn-danger" %>
@@ -41,6 +47,13 @@
                               method: :post,
                               data: { turbo: false } do |f| %>
                   <%= f.submit t("jobs.run_now"), class: "btn btn-sm btn-secondary" %>
+                <% end %>
+              <% end %>
+              <% if job[:pending_jobs].any? %>
+                <%= form_with url: unschedule_job_path(job_class: job[:class_name]),
+                              method: :delete,
+                              data: { turbo: false } do |f| %>
+                  <%= f.submit t("jobs.unschedule"), class: "btn btn-sm btn-outline-danger" %>
                 <% end %>
               <% end %>
             </td>

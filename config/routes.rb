@@ -35,7 +35,8 @@ Rails.application.routes.draw do
 
   get    "jobs",                                       controller: :jobs, action: :index,     as: :jobs
   post   "jobs/:job_class/run",                        controller: :jobs, action: :run,        as: :run_job
-  delete "jobs/delayed/:delayed_job_id/abort",         controller: :jobs, action: :abort_job,  as: :abort_job
+  delete "jobs/delayed/:delayed_job_id/abort",         controller: :jobs, action: :abort_job,       as: :abort_job
+  delete "jobs/:job_class/unschedule",                 controller: :jobs, action: :unschedule_job,  as: :unschedule_job
 
   get  "remote_credentials",             controller: :remote_credentials, action: :index,      as: :remote_credentials
   post "remote_credentials/begin_auth",  controller: :remote_credentials, action: :begin_auth, as: :begin_remote_auth
