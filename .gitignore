@@ -15,6 +15,7 @@ data.ms/*
 
 routes.txt
 gems/*
+.idea/*
 # the tailscale container
 # stores some temp data that shouldn't be committed
 bb_tailscale/*
