@@ -15,6 +15,12 @@
               <span class="text-muted ms-2 small">
                 (<%= site.access_token.present? ? t('oauth2.remote_credentials.token_present') : t('oauth2.remote_credentials.token_missing') %>)
               </span>
+              <%= button_to t('oauth2.remote_credentials.delete'),
+                    remote_credential_path(site),
+                    method: :delete,
+                    form_class: "inline-button-to",
+                    class: "btn btn-sm btn-outline-danger ms-2",
+                    data: { turbo: false } %>
             </li>
           <% end %>
         </ul>

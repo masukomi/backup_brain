@@ -224,6 +224,7 @@ en:
       authorized_heading: "Authorized Servers"
       token_present: "authorized"
       token_missing: "registered, not authorized"
+      delete: "Disconnect"
       site_type_label: "Server type"
       base_url_label: "Server domain (e.g. mastodon.social)"
       submit: "Connect"

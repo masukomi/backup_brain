@@ -346,6 +346,10 @@ note {
     border: solid slategray;
 }
 
+.inline-button-to {
+	display: inline-block;
+}
+
 #booleanSettingSwitch,
 #privacySwitch,
 #toReadSwitch {

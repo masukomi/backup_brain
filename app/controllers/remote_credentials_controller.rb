@@ -6,6 +6,11 @@ class RemoteCredentialsController < ApplicationController
     @sites_by_type = OauthSite.all.group_by(&:oauth_site_type)
   end
 
+  def destroy
+    OauthSite.find(params[:id]).destroy
+    redirect_to remote_credentials_path
+  end
+
   # The user has entered a domain name, chosen a site type, and clicked "Connect".
   def begin_auth
     base_url  = params[:base_url].to_s.downcase.strip.chomp("/")

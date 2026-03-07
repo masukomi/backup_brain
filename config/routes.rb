@@ -38,9 +38,10 @@ Rails.application.routes.draw do
   delete "jobs/delayed/:delayed_job_id/abort",         controller: :jobs, action: :abort_job,       as: :abort_job
   delete "jobs/:job_class/unschedule",                 controller: :jobs, action: :unschedule_job,  as: :unschedule_job
 
-  get  "remote_credentials",             controller: :remote_credentials, action: :index,      as: :remote_credentials
-  post "remote_credentials/begin_auth",  controller: :remote_credentials, action: :begin_auth, as: :begin_remote_auth
-  get  "remote_authorizations/callback", controller: :remote_credentials, action: :callback,   as: :remote_authorization_callback
+  get    "remote_credentials",              controller: :remote_credentials, action: :index,      as: :remote_credentials
+  post   "remote_credentials/begin_auth",  controller: :remote_credentials, action: :begin_auth, as: :begin_remote_auth
+  delete "remote_credentials/:id",         controller: :remote_credentials, action: :destroy,    as: :remote_credential
+  get    "remote_authorizations/callback", controller: :remote_credentials, action: :callback,   as: :remote_authorization_callback
 
   # Tell those script kiddes to fuck off.
   # Is this needed? no.
