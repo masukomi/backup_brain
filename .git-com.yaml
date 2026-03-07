@@ -1,38 +1,41 @@
 change-type:
+    type: select
+    destination: title
     after-string: ']'
     before-string: '['
-    destination: title
     instructions: What kind of change?
     modifiable: true
+    format: "%-12s"
     options:
         - fix
         - add
         - refactor
         - clean-up
-    type: select
 breaking-indicator:
-    after-string: ': '
-    allow-empty: true
-    destination: title
-    empty-selection-text: Skip
-    instructions: Skip unless breaking change
-    options:
-        - breaking
-    type: select
+  type: select
+  destination: title
+  instructions: "Skip unless breaking change"
+  allow-empty: true
+  empty-selection-text: "Skip"
+  after-string: ": "
+  options:
+    - breaking
 commit-title:
+    type: text
     destination: title
     placeholder: Commit Title
-    type: text
 commit-description:
-    after-string: ""
     allow-empty: true
     destination: body
     instructions: Please describe your changes.
     type: multiline-text
+    after-string: "\n"
 code-sections:
-    after-string: ""
+    type: multi-select
+    record-as: joined-string
     allow-empty: true
     before-string: "\nCode Sections: "
+    after-string: "\n"
     destination: body
     instructions: Which section(s) of the codebase?
     modifiable: true
@@ -46,18 +49,18 @@ code-sections:
         - meta
         - tests
         - oauth
-    record-as: joined-string
-    type: multi-select
+        - migrations
 ticket-number:
+    type: text
+    destination: body
+    data-type: integer
     allow-empty: true
     before-string: "\n\nTicket: "
-    data-type: integer
-    destination: body
-    instructions: Associated Ticket Number (if any)
-    type: text
+    instructions: "Associated Ticket Number (if any)"
 meta_element_changelog:
     display_aliases:
-        fix: "fixed"
-        add: "added"
-        refactor: "refactored"
-        clean-up: "cleaned"
+      fix: "fixed"
+      add: "added"
+      refactor: "refactored"
+      clean-up: "cleaned"
+
