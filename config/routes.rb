@@ -33,6 +33,10 @@ Rails.application.routes.draw do
 
   match "/debugging/echo" => "debugging#echo", via: [:get, :post, :put, :patch, :delete]
 
+  get    "jobs",                                       controller: :jobs, action: :index,     as: :jobs
+  post   "jobs/:job_class/run",                        controller: :jobs, action: :run,        as: :run_job
+  delete "jobs/delayed/:delayed_job_id/abort",         controller: :jobs, action: :abort_job,  as: :abort_job
+
   # Tell those script kiddes to fuck off.
   # Is this needed? no.
   # Does it work? Depends on how you define "work"

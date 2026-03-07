@@ -185,6 +185,23 @@ en:
   icons:
     alt_text:
       hand: "a hand icon"
+  jobs:
+    heading: "Background Jobs"
+    nav_link: "Background Jobs"
+    icon_alt: "Calendar with clock"
+    enqueued: "%{name} queued"
+    run_now: "Run Now"
+    abort_run: "Abort Run"
+    aborted: "%{name} aborted"
+    errors:
+      abort_permission_denied: "Could not abort — permission denied sending signal to worker process"
+    columns:
+      job: "Job"
+      status: "Status"
+    status:
+      not_scheduled: "Not scheduled"
+      running: "Running now"
+      scheduled_at: "Runs in %{time}"
   importer:
       instructions: "
       <p>Backup Brain can import the <a href='https://learn.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/platform-apis/aa753582(v=vs.85)'>standard

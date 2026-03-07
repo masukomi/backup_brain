@@ -275,7 +275,7 @@ note,
 .metadata,
 .private-hint,
 .file-a-ticket-link-icon,
-.importer-link-icon,
+.admin-link-icon,
 .version-info,
 #bottom-side-nav-items > li > a{
 	font-style: italic;
@@ -300,7 +300,7 @@ note {
 }
 .sidebar-tag .unaddable-tag-icon,
 .file-a-ticket-link-icon > img,
-.importer-link-icon > img {
+.admin-link-icon > img {
 	filter: invert(76%) sepia(7%) saturate(8%) hue-rotate(346deg) brightness(91%) contrast(83%);
 }
 .to-read-hint {

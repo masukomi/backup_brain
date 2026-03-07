@@ -1,0 +1,52 @@
+<div class="row">
+  <div class="col">
+    <h2><%= t("jobs.heading") %></h2>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col">
+    <table class="table">
+      <thead>
+        <tr>
+          <th><%= t("jobs.columns.job") %></th>
+          <th><%= t("jobs.columns.status") %></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @jobs.each do |job| %>
+          <tr>
+            <td><%= job[:label] %></td>
+            <td>
+              <% if job[:pending_job].nil? %>
+                <span class="text-muted"><%= t("jobs.status.not_scheduled") %></span>
+              <% elsif job[:pending_job].locked_at.present? %>
+                <span class="text-warning"><%= t("jobs.status.running") %></span>
+              <% else %>
+                <span class="text-success">
+                  <%= t("jobs.status.scheduled_at", time: time_ago_in_words(job[:pending_job].run_at)) %>
+                </span>
+              <% end %>
+            </td>
+            <td>
+              <% if job[:pending_job]&.locked_at.present? %>
+                <%= form_with url: abort_job_path(delayed_job_id: job[:pending_job].id),
+                              method: :delete,
+                              data: { turbo: false } do |f| %>
+                  <%= f.submit t("jobs.abort_run"), class: "btn btn-sm btn-danger" %>
+                <% end %>
+              <% else %>
+                <%= form_with url: run_job_path(job_class: job[:class_name]),
+                              method: :post,
+                              data: { turbo: false } do |f| %>
+                  <%= f.submit t("jobs.run_now"), class: "btn btn-sm btn-secondary" %>
+                <% end %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

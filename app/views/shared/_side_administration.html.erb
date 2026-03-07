@@ -9,7 +9,7 @@
                   importer_form_path,
                   text: t('importer.import_link'),
                   alt: t('importer.import_link_icon_alt'),
-                  link_css: "inline-link-icon importer-link-icon"
+                  link_css: "inline-link-icon admin-link-icon"
                   ) %>
               </div>
           </li>
@@ -18,7 +18,16 @@
                   settings_path,
                   text: t('settings.nav_link'),
                   alt: t('settings.icon_alt'),
-                  link_css: "inline-link-icon importer-link-icon"
+                  link_css: "inline-link-icon admin-link-icon"
+                  ) %>
+              </div>
+          </li>
+          <li><div>
+              <%= icon_link('scheduled_job',
+                  jobs_path,
+                  text: t('jobs.nav_link'),
+                  alt: t('jobs.icon_alt'),
+                  link_css: "inline-link-icon admin-link-icon"
                   ) %>
               </div>
           </li>
