@@ -33,6 +33,8 @@ function next_schema_migration_file() {
 function run_next_migration_file_if_present(){
     next_migration_file=$(next_schema_migration_file)
     if [ -e $next_migration_file ]; then
+        echo "Making sure gems are all loaded…"
+        bundle install
         echo $YELLOW"Migration to schema_version $(get_next_schema_version) found. Running now."$NOCOLOR
         bundle exec rails runner $next_migration_file
     else
