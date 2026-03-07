@@ -29,6 +29,11 @@ class RemoteCredentialsController < ApplicationController
     end
 
     unless oauth_site
+      # it's possible we have old data where we registered but then changed
+      # the local_url via .env or something. Purge the old credentials.
+      if OauthSite.where(base_url: base_url).count > 0
+        OauthSite.where(base_url: base_url).delete_all
+      end
       result     = strategy_for(base_url, site_type).register!
       oauth_site = OauthSite.create!(
         base_url: base_url,
