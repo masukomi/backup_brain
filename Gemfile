@@ -3,6 +3,8 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby "3.4.5"
 
+gem "ostruct"
+
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 7.1"
 
@@ -91,4 +93,5 @@ group :development, :test do
   gem "rubocop-rspec"
   gem "rubocop-factory_bot"
   gem "factory_bot_rails"
+  gem "benchmark"
 end

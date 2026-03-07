@@ -78,6 +78,7 @@ GEM
     ast (2.4.2)
     base64 (0.2.0)
     bcrypt (3.1.20)
+    benchmark (0.5.0)
     bigdecimal (3.1.8)
     bindex (0.8.1)
     bootsnap (1.18.3)
@@ -208,6 +209,7 @@ GEM
     org-ruby (0.9.12)
       rubypants (~> 0.2)
     orm_adapter (0.5.0)
+    ostruct (0.6.3)
     pagy (6.5.0)
     paint (2.3.0)
     parallel (1.25.1)
@@ -380,6 +382,7 @@ PLATFORMS
   arm64-darwin-24
 
 DEPENDENCIES
+  benchmark
   bootsnap
   daemons
   debug
@@ -399,6 +402,7 @@ DEPENDENCIES
   oauth2
   omniauth
   org-ruby
+  ostruct
   pagy (~> 6.0)
   paint
   public_suffix
@@ -421,7 +425,7 @@ DEPENDENCIES
   whirly
 
 RUBY VERSION
-   ruby 3.4.5p51
+  ruby 3.4.5p51
 
 BUNDLED WITH
-   2.4.10
+  4.0.7
