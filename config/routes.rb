@@ -37,6 +37,10 @@ Rails.application.routes.draw do
   post   "jobs/:job_class/run",                        controller: :jobs, action: :run,        as: :run_job
   delete "jobs/delayed/:delayed_job_id/abort",         controller: :jobs, action: :abort_job,  as: :abort_job
 
+  get  "remote_credentials",             controller: :remote_credentials, action: :index,      as: :remote_credentials
+  post "remote_credentials/begin_auth",  controller: :remote_credentials, action: :begin_auth, as: :begin_remote_auth
+  get  "remote_authorizations/callback", controller: :remote_credentials, action: :callback,   as: :remote_authorization_callback
+
   # Tell those script kiddes to fuck off.
   # Is this needed? no.
   # Does it work? Depends on how you define "work"

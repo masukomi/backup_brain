@@ -202,6 +202,23 @@ en:
       not_scheduled: "Not scheduled"
       running: "Running now"
       scheduled_at: "Runs in %{time}"
+    mastodon:
+      bookmark_title: "@%{author} - %{timestamp}"
+  oauth2:
+    errors:
+      registration_failed: "Client Registration Failed"
+      connection_failure: "Couldn't connect to %{domain}"
+      state_failure: "Something went wrong. Couldn't match their response to site we've previously registered with."
+      unexpected_response: "Unexpected Response. \nExpected: %{expected} \nGot: %{response}"
+      unknown_site_type: "Unknown site type"
+    successes:
+      account_link: "Account Successfully Linked"
+      account_linked: "Account Successfully Linked"
+    remote_credentials:
+      heading: "Connect a Remote Account"
+      site_type_label: "Server type"
+      base_url_label: "Server domain (e.g. mastodon.social)"
+      submit: "Connect"
   importer:
       instructions: "
       <p>Backup Brain can import the <a href='https://learn.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/platform-apis/aa753582(v=vs.85)'>standard

@@ -232,6 +232,13 @@ class Bookmark
     sorted_archives.where(mime_type: mime_type).first
   end
 
+  # Prevents the after_create and before_save hooks from enqueuing an
+  # ArchiveUrlJob for this instance. Call before save when the caller
+  # will supply its own Archive (e.g. FetchMastodonBookmarksJob).
+  def suppress_auto_archive!
+    @suppress_auto_archive = true
+  end
+
   # Kicks off the ArchiveUrlJob which creates a text-only
   # archive of the page. By default this will run in the background
   # but some processes (like the cleanup task) need to know if it worked
@@ -239,6 +246,7 @@ class Bookmark
   #
   # @param[Boolean] now - Determines if the job is run now, or asynchronously. Defaults to false (asynchronous).
   def generate_archive(now = false)
+    return if @suppress_auto_archive
     # FIXME: this is hack until we can replace the "reader"
     # command line tool with a ruby library that actually works
     # https://github.com/masukomi/backup_brain/issues/55
