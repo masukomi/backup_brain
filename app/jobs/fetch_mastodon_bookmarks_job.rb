@@ -11,21 +11,28 @@ class FetchMastodonBookmarksJob < ApplicationJob
   REQUEST_TIMEOUT = 30
 
   def perform
-    manual_perform
-    reschedule
+    manual_perform(true)
   end
 
-  def manual_perform
+  def manual_perform(rescheduleable = false)
     mastodon_type = OauthSiteType.where(slug: "mastodon").first
     unless mastodon_type
       Rails.logger.warn("FetchMastodonBookmarksJob: no mastodon OauthSiteType found — run rails db:seed")
-      reschedule && return
+      if rescheduleable
+        reschedule && return
+      else
+        return true
+      end
     end
 
     user = User.first
     unless user
       Rails.logger.warn("FetchMastodonBookmarksJob: no user found, skipping")
-      reschedule && return
+      if rescheduleable
+        reschedule && return
+      else
+        return true
+      end
     end
 
     mastodon_type.oauth_sites.each do |oauth_site|
@@ -33,6 +40,11 @@ class FetchMastodonBookmarksJob < ApplicationJob
       sync_bookmarks_from(oauth_site, user)
     rescue => e
       Rails.logger.error("FetchMastodonBookmarksJob: error syncing #{oauth_site.base_url}: #{e.message}")
+    end
+    if rescheduleable
+      reschedule && return
+    else
+      true
     end
   end
 
