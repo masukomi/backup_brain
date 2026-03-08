@@ -149,17 +149,17 @@ class FetchMastodonBookmarksJob < ApplicationJob
     return if attachments.blank?
 
     image_lines = attachments.filter_map do |attachment|
-      url = case attachment["type"]
+      local_url = case attachment["type"]
       when "image"        then attachment["url"]
       when "gifv", "video" then attachment["preview_url"]
       end
-      next if url.blank?
+      remote_url = attachment["remote_url"].presence
 
-      fallback_url = attachment["remote_url"].presence
-      download_results = download_media_attachment(url, bookmark, access_token, fallback_url: fallback_url)
-      # local_url = download_media_attachment(url, bookmark, access_token, fallback_url: fallback_url)
+      next if local_url.blank? && remote_url.blank?
+
+      download_results = download_media_attachment(local_url, remote_url, bookmark, access_token)
       if !download_results.has_key?(:error)
-        alt = attachment["description"].to_s.strip.gsub(/[\[\]()“”]/, " ")
+        alt = attachment[“description”].to_s.strip.gsub(/[\[\]()“”]/, " ")
         next "![#{alt}](#{download_results[:url]})"
       end
       "BB: Image archive failure: #{download_results[:error]}"
@@ -169,11 +169,45 @@ class FetchMastodonBookmarksJob < ApplicationJob
     archive.string_data = archive.string_data.rstrip + "\n\n" + image_lines.join("\n")
   end
 
-  # Downloads a media attachment URL using the Bearer token and stores it
-  # locally using the same SHA256-based naming scheme as other archived images.
+  # Downloads a media attachment and stores it locally using the SHA256-based
+  # naming scheme as other archived images.
   #
-  # @return [String, nil] the local web path, or nil on failure
-  def download_media_attachment(url, bookmark, access_token, fallback_url: nil)
+  # Tries remote_url first (distributed across remote servers, avoids CDN 403s),
+  # then falls back to local_url with 429 back-off retries (1 min, then 5 min).
+  #
+  # @return [Hash] { url: local_web_path } on success, { error: message } on failure
+  def download_media_attachment(local_url, remote_url, bookmark, access_token)
+    if remote_url.present?
+      result = fetch_url(remote_url, bookmark, access_token)
+      return result if !result.has_key?(:error)
+      Rails.logger.warn("FetchMastodonBookmarksJob: remote_url failed (#{result[:error]}), falling back to local_url")
+    end
+
+    return {error: "remote_url failed. local_url was blank."} if local_url.blank?
+
+    [nil, 1.minute, 5.minutes].each_with_index do |wait, attempt|
+      if wait
+        Rails.logger.info("FetchMastodonBookmarksJob: 429 on local_url, sleeping #{wait}s before retry #{attempt}")
+        sleep(wait)
+      end
+
+      result = fetch_url(local_url, bookmark, access_token)
+      return result unless result.has_key?(:error)
+
+      unless result[:retry]
+        return result
+      end
+    end
+
+    {error: "FetchMastodonBookmarksJob: gave up on local_url #{local_url} after retries"}
+  end
+
+  # Performs a single HTTP GET for a media attachment URL.
+  #
+  # @return [Hash] { url: local_web_path } on success,
+  #                { error: message, retry: true } on 429,
+  #                { error: message } on other failure
+  def fetch_url(url, bookmark, access_token)
     local_name      = archived_image_name(url)
     folder_path     = archive_folder_path_for_doc(bookmark)
     image_file_path = File.join(folder_path, local_name)
@@ -190,10 +224,7 @@ class FetchMastodonBookmarksJob < ApplicationJob
     unless response.success?
       message = "FetchMastodonBookmarksJob: media attachment returned #{response.code} for #{url}"
       Rails.logger.warn(message)
-      if fallback_url.present?
-        Rails.logger.info("FetchMastodonBookmarksJob: retrying with remote_url #{fallback_url}")
-        return download_media_attachment(fallback_url, bookmark, access_token)
-      end
+      return {error: message, retry: true} if response.code == 429
       return {error: message}
     end
 
@@ -203,7 +234,6 @@ class FetchMastodonBookmarksJob < ApplicationJob
     message = "FetchMastodonBookmarksJob: failed to download media attachment #{url}: #{e.message}"
     Rails.logger.error(message)
     {error: message}
-    # "<!-- failed download of:#{url} #{e.message} -->"
   end
 
   # TODO: make this username (@foo@bar.com) + status.created_at.strftime("???")
