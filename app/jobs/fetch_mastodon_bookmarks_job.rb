@@ -14,7 +14,7 @@ class FetchMastodonBookmarksJob < ApplicationJob
     manual_perform(reschedulable)
   end
 
-  def manual_perform(rescheduleable = false)
+  def manual_perform(rescheduleable = false, limit: 1000)
     mastodon_type = OauthSiteType.where(slug: "mastodon").first
     unless mastodon_type
       Rails.logger.warn("FetchMastodonBookmarksJob: no mastodon OauthSiteType found — run rails db:seed")
@@ -37,7 +37,7 @@ class FetchMastodonBookmarksJob < ApplicationJob
 
     mastodon_type.oauth_sites.each do |oauth_site|
       next if oauth_site.access_token.blank?
-      sync_bookmarks_from(oauth_site, user)
+      sync_bookmarks_from(oauth_site, user, limit)
     rescue => e
       Rails.logger.error("FetchMastodonBookmarksJob: error syncing #{oauth_site.base_url}: #{e.message}")
     end
@@ -50,8 +50,9 @@ class FetchMastodonBookmarksJob < ApplicationJob
 
   private
 
-  def sync_bookmarks_from(oauth_site, user)
+  def sync_bookmarks_from(oauth_site, user, limit)
     next_url = nil
+    added = 0
     loop do
       statuses, next_url = fetch_bookmarks_page(oauth_site.base_url, oauth_site.access_token, next_url)
       break if statuses.empty?
@@ -67,9 +68,11 @@ class FetchMastodonBookmarksJob < ApplicationJob
         end
 
         create_bookmark_from_status(status, user, oauth_site)
+        added += 1
+        break if added >= limit
       end
 
-      break if found_existing || next_url.nil?
+      break if found_existing || next_url.nil? || added >= limit
     end
   end
 
@@ -133,7 +136,7 @@ class FetchMastodonBookmarksJob < ApplicationJob
     end
     bookmark.save!
   rescue => e
-    Rails.logger.error("FetchMastodonBookmarksJob: failed to save bookmark for #{url}: #{e.message}")
+    Rails.logger.error("FetchMastodonBookmarksJob: failed to save bookmark for #{url}: #{e.message}\n#{e.backtrace.first(15).join("\n")}")
   end
 
   # Downloads each media attachment using the authenticated Mastodon API and
