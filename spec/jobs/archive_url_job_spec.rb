@@ -8,13 +8,13 @@ RSpec.describe ArchiveUrlJob do
   bookmark = Bookmark.new(url: "https://example.com/foo/")
   # let(:bookmark) { Bookmark.new(url: "https://example.com/foo/") }
   let(:job) { described_class.new }
-  let(:bookmark_image_dir) { File.join("public", "images", "archival", bookmark._id.to_s) }
+  let(:bookmark_image_dir) { File.join("archives", "bookmarks", bookmark._id.to_s) }
   let(:local_image_name) { "818dc04941a98ad317d198c067a1571a7d54c5d362eb31fe815f1fc64bbc26c1.png" }
   let(:bookmark_image_path) { File.join(bookmark_image_dir, local_image_name) }
-  let(:local_image_url) { File.join(File::SEPARATOR, "images", "archival", bookmark._id.to_s, local_image_name) }
+  let(:local_image_url) { File.join(File::SEPARATOR, "archives", "bookmarks", bookmark._id.to_s, local_image_name) }
   let(:image_url) { "https://backupbrain.app/images/favicon.png" }
 
-  bookmark_image_dir = File.join("public", "images", "archival", bookmark._id.to_s)
+  bookmark_image_dir = File.join("archives", "bookmarks", bookmark._id.to_s)
 
   # rubocop:disable RSpec/BeforeAfterAll
   after(:all) do
@@ -54,40 +54,40 @@ RSpec.describe ArchiveUrlJob do
     end
   end
 
-  describe "#extract_image_links" do
+  describe "Archive.extract_image_links_from_line" do
     it "replaces all instances" do
       line = "a [![button](/button.jpg)](/goes/here) ![button](/button.jpg)"
-      new_line, _ = job.extract_image_links(line)
+      new_line, _ = Archive.extract_image_links_from_line(line)
       expect(new_line).to(eq("a [84587aeb699485657198f7a78ad7b356341a90cb3a3dcb275ab19f3ef631f3e0](/goes/here) 84587aeb699485657198f7a78ad7b356341a90cb3a3dcb275ab19f3ef631f3e0"))
     end
 
     it "ignores text portion" do
       line = "a [![button](/button.jpg)](/goes/here) ![](/button.jpg)"
-      new_line, _ = job.extract_image_links(line)
+      new_line, _ = Archive.extract_image_links_from_line(line)
       expect(new_line).to(eq("a [84587aeb699485657198f7a78ad7b356341a90cb3a3dcb275ab19f3ef631f3e0](/goes/here) 84587aeb699485657198f7a78ad7b356341a90cb3a3dcb275ab19f3ef631f3e0"))
     end
 
     it "replaces all images" do
       line = "a [![button](/button.jpg)](/goes/here) so does [a link](/goes/here) and ![](not/button.jpg)"
-      new_line, _ = job.extract_image_links(line)
+      new_line, _ = Archive.extract_image_links_from_line(line)
       expect(new_line).to(eq("a [84587aeb699485657198f7a78ad7b356341a90cb3a3dcb275ab19f3ef631f3e0](/goes/here) so does [a link](/goes/here) and f93298ab159e9e646b6b794806065b68a588343507367003cb4621dbc2c16614"))
     end
 
     it "returns the original line if no images" do
       line = "there are [no images](/link/here) in this"
-      new_line, _ = job.extract_image_links(line)
+      new_line, _ = Archive.extract_image_links_from_line(line)
       expect(line).to(eq(new_line))
     end
 
     it "returns an empty replacement hash if no images" do
       line = "there are [no images](/link/here) in this"
-      _, image_url_hashes = job.extract_image_links(line)
+      _, image_url_hashes = Archive.extract_image_links_from_line(line)
       expect(image_url_hashes.size).to(eq(0))
     end
 
     it "returns has for reinsertion", :aggregate_failures do
       line = "a [![button](/button.jpg)](/goes/here) so does [a link](/goes/here) and ![](not/button.jpg)"
-      _, image_url_hashes = job.extract_image_links(line)
+      _, image_url_hashes = Archive.extract_image_links_from_line(line)
       expect(image_url_hashes["84587aeb699485657198f7a78ad7b356341a90cb3a3dcb275ab19f3ef631f3e0"]).to(
         eq("/button.jpg")
       )
@@ -212,7 +212,7 @@ RSpec.describe ArchiveUrlJob do
 
     it "skips data:image/* urls" do
       # a teeny transparent gif
-      expect(job.download_image(bookmark, data_url)).to(eq(data_image_url))
+      expect(job.download_image(bookmark, data_image_url)).to(eq(data_image_url))
     end
 
     it "creates a folder" do

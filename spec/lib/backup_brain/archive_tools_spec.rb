@@ -1,12 +1,12 @@
 require "spec_helper"
 require "rails_helper"
 
-class FakeModel
+class FakeArchiveToolsModel
   include BackupBrain::ArchiveTools
 end
 
 RSpec.describe BackupBrain::ArchiveTools do
-  let(:instance) { FakeModel.new }
+  let(:instance) { FakeArchiveToolsModel.new }
   let(:bookmark) { Bookmark.new }
 
   describe "#archive_folder_path_for_doc" do
