@@ -10,8 +10,8 @@ class FetchMastodonBookmarksJob < ApplicationJob
   TITLE_CHAR_LIMIT = 80
   REQUEST_TIMEOUT = 30
 
-  def perform
-    manual_perform(true)
+  def perform(reschedulable: true)
+    manual_perform(reschedulable)
   end
 
   def manual_perform(rescheduleable = false)
@@ -155,7 +155,7 @@ class FetchMastodonBookmarksJob < ApplicationJob
       local_url = download_media_attachment(url, bookmark, access_token)
       next if local_url.blank?
 
-      alt = attachment["description"].to_s.strip
+      alt = attachment["description"].to_s.strip.gsub(/[\[\]()]/, " ")
       "![#{alt}](#{local_url})"
     end
 
