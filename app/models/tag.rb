@@ -62,11 +62,10 @@ class Tag
     def orphaned_tag_names
       all_tags = Tag.pluck(:name)
 
-      used_tags = Bookmark
-        .tagged_with_any(all_tags)
-        .pluck(:tags)
-        .flatten
-        .uniq
+      used_tags = Bookmark.collection.aggregate([
+        {"$unwind" => "$tags"},
+        {"$group" => {"_id" => "$tags"}}
+      ]).pluck("_id")
       # add other taggable models as needed
 
       all_tags - used_tags
