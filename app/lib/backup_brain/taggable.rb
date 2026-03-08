@@ -78,15 +78,13 @@ module BackupBrain
       # @return Boolean - true or false  indicating if the array of
       #                    tag strings are all valid
       def valid_tags?(array_o_strings)
-        valid_tags(array_o_strings).size == array_o_strings.size
+        Tag.valid_tags?(array_o_strings)
       end
 
       # @return [Array[String]] - returns the subset of tag
       #                           strings that are valid
       def valid_tags(array_o_strings)
-        array_o_strings.select { |t|
-          t.present? && t.downcase == t && /\A[\w_-]+\z/.match?(t)
-        }
+        Tag.valid_tags(array_o_strings)
       end
 
       ## HOOKS
