@@ -40,7 +40,10 @@ class Tag
 
     # recreates tags from source data
     def regenerate_all!
-      all_source_tags = Bookmark.pluck(:tags).flatten.uniq
+      all_source_tags = Bookmark.collection.aggregate([
+        {"$unwind" => "$tags"},
+        {"$group" => {"_id" => "$tags"}}
+      ]).pluck("_id")
       # When we have new things with tags they'll be added
       # to all_source_tags
 
@@ -55,7 +58,7 @@ class Tag
       obsolete_tags = all_tag_names - all_source_tags
       # alas, "Transactions are not supported for the cluster: standalone topology"
       Tag.create_many_by_name(missing_tags)
-      Tag.where(name: obsolete_tags).destroy_all
+      Tag.where(:name.in => obsolete_tags).destroy_all
       true
     end
 
