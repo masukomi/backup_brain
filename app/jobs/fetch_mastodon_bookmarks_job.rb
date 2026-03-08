@@ -155,11 +155,14 @@ class FetchMastodonBookmarksJob < ApplicationJob
       end
       next if url.blank?
 
-      local_url = download_media_attachment(url, bookmark, access_token)
-      next if local_url.blank?
-
-      alt = attachment["description"].to_s.strip.gsub(/[\[\]()]/, " ")
-      "![#{alt}](#{local_url})"
+      fallback_url = attachment["remote_url"].presence
+      download_results = download_media_attachment(url, bookmark, access_token, fallback_url: fallback_url)
+      # local_url = download_media_attachment(url, bookmark, access_token, fallback_url: fallback_url)
+      if !download_results.has_key?(:error)
+        alt = attachment["description"].to_s.strip.gsub(/[\[\]()“”]/, " ")
+        next "![#{alt}](#{download_results[:url]})"
+      end
+      "BB: Image archive failure: #{download_results[:error]}"
     end
 
     return if image_lines.empty?
@@ -170,7 +173,7 @@ class FetchMastodonBookmarksJob < ApplicationJob
   # locally using the same SHA256-based naming scheme as other archived images.
   #
   # @return [String, nil] the local web path, or nil on failure
-  def download_media_attachment(url, bookmark, access_token)
+  def download_media_attachment(url, bookmark, access_token, fallback_url: nil)
     local_name      = archived_image_name(url)
     folder_path     = archive_folder_path_for_doc(bookmark)
     image_file_path = File.join(folder_path, local_name)
@@ -185,15 +188,22 @@ class FetchMastodonBookmarksJob < ApplicationJob
       timeout: REQUEST_TIMEOUT)
 
     unless response.success?
-      Rails.logger.warn("FetchMastodonBookmarksJob: media attachment returned #{response.code} for #{url}")
-      return nil
+      message = "FetchMastodonBookmarksJob: media attachment returned #{response.code} for #{url}"
+      Rails.logger.warn(message)
+      if fallback_url.present?
+        Rails.logger.info("FetchMastodonBookmarksJob: retrying with remote_url #{fallback_url}")
+        return download_media_attachment(fallback_url, bookmark, access_token)
+      end
+      return {error: message}
     end
 
     File.binwrite(image_file_path, response.body)
-    File.exist?(image_file_path) ? local_web_url : nil
+    File.exist?(image_file_path) ? {url: local_web_url} : {error: "failed to write image to disk"}
   rescue => e
-    Rails.logger.error("FetchMastodonBookmarksJob: failed to download media attachment #{url}: #{e.message}")
-    nil
+    message = "FetchMastodonBookmarksJob: failed to download media attachment #{url}: #{e.message}"
+    Rails.logger.error(message)
+    {error: message}
+    # "<!-- failed download of:#{url} #{e.message} -->"
   end
 
   # TODO: make this username (@foo@bar.com) + status.created_at.strftime("???")
