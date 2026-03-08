@@ -34,7 +34,7 @@ class Tag
     #                           strings that are valid
     def valid_tags(array_o_strings)
       array_o_strings.select { |t|
-        t.present? && t.downcase == t && !/\s+/.match?(t)
+        t.present? && t.downcase == t && /\A[\w_-]+\z/.match?(t)
       }
     end
 

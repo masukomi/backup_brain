@@ -41,9 +41,14 @@ RSpec.describe Bookmark do
       )
     }
 
+    # rubocop:disable RSpec/AnyInstance
     before do
+      allow_any_instance_of(described_class).to(receive(:add_to_search))
+      allow_any_instance_of(described_class).to(receive(:update_in_search))
+      allow_any_instance_of(described_class).to(receive(:remove_from_search))
       described_class.destroy_all
     end
+    # rubocop:enable RSpec/AnyInstance
 
     after do
       described_class.destroy_all
