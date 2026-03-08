@@ -172,13 +172,14 @@ class FetchMastodonBookmarksJob < ApplicationJob
   # Downloads a media attachment and stores it locally using the SHA256-based
   # naming scheme as other archived images.
   #
-  # Tries remote_url first (distributed across remote servers, avoids CDN 403s),
+  # Tries remote_url first (distributed across remote servers, avoids CDN 429s),
   # then falls back to local_url with 429 back-off retries (1 min, then 5 min).
   #
   # @return [Hash] { url: local_web_path } on success, { error: message } on failure
   def download_media_attachment(local_url, remote_url, bookmark, access_token)
     if remote_url.present?
-      result = fetch_url(remote_url, bookmark, access_token)
+      # no token on remote server beacuse it's not OUR server
+      result = fetch_url(remote_url, bookmark, access_token, with_token: false)
       return result if !result.has_key?(:error)
       Rails.logger.warn("FetchMastodonBookmarksJob: remote_url failed (#{result[:error]}), falling back to local_url")
     end
@@ -192,6 +193,10 @@ class FetchMastodonBookmarksJob < ApplicationJob
       end
 
       result = fetch_url(local_url, bookmark, access_token)
+      if result[:unauth_retry]
+        Rails.logger.info("FetchMastodonBookmarksJob: 403 on local_url with token, retrying without token")
+        result = fetch_url(local_url, bookmark, access_token, with_token: false)
+      end
       return result unless result.has_key?(:error)
 
       unless result[:retry]
@@ -207,7 +212,7 @@ class FetchMastodonBookmarksJob < ApplicationJob
   # @return [Hash] { url: local_web_path } on success,
   #                { error: message, retry: true } on 429,
   #                { error: message } on other failure
-  def fetch_url(url, bookmark, access_token)
+  def fetch_url(url, bookmark, access_token, with_token: true)
     local_name      = archived_image_name(url)
     folder_path     = archive_folder_path_for_doc(bookmark)
     image_file_path = File.join(folder_path, local_name)
@@ -215,8 +220,9 @@ class FetchMastodonBookmarksJob < ApplicationJob
 
     FileUtils.mkdir_p(folder_path)
 
+    headers = with_token ? {"Authorization" => "Bearer #{access_token}"} : {}
     response = HTTParty.get(url,
-      headers: {"Authorization" => "Bearer #{access_token}"},
+      headers: headers,
       verify: false,
       follow_redirects: true,
       timeout: REQUEST_TIMEOUT)
@@ -225,6 +231,10 @@ class FetchMastodonBookmarksJob < ApplicationJob
       message = "FetchMastodonBookmarksJob: media attachment returned #{response.code} for #{url}"
       Rails.logger.warn(message)
       return {error: message, retry: true} if response.code == 429
+      # I keep encountering the situation where some local_url media should be downloadable
+      # but I get a 403, however, that same url is downloadable via a browser without authentication
+      # so, we should try it again without the bearer token.
+      return {error: message, unauth_retry: true} if response.code == 403 && with_token
       return {error: message}
     end
 
