@@ -9,6 +9,7 @@ class FetchMastodonBookmarksJob < ApplicationJob
   DESCRIPTION_CHAR_LIMIT = 500
   TITLE_CHAR_LIMIT = 80
   REQUEST_TIMEOUT = 30
+  YOUTUBE_URL_REGEXP = /https?:\/\/(?:www\.|m\.)?(?:youtube\.com\/watch\?(?:[^\s)#]*&)*v=|youtu\.be\/)([\w-]+)/
 
   def perform(reschedulable: true)
     manual_perform(reschedulable)
@@ -127,6 +128,7 @@ class FetchMastodonBookmarksJob < ApplicationJob
       Archive.new(mime_type: "text/markdown", string_data: "")
 
     append_media_attachments(status["media_attachments"], archive, bookmark, oauth_site.access_token)
+    embed_youtube_videos(archive)
 
     if archive.string_data.present?
       # dunno why I have to do this created_at & updated_at manually
@@ -304,6 +306,16 @@ class FetchMastodonBookmarksJob < ApplicationJob
     i += 1 while i < text.length && !text[i].match?(/\s/)
 
     text[0, i]
+  end
+
+  def embed_youtube_videos(archive)
+    video_ids = archive.string_data.scan(YOUTUBE_URL_REGEXP).flatten.uniq
+    return if video_ids.empty?
+
+    embeds = video_ids.map do |id|
+      %(<iframe width="560" height="315" src="https://www.youtube.com/embed/#{id}" frameborder="0" allowfullscreen></iframe>)
+    end
+    archive.string_data = archive.string_data.rstrip + "\n\n" + embeds.join("\n\n")
   end
 
   def reschedule

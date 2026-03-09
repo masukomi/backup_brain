@@ -410,6 +410,53 @@ RSpec.describe FetchMastodonBookmarksJob do
     end
   end
 
+  describe "#embed_youtube_videos" do
+    let(:archive) { Archive.new(mime_type: "text/markdown", string_data: content) }
+
+    context "when the archive contains a youtube.com/watch URL" do
+      let(:content) { "check out [this video](https://www.youtube.com/watch?v=dQw4w9WgXcQ)" }
+
+      it "appends an iframe for the video", :aggregate_failures do
+        job.send(:embed_youtube_videos, archive)
+        expect(archive.string_data).to(include("<iframe"))
+        expect(archive.string_data).to(include("youtube.com/embed/dQw4w9WgXcQ"))
+      end
+
+      it "preserves the original content" do
+        job.send(:embed_youtube_videos, archive)
+        expect(archive.string_data).to(include(content.strip))
+      end
+    end
+
+    context "when the archive contains a youtu.be URL" do
+      let(:content) { "https://youtu.be/dQw4w9WgXcQ" }
+
+      it "appends an iframe for the video" do
+        job.send(:embed_youtube_videos, archive)
+        expect(archive.string_data).to(include("youtube.com/embed/dQw4w9WgXcQ"))
+      end
+    end
+
+    context "when the same video is linked multiple times" do
+      let(:content) { "https://youtu.be/dQw4w9WgXcQ and https://www.youtube.com/watch?v=dQw4w9WgXcQ" }
+
+      it "only appends one iframe" do
+        job.send(:embed_youtube_videos, archive)
+        expect(archive.string_data.scan("youtube.com/embed/dQw4w9WgXcQ").length).to(eq(1))
+      end
+    end
+
+    context "when the archive has no YouTube URLs" do
+      let(:content) { "just a [normal link](https://example.com)" }
+
+      it "does not modify the archive" do
+        original = content.dup
+        job.send(:embed_youtube_videos, archive)
+        expect(archive.string_data).to(eq(original))
+      end
+    end
+  end
+
   describe "#truncate_markdown" do
     it "returns text unchanged when at or under the limit" do
       text = "short text"
