@@ -6,7 +6,7 @@ class JobsController < ApplicationController
   MANAGEABLE_JOBS = {
     "FetchMastodonBookmarksJob" => -> { FetchMastodonBookmarksJob.perform_later(reschedulable: true) },
     "ArchiveImagesJob" => -> { ArchiveImagesJob.perform_later(bookmarks: nil) },
-    "DeleteOrphanedTagsJob" => -> { DeleteOrphanedTagsJob.perform_later }
+    "DeleteOrphanedTagsJob" => -> { DeleteOrphanedTagsJob.schedule_unless_pending }
   }.freeze
 
   def index

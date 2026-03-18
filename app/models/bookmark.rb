@@ -148,7 +148,7 @@ class Bookmark
 
   def clean_orphaned_tags
     if tags_changed?
-      DeleteOrphanedTagsJob.perform_later
+      DeleteOrphanedTagsJob.schedule_unless_pending
     end
   end
 
