@@ -5,7 +5,7 @@ tools:
   - name: soundgasm
     domains:
       - soundgasm.net
-    command: "bin/soundgasm_archiver {TEMPFILE}"
+    command: "bundle exec bin/soundgasm_archiver {TEMPFILE}"
   # Add per-domain tools below. The first tool whose domains list matches
   # the URL's hostname is used; if none match, the default tool is used.
   # Subdomain matching is automatic: "youtube.com" also matches "www.youtube.com".
