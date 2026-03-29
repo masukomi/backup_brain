@@ -1,6 +1,5 @@
 require "uri"
 require "tempfile"
-require "open3"
 require "digest"
 
 class ArchiveUrlJob < ApplicationJob
@@ -18,14 +17,14 @@ class ArchiveUrlJob < ApplicationJob
     end
     return false unless bookmark
 
-    unless ENV["I_INSTALLED_READER"] == "true" && viable_reader_install?
+    unless ENV["I_INSTALLED_READER"] == "true" && BackupBrain::ToolDispatcher.instance.viable_install?
       Rails.logger.warn("ArchiveUrlJob can't run without reader installed")
       return false
     end
 
     begin
       tempfile        = download(bookmark)
-      markdown_string = run_reader(tempfile) # potentially raises
+      markdown_string = BackupBrain::ToolDispatcher.instance.run(bookmark.url, tempfile) # potentially raises
       record_failed_attempt(bookmark, 600) if markdown_string.blank?
       markdown_string = fully_qualify_urls(markdown_string, bookmark)
       tempfile.close
@@ -50,14 +49,6 @@ class ArchiveUrlJob < ApplicationJob
   rescue => e
     Rails.logger.warn("couldn't archive #{bookmark.url} - #{e.message}")
     nil
-  end
-
-  def viable_reader_install?
-    File.executable?(reader_path)
-  end
-
-  def reader_path
-    Rails.root.join("bin/reader")
   end
 
   def download(bookmark)
@@ -89,20 +80,4 @@ class ArchiveUrlJob < ApplicationJob
     end
   end
 
-  def run_reader(tempfile)
-    _, stdout, stderr, wait_thr = Open3.popen3(
-      reader_path.to_path,
-      "-o",
-      "--image-mode",
-      "none",
-      tempfile.path
-    )
-    markdown_string = stdout.gets(nil)&.chomp
-    stdout.close
-    error_string = stderr.gets(nil)&.chomp
-    stderr.close
-    exit_code = wait_thr.value
-    return markdown_string if exit_code == 0
-    raise BackupBrain::Errors::UnarchivableUrl.new("problems invoking reader: (Exit Code: #{exit_code}) #{error_string}")
-  end
 end

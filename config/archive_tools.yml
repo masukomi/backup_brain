@@ -1,0 +1,14 @@
+tools:
+  - name: reader
+    default: true
+    command: "bin/reader -o --image-mode none {TEMPFILE}"
+  # Add per-domain tools below. The first tool whose domains list matches
+  # the URL's hostname is used; if none match, the default tool is used.
+  # Subdomain matching is automatic: "youtube.com" also matches "www.youtube.com".
+  # Available placeholders: {TEMPFILE} (path to downloaded HTML), {URL} (original URL)
+  #
+  # - name: my_tool
+  #   domains:
+  #     - example.com
+  #     - example.net
+  #   command: "bin/my_tool {TEMPFILE}"
