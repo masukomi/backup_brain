@@ -1,0 +1,48 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Extracts title, audio URL, and description from a soundgasm.net HTML page
+# and writes markdown to stdout.
+#
+# Usage: bin/soundgasm <html_file>
+
+abort "Usage: #{$0} <html_file>" unless ARGV.size == 1
+
+html = File.read(ARGV[0], encoding: "UTF-8")
+
+# Title: <div ... aria-label="title" ...>text</div>
+title_match = html.match(/<[^>]+aria-label="title"[^>]*>\s*([^<]+?)\s*<\//)
+unless title_match
+  warn "soundgasm: could not find aria-label=\"title\" element"
+  exit 1
+end
+title = title_match[1].strip
+
+# Audio URL: m4a: "https://..." in the inline jPlayer script
+m4a_match = html.match(/m4a:\s*"(https?:[^"]+\.m4a)"/)
+unless m4a_match
+  warn "soundgasm: could not find m4a URL in page"
+  exit 1
+end
+audio_url = m4a_match[1]
+
+# Description: text content of .jp-description (may be absent)
+desc_match = html.match(/<div class="jp-description">(.*?)<\/div>/m)
+description = nil
+if desc_match
+  # Strip all tags and collapse whitespace
+  description = desc_match[1].gsub(/<[^>]+>/, " ").gsub(/\s+/, " ").strip
+  description = nil if description.empty?
+end
+
+puts "# #{title}"
+puts
+puts <<~HTML
+  <audio id="player" controls>
+    <source src="#{audio_url}" type="audio/mp4" />
+  </audio>
+HTML
+if description
+  puts
+  puts description
+end
