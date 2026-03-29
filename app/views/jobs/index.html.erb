@@ -7,6 +7,7 @@
 
 <div class="row">
   <div class="col">
+    <h3><%= t("jobs.manageable_heading") %></h3>
     <table class="table">
       <thead>
         <tr>
@@ -58,6 +59,28 @@
                 <% end %>
               <% end %>
             </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col">
+    <h3><%= t("jobs.unmanageable_heading") %></h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th><%= t("jobs.columns.job") %></th>
+          <th><%= t("jobs.columns.queued") %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @unmanageable_jobs.each do |job| %>
+          <tr>
+            <td><%= job[:label] %></td>
+            <td><%= job[:queued_count] %></td>
           </tr>
         <% end %>
       </tbody>

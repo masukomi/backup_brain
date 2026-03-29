@@ -197,9 +197,12 @@ en:
     unscheduled: "%{name} unscheduled"
     errors:
       abort_permission_denied: "Could not abort — permission denied sending signal to worker process"
+    manageable_heading: "Manageable Jobs"
+    unmanageable_heading: "Unmanageable Jobs"
     columns:
       job: "Job"
       status: "Status"
+      queued: "Queued"
     status:
       not_scheduled: "Not scheduled"
       running: "Running now"

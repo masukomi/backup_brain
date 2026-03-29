@@ -9,6 +9,9 @@ class JobsController < ApplicationController
     "DeleteOrphanedTagsJob" => -> { DeleteOrphanedTagsJob.schedule_unless_pending }
   }.freeze
 
+  # Jobs visible on the page but not triggerable from the UI (require per-record parameters).
+  UNMANAGEABLE_JOBS = %w[ArchiveUrlJob ArchiveUrlWithoutRetriesJob].freeze
+
   def index
     @jobs = MANAGEABLE_JOBS.keys.map do |class_name|
       pending_jobs = Delayed::Backend::Mongoid::Job
@@ -16,6 +19,13 @@ class JobsController < ApplicationController
         .order_by(run_at: :asc)
         .to_a
       {class_name: class_name, label: humanize_job_name(class_name), pending_jobs: pending_jobs}
+    end
+
+    @unmanageable_jobs = UNMANAGEABLE_JOBS.map do |class_name|
+      count = Delayed::Backend::Mongoid::Job
+        .where(failed_at: nil, handler: /job_class: #{Regexp.escape(class_name)}\n/)
+        .count
+      {class_name: class_name, label: humanize_job_name(class_name), queued_count: count}
     end
   end
 
