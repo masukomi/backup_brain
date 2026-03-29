@@ -1,3 +1,8 @@
+<% content_for :head do %>
+  <%= stylesheet_link_tag "/css/plyr/plyr.css" %>
+  <%= javascript_include_tag "/js/plyr/plyr.min.js" %>
+<% end %>
+
 <div class="container">
   <% if @archive.present?  %>
     <div class="row">
@@ -100,3 +105,9 @@
 
 <div class="container">
 </div>
+
+<script>
+  document.querySelectorAll("archive audio, archive video").forEach(function(el) {
+    new Plyr(el, { iconUrl: "/js/plyr/plyr.svg" });
+  });
+</script>
