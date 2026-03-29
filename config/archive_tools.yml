@@ -11,6 +11,9 @@ tools:
   # Subdomain matching is automatic: "youtube.com" also matches "www.youtube.com".
   # Available placeholders: {TEMPFILE} (path to downloaded HTML), {URL} (original URL)
   #
+  # NOTE: all archiving tools are expected to return a markdown version of the HTML
+  # that is contained in TEMPFILE
+  #
   # - name: my_tool
   #   domains:
   #     - example.com

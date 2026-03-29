@@ -74,6 +74,7 @@
         <tr>
           <th><%= t("jobs.columns.job") %></th>
           <th><%= t("jobs.columns.status") %></th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -95,6 +96,15 @@
                 </span>
               <% else %>
                 <span class="text-muted"><%= t("jobs.status.not_scheduled") %></span>
+              <% end %>
+            </td>
+            <td>
+              <% if job[:pending_jobs].any? %>
+                <%= form_with url: unschedule_job_path(job_class: job[:class_name]),
+                              method: :delete,
+                              data: { turbo: false } do |f| %>
+                  <%= f.submit t("jobs.unschedule"), class: "btn btn-sm btn-outline-danger" %>
+                <% end %>
               <% end %>
             </td>
           </tr>

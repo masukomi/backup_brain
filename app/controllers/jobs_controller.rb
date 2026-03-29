@@ -41,7 +41,7 @@ class JobsController < ApplicationController
 
   def unschedule_job
     class_name = params[:job_class]
-    raise ActionController::RoutingError, "Unknown job" unless MANAGEABLE_JOBS.key?(class_name)
+    raise ActionController::RoutingError, "Unknown job" unless MANAGEABLE_JOBS.key?(class_name) || UNMANAGEABLE_JOBS.include?(class_name)
 
     Delayed::Backend::Mongoid::Job
       .where(failed_at: nil, handler: /job_class: #{Regexp.escape(class_name)}\n/)
