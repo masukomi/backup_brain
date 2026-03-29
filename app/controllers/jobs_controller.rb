@@ -22,10 +22,11 @@ class JobsController < ApplicationController
     end
 
     @unmanageable_jobs = UNMANAGEABLE_JOBS.map do |class_name|
-      count = Delayed::Backend::Mongoid::Job
+      pending_jobs = Delayed::Backend::Mongoid::Job
         .where(failed_at: nil, handler: /job_class: #{Regexp.escape(class_name)}\n/)
-        .count
-      {class_name: class_name, label: humanize_job_name(class_name), queued_count: count}
+        .order_by(run_at: :asc)
+        .to_a
+      {class_name: class_name, label: humanize_job_name(class_name), pending_jobs: pending_jobs}
     end
   end
 

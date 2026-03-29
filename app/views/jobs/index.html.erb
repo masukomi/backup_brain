@@ -73,14 +73,30 @@
       <thead>
         <tr>
           <th><%= t("jobs.columns.job") %></th>
-          <th><%= t("jobs.columns.queued") %></th>
+          <th><%= t("jobs.columns.status") %></th>
         </tr>
       </thead>
       <tbody>
         <% @unmanageable_jobs.each do |job| %>
           <tr>
             <td><%= job[:label] %></td>
-            <td><%= job[:queued_count] %></td>
+            <td>
+              <% running = job[:pending_jobs].find { |j| j.locked_at.present? } %>
+              <% scheduled = job[:pending_jobs].reject { |j| j.locked_at.present? } %>
+              <% if running %>
+                <span class="text-warning"><%= t("jobs.status.running") %></span>
+              <% elsif scheduled.size == 1 %>
+                <span class="text-success">
+                  <%= t("jobs.status.scheduled_at", time: time_ago_in_words(scheduled.first.run_at)) %>
+                </span>
+              <% elsif scheduled.size > 1 %>
+                <span class="text-success">
+                  <%= t("jobs.status.scheduled_multiple", count: scheduled.size, time: time_ago_in_words(scheduled.first.run_at)) %>
+                </span>
+              <% else %>
+                <span class="text-muted"><%= t("jobs.status.not_scheduled") %></span>
+              <% end %>
+            </td>
           </tr>
         <% end %>
       </tbody>
