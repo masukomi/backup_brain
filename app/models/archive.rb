@@ -1,6 +1,13 @@
 class Archive
   SIMPLE_MD_LINK_REGEXP = /(?<!!)(\[(.*?)\]\((.*?)\))/i
   IMAGE_MD_LINK_REGEXP = /((!\[.*?\])\(\s*?(.*?)\s*?\))/i
+  AUDIO_EXTENSIONS = %w[mp3 m4a ogg oga wav flac opus aac].freeze
+  AUDIO_SRC_REGEXP = Regexp.new(
+    'src=(["\'])((?:https?://|/|\.\./\./)?[^"\'\\s]+\\.(?:' +
+    AUDIO_EXTENSIONS.join("|") +
+    '))\\1',
+    Regexp::IGNORECASE
+  )
 
   include Mongoid::Document
   include Mongoid::Timestamps
@@ -43,6 +50,33 @@ class Archive
       line_copy.sub!(md[1], sha_hash) if replace
     end
     [line_copy, image_url_hashes]
+  end
+
+  # Finds audio src URLs in HTML embedded within a markdown line.
+  # Replaces each URL with a SHA256 hash placeholder and returns the
+  # modified line and a hash mapping each placeholder to its original URL.
+  # Matches src="..." attributes whose URL ends in a supported HTML5 audio
+  # extension (mp3, m4a, ogg, oga, wav, flac, opus, aac).
+  #
+  # @param line [String]
+  # @param replace [Boolean] whether to substitute URLs with hash placeholders
+  # @return [Array(String, Hash)] modified line and {sha256 => url} hash
+  def self.extract_audio_urls_from_line(line, replace = true)
+    match_datas = line
+      .to_enum(:scan, Archive::AUDIO_SRC_REGEXP)
+      .map { Regexp.last_match }
+
+    audio_url_hashes = {}
+    return [line, audio_url_hashes] if match_datas.empty?
+
+    line_copy = line.dup
+    match_datas.each do |md|
+      url = md[2]
+      sha_hash = Digest::SHA2.hexdigest(url)
+      audio_url_hashes[sha_hash] = url
+      line_copy.sub!(url, sha_hash) if replace
+    end
+    [line_copy, audio_url_hashes]
   end
 
   # @param options [Hash] completely ignored
