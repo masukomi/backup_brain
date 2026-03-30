@@ -1,0 +1,208 @@
+#+TITLE: Backup Brain macOS LaunchAgent Services
+#+DESCRIPTION: How to configure and install the launchd agents in this directory
+
+These files let you run Backup Brain and its dependencies as launchd agents
+so they start automatically on login and restart on failure.
+
+All agents are installed as *LaunchAgents* (=~/Library/LaunchAgents/=), which
+means they run under your own user account when you log in — appropriate for
+a single-user self-hosted app. They do not require root/sudo.
+
+* Files
+
+| File                                      | Purpose                                             |
+|-------------------------------------------+-----------------------------------------------------|
+| =app.backup_brain.app.plist=              | Main Rails app (Puma)                               |
+| =app.backup_brain.delayed_job.1.plist=    | Background job worker 1                             |
+| =app.backup_brain.delayed_job.2.plist=    | Background job worker 2                             |
+| =app.backup_brain.meilisearch.plist=      | Meilisearch search engine (see note below)          |
+| =app.backup_brain.tailscale_funnel.plist= | Optional: exposes Backup Brain via Tailscale Funnel |
+| =tailscale_funnel=                        | Script invoked by =tailscale_funnel.plist=          |
+
+* Required Changes Before Installing
+
+** All plist files
+
+Replace every =/path/to/backup_brain= placeholder with the absolute path to
+the repo root (e.g. =/Users/alice/backup_brain=).
+
+** =app.backup_brain.app.plist= and =app.backup_brain.delayed_job.*.plist=
+
+| Placeholder             | Replace with                                                      |
+|-------------------------+-------------------------------------------------------------------|
+| =/path/to/backup_brain= | Absolute path to the repo root (e.g. =/Users/alice/backup_brain=) |
+| =RAILS_ENV=development= | Change to =production= if running in production mode              |
+
+To adjust the number of background job workers, add or remove numbered
+=delayed_job= plist files (=app.backup_brain.delayed_job.3.plist=, etc.) by
+copying an existing one and updating the =Label= and log file path inside it.
+
+** Shell environment (rbenv / asdf / mise)
+
+The plists run =/bin/bash -lc= to load your login shell environment, which
+picks up =~/.bash_profile= or =~/.profile=. If your version manager (rbenv,
+asdf, mise) is configured only in =~/.zshrc= or =~/.zprofile=, either:
+
+- Move the relevant =eval= / =export= lines into =~/.zprofile= and change
+  =/bin/bash= to =/bin/zsh= in the =ProgramArguments= arrays, or
+- Add the full path to =bundle= in the =ExecStart= command directly (see
+  Troubleshooting below).
+
+** =app.backup_brain.meilisearch.plist=
+
+If you installed Meilisearch via Homebrew, prefer =brew services= instead of
+this plist — see the MongoDB & Meilisearch via Homebrew section below.
+
+If you want manual control:
+
+| Placeholder                     | Replace with                                                             |
+|---------------------------------+--------------------------------------------------------------------------|
+| =/opt/homebrew/bin/meilisearch= | Use =/usr/local/bin/meilisearch= on Intel Macs                           |
+| =/path/to/meilisearch.toml=     | Path where you place the config file (e.g. =~/.config/meilisearch.toml=) |
+| =/path/to/meilisearch/data=     | Directory for Meilisearch's database files                               |
+
+Copy =meilisearch.toml= from =../systemd/meilisearch.toml= to your chosen
+config location and replace =YOUR_MASTER_KEY_VALUE= with your master key:
+
+#+begin_src sh
+openssl rand -base64 32
+#+end_src
+
+This same key must also appear in your =.env= file as =MEILI_MASTER_KEY=.
+
+** =app.backup_brain.tailscale_funnel.plist=
+
+| Placeholder                                        | Replace with                                                     |
+|----------------------------------------------------+------------------------------------------------------------------|
+| =/path/to/scripts/services/macos/tailscale_funnel= | Absolute path to the =tailscale_funnel= script in this directory |
+
+The =tailscale_funnel= script exposes port 3334. If your app runs on a
+different port, edit that script before installing.
+
+This agent is optional — only needed if you are using Tailscale Funnel to
+expose Backup Brain over the internet.
+
+* MongoDB & Meilisearch via Homebrew
+
+Both MongoDB and Meilisearch are most easily managed on macOS via Homebrew
+services, which handle their own plist files automatically:
+
+#+begin_src sh
+# MongoDB
+brew services start mongodb-community
+
+# Meilisearch
+brew services start meilisearch
+#+end_src
+
+If you use Homebrew for these, you do not need
+=app.backup_brain.meilisearch.plist= at all.
+
+* Installation
+
+** Step 1 — edit the plists
+
+Make all the placeholder substitutions described above before copying any
+file to =~/Library/LaunchAgents/=.
+
+** Step 2 — copy and load
+
+#+begin_src sh
+cp app.backup_brain.app.plist ~/Library/LaunchAgents/
+cp app.backup_brain.delayed_job.1.plist ~/Library/LaunchAgents/
+cp app.backup_brain.delayed_job.2.plist ~/Library/LaunchAgents/
+
+launchctl load ~/Library/LaunchAgents/app.backup_brain.app.plist
+launchctl load ~/Library/LaunchAgents/app.backup_brain.delayed_job.1.plist
+launchctl load ~/Library/LaunchAgents/app.backup_brain.delayed_job.2.plist
+#+end_src
+
+** Meilisearch (if not using Homebrew)
+
+#+begin_src sh
+cp app.backup_brain.meilisearch.plist ~/Library/LaunchAgents/
+launchctl load ~/Library/LaunchAgents/app.backup_brain.meilisearch.plist
+#+end_src
+
+** Tailscale Funnel (optional)
+
+#+begin_src sh
+cp app.backup_brain.tailscale_funnel.plist ~/Library/LaunchAgents/
+launchctl load ~/Library/LaunchAgents/app.backup_brain.tailscale_funnel.plist
+#+end_src
+
+* Managing the Services
+
+#+begin_src sh
+# Start the services
+# NOTE: unlike systemd launchdb doesn't have a concept of dependency so they must be started individually
+launchctl start app.backup_brain.app
+launchctl start app.backup_brain.delayed_job.1
+launchctl start app.backup_brain.delayed_job.2
+
+# Stop a service (it will not restart until next login or manual start)
+launchctl stop app.backup_brain.app
+launchctl stop app.backup_brain.delayed_job.1
+launchctl stop app.backup_brain.delayed_job.2
+
+# Unload (disable autostart) and stop
+launchctl unload ~/Library/LaunchAgents/app.backup_brain.app.plist
+launchctl unload ~/Library/LaunchAgents/app.backup_brain.delayed_job.1.plist
+launchctl unload ~/Library/LaunchAgents/app.backup_brain.delayed_job.2.plist
+
+# Re-load after editing a plist
+launchctl unload ~/Library/LaunchAgents/app.backup_brain.app.plist
+launchctl load   ~/Library/LaunchAgents/app.backup_brain.app.plist
+
+# Check whether a service is running
+launchctl list | grep backup_brain
+#+end_src
+
+The output of =launchctl list | grep backup_brain= shows three columns:
+=PID=, =last exit status=, =label=. A =PID= of =-= means not running; a
+non-zero exit status means it crashed or failed to start.
+
+* Troubleshooting
+
+** Service fails to start — =bundle= not found
+
+The login shell may not have the right PATH. Find the full path to =bundle=:
+
+#+begin_src sh
+which bundle
+# or, with rbenv:
+ls ~/.rbenv/shims/bundle
+#+end_src
+
+Then update =ProgramArguments= in the delayed_job plist to use the full path:
+
+#+begin_src xml
+<array>
+  <string>/bin/bash</string>
+  <string>-lc</string>
+  <string>/Users/YOUR_USERNAME/.rbenv/shims/bundle exec rake jobs:work</string>
+</array>
+#+end_src
+
+Unload and reload the plist after editing.
+
+** Logs
+
+Output is written to the paths set in =StandardOutPath= / =StandardErrorPath=
+inside each plist (defaults to files inside the repo's =log/= directory):
+
+#+begin_src sh
+tail -f /path/to/backup_brain/log/launchd_app.log
+tail -f /path/to/backup_brain/log/launchd_delayed_job_1.log
+tail -f /path/to/backup_brain/log/launchd_delayed_job_2.log
+#+end_src
+
+** Service restarts immediately after stopping
+
+=KeepAlive= with =SuccessfulExit= false means launchd will restart the
+process whenever it exits with a non-zero code. If you want to stop a service
+permanently (until next login), unload the plist rather than just stopping it:
+
+#+begin_src sh
+launchctl unload ~/Library/LaunchAgents/app.backup_brain.app.plist
+#+end_src

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>app.backup_brain.app</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>-lc</string>
+    <string>/path/to/backup_brain/serve</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>/path/to/backup_brain</string>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>RAILS_ENV</key>
+    <string>development</string>
+  </dict>
+
+  <key>RunAtLoad</key>
+  <true/>
+
+  <!-- Restart on crash/failure but not on clean exit -->
+  <key>KeepAlive</key>
+  <dict>
+    <key>SuccessfulExit</key>
+    <false/>
+  </dict>
+
+  <key>StandardOutPath</key>
+  <string>/path/to/backup_brain/log/launchd_app.log</string>
+  <key>StandardErrorPath</key>
+  <string>/path/to/backup_brain/log/launchd_app.log</string>
+</dict>
+</plist>

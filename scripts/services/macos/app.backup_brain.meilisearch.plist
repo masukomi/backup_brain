@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>app.backup_brain.meilisearch</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/path/to/backup_brain/scripts/services/macos/start_meilisearch</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>/path/to/backup_brain</string>
+
+  <key>RunAtLoad</key>
+  <true/>
+
+  <!-- Restart on crash/failure but not on clean exit -->
+  <key>KeepAlive</key>
+  <dict>
+    <key>SuccessfulExit</key>
+    <false/>
+  </dict>
+
+  <key>StandardOutPath</key>
+  <string>/path/to/backup_brain/log/launchd_meilisearch.log</string>
+  <key>StandardErrorPath</key>
+  <string>/path/to/backup_brain/log/launchd_meilisearch.log</string>
+</dict>
+</plist>

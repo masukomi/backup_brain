@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel)"
+ENV_FILE="$REPO_ROOT/.env"
+
+source "$REPO_ROOT/scripts/bash_helpers/get_env_key.sh"
+
+# ── Locate meilisearch binary ─────────────────────────────────────────────────
+# Launchd runs with a stripped PATH; check known Homebrew locations explicitly.
+MEILISEARCH_BIN=""
+for candidate in /opt/homebrew/bin/meilisearch /usr/local/bin/meilisearch; do
+  if [[ -x "$candidate" ]]; then
+    MEILISEARCH_BIN="$candidate"
+    break
+  fi
+done
+if [[ -z "$MEILISEARCH_BIN" ]]; then
+  # Fall back to whatever is on PATH (e.g. manual installs)
+  MEILISEARCH_BIN="$(command -v meilisearch 2>/dev/null || true)"
+fi
+if [[ -z "$MEILISEARCH_BIN" ]]; then
+  echo "meilisearch binary not found. Install it via Homebrew: brew install meilisearch" >&2
+  exit 1
+fi
+
+search_enabled="$(get_env_key 'SEARCH_ENABLED')"
+if [[ "$search_enabled" != "true" ]]; then
+  echo "Search is not enabled (SEARCH_ENABLED != true). Not starting Meilisearch."
+  exit 0
+fi
+
+meili_master_key="$(get_env_key 'MEILI_MASTER_KEY')"
+if [[ -z "$meili_master_key" ]]; then
+  echo "MEILI_MASTER_KEY is not set in .env" >&2
+  echo "You can run the following to generate a usable key:" >&2
+  echo "  openssl rand -base64 32 | sed 's/=$//'" >&2
+  exit 78  # EX_CONFIG
+fi
+
+meilisearch_search_key="$(get_env_key 'MEILISEARCH_SEARCH_KEY' || true)"
+if [[ -z "$meilisearch_search_key" ]]; then
+  echo "⚠️ MEILISEARCH_SEARCH_KEY not found in .env"
+  echo "⚠️ PLEASE ADD MEILISEARCH_SEARCH_KEY to .env to improve security"
+else
+  echo "✅ MEILISEARCH_SEARCH_KEY found in .env"
+fi
+
+meilisearch_admin_key="$(get_env_key 'MEILISEARCH_ADMIN_KEY' || true)"
+if [[ -z "$meilisearch_admin_key" ]]; then
+  echo "⚠️ MEILISEARCH_ADMIN_KEY not found in .env"
+  echo "⚠️ PLEASE ADD MEILISEARCH_ADMIN_KEY to .env to improve security"
+else
+  echo "✅ MEILISEARCH_ADMIN_KEY found in .env"
+fi
+
+exec "$MEILISEARCH_BIN" --master-key "$meili_master_key"
