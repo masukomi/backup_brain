@@ -14,7 +14,11 @@ module BackupBrain
   # Per-domain headers are merged on top of the default headers, so domain entries
   # only need to specify what differs.
   class RequestHeaders
-    CONFIG_PATH = Rails.root.join("config/archive_request_headers.yml")
+    CONFIG_PATH = if defined?(Rails)
+      Rails.root.join("config/archive_request_headers.yml")
+    else
+      File.expand_path("../../../config/archive_request_headers.yml", __FILE__)
+    end
 
     FALLBACK_USER_AGENT = ENV.fetch(
       "USER_AGENT_STRING",
@@ -51,7 +55,7 @@ module BackupBrain
         raw  = YAML.safe_load_file(config_path)
         sets = raw.fetch("headers", []).map { |h| HeaderSet.new(h) }
       else
-        Rails.logger.warn("config/archive_request_headers.yml not found; using built-in default headers")
+        warn("config/archive_request_headers.yml not found; using built-in default headers")
         sets = [HeaderSet.new("name" => "default", "default" => true,
                               "headers" => {"User-Agent" => FALLBACK_USER_AGENT})]
       end

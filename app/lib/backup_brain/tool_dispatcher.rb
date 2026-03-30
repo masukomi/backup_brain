@@ -22,13 +22,15 @@ module BackupBrain
       attr_reader :name, :domains, :command
 
       def initialize(config)
-        @name    = config["name"]
-        @domains = Array(config["domains"]).map(&:downcase)
-        @command = config["command"]
-        @default = config["default"] == true
+        @name             = config["name"]
+        @domains          = Array(config["domains"]).map(&:downcase)
+        @command          = config["command"]
+        @default          = config["default"] == true
+        @handles_download = config["handles_download"] == true
       end
 
       def default? = @default
+      def handles_download? = @handles_download
 
       def matches_host?(host)
         @domains.any? { |d| host == d || host.end_with?(".#{d}") }
@@ -64,8 +66,15 @@ module BackupBrain
       executable_path?(Shellwords.split(@default_tool.command).first)
     end
 
+    # Returns true if the tool matched for +url+ handles its own download,
+    # meaning the caller should not download the URL to a tempfile first.
+    def handles_download?(url)
+      find_tool_for(url).handles_download?
+    end
+
     # Finds the appropriate tool for +url+, runs it against +tempfile+,
     # and returns the resulting markdown string.
+    # +tempfile+ may be nil when the tool has handles_download: true.
     # Raises BackupBrain::Errors::UnarchivableUrl on non-zero exit.
     def run(url, tempfile)
       tool = find_tool_for(url)
@@ -81,7 +90,7 @@ module BackupBrain
 
     def invoke(tool, url, tempfile)
       args = Shellwords.split(tool.command).map do |arg|
-        arg.gsub("{TEMPFILE}", tempfile.path).gsub("{URL}", url)
+        arg.gsub("{TEMPFILE}", tempfile ? tempfile.path : "").gsub("{URL}", url)
       end
       _, stdout, stderr, wait_thr = Open3.popen3(*args)
       markdown = stdout.gets(nil)&.chomp

@@ -23,11 +23,12 @@ class ArchiveUrlJob < ApplicationJob
     end
 
     begin
-      tempfile        = download(bookmark)
-      markdown_string = BackupBrain::ToolDispatcher.instance.run(bookmark.url, tempfile) # potentially raises
+      dispatcher      = BackupBrain::ToolDispatcher.instance
+      tempfile        = dispatcher.handles_download?(bookmark.url) ? nil : download(bookmark)
+      markdown_string = dispatcher.run(bookmark.url, tempfile) # potentially raises
       record_failed_attempt(bookmark, 600) if markdown_string.blank?
       markdown_string = fully_qualify_urls(markdown_string, bookmark)
-      tempfile.close
+      tempfile&.close
 
       bookmark.archives << Archive.new(
         mime_type: "text/markdown",
@@ -37,11 +38,7 @@ class ArchiveUrlJob < ApplicationJob
       bookmark
     rescue BackupBrain::Errors::UnarchivableUrl => e
       Rails.logger.error(e.message)
-      begin
-        tempfile.close
-      rescue
-        nil
-      end
+      tempfile&.close rescue nil
       nil
     end
   rescue Net::ReadTimeout, Net::OpenTimeout, Errno::ETIMEDOUT
