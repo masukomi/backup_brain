@@ -1,0 +1,145 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Fetches metadata for an audiochan.com track via their JSON API and writes
+# markdown (with an HTML5 <audio> element) to stdout.
+#
+# Usage: bin/audiochan_archiver <url>
+# The URL should be of the form: https://audiochan.com/a/<slug>
+
+require "uri"
+require "json"
+require "yaml"
+require "httparty"
+require_relative "../app/lib/backup_brain/request_headers"
+
+abort "Usage: #{$0} <url>" unless ARGV.size == 1
+
+url = ARGV[0]
+
+slug = url.match(%r{audiochan\.com/a/([^/?#]+)}i)&.[](1)
+unless slug
+  warn "audiochan_archiver: could not extract slug from URL: #{url}"
+  exit 1
+end
+
+api_uri = "https://api.audiochan.com/audios/slug/#{slug}"
+
+# Load domain-matched headers from config, then overlay API-required headers.
+# API headers win so Sec-Fetch-* etc. are always correct for a JSON API call.
+request_headers = BackupBrain::RequestHeaders.new
+  .headers_for("https://audiochan.com/")
+  .merge(
+    "Content-Type" => "application/json",
+    "Origin" => "https://audiochan.com",
+    "Sec-Fetch-Dest" => "empty",
+    "Sec-Fetch-Mode" => "cors",
+    "Sec-Fetch-Site" => "same-site"
+  )
+
+begin
+  response = HTTParty.get(api_uri, verify: false, headers: request_headers)
+rescue => e
+  warn "audiochan_archiver: API request failed: #{e.message}"
+  exit 1
+end
+
+unless response.code < 400
+  warn "audiochan_archiver: API returned #{response.code} for slug '#{slug}'"
+  exit 1
+end
+
+begin
+  data = JSON.parse(response.body)
+  # STDERR.puts("json_data: \n#{data.to_json}")
+rescue JSON::ParserError => e
+  warn "audiochan_archiver: could not parse API response: #{e.message}"
+  exit 1
+end
+
+audio_file = data["audioFile"]
+unless audio_file
+  warn "audiochan_archiver: no audioFile in API response"
+  exit 1
+end
+
+audio_url = audio_file["url"] || audio_file["stream_url"]
+unless audio_url
+  warn "audiochan_archiver: no audio URL in API response"
+  exit 1
+end
+
+title = data["title"]&.strip
+
+# rubocop:disable Rails/Blank
+title = slug if title.nil? || title.empty?
+# rubocop:enable Rails/Blank
+#
+# Recursively extract plain text from a ProseMirror/TipTap content node tree.
+def prosemirror_to_text(node)
+  return "" unless node.is_a?(Hash)
+  return node["text"] || "" if node["type"] == "text"
+  return "\n" if node["type"] == "hard_break"
+
+  children_text = Array(node["content"]).map { |child| prosemirror_to_text(child) }.join("")
+
+  case node["type"]
+  when "paragraph", "heading", "blockquote"
+    stripped = children_text.strip
+    stripped.empty? ? "" : "#{stripped}\n\n"
+  when "bullet_list", "ordered_list"
+    children_text
+  when "list_item"
+    "- #{children_text.strip}\n"
+  else
+    children_text
+  end
+end
+
+description = nil
+desc = data["description"]
+if desc.is_a?(Hash)
+  raw = prosemirror_to_text(desc).strip
+  description = raw unless raw.empty?
+elsif desc.is_a?(String)
+  raw = desc.strip
+  description = raw unless raw.empty?
+end
+
+description ||= begin
+  data.dig("description", "content")
+  &.[](0)
+    &.dig("content")
+  &.[](0)
+    &.dig("content")
+  &.[](0)
+  &.[]("text")
+rescue
+  nil
+end
+
+# rubocop:disable Rails/Pluck
+tags = data.dig("tags").map { |t| t["name"] }&.join(", ")
+# rubocop:enable Rails/Pluck
+
+ext = File.extname(audio_file["filename"].to_s).downcase
+mime_type = case ext
+when ".mp3"        then "audio/mpeg"
+when ".m4a"        then "audio/mp4"
+when ".ogg", ".oga" then "audio/ogg"
+when ".wav"        then "audio/wav"
+when ".flac"       then "audio/flac"
+when ".opus"       then "audio/ogg; codecs=opus"
+when ".aac"        then "audio/aac"
+else                    "audio/*"
+end
+
+puts "# #{title}"
+puts
+puts <<~HTML
+  <audio id="player" controls>
+    <source src="#{audio_url}" type="#{mime_type}" />
+  </audio>
+HTML
+puts "\n\n#{description}" if description
+puts "\n\n#{tags}" if tags && tags.length > 0
