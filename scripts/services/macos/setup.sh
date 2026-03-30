@@ -61,8 +61,6 @@ WORK_DIR="$(mktemp -d -p "$SCRIPT_DIR" -t bb_launchd_services)"
 KEEP_WORK_DIR=false
 trap '[[ "$KEEP_WORK_DIR" == "false" ]] && rm -rf "$WORK_DIR"' EXIT
 
-FUNNEL_SCRIPT="$REPO_ROOT/scripts/services/macos/tailscale_funnel"
-
 echo ""
 echo "Applying substitutions and writing configured files to:"
 echo "    $WORK_DIR"
@@ -73,17 +71,11 @@ for src_plist in "$SCRIPT_DIR"/app.backup_brain.*.plist; do
 
   if [[ "$filename" == "app.backup_brain.tailscale_funnel.plist" ]]; then
     $USE_TAILSCALE || continue
-    sed \
-      -e "s|/path/to/backup_brain|$REPO_ROOT|g" \
-      -e "s|/path/to/scripts/services/macos/tailscale_funnel|$FUNNEL_SCRIPT|g" \
-      -e "s|<string>development</string>|<string>$RAILS_ENV</string>|g" \
-      "$src_plist" > "$dest"
-  else
-    sed \
-      -e "s|/path/to/backup_brain|$REPO_ROOT|g" \
-      -e "s|<string>development</string>|<string>$RAILS_ENV</string>|g" \
-      "$src_plist" > "$dest"
   fi
+  sed \
+    -e "s|/path/to/backup_brain|$REPO_ROOT|g" \
+    -e "s|<string>development</string>|<string>$RAILS_ENV</string>|g" \
+    "$src_plist" > "$dest"
 done
 
 # ── Offer to install ─────────────────────────────────────────────────────────

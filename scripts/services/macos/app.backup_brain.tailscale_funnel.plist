@@ -7,7 +7,7 @@
 
   <key>ProgramArguments</key>
   <array>
-    <string>/path/to/scripts/services/macos/tailscale_funnel</string>
+    <string>/path/to/backup_brain/scripts/services/macos/tailscale_funnel</string>
   </array>
 
   <key>RunAtLoad</key>
