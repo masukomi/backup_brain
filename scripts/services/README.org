@@ -1,0 +1,116 @@
+#+TITLE: Backup Brain systemd Services
+#+DESCRIPTION: How to configure and install the systemd units in this directory
+
+These files let you run Backup Brain and its dependencies as systemd services
+so they start automatically on boot and restart on failure.
+
+* Files
+
+| File                       | Purpose                                                     |
+|----------------------------+-------------------------------------------------------------|
+| =backup_brain.service=     | Main Rails app (Puma)                                       |
+| =delayed_job@.service=     | Template unit for background job workers (one per instance) |
+| =meilisearch.service=      | Meilisearch search engine                                   |
+| =meilisearch.toml=         | Meilisearch configuration (goes to =/etc/meilisearch.toml=) |
+| =tailscale_funnel=         | Script invoked by =tailscale_funnel.service=                |
+| =tailscale_funnel.service= | Optional: exposes Backup Brain via Tailscale Funnel         |
+
+* Required Changes Before Installing
+
+** =backup_brain.service= and =delayed_job@.service=
+
+Both files share the same set of placeholders:
+
+| Placeholder             | Replace with                                                     |
+|-------------------------+------------------------------------------------------------------|
+| =YOUR_USERNAME=         | The OS user that will run the app (e.g. =alice=)                 |
+| =USER_GROUP=            | That user's primary group (e.g. =alice= or =www-data=)           |
+| =/path/to/backup_brain= | Absolute path to the repo root (e.g. =/home/alice/backup_brain=) |
+| =RAILS_ENV=development= | Change to =production= if running in production mode             |
+
+To adjust the number of background job workers, edit the =Wants= and =After=
+lines in =backup_brain.service=. The default is 2 workers:
+
+#+begin_src ini
+Wants=delayed_job@1.service delayed_job@2.service
+After=delayed_job@1.service delayed_job@2.service
+#+end_src
+
+Add or remove entries (=delayed_job@3.service=, etc.) to change the count.
+
+** =meilisearch.toml=
+
+| Placeholder             | Replace with                                                              |
+|-------------------------+---------------------------------------------------------------------------|
+| =YOUR_MASTER_KEY_VALUE= | Your Meilisearch master key. Generate one with: =openssl rand -base64 32= |
+
+This same key must also appear in your =.env= file as =MEILI_MASTER_KEY=.
+
+The other values in the file are sensible defaults. Adjust =http_addr= if
+you need Meilisearch to listen on a different address or port.
+
+** =tailscale_funnel.service=
+
+| Placeholder                      | Replace with                                  |
+|----------------------------------+-----------------------------------------------|
+| =/path/to/scripts/daemon/tailscale_funnel= | Absolute path to the =tailscale_funnel= script in this directory |
+
+The =tailscale_funnel= script exposes port 3334. If your app runs on a
+different port, edit that script before installing.
+
+This service is optional — only needed if you are using Tailscale Funnel
+to expose Backup Brain over the internet.
+
+* Installation
+
+Copy the files you need to =/etc/systemd/system/= and reload systemd.
+
+** Meilisearch (if not already installed as a service)
+
+#+begin_src sh
+sudo cp meilisearch.service /etc/systemd/system/
+sudo cp meilisearch.toml /etc/meilisearch.toml
+sudo systemctl daemon-reload
+sudo systemctl enable --now meilisearch
+#+end_src
+
+** Backup Brain + delayed job workers
+
+#+begin_src sh
+sudo cp backup_brain.service /etc/systemd/system/
+sudo cp "delayed_job@.service" /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now backup_brain
+#+end_src
+
+Enabling =backup_brain= is sufficient — it will start the =delayed_job@N=
+instances automatically via =Wants=. You do not need to enable the
+=delayed_job@.service= template or individual instances separately.
+
+** Tailscale Funnel (optional)
+
+#+begin_src sh
+sudo cp tailscale_funnel.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now tailscale_funnel
+#+end_src
+
+* Managing the Services
+
+#+begin_src sh
+# Start / stop / restart the app (also starts/stops delayed_job workers)
+sudo systemctl start backup_brain
+sudo systemctl stop backup_brain
+sudo systemctl restart backup_brain
+
+# Check status
+sudo systemctl status backup_brain
+sudo systemctl status "delayed_job@*"
+
+# View logs
+journalctl -u backup_brain -f
+journalctl -u "delayed_job@1" -f
+
+# Reload systemd after editing a service file
+sudo systemctl daemon-reload
+#+end_src

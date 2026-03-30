@@ -14,19 +14,15 @@ ENV_FILE="$REPO_ROOT/.env"
 # Exit on error
 set -e
 
-trap ctrl_c INT
-trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT
-
-function ctrl_c() {
- echo "Shutting down"
- echo "Killing Rails Server (puma)…"
- kill $(cat ./tmp/pids/server.pid)
-
- source "$REPO_ROOT/bin/kill_delayed_jobs"
- kill_delayed_jobs
-
- kill -- -$$
+function shutdown() {
+  trap - INT TERM EXIT
+  echo "Shutting down"
+  echo "Killing Rails Server (puma)…"
+  kill $(cat ./tmp/pids/server.pid) 2>/dev/null || true
+  kill -- -$$
 }
+
+trap shutdown INT TERM EXIT
 
 source "$REPO_ROOT/scripts/bash_helpers/colors.sh"
 source "$REPO_ROOT/scripts/bash_helpers/get_env_key.sh"
@@ -145,22 +141,6 @@ fi
 run_next_migration_file_if_present
 
 
-
-worker_count=$(get_env_key 'DELAYED_JOB_WORKERS')
-if [ -z "$worker_count" ]; then
-  echo $YELLOW"DELAYED_JOB_WORKERS is not set"$NOCOLOR
-  echo "Will use 2 workers by default."
-  echo "Configure this as an integer in your .env file"
-  worker_count=2
-else
-  echo $GREEN"DELAYED_JOB_WORKERS is set to \"$worker_count\""$NOCOLOR
-  echo "If this is not correct please update the .env file"
-fi
-
-echo "Starting $worker_count Delayed Job Workers"
-# Start the Delayed Job Workers
-# $PATH_TO_BUNDLE exec rake jobs:work & disown
-$REPO_ROOT/bin/delayed_job -n $worker_count start & disown
 
 
 if [ "$ssh_host" == "false" ]; then

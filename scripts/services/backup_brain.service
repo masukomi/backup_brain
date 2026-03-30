@@ -4,10 +4,15 @@ Requires=mongod.service
 Requires=meilisearch.service
 After=mongod.service
 After=meilisearch.service
+# Start delayed_job workers alongside this service; stopping this also stops them (via PartOf).
+# Add or remove instances here to change the worker count.
+Wants=delayed_job@1.service delayed_job@2.service
+After=delayed_job@1.service delayed_job@2.service
 
 [Service]
 User=YOUR_USERNAME
 Group=USER_GROUP
+Environment=RAILS_ENV=development
 ExecStart=/bin/bash -lc /path/to/backup_brain/serve
 ExecReload=/bin/bash -lc /path/to/backup_brain/serve
 Restart=on-failure

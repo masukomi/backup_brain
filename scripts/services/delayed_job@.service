@@ -1,0 +1,14 @@
+[Unit]
+Description=Backup Brain Delayed Job Worker %i
+Requires=mongod.service
+After=mongod.service
+# Stopping backup_brain also stops this unit; starting backup_brain starts this unit
+PartOf=backup_brain.service
+
+[Service]
+User=YOUR_USERNAME
+Group=USER_GROUP
+Environment=RAILS_ENV=development
+WorkingDirectory=/path/to/backup_brain
+ExecStart=/bin/bash -lc "bundle exec rake jobs:work"
+Restart=on-failure
