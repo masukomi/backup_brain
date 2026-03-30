@@ -1,7 +1,6 @@
 require "rack/mime"
 module BackupBrain
   module ArchiveTools
-    USER_AGENT_STRING = ENV.fetch("USER_AGENT_STRING", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.79 Safari/537.36")
     ARCHIVES_FOLDER = File.join("archives")
     MISSING_IMAGE_IMAGE_URL = ENV.fetch("MISSING_IMAGE_IMAGE_URL", "/images/icons/missing_image_image.svg")
     ARCHIVE_TIMEOUT = ENV.fetch("ARCHIVE_TIMEOUT", "10").to_i
@@ -27,8 +26,7 @@ module BackupBrain
         code = HTTParty.head(url_string,
           verify: false,
           timeout: ARCHIVE_TIMEOUT,
-          # tell it we're chrome. Yes, this is a real chrome user agent string.
-          headers: {"User-Agent" => USER_AGENT_STRING}).response.code.to_i
+          headers: BackupBrain::RequestHeaders.instance.headers_for(url_string)).response.code.to_i
       rescue Socket::ResolutionError
         code = 666 # devilish url
       end
@@ -41,8 +39,7 @@ module BackupBrain
       code = HTTParty.head(url_string,
         verify: false,
         timeout: ARCHIVE_TIMEOUT,
-        # tell it we're chrome. Yes, this is a real chrome user agent string.
-        headers: {"User-Agent" => USER_AGENT_STRING}).response.code.to_i
+        headers: BackupBrain::RequestHeaders.instance.headers_for(url_string)).response.code.to_i
       return false if code == 0 # theoretically can't happen
       return true if code < 400
       return true if code == 599 # network connect timeout error

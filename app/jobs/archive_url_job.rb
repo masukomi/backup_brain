@@ -62,7 +62,7 @@ class ArchiveUrlJob < ApplicationJob
       response = HTTParty.get(bookmark.url,
         verify: false,
         timeout: BackupBrain::ArchiveTools::ARCHIVE_TIMEOUT,
-        headers: {"User-Agent" => BackupBrain::ArchiveTools::USER_AGENT_STRING})
+        headers: BackupBrain::RequestHeaders.instance.headers_for(bookmark.url))
       if response.code < 400
         file = Tempfile.new(bookmark._id.to_s)
         file.write(response

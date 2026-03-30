@@ -5,7 +5,6 @@ module BackupBrain
   # Shared archiving logic used by jobs that need to create Archive documents
   # from markdown or HTML content, qualify URLs, and locally cache images.
   module Archiver
-    USER_AGENT_STRING     = ENV.fetch("USER_AGENT_STRING", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.79 Safari/537.36")
     ARCHIVE_TIMEOUT       = ENV.fetch("ARCHIVE_TIMEOUT", "10").to_i
     MISSING_IMAGE_IMAGE_URL = ENV.fetch("MISSING_IMAGE_IMAGE_URL", "/images/icons/missing_image_image.svg")
     MISSING_AUDIO_AUDIO_URL = ENV.fetch("MISSING_AUDIO_AUDIO_URL", "/audio/missing_audio_audio.mp3")
@@ -129,7 +128,7 @@ module BackupBrain
             verify: false,
             follow_redirects: true,
             timeout: ARCHIVE_TIMEOUT,
-            headers: {"User-Agent" => USER_AGENT_STRING}) do |fragment|
+            headers: BackupBrain::RequestHeaders.instance.headers_for(url)) do |fragment|
             file.write(fragment)
           end
         end
