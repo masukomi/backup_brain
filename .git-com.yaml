@@ -4,6 +4,7 @@ change-type:
     destination: title
     instructions: What kind of change?
     modifiable: true
+    format: "%-12s"
     options:
         - fix
         - add
