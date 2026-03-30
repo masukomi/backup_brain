@@ -71,6 +71,7 @@ class ArchiveUrlJob < ApplicationJob
                       invalid: :replace,
                       undef: :replace,
                       replace: ""))
+        file.flush
         file
       else
         record_failed_attempt(bookmark, response.code)
@@ -79,5 +80,4 @@ class ArchiveUrlJob < ApplicationJob
       record_failed_attempt(bookmark, 599)
     end
   end
-
 end
