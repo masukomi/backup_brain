@@ -10,15 +10,24 @@ class ArchiveUrlJob < ApplicationJob
 
   # @return [Bookmark, nil] the bookmark if it was archived, nil if it wasn't
   def perform(bookmark_id:)
+    Rails.logger.info("ArchiveUrlJob starting for bookmark #{bookmark_id}")
+
     bookmark = begin
       Bookmark.find(bookmark_id)
     rescue
       nil
     end
-    return false unless bookmark
+    unless bookmark
+      Rails.logger.warn("ArchiveUrlJob: bookmark #{bookmark_id} not found")
+      return false
+    end
 
-    unless ENV["I_INSTALLED_READER"] == "true" && BackupBrain::ToolDispatcher.instance.viable_install?
-      Rails.logger.warn("ArchiveUrlJob can't run without reader installed")
+    unless ENV["I_INSTALLED_READER"] == "true"
+      Rails.logger.warn("ArchiveUrlJob: I_INSTALLED_READER is not set to 'true'")
+      return false
+    end
+    unless BackupBrain::ToolDispatcher.instance.viable_install?
+      Rails.logger.warn("ArchiveUrlJob: reader binary not found or not executable")
       return false
     end
 
@@ -38,7 +47,11 @@ class ArchiveUrlJob < ApplicationJob
       bookmark
     rescue BackupBrain::Errors::UnarchivableUrl => e
       Rails.logger.error(e.message)
-      tempfile&.close rescue nil
+      begin
+        tempfile&.close
+      rescue
+        nil
+      end
       nil
     end
   rescue Net::ReadTimeout, Net::OpenTimeout, Errno::ETIMEDOUT
