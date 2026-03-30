@@ -3,7 +3,7 @@ Description=Tailscale Funnel for Backup Brain
 After=tailscaled.service
 
 [Service]
-ExecStart=/path/to/scripts/daemon/tailscale_funnel
+ExecStart=/path/to/backup_brain/scripts/services/systemd/tailscale_funnel
 Restart=on-failure
 
 [Install]
