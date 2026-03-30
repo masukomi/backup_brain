@@ -24,13 +24,11 @@ commit-title:
     placeholder: Commit Title
     type: text
 commit-description:
-    after-string: ""
     allow-empty: true
     destination: body
     instructions: Please describe your changes.
     type: multiline-text
 code-sections:
-    after-string: ""
     allow-empty: true
     before-string: "\nCode Sections: "
     destination: body
@@ -48,6 +46,7 @@ code-sections:
         - oauth
         - migrations
         - archives
+        - infrastructure
     record-as: joined-string
     type: multi-select
 ticket-number:
