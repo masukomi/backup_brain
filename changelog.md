@@ -1,3 +1,6 @@
+## v3.0.0
+⚠️ ffmpeg is now a dependency and must be installed in order to successfully archive streaming audio files.
+
 ## v2.1.0 
 
 
