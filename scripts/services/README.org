@@ -51,8 +51,8 @@ you need Meilisearch to listen on a different address or port.
 
 ** =tailscale_funnel.service=
 
-| Placeholder                      | Replace with                                  |
-|----------------------------------+-----------------------------------------------|
+| Placeholder                                | Replace with                                                     |
+|--------------------------------------------+------------------------------------------------------------------|
 | =/path/to/scripts/daemon/tailscale_funnel= | Absolute path to the =tailscale_funnel= script in this directory |
 
 The =tailscale_funnel= script exposes port 3334. If your app runs on a
@@ -94,6 +94,44 @@ sudo cp tailscale_funnel.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable --now tailscale_funnel
 #+end_src
+
+* Troubleshooting
+
+** =delayed_job@N.service= fails with =status=127=
+
+The shell cannot find =bundle=. The login shell loaded by =-lc= may not have
+the right =PATH= for the user the service runs as.
+
+Find the full path to =bundle=:
+
+#+begin_src sh
+which bundle
+# or, if using rbenv:
+ls ~/.rbenv/shims/bundle
+#+end_src
+
+Then update =ExecStart= in =delayed_job@.service= to use the full path:
+
+#+begin_src ini
+# rbenv:
+ExecStart=/bin/bash -lc "/home/YOUR_USERNAME/.rbenv/shims/bundle exec rake jobs:work"
+
+# system bundle (adjust path to match `which bundle`):
+ExecStart=/bin/bash -lc "/usr/local/bin/bundle exec rake jobs:work"
+#+end_src
+
+After editing, reload and restart:
+
+#+begin_src sh
+sudo systemctl daemon-reload
+sudo systemctl restart "delayed_job@*"
+#+end_src
+
+** =delayed_job@N.service= fails with =status=200/CHDIR=
+
+=WorkingDirectory= in =delayed_job@.service= still contains the
+=/path/to/backup_brain= placeholder. Update it to the absolute path of the
+repo on this machine.
 
 * Managing the Services
 
