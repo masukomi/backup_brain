@@ -32,10 +32,13 @@ class ArchiveUrlJob < ApplicationJob
     end
 
     begin
-      dispatcher      = BackupBrain::ToolDispatcher.instance
-      tempfile        = dispatcher.handles_download?(bookmark.url) ? nil : download(bookmark)
-      markdown_string = dispatcher.run(bookmark.url, tempfile) # potentially raises
+      dispatcher               = BackupBrain::ToolDispatcher.instance
+      tempfile, hero_image_url = dispatcher.handles_download?(bookmark.url) ? [nil, nil] : download(bookmark)
+      markdown_string          = dispatcher.run(bookmark.url, tempfile) # potentially raises
       record_failed_attempt(bookmark, 600) if markdown_string.blank?
+      if hero_image_url.present?
+        markdown_string = "![Hero Image](#{hero_image_url})\n\n#{markdown_string}"
+      end
       markdown_string = fully_qualify_urls(markdown_string, bookmark)
       tempfile&.close
 
@@ -74,15 +77,15 @@ class ArchiveUrlJob < ApplicationJob
         timeout: BackupBrain::ArchiveTools::ARCHIVE_TIMEOUT,
         headers: BackupBrain::RequestHeaders.instance.headers_for(bookmark.url))
       if response.code < 400
+        body = response.body.encode!("UTF-8", "binary",
+          invalid: :replace,
+          undef: :replace,
+          replace: "")
+        hero_image_url = BackupBrain::HeroImageFinder.find(body)
         file = Tempfile.new(bookmark._id.to_s)
-        file.write(response
-                    .body
-                    .encode!("UTF-8", "binary",
-                      invalid: :replace,
-                      undef: :replace,
-                      replace: ""))
+        file.write(body)
         file.flush
-        file
+        [file, hero_image_url]
       else
         record_failed_attempt(bookmark, response.code)
       end
