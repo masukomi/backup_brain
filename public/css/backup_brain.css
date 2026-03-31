@@ -429,3 +429,9 @@ debugging::before{
 	border-radius: 0.375rem;
 	padding: 1em;
 }
+.youtube-timestamp {
+	display: inline-block;
+	min-width: 5em;
+	cursor: pointer;
+	color: lightblue;
+}

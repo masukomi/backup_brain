@@ -4,6 +4,20 @@
   <% if @archive&.hero_image_path.present? %>
     <meta property="og:image" content="<%= @archive.hero_image_path %>">
   <% end %>
+  <% if (yt_embed_url = youtube_embed_url(@bookmark.url)) %>
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script>
+      var ytPlayer;
+      function onYouTubeIframeAPIReady() {
+        ytPlayer = new YT.Player('youtube-player', {});
+      }
+      function ytSeekTo(seconds) {
+        if (ytPlayer && ytPlayer.seekTo) {
+          ytPlayer.seekTo(seconds, true);
+        }
+      }
+    </script>
+  <% end %>
 <% end %>
 
 <div class="container">
@@ -26,8 +40,9 @@
 
         <% if (yt_embed_url = youtube_embed_url(@bookmark.url)) %>
           <div class="youtube-embed">
-            <iframe width="560" height="315"
-                    src="<%= yt_embed_url %>"
+            <iframe id="youtube-player"
+                    width="560" height="315"
+                    src="<%= yt_embed_url %><%= yt_embed_url.include?('?') ? '&' : '?' %>enablejsapi=1"
                     frameborder="0"
                     allowfullscreen></iframe>
           </div>

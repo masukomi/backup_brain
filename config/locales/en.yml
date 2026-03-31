@@ -116,6 +116,9 @@ en:
   transcriptions:
     headings:
       inline: "Transcription %{name}"
+    source:
+      youtube: "YouTube"
+      whisper: "Whisper"
   bookmarks:
     headings:
       simple: "Bookmarks"

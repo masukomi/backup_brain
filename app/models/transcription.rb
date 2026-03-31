@@ -16,7 +16,8 @@ class Transcription
   field :status,        type: String, default: "pending"  # pending / processing / completed / failed
   field :error,         type: String
   field :whisper_model, type: String
+  field :source,        type: String  # "youtube" or "whisper"
 
-  index({ source_hash: 1, bookmark_id: 1 }, { unique: true })
-  index({ bookmark_id: 1 })
+  index({source_hash: 1, bookmark_id: 1}, {unique: true})
+  index({bookmark_id: 1})
 end

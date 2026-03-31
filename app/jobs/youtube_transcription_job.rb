@@ -27,7 +27,8 @@ class YouTubeTranscriptionJob < ApplicationJob
     transcription = existing || Transcription.new(
       source_hash: video_id,
       source_path: "https://www.youtube.com/watch?v=#{video_id}",
-      bookmark_id: bookmark_bson
+      bookmark_id: bookmark_bson,
+      source: "youtube"
     )
     transcription.status = "processing"
     transcription.save!

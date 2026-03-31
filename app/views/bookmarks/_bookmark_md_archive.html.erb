@@ -4,9 +4,22 @@
 </archive>
 <% if archive.transcription_ids.present? %>
   <% Transcription.where(:_id.in => archive.transcription_ids, status: "completed").each_with_index do |transcription, idx| %>
-    <div class="transcription-inline-header"><h3><%= t('transcriptions.headings.inline', name: idx + 1) %></h3></div>
+    <div class="transcription-inline-header">
+      <h3><%= t('transcriptions.headings.inline', name: idx + 1) %></h3>
+      <span class="transcription-source-subheading"><%= t("transcriptions.source.#{transcription.source}") %></span>
+    </div>
     <div class="transcription-div">
-      <%= transcription.text.split(/\r?\n/).map { |line| h(line) }.join("<br />\n").html_safe %>
+      <% if transcription.source == "youtube" %>
+        <%= transcription.text.split(/\r?\n/).map do |line|
+          if (m = line.match(/\A(\d+\.?\d*)\s+(.*)\z/m))
+            %(<span class="youtube-timestamp" onclick="ytSeekTo(#{m[1]})">#{h(m[1])}</span>#{h(m[2])})
+          else
+            h(line)
+          end
+        end.join("<br />\n").html_safe %>
+      <% else %>
+        <%= transcription.text.split(/\r?\n/).map { |line| h(line) }.join("<br />\n").html_safe %>
+      <% end %>
     </div>
   <% end %>
 <% end %>

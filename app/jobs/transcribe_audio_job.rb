@@ -59,6 +59,7 @@ class TranscribeAudioJob < ApplicationJob
       source_hash: source_hash,
       source_path: audio_local_path,
       bookmark_id: bookmark_bson,
+      source: "whisper",
       whisper_model: File.basename(model_path)
     )
     transcription.status = "processing"
