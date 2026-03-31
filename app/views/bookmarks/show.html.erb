@@ -24,6 +24,15 @@
         </div>
 
 
+        <% if (yt_id = youtube_video_id(@bookmark.url)) %>
+          <div class="youtube-embed">
+            <iframe width="560" height="315"
+                    src="https://www.youtube.com/embed/<%= yt_id %>"
+                    frameborder="0"
+                    allowfullscreen></iframe>
+          </div>
+        <% end %>
+
         <%#TODO deal with rendering archives that might not be markdown %>
         <%= render partial: 'bookmark_md_archive',
             locals: {archive: @archive} %>

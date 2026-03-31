@@ -1,4 +1,10 @@
 module BookmarksHelper
+  YOUTUBE_URL_REGEXP = /https?:\/\/(?:www\.|m\.)?(?:youtube\.com\/watch\?(?:[^\s)#]*&)*v=|youtu\.be\/)([\w-]+)/
+
+  def youtube_video_id(url)
+    url.to_s.match(YOUTUBE_URL_REGEXP)&.captures&.first
+  end
+
   def show_archive_link(archive, options)
     link_to(
       archive_date_string(archive),
