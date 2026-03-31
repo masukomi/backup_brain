@@ -21,11 +21,13 @@ module BackupBrain
       return nil if html_string.blank?
       markdown = ReverseMarkdown.convert(html_string, unknown_tags: :bypass).strip
       return nil if markdown.blank?
-      markdown = fully_qualify_urls(markdown, bookmark)
-      Archive.new(mime_type: "text/markdown", string_data: markdown)
+      archive = Archive.new(mime_type: "text/markdown")
+      markdown = fully_qualify_urls(markdown, bookmark, archive_id: archive._id.to_s)
+      archive.string_data = markdown
+      archive
     end
 
-    def fully_qualify_urls(markdown, bookmark)
+    def fully_qualify_urls(markdown, bookmark, archive_id: nil)
       return if markdown.nil? || markdown.size == 0
       uri       = URI.parse(bookmark.url)
       domain    = uri.origin
@@ -33,13 +35,13 @@ module BackupBrain
 
       buffer = StringIO.new
       markdown.split(/\r\n|\n/).each do |line|
-        buffer.write(process_media_links(bookmark, line, domain, directory))
+        buffer.write(process_media_links(bookmark, line, domain, directory, archive_id: archive_id))
         buffer.write("\n")
       end
       buffer.string
     end
 
-    def process_media_links(bookmark, line, domain, directory)
+    def process_media_links(bookmark, line, domain, directory, archive_id: nil)
       line, image_url_hashes = Archive.extract_image_links_from_line(line)
       line, audio_url_hashes = Archive.extract_audio_urls_from_line(line)
       match_datas = line.to_enum(:scan, Archive::SIMPLE_MD_LINK_REGEXP).map { Regexp.last_match }
@@ -51,7 +53,7 @@ module BackupBrain
         new_line.sub!(md[1], "[#{md[2]}](#{url})")
       end
       new_line = qualify_and_apply_image_url_hashes(bookmark, image_url_hashes, new_line, domain, directory)
-      qualify_and_apply_audio_url_hashes(bookmark, audio_url_hashes, new_line, domain, directory)
+      qualify_and_apply_audio_url_hashes(bookmark, audio_url_hashes, new_line, domain, directory, archive_id: archive_id)
     end
 
     def qualify_and_apply_image_url_hashes(bookmark, hashes, line, domain, directory)
@@ -67,7 +69,7 @@ module BackupBrain
       line
     end
 
-    def qualify_and_apply_audio_url_hashes(bookmark, hashes, line, domain, directory)
+    def qualify_and_apply_audio_url_hashes(bookmark, hashes, line, domain, directory, archive_id: nil)
       hashes.each do |sha, url_data|
         url       = url_data[:url]
         extension = url_data[:extension]
@@ -80,18 +82,19 @@ module BackupBrain
           missing_mime = Rack::Mime.mime_type(File.extname(MISSING_AUDIO_AUDIO_URL))
           line.sub!(/\btype=(["'])audio\/[^"']+\1/, "type=\\1#{missing_mime}\\1")
         end
-        maybe_enqueue_transcription(bookmark, url)
+        maybe_enqueue_transcription(bookmark, url, archive_id: archive_id)
       end
       line
     end
 
-    def maybe_enqueue_transcription(bookmark, audio_url)
+    def maybe_enqueue_transcription(bookmark, audio_url, archive_id: nil)
       return unless BackupBrain::WhisperClient.enabled?
       return if audio_url == MISSING_AUDIO_AUDIO_URL
       return unless audio_url.start_with?(archive_web_path_for_doc(bookmark))
       TranscribeAudioJob.perform_later(
         bookmark_id: bookmark._id.to_s,
-        audio_local_path: audio_url
+        audio_local_path: audio_url,
+        archive_id: archive_id
       )
     end
 

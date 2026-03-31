@@ -33,7 +33,8 @@ class Archive
   include Mongoid::Timestamps
   field :mime_type,   type: String, default: "text/markdown"
   field :string_data, type: String
-  field :manually_edited, type: Boolean, default: false
+  field :manually_edited,  type: Boolean, default: false
+  field :transcription_ids, type: Array,   default: []
 
   embedded_in :bookmark
 
