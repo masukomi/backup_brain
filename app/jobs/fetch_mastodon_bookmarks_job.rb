@@ -9,7 +9,7 @@ class FetchMastodonBookmarksJob < ApplicationJob
   DESCRIPTION_CHAR_LIMIT = 500
   TITLE_CHAR_LIMIT = 80
   REQUEST_TIMEOUT = 30
-  YOUTUBE_URL_REGEXP = /https?:\/\/(?:www\.|m\.)?(?:youtube\.com\/watch\?(?:[^\s)#]*&)*v=|youtu\.be\/)([\w-]+)/
+  YOUTUBE_URL_REGEXP = /https?:\/\/(?:www\.|m\.)?(?:youtube\.com\/watch\?(?:[^\s)#]*&)*v=|youtu\.be\/)([\w-]+)[^\s)#]*/
 
   def perform(reschedulable: true)
     manual_perform(reschedulable)
@@ -309,12 +309,20 @@ class FetchMastodonBookmarksJob < ApplicationJob
   end
 
   def embed_youtube_videos(archive)
-    video_ids = archive.string_data.scan(YOUTUBE_URL_REGEXP).flatten.uniq
-    return if video_ids.empty?
+    seen_ids = []
+    embeds = []
 
-    embeds = video_ids.map do |id|
-      %(<iframe width="560" height="315" src="https://www.youtube.com/embed/#{id}" frameborder="0" allowfullscreen></iframe>)
+    archive.string_data.scan(YOUTUBE_URL_REGEXP) do
+      id = $~[1]
+      next if seen_ids.include?(id)
+      seen_ids << id
+      timestamp = $~[0].match(/[?&]t=(\d+)s?/)&.captures&.first
+      src = "https://www.youtube.com/embed/#{id}"
+      src += "?start=#{timestamp}" if timestamp
+      embeds << %(<iframe width="560" height="315" src="#{src}" frameborder="0" allowfullscreen></iframe>)
     end
+
+    return if embeds.empty?
     archive.string_data = archive.string_data.rstrip + "\n\n" + embeds.join("\n\n")
   end
 

@@ -24,10 +24,10 @@
         </div>
 
 
-        <% if (yt_id = youtube_video_id(@bookmark.url)) %>
+        <% if (yt_embed_url = youtube_embed_url(@bookmark.url)) %>
           <div class="youtube-embed">
             <iframe width="560" height="315"
-                    src="https://www.youtube.com/embed/<%= yt_id %>"
+                    src="<%= yt_embed_url %>"
                     frameborder="0"
                     allowfullscreen></iframe>
           </div>
