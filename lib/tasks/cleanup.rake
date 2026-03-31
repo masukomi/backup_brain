@@ -112,6 +112,7 @@ but it probably won't work."
 
       video_ids.each do |video_id|
         puts Paint["[#{i + 1}/#{all.size}] Fetching transcript: #{bookmark.url}", :green]
+        puts "\t⎣#{bookmark.title.nil ? "NO TITLE" : bookmark.title}"
         begin
           YouTubeTranscriptionJob.perform_now(
             bookmark_id: bookmark._id.to_s,
