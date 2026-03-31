@@ -74,6 +74,65 @@ but it probably won't work."
     cleanup_task_rearchive(Bookmark.all)
   end
 
+  desc "Fetch YouTube transcripts for bookmarks that don't have one yet"
+  task gather_yt_transcripts: [:environment] do
+    youtube_url_re = /https?:\/\/(?:www\.|m\.)?(?:youtube\.com\/watch\?|youtu\.be\/)/
+
+    direct = Bookmark.where(url: youtube_url_re).to_a
+    mastodon = Bookmark.where(tags: FetchMastodonBookmarksJob::MASTODON_TAG).select do |b|
+      b.latest_archive&.string_data&.match?(BackupBrain::YouTube::URL_REGEXP)
+    end
+
+    all = (direct + mastodon).uniq(&:id)
+    puts "Found #{all.size} bookmark(s) with YouTube content"
+
+    done_counter = 0
+    skip_counter = 0
+    fail_counter = 0
+
+    all.each_with_index do |bookmark, i|
+      archive = bookmark.latest_archive
+
+      unless archive
+        skip_counter += 1
+        next
+      end
+
+      if archive.transcription_ids.present?
+        puts Paint["[#{i + 1}/#{all.size}] Skipping — already has transcript: #{bookmark.url}", :yellow]
+        skip_counter += 1
+        next
+      end
+
+      video_ids = if (vid = BackupBrain::YouTube.video_id(bookmark.url))
+        [vid]
+      else
+        archive.string_data.scan(BackupBrain::YouTube::URL_REGEXP).pluck(0).uniq
+      end
+
+      video_ids.each do |video_id|
+        puts Paint["[#{i + 1}/#{all.size}] Fetching transcript: #{bookmark.url}", :green]
+        begin
+          YouTubeTranscriptionJob.perform_now(
+            bookmark_id: bookmark._id.to_s,
+            video_id: video_id,
+            archive_id: archive._id.to_s
+          )
+          done_counter += 1
+        rescue => e
+          fail_counter += 1
+          puts Paint["[#{i + 1}/#{all.size}] Failed: #{e.message}", :red]
+        end
+      end
+
+      sleep 2
+    end
+
+    puts "Fetched #{done_counter} transcript(s)"
+    puts Paint["Skipped #{skip_counter} bookmark(s)", :yellow] if skip_counter > 0
+    puts Paint["Failed #{fail_counter} bookmark(s)", :red] if fail_counter > 0
+  end
+
   desc "Destroy useless bookmarks"
   task destroy_useless_bookmarks: [:environment] do
     unarchived = Bookmark
