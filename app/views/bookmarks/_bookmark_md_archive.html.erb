@@ -2,3 +2,11 @@
 <archive>
 <%= ::Rendering::Markdown.instance.render(archive.string_data).html_safe %>
 </archive>
+<% if archive.transcription_ids.present? %>
+  <% Transcription.where(:_id.in => archive.transcription_ids, status: "completed").each_with_index do |transcription, idx| %>
+    <div class="transcription-inline-header"><h3><%= t('transcriptions.headings.inline', name: idx + 1) %></h3></div>
+    <div class="transcription-div">
+      <%= transcription.text.split(/\r?\n/).map { |line| h(line) }.join("<br />\n").html_safe %>
+    </div>
+  <% end %>
+<% end %>

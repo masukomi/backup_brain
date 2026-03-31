@@ -421,3 +421,11 @@ debugging::before{
 	top: -0.05rem;
 	filter: invert(76%) sepia(7%) saturate(8%) hue-rotate(346deg) brightness(91%) contrast(83%);
 }
+
+.transcription-div {
+	max-height: 40em;
+	overflow-y: auto;
+	border: 1px solid #ccc;
+	border-radius: 0.375rem;
+	padding: 1em;
+}
