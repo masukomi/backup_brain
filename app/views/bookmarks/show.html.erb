@@ -18,6 +18,24 @@
       }
     </script>
   <% end %>
+  <script>
+   document.addEventListener('DOMContentLoaded', function() {
+     let audioPlayer;
+     document.querySelectorAll("archive audio, archive video").forEach(function(el) {
+       const p = new Plyr(el, { iconUrl: "/js/plyr/plyr.svg" });
+       if (el.tagName === 'AUDIO' && !audioPlayer) audioPlayer = p;
+     });
+
+     <% if @archive.present? && @archive.transcription_ids.any? &&
+       Transcription.where(:_id.in => @archive.transcription_ids, source: "whisper").exists? %>
+       document.querySelectorAll('.plyr-timestamp').forEach(function(el) {
+         el.addEventListener('click', function() {
+           if (audioPlayer) audioPlayer.currentTime = parseFloat(el.dataset.seconds);
+         });
+       });
+     <% end %>
+   });
+  </script>
 <% end %>
 
 <div class="container">
@@ -133,8 +151,3 @@
 <div class="container">
 </div>
 
-<script>
-  document.querySelectorAll("archive audio, archive video").forEach(function(el) {
-    new Plyr(el, { iconUrl: "/js/plyr/plyr.svg" });
-  });
-</script>

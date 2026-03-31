@@ -1,6 +1,7 @@
 require "open3"
 require "tempfile"
 require "pathname"
+require "json"
 
 module BackupBrain
   class WhisperClient
@@ -74,8 +75,8 @@ module BackupBrain
     end
 
     # Runs whisper-cli on +input_path+ (must be a natively supported format).
-    # Uses --output-txt so the result is plain text with no timestamp formatting.
-    # Returns the transcript string.
+    # Uses --output-json to get per-segment timestamps. Returns the transcript
+    # as newline-separated lines of the form "seconds text", e.g. "42.0 Hello world."
     def run_whisper(input_path)
       output_tmp = Tempfile.new("bb_whisper_out")
       output_stem = output_tmp.path
@@ -83,17 +84,22 @@ module BackupBrain
       File.unlink(output_stem) if File.exist?(output_stem)
 
       _stdout, stderr, status = Open3.capture3(
-        binary, "-m", model_path, "-np", "--output-txt", "-of", output_stem, input_path
+        binary, "-m", model_path, "-np", "--output-json", "-of", output_stem, input_path
       )
 
-      txt_path = "#{output_stem}.txt"
-      unless status.success? && File.exist?(txt_path)
+      json_path = "#{output_stem}.json"
+      unless status.success? && File.exist?(json_path)
         raise "whisper-cli failed (exit #{status.exitstatus}): #{stderr.strip}"
       end
 
-      text = File.read(txt_path).strip
-      File.unlink(txt_path)
-      text
+      data = JSON.parse(File.read(json_path))
+      File.unlink(json_path)
+
+      (data["transcription"] || []).map do |seg|
+        seconds = (seg.dig("offsets", "from") || 0) / 1000.0
+        text = seg["text"].to_s.strip
+        "#{sprintf "%-12s", seconds.to_s} #{text}"
+      end.join("\n")
     end
 
     # Converts +file_path+ to a 16 kHz mono WAV tempfile via ffmpeg, transcribes
