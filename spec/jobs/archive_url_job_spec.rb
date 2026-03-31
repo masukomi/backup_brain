@@ -89,10 +89,10 @@ RSpec.describe ArchiveUrlJob do
       line = "a [![button](/button.jpg)](/goes/here) so does [a link](/goes/here) and ![](not/button.jpg)"
       _, image_url_hashes = Archive.extract_image_links_from_line(line)
       expect(image_url_hashes["84587aeb699485657198f7a78ad7b356341a90cb3a3dcb275ab19f3ef631f3e0"]).to(
-        eq("/button.jpg")
+        eq({url: "/button.jpg", extension: ".jpg"})
       )
       expect(image_url_hashes["f93298ab159e9e646b6b794806065b68a588343507367003cb4621dbc2c16614"]).to(
-        eq("not/button.jpg")
+        eq({url: "not/button.jpg", extension: ".jpg"})
       )
       expect(image_url_hashes.size).to(eq(2))
     end
