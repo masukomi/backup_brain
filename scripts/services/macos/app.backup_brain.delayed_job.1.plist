@@ -9,7 +9,7 @@
   <array>
     <string>/bin/bash</string>
     <string>-lc</string>
-    <string>bundle exec rake jobs:work</string>
+    <string>if [ -e "$HOME/.rbenv/shims/bundle" ]; then BUNDLE="$HOME/.rbenv/shims/bundle"; else BUNDLE=bundle; fi; exec $BUNDLE exec rake jobs:work</string>
   </array>
 
   <key>WorkingDirectory</key>
