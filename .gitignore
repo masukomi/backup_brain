@@ -9,6 +9,7 @@
 scripts/mongo_exports/*
 .env
 bin/reader
+whisper-models/*
 *.bak
 .idea/*
 data.ms/*

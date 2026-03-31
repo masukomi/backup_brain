@@ -75,8 +75,19 @@ module BackupBrain
           url      = download_audio(bookmark, full_url, extension: extension)
         end
         line.sub!(sha, url)
+        maybe_enqueue_transcription(bookmark, url)
       end
       line
+    end
+
+    def maybe_enqueue_transcription(bookmark, audio_url)
+      return unless BackupBrain::WhisperClient.enabled?
+      return if audio_url == MISSING_AUDIO_AUDIO_URL
+      return unless audio_url.start_with?(archive_web_path_for_doc(bookmark))
+      TranscribeAudioJob.perform_later(
+        bookmark_id: bookmark._id.to_s,
+        audio_local_path: audio_url
+      )
     end
 
     def download_audio(bookmark, url, extension: nil)
