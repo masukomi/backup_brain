@@ -53,6 +53,13 @@ class ArchiveUrlJob < ApplicationJob
       end
       bookmark.archives << archive
       bookmark.save!
+      if (video_id = BackupBrain::YouTube.video_id(bookmark.url))
+        YouTubeTranscriptionJob.perform_later(
+          bookmark_id: bookmark._id.to_s,
+          video_id: video_id,
+          archive_id: archive._id.to_s
+        )
+      end
       bookmark
     rescue BackupBrain::Errors::UnarchivableUrl => e
       Rails.logger.error(e.message)

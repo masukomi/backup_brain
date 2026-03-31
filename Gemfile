@@ -71,6 +71,7 @@ gem "paint"  # colorize terminal output (mostly for whirly)
 gem "htmlentities" # escape html entities https://github.com/threedaymonk/htmlentities
 
 gem "httparty" # for importer to check if urls are serving.
+gem "youtube-transcript-rb" # fetch transcripts from YouTube videos
 # gem "carrierwave-mongoid" # for file uploads
 
 group :development do

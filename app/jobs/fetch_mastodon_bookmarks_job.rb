@@ -128,14 +128,25 @@ class FetchMastodonBookmarksJob < ApplicationJob
 
     append_media_attachments(status["media_attachments"], archive, bookmark, oauth_site.access_token)
     embed_youtube_videos(archive)
+    youtube_video_ids = archive.string_data.scan(BackupBrain::YouTube::URL_REGEXP).pluck(0).uniq
 
-    if archive.string_data.present?
+    archive_saved = archive.string_data.present?
+    if archive_saved
       # dunno why I have to do this created_at & updated_at manually
       archive.created_at = DateTime.now
       archive.updated_at = archive.created_at
       bookmark.archives << archive
     end
     bookmark.save!
+    if archive_saved
+      youtube_video_ids.each do |video_id|
+        YouTubeTranscriptionJob.perform_later(
+          bookmark_id: bookmark._id.to_s,
+          video_id: video_id,
+          archive_id: archive._id.to_s
+        )
+      end
+    end
   rescue => e
     Rails.logger.error("FetchMastodonBookmarksJob: failed to save bookmark for #{url}: #{e.message}\n#{e.backtrace.first(15).join("\n")}")
   end
