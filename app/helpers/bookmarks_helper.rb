@@ -1,17 +1,10 @@
 module BookmarksHelper
-  YOUTUBE_URL_REGEXP = /https?:\/\/(?:www\.|m\.)?(?:youtube\.com\/watch\?(?:[^\s)#]*&)*v=|youtu\.be\/)([\w-]+)[^\s)#]*/
-
   def youtube_video_id(url)
-    url.to_s.match(YOUTUBE_URL_REGEXP)&.captures&.first
+    BackupBrain::YouTube.video_id(url)
   end
 
   def youtube_embed_url(url)
-    id = youtube_video_id(url)
-    return nil unless id
-    timestamp = url.to_s.match(/[?&]t=(\d+)s?/)&.captures&.first
-    src = "https://www.youtube.com/embed/#{id}"
-    src += "?start=#{timestamp}" if timestamp
-    src
+    BackupBrain::YouTube.embed_url(url)
   end
 
   def show_archive_link(archive, options)
