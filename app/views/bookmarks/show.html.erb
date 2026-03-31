@@ -1,6 +1,9 @@
 <% content_for :head do %>
   <%= stylesheet_link_tag "/css/plyr/plyr.css" %>
   <%= javascript_include_tag "/js/plyr/plyr.min.js" %>
+  <% if @archive&.hero_image_path.present? %>
+    <meta property="og:image" content="<%= @archive.hero_image_path %>">
+  <% end %>
 <% end %>
 
 <div class="container">

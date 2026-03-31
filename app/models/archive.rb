@@ -35,6 +35,7 @@ class Archive
   field :string_data, type: String
   field :manually_edited,  type: Boolean, default: false
   field :transcription_ids, type: Array,   default: []
+  field :hero_image_path,  type: String
 
   embedded_in :bookmark
 

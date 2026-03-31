@@ -42,10 +42,16 @@ class ArchiveUrlJob < ApplicationJob
       markdown_string = fully_qualify_urls(markdown_string, bookmark)
       tempfile&.close
 
-      bookmark.archives << Archive.new(
-        mime_type: "text/markdown",
-        string_data: markdown_string
-      )
+      archive = Archive.new(mime_type: "text/markdown", string_data: markdown_string)
+      if hero_image_url.present?
+        first_line = markdown_string.split(/\r\n|\n/).first.to_s
+        _line, image_url_hashes = Archive.extract_image_links_from_line(first_line, false)
+        if image_url_hashes.any?
+          candidate = image_url_hashes.values.first[:url]
+          archive.hero_image_path = candidate if candidate.start_with?(archive_web_path_for_doc(bookmark))
+        end
+      end
+      bookmark.archives << archive
       bookmark.save!
       bookmark
     rescue BackupBrain::Errors::UnarchivableUrl => e
