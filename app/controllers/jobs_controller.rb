@@ -10,7 +10,7 @@ class JobsController < ApplicationController
   }.freeze
 
   # Jobs visible on the page but not triggerable from the UI (require per-record parameters).
-  UNMANAGEABLE_JOBS = %w[ArchiveUrlJob ArchiveUrlWithoutRetriesJob].freeze
+  UNMANAGEABLE_JOBS = %w[ArchiveUrlJob ArchiveUrlWithoutRetriesJob TranscribeAudioJob].freeze
 
   def index
     @jobs = MANAGEABLE_JOBS.keys.map do |class_name|
