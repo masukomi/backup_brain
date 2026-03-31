@@ -32,13 +32,13 @@ module BackupBrain
 
       buffer = StringIO.new
       markdown.split(/\r\n|\n/).each do |line|
-        buffer.write(process_md_links(bookmark, line, domain, directory))
+        buffer.write(process_media_links(bookmark, line, domain, directory))
         buffer.write("\n")
       end
       buffer.string
     end
 
-    def process_md_links(bookmark, line, domain, directory)
+    def process_media_links(bookmark, line, domain, directory)
       line, image_url_hashes = Archive.extract_image_links_from_line(line)
       line, audio_url_hashes = Archive.extract_audio_urls_from_line(line)
       match_datas = line.to_enum(:scan, Archive::SIMPLE_MD_LINK_REGEXP).map { Regexp.last_match }

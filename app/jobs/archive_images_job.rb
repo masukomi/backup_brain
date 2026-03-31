@@ -145,7 +145,7 @@ class ArchiveImagesJob < ArchiveUrlJob
   # all the text links have already been fully qualified.
   #
   # @return line with fully qualified image links
-  def process_md_links(bookmark, line, domain, directory)
+  def process_media_links(bookmark, line, domain, directory)
     line, image_url_hashes = Archive.extract_image_links_from_line(line)
     return line if image_url_hashes.empty?
 
