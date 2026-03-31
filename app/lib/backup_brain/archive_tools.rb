@@ -30,6 +30,20 @@ module BackupBrain
       rescue Socket::ResolutionError
         code = 666 # devilish url
       end
+
+      # Some servers (e.g. CDNs with signed URLs) reject HEAD but accept GET.
+      # Fall back to a GET probe when HEAD returns 403.
+      if code == 403
+        begin
+          code = HTTParty.get(url_string,
+            verify: false,
+            timeout: ARCHIVE_TIMEOUT,
+            headers: BackupBrain::RequestHeaders.instance.headers_for(url_string)).response.code.to_i
+        rescue
+          # keep code as 403
+        end
+      end
+
       return (include_code ? [false, 0] : false) if code == 0 # can't happen
       return (include_code ? [true, code] : true) if code < 400
       include_code ? [false, code] : false

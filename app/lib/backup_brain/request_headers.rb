@@ -17,7 +17,7 @@ module BackupBrain
     CONFIG_PATH = if defined?(Rails)
       Rails.root.join("config/archive_request_headers.yml")
     else
-      File.expand_path("../../../config/archive_request_headers.yml", __FILE__)
+      File.expand_path("../../../config/archive_request_headers.yml", __dir__)
     end
 
     FALLBACK_USER_AGENT = ENV.fetch(
@@ -57,7 +57,7 @@ module BackupBrain
       else
         warn("config/archive_request_headers.yml not found; using built-in default headers")
         sets = [HeaderSet.new("name" => "default", "default" => true,
-                              "headers" => {"User-Agent" => FALLBACK_USER_AGENT})]
+          "headers" => {"User-Agent" => FALLBACK_USER_AGENT})]
       end
 
       @default_set  = sets.find(&:default?) || sets.last

@@ -1,6 +1,7 @@
 require "uri"
 require "digest"
 require "open3"
+require "rack/mime"
 
 module BackupBrain
   # Shared archiving logic used by jobs that need to create Archive documents
@@ -75,6 +76,10 @@ module BackupBrain
           url      = download_audio(bookmark, full_url, extension: extension)
         end
         line.sub!(sha, url)
+        if url == MISSING_AUDIO_AUDIO_URL
+          missing_mime = Rack::Mime.mime_type(File.extname(MISSING_AUDIO_AUDIO_URL))
+          line.sub!(/\btype=(["'])audio\/[^"']+\1/, "type=\\1#{missing_mime}\\1")
+        end
         maybe_enqueue_transcription(bookmark, url)
       end
       line

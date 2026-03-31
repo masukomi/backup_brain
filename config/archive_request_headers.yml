@@ -15,6 +15,15 @@ headers:
       Sec-Fetch-User: "?1"
       Priority: "u=0, i"
 
+  - name: audiochan stream
+    domains:
+      - stream.audiochan.com
+    headers:
+      Referer: "https://audiochan.com/"
+      Sec-Fetch-Dest: "audio"
+      Sec-Fetch-Mode: "no-cors"
+      Sec-Fetch-Site: "cross-site"
+
   # Per-domain header overrides. These are merged on top of the default headers,
   # so you only need to specify what differs from the defaults.
   # Subdomain matching is automatic: "example.com" also matches "www.example.com".
