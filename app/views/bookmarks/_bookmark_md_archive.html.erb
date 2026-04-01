@@ -1,7 +1,15 @@
 <%# Note: this exists within a bootstrap 'col' %>
 <% archive.media_objects.select(&:is_youtube?).each do |mo| %>
-  <% embed = BackupBrain::YouTube.embed_html(mo.url) %>
-  <%= embed.html_safe if embed %>
+  <% embed_src = BackupBrain::YouTube.embed_url(mo.url) %>
+  <% if embed_src %>
+    <% embed_src += (embed_src.include?("?") ? "&" : "?") + "enablejsapi=1" %>
+    <iframe id="yt-player-<%= mo._id %>"
+            class="youtube-player-embed"
+            width="560" height="315"
+            src="<%= embed_src %>"
+            frameborder="0"
+            allowfullscreen></iframe>
+  <% end %>
 <% end %>
 <archive>
 <%= ::Rendering::Markdown.instance.render(archive.string_data).html_safe %>
@@ -18,7 +26,7 @@
       <% if transcription.source == "youtube" %>
         <%= transcription.text.split(/\r?\n/).map do |line|
           if (m = line.match(/\A(\d+\.?\d*)\s+(.*)\z/m))
-            %(<span class="youtube-timestamp" onclick="ytSeekTo(#{m[1]})">#{h(m[1])}</span>#{h(m[2])})
+            %(<span class="youtube-timestamp" data-seconds="#{m[1]}" data-player-id="yt-player-#{mo._id}">#{h(m[1])}</span>#{h(m[2])})
           else
             h(line)
           end

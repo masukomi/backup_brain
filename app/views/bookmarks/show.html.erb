@@ -7,14 +7,11 @@
   <% if @archive&.media_objects&.any? { |mo| mo.is_youtube? } %>
     <script src="https://www.youtube.com/iframe_api"></script>
     <script>
-      var ytPlayer;
+      var ytPlayers = {};
       function onYouTubeIframeAPIReady() {
-        ytPlayer = new YT.Player('youtube-player', {});
-      }
-      function ytSeekTo(seconds) {
-        if (ytPlayer && ytPlayer.seekTo) {
-          ytPlayer.seekTo(seconds, true);
-        }
+        document.querySelectorAll('.youtube-player-embed').forEach(function(el) {
+          ytPlayers[el.id] = new YT.Player(el.id, {});
+        });
       }
     </script>
   <% end %>
@@ -26,11 +23,20 @@
        if (el.tagName === 'AUDIO' && !audioPlayer) audioPlayer = p;
      });
 
-     <% if @archive.present? && @archive.transcription_ids.any? &&
-       Transcription.where(:_id.in => @archive.transcription_ids, source: "whisper").exists? %>
+     <% if @archive&.media_objects&.any? { |mo| mo.transcription&.source == "whisper" && mo.transcription&.status == "completed" } %>
        document.querySelectorAll('.plyr-timestamp').forEach(function(el) {
          el.addEventListener('click', function() {
            if (audioPlayer) audioPlayer.currentTime = parseFloat(el.dataset.seconds);
+         });
+       });
+     <% end %>
+     <% if @archive&.media_objects&.any? { |mo| mo.is_youtube? } %>
+       document.querySelectorAll('.youtube-timestamp').forEach(function(el) {
+         el.addEventListener('click', function() {
+           var player = ytPlayers[el.dataset.playerId];
+           if (player && player.seekTo) {
+             player.seekTo(parseFloat(el.dataset.seconds), true);
+           }
          });
        });
      <% end %>
