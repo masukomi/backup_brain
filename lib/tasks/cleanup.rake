@@ -1,5 +1,6 @@
 require "paint"
 require "whirly"
+require "ruby-progressbar"
 
 namespace :cleanup do
   # defaults to true if response code is ambiguous
@@ -72,6 +73,74 @@ but it probably won't work."
   desc "Rearchive all bookmarks"
   task rearchive_all: [:environment] do
     cleanup_task_rearchive(Bookmark.all)
+  end
+
+  desc "Regenerate Transcripts"
+  task regenerate_transcripts: [:environment] do
+    begin
+      Transcription.destroy_all
+    rescue
+      nil
+    end # for legacy data structure
+
+    bar = ProgressBar.create(
+      total: Bookmark.where(:archives.exists => true).count,
+      format: "%t |%B| %c/%C  %E  elapsed: %a",
+      title: "Skills",
+      output: $stdout,
+      projector: {type: "smoothing", strength: 0.5}
+    )
+
+    videos_queued = 0
+    audios_queued = 0
+    content_cleaned = 0
+    Bookmark.where(:archives.exists => true).each do |b|
+      my_archive = b.archives.last
+      next unless my_archive # can't happen
+      if my_archive.string_data.blank?
+        message = "Invalid archive: Bookmark id: '#{b.id}' Archive id: #{my_archive.id}"
+        bar.log Paint["  #{message}", :red]
+        Rails.logger.error(message)
+        next
+      end
+
+      my_archive.media_objects.destroy_all
+      modified = false
+      my_archive.audio_urls.each do |url|
+        bar.log Paint["  Queueing audio #{url}", :gray]
+        my_archive.add_media_object(url, simple_type: "audio")
+        audios_queued += 1
+        modified = true
+      end
+
+      my_archive.video_urls.each do |url|
+        bar.log Paint["  Queueing video #{url}", :gray]
+        my_archive.add_media_object(url, simple_type: "video")
+        videos_queued += 1
+        modified = true
+      end
+
+      if b.url.to_s.match(BackupBrain::YouTube::URL_REGEXP)
+        my_archive.add_media_object(url, simple_type: "video")
+        modified = true
+      end
+
+      # imported mastodon bookmarks may have embedded youtube BS at their end
+      if b.tags.include?("mastodon_bookmark")
+        lines = my_archive.string_data.split(/\r\n|\n/)
+        # find_index {|item| block}
+        the_bad_one = lines.find_index { |line| line.include?("<iframe") }
+        if the_bad_one
+          bar.log Paint["  stripping iframe from #{b.title}…", :yellow]
+          my_archive.string_data = lines.slice(0..(the_bad_one - 1))
+          content_cleaned += 1
+          modified = true
+        end
+      end
+      b.save! if modified
+      bar.increment
+    end
+    bar.finish
   end
 
   desc "Fetch YouTube transcripts for bookmarks that don't have one yet"
