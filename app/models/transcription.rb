@@ -20,4 +20,16 @@ class Transcription
 
   index({source_hash: 1, bookmark_id: 1}, {unique: true})
   index({bookmark_id: 1})
+
+  after_destroy :remove_from_archives
+
+  private
+
+  def remove_from_archives
+    Bookmark.where("archives.transcription_ids" => _id).each do |bookmark|
+      bookmark.archives.each do |archive|
+        archive.pull(transcription_ids: _id) if archive.transcription_ids.include?(_id)
+      end
+    end
+  end
 end
