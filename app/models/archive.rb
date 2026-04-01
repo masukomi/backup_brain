@@ -29,6 +29,17 @@ class Archive
     Regexp::IGNORECASE
   )
 
+  VIDEO_EXTENSIONS = %w[mp4 m4v mkv mov avi webm ogv].freeze
+
+  VIDEO_SRC_REGEXP = Regexp.new(
+    'src=(["\'])((?:https?://|/|\.\./\./)?[^"\'\\s]+\\.(?:' +
+    VIDEO_EXTENSIONS.join("|") +
+    '))\\1',
+    Regexp::IGNORECASE
+  )
+
+  YOUTUBE_URL_REGEXP = %r{https?://(?:www\.)?(?:youtube\.com/watch\?[^\s"'<>\)\[\]]+|youtu\.be/[^\s"'<>\)\[\]]+)}i
+
   include Mongoid::Document
   include Mongoid::Timestamps
   field :mime_type,   type: String, default: "text/markdown"
@@ -143,6 +154,44 @@ class Archive
     [line_copy, audio_url_hashes]
   end
 
+  # Finds video URLs in a line: YouTube watch/short URLs and src= URLs with
+  # known video file extensions. Replaces each URL with its SHA256 hash
+  # placeholder and returns the modified line and a hash mapping each
+  # placeholder to a {url:, extension:} hash. YouTube URLs use extension: nil
+  # since the format cannot be determined from the URL alone.
+  #
+  # Lines containing the same URL twice (e.g. [URL](URL) markdown links)
+  # produce only one hash entry; both occurrences are replaced.
+  #
+  # @param line [String]
+  # @param replace [Boolean] whether to substitute URLs with hash placeholders
+  # @return [Array(String, Hash)] modified line and {sha256 => {url:, extension:}} hash
+  def self.extract_video_urls_from_line(line, replace = true)
+    video_url_hashes = {}
+    line_copy = line.dup
+
+    # Pass 1: YouTube URLs — extension unknown until download
+    line.scan(YOUTUBE_URL_REGEXP).each do |url|
+      next if video_url_hashes.values.any? { |v| v[:url] == url }
+      sha_hash = Digest::SHA2.hexdigest(url)
+      video_url_hashes[sha_hash] = {url: url, extension: nil}
+      line_copy.gsub!(url, sha_hash) if replace
+    end
+
+    # Pass 2: src= attributes with known video extensions
+    line.to_enum(:scan, VIDEO_SRC_REGEXP).map { Regexp.last_match }.each do |md|
+      url = md[2]
+      next if video_url_hashes.values.any? { |v| v[:url] == url }
+      sha_hash = Digest::SHA2.hexdigest(url)
+      extension = File.extname(url.sub(/\?.*/, "").sub(/#.*$/, "")).downcase
+      video_url_hashes[sha_hash] = {url: url, extension: extension}
+      line_copy.gsub!(url, sha_hash) if replace
+    end
+
+    return [line, video_url_hashes] if video_url_hashes.empty?
+    [line_copy, video_url_hashes]
+  end
+
   # @param options [Hash] completely ignored
   # @raise [RuntimeError] if this archive doesn't have
   #        a mime-type of text/markdown
@@ -168,10 +217,45 @@ class Archive
 
     image_url_hashes = {}
     string_data.split(/\r\n|\n/).each do |line|
-      _line, line_hash = Archive.extract_image_links_from_line(line, false)
-      next if line_hash.empty?
-      image_url_hashes.merge!(line_hash)
+      _line, extracted_url_data = Archive.extract_image_links_from_line(line, false)
+      next if extracted_url_data.empty?
+      image_url_hashes.merge!(extracted_url_data)
     end
     image_url_hashes.values.pluck(:url)
+  end
+
+  def audio_urls
+    return [] unless mime_type == "text/markdown"
+
+    audio_url_hashes = {}
+    string_data.split(/\r\n|\n/).each do |line|
+      _line, extracted_url_data = Archive.extract_audio_urls_from_line(line, false)
+      next if extracted_url_data.empty?
+      audio_url_hashes.merge!(extracted_url_data)
+    end
+    audio_url_hashes.values.pluck(:url)
+  end
+
+  def video_urls
+    return [] unless mime_type == "text/markdown"
+
+    video_url_hashes = {}
+    string_data.split(/\r\n|\n/).each do |line|
+      _line, extracted_url_data = Archive.extract_video_urls_from_line(line, false)
+      next if extracted_url_data.empty?
+      video_url_hashes.merge!(extracted_url_data)
+    end
+    video_url_hashes.values.pluck(:url)
+  end
+
+  def media_urls
+    media_url_hashes = {}
+    string_data.split(/\r\n|\n/).each do |line|
+      _line, extracted_url_data = Archive.extract_audio_urls_from_line(line, false)
+      media_url_hashes.merge!(extracted_url_data) unless extracted_url_data.empty?
+      _line, extracted_url_data = Archive.extract_video_urls_from_line(line, false)
+      media_url_hashes.merge!(extracted_url_data) unless extracted_url_data.empty?
+    end
+    media_url_hashes.values.pluck(:url)
   end
 end
