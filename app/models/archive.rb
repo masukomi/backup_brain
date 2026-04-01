@@ -48,6 +48,8 @@ class Archive
   field :transcription_ids, type: Array, default: []
   field :hero_image_path, type: String
 
+  validates :string_data, presence: true
+
   embedded_in :bookmark
   embeds_many :media_objects, cascade_callbacks: true
 

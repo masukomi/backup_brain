@@ -115,6 +115,7 @@ class ArchiveImagesJob < ArchiveUrlJob
       # - none of them were archivable
       # - we already archived them
       # in which case, it's silly to create a new archive
+      return bookmark if updated_markdown.blank?
       return bookmark if updated_markdown == markdown
 
       bookmark.archives << Archive.new(
