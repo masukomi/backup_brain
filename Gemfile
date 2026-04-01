@@ -66,13 +66,17 @@ gem "public_suffix" # for extracting domain names from urls
 
 gem "gemoji"
 
-gem "whirly" # spinner for rake tasks
-gem "paint"  # colorize terminal output (mostly for whirly)
 gem "htmlentities" # escape html entities https://github.com/threedaymonk/htmlentities
 
 gem "httparty" # for importer to check if urls are serving.
 gem "youtube-transcript-rb" # fetch transcripts from YouTube videos
 # gem "carrierwave-mongoid" # for file uploads
+
+### rake task support
+gem "paint"  # colorize terminal output (mostly for whirly)
+gem "ruby-progressbar"
+gem "whirly" # spinner for rake tasks
+###
 
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
