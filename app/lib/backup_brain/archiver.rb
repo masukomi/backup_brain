@@ -29,8 +29,8 @@ module BackupBrain
 
     def fully_qualify_urls(markdown, bookmark, archive_id: nil)
       return if markdown.nil? || markdown.size == 0
-      uri       = URI.parse(bookmark.url)
-      domain    = uri.origin
+      uri = URI.parse(bookmark.url)
+      domain = uri.origin
       directory = get_directory_url(bookmark)
 
       buffer = StringIO.new
@@ -44,6 +44,8 @@ module BackupBrain
     def process_media_links(bookmark, line, domain, directory, archive_id: nil)
       line, image_url_hashes = Archive.extract_image_links_from_line(line)
       line, audio_url_hashes = Archive.extract_audio_urls_from_line(line)
+      # NOTE: not handling video urls because we don't suport archiving
+      # video owing to the space restrictions & YouTube fighting video downloads
       match_datas = line.to_enum(:scan, Archive::SIMPLE_MD_LINK_REGEXP).map { Regexp.last_match }
       return line if image_url_hashes.empty? && audio_url_hashes.empty? && match_datas.empty?
 
@@ -58,11 +60,11 @@ module BackupBrain
 
     def qualify_and_apply_image_url_hashes(bookmark, hashes, line, domain, directory)
       hashes.each do |sha, url_data|
-        url       = url_data[:url]
+        url = url_data[:url]
         extension = url_data[:extension]
         if url != MISSING_IMAGE_IMAGE_URL && !url.start_with?("/images/archival/#{bookmark._id}/")
           full_url = fully_qualify_path(url, domain, directory)
-          url      = download_image(bookmark, full_url, extension: extension)
+          url = download_image(bookmark, full_url, extension: extension)
         end
         line.sub!(sha, "![](#{url})")
       end
@@ -71,31 +73,19 @@ module BackupBrain
 
     def qualify_and_apply_audio_url_hashes(bookmark, hashes, line, domain, directory, archive_id: nil)
       hashes.each do |sha, url_data|
-        url       = url_data[:url]
+        url = url_data[:url]
         extension = url_data[:extension]
         if url != MISSING_AUDIO_AUDIO_URL && !url.start_with?(archive_web_path_for_doc(bookmark))
           full_url = fully_qualify_path(url, domain, directory)
-          url      = download_audio(bookmark, full_url, extension: extension)
+          url = download_audio(bookmark, full_url, extension: extension)
         end
         line.sub!(sha, url)
         if url == MISSING_AUDIO_AUDIO_URL
           missing_mime = Rack::Mime.mime_type(File.extname(MISSING_AUDIO_AUDIO_URL))
           line.sub!(/\btype=(["'])audio\/[^"']+\1/, "type=\\1#{missing_mime}\\1")
         end
-        maybe_enqueue_transcription(bookmark, url, archive_id: archive_id)
       end
       line
-    end
-
-    def maybe_enqueue_transcription(bookmark, audio_url, archive_id: nil)
-      return unless BackupBrain::WhisperClient.enabled?
-      return if audio_url == MISSING_AUDIO_AUDIO_URL
-      return unless audio_url.start_with?(archive_web_path_for_doc(bookmark))
-      TranscribeAudioJob.perform_later(
-        bookmark_id: bookmark._id.to_s,
-        audio_local_path: audio_url,
-        archive_id: archive_id
-      )
     end
 
     def download_audio(bookmark, url, extension: nil)
@@ -128,11 +118,11 @@ module BackupBrain
         raise BackupBrain::Errors::StorageError.new(e.message)
       end
 
-      ext        = extension.presence || ".mp3"
-      ext        = ".#{ext}" unless ext.start_with?(".")
+      ext = extension.presence || ".mp3"
+      ext = ".#{ext}" unless ext.start_with?(".")
       local_name = archived_image_name(url, ext)
-      file_path  = File.join(archive_folder_path, local_name)
-      new_url    = archive_web_path_for_doc(bookmark) + "/#{local_name}"
+      file_path = File.join(archive_folder_path, local_name)
+      new_url = archive_web_path_for_doc(bookmark) + "/#{local_name}"
       return new_url if File.exist?(file_path)
 
       _stdout, stderr, status = Open3.capture3(
@@ -181,9 +171,9 @@ module BackupBrain
         raise BackupBrain::Errors::StorageError.new(e.message)
       end
 
-      local_name      = archived_image_name(url, extension)
-      file_path       = File.join(archive_folder_path, local_name)
-      new_url         = archive_web_path_for_doc(bookmark) + "/#{local_name}"
+      local_name = archived_image_name(url, extension)
+      file_path = File.join(archive_folder_path, local_name)
+      new_url = archive_web_path_for_doc(bookmark) + "/#{local_name}"
       needs_detection = File.extname(local_name).empty?
 
       if needs_detection
@@ -257,7 +247,7 @@ module BackupBrain
     #
     # The +extension+ argument takes priority over the extension derived from the URL.
     def archived_image_name(original_url, extension = nil)
-      uri      = URI.parse(original_url)
+      uri = URI.parse(original_url)
       hash_url = (uri.path.empty? || uri.path == "/") ?
         original_url :
         original_url.sub(/\?.*/, "").sub(/#.*$/, "")

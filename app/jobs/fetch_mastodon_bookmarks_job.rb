@@ -99,12 +99,12 @@ class FetchMastodonBookmarksJob < ApplicationJob
   end
 
   def create_bookmark_from_status(status, user, oauth_site)
-    url          = status["url"]
+    url = status["url"]
     html_content = status["content"].to_s
 
-    markdown    = ReverseMarkdown.convert(html_content, unknown_tags: :bypass).strip
+    markdown = ReverseMarkdown.convert(html_content, unknown_tags: :bypass).strip
     description = truncate_markdown(markdown)
-    title       = build_title(html_content, status)
+    title = build_title(html_content, status)
 
     bookmark = Bookmark.new(
       url: url,
@@ -127,26 +127,16 @@ class FetchMastodonBookmarksJob < ApplicationJob
       Archive.new(mime_type: "text/markdown", string_data: "")
 
     append_media_attachments(status["media_attachments"], archive, bookmark, oauth_site.access_token)
-    embed_youtube_videos(archive)
-    youtube_video_ids = archive.string_data.scan(BackupBrain::YouTube::URL_REGEXP).pluck(0).uniq
 
     archive_saved = archive.string_data.present?
     if archive_saved
+      archive.video_urls.each { |url| archive.add_media_object(url, simple_type: "video") }
       # dunno why I have to do this created_at & updated_at manually
       archive.created_at = DateTime.now
       archive.updated_at = archive.created_at
       bookmark.archives << archive
     end
     bookmark.save!
-    if archive_saved
-      youtube_video_ids.each do |video_id|
-        YouTubeTranscriptionJob.perform_later(
-          bookmark_id: bookmark._id.to_s,
-          video_id: video_id,
-          archive_id: archive._id.to_s
-        )
-      end
-    end
   rescue => e
     Rails.logger.error("FetchMastodonBookmarksJob: failed to save bookmark for #{url}: #{e.message}\n#{e.backtrace.first(15).join("\n")}")
   end
@@ -162,7 +152,7 @@ class FetchMastodonBookmarksJob < ApplicationJob
 
     image_lines = attachments.filter_map do |attachment|
       local_url = case attachment["type"]
-      when "image"        then attachment["url"]
+      when "image" then attachment["url"]
       when "gifv", "video" then attachment["preview_url"]
       end
       remote_url = attachment["remote_url"].presence
@@ -225,10 +215,10 @@ class FetchMastodonBookmarksJob < ApplicationJob
   #                { error: message, retry: true } on 429,
   #                { error: message } on other failure
   def fetch_url(url, bookmark, access_token, with_token: true)
-    local_name      = archived_image_name(url)
-    folder_path     = archive_folder_path_for_doc(bookmark)
+    local_name = archived_image_name(url)
+    folder_path = archive_folder_path_for_doc(bookmark)
     image_file_path = File.join(folder_path, local_name)
-    local_web_url   = archive_web_path_for_doc(bookmark) + "/#{local_name}"
+    local_web_url = archive_web_path_for_doc(bookmark) + "/#{local_name}"
 
     FileUtils.mkdir_p(folder_path)
 

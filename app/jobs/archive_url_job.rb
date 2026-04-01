@@ -32,9 +32,9 @@ class ArchiveUrlJob < ApplicationJob
     end
 
     begin
-      dispatcher               = BackupBrain::ToolDispatcher.instance
+      dispatcher = BackupBrain::ToolDispatcher.instance
       tempfile, hero_image_url = dispatcher.handles_download?(bookmark.url) ? [nil, nil] : download(bookmark)
-      markdown_string          = dispatcher.run(bookmark.url, tempfile) # potentially raises
+      markdown_string = dispatcher.run(bookmark.url, tempfile) # potentially raises
       record_failed_attempt(bookmark, 600) if markdown_string.blank?
       if hero_image_url.present?
         markdown_string = "![Hero Image](#{hero_image_url})\n\n#{markdown_string}"
@@ -51,15 +51,10 @@ class ArchiveUrlJob < ApplicationJob
           archive.hero_image_path = candidate if candidate.start_with?(archive_web_path_for_doc(bookmark))
         end
       end
+      archive.audio_urls.each { |url| archive.add_media_object(url, simple_type: "audio") }
+      archive.video_urls.each { |url| archive.add_media_object(url, simple_type: "video") }
       bookmark.archives << archive
       bookmark.save!
-      if (video_id = BackupBrain::YouTube.video_id(bookmark.url))
-        YouTubeTranscriptionJob.perform_later(
-          bookmark_id: bookmark._id.to_s,
-          video_id: video_id,
-          archive_id: archive._id.to_s
-        )
-      end
       bookmark
     rescue BackupBrain::Errors::UnarchivableUrl => e
       Rails.logger.error(e.message)

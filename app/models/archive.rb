@@ -42,11 +42,11 @@ class Archive
 
   include Mongoid::Document
   include Mongoid::Timestamps
-  field :mime_type,   type: String, default: "text/markdown"
+  field :mime_type, type: String, default: "text/markdown"
   field :string_data, type: String
-  field :manually_edited,  type: Boolean, default: false
-  field :transcription_ids, type: Array,   default: []
-  field :hero_image_path,  type: String
+  field :manually_edited, type: Boolean, default: false
+  field :transcription_ids, type: Array, default: []
+  field :hero_image_path, type: String
 
   embedded_in :bookmark
   embeds_many :media_objects
@@ -86,7 +86,7 @@ class Archive
 
     line_copy = line.dup
     match_datas.each_with_index do |md, index|
-      url      = md[3]
+      url = md[3]
       sha_hash = Digest::SHA2.hexdigest(url)
       extension = File.extname(url.sub(/\?.*/, "").sub(/#.*$/, "")).downcase
       image_url_hashes[sha_hash] = {url: url, extension: extension}
@@ -113,7 +113,7 @@ class Archive
 
     # First pass: extension-based matching (existing behaviour)
     line.to_enum(:scan, Archive::AUDIO_SRC_REGEXP).map { Regexp.last_match }.each do |md|
-      url      = md[2]
+      url = md[2]
       sha_hash = Digest::SHA2.hexdigest(url)
       extension = File.extname(url.sub(/\?.*/, "").sub(/#.*$/, "")).downcase
       audio_url_hashes[sha_hash] = {url: url, extension: extension}
@@ -132,8 +132,8 @@ class Archive
       url = src_match[1]
       next if audio_url_hashes.values.any? { |v| v[:url] == url }
 
-      sha_hash  = Digest::SHA2.hexdigest(url)
-      mime      = mime_match[1].strip
+      sha_hash = Digest::SHA2.hexdigest(url)
+      mime = mime_match[1].strip
       extension = extension_for_mime_type(mime) || ""
       audio_url_hashes[sha_hash] = {url: url, extension: extension}
       line_copy.sub!(url, sha_hash) if replace
@@ -258,5 +258,23 @@ class Archive
       media_url_hashes.merge!(extracted_url_data) unless extracted_url_data.empty?
     end
     media_url_hashes.values.pluck(:url)
+  end
+
+  # Builds a new MediaObject in-memory and appends it to this archive's media_objects.
+  # For audio, derives mime_type from the file extension.
+  # For video, mime_type is nil (type is determined later) and hero_image_path is inherited.
+  #
+  # @param url [String] local archive path or remote URL
+  # @param simple_type [String] "audio" or "video"
+  # @return [MediaObject]
+  def add_media_object(url, simple_type:)
+    mime = (simple_type == "audio") ? Rack::Mime.mime_type(File.extname(url).downcase, nil) : nil
+    # NOTE: the after_create on the MediaObject will schedule a transcription job
+    media_objects.build(
+      url: url,
+      simple_type: simple_type,
+      mime_type: mime,
+      hero_image_path: (simple_type == "video") ? hero_image_path : nil
+    )
   end
 end
