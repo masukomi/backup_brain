@@ -36,7 +36,7 @@
           if (m = line.match(/\A(\d+\.?\d*)\s+(.*)\z/m))
             secs = m[1].to_f
             label = format("%d:%02d", (secs / 60).floor, secs % 60)
-            %(<span class="plyr-timestamp" data-seconds="#{m[1]}">#{label}</span> #{h(m[2])})
+            %(<span class="plyr-timestamp" data-seconds="#{m[1]}" data-player-src="#{mo.url}">#{label}</span> #{h(m[2])})
           else
             h(line)
           end

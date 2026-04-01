@@ -17,16 +17,21 @@
   <% end %>
   <script>
    document.addEventListener('DOMContentLoaded', function() {
-     let audioPlayer;
+     let audioPlayers = {};
      document.querySelectorAll("archive audio, archive video").forEach(function(el) {
        const p = new Plyr(el, { iconUrl: "/js/plyr/plyr.svg" });
-       if (el.tagName === 'AUDIO' && !audioPlayer) audioPlayer = p;
+       if (el.tagName === 'AUDIO') {
+         const sourceEl = el.querySelector('source');
+         const src = sourceEl ? sourceEl.getAttribute('src') : el.getAttribute('src');
+         if (src) audioPlayers[src] = p;
+       }
      });
 
      <% if @archive&.media_objects&.any? { |mo| mo.transcription&.source == "whisper" && mo.transcription&.status == "completed" } %>
        document.querySelectorAll('.plyr-timestamp').forEach(function(el) {
          el.addEventListener('click', function() {
-           if (audioPlayer) audioPlayer.currentTime = parseFloat(el.dataset.seconds);
+           var player = audioPlayers[el.dataset.playerSrc];
+           if (player) player.currentTime = parseFloat(el.dataset.seconds);
          });
        });
      <% end %>
