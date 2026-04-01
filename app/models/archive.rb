@@ -49,6 +49,7 @@ class Archive
   field :hero_image_path,  type: String
 
   embedded_in :bookmark
+  embeds_many :media_objects
 
   # Returns the file extension (with leading dot) for a given MIME type string,
   # or nil if unknown. Relies on audio types registered in config/initializers/mime_types.rb.
