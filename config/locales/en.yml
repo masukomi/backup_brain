@@ -117,8 +117,8 @@ en:
     headings:
       inline: "Transcription %{name}"
     source:
-      youtube: "YouTube"
-      whisper: "Whisper"
+      youtube: "Source: YouTube"
+      whisper: "Source: Whisper"
   bookmarks:
     headings:
       simple: "Bookmarks"
