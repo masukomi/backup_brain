@@ -19,4 +19,31 @@ class Transcription
   field :source,        type: String  # "youtube" or "whisper"
 
   embedded_in :media_object
+
+  # Some Convenience methods to help find Transcriptions
+  # since they're embedded in MediaObjects in Archives in Bookmarks
+  # Bookmark → Archive(s) → MediaObject(s) → Transcription
+
+  def self.get_count
+    Bookmark.collection.aggregate([
+      {"$unwind" => "$archives"},
+      {"$unwind" => "$archives.media_objects"},
+      {"$match" => {"archives.media_objects.transcription" => {"$exists" => true, "$ne" => nil}}},
+      {"$count" => "total"}
+    ]).first&.dig("total") || 0
+  end
+
+  def self.get_all
+    Bookmark.collection.aggregate([
+      {"$unwind" => "$archives"},
+      {"$unwind" => "$archives.media_objects"},
+      {
+        "$match" => {
+          "archives.media_objects.transcription" => {
+            "$exists" => true, "$ne" => nil
+          }
+        }
+      }
+    ])
+  end
 end
