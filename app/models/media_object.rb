@@ -17,10 +17,18 @@ class MediaObject
 
   after_create :transcribe
 
+  # @return true if this is a video MediaObject with a YouTube url
+  def is_youtube?
+    simple_type == "video" && youtube_url?
+  end
+
   # Enqueues the appropriate transcription job for this media object.
   # Called automatically after_create. Safe to call manually to retry.
   def transcribe
-    if simple_type == "video" && youtube_url?
+    # migrating old data we may and up attaching an existing Transcription
+    # to a new MediaObject
+    return unless transcription.nil?
+    if is_youtube?
       return unless YouTubeTranscriptionJob.enabled?
       video_id = extract_youtube_video_id
       return unless video_id

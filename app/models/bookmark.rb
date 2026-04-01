@@ -25,7 +25,7 @@ class Bookmark
   field :private,     type: Boolean, default: false
   field :to_read,     type: Boolean, default: false
 
-  embeds_many :archives
+  embeds_many :archives, cascade_callbacks: true
   embeds_many :failed_archive_attempts
 
   belongs_to :user
