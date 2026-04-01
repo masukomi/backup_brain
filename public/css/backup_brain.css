@@ -16,6 +16,7 @@ archive svg {
 }
 .big-text > textarea {
 	width: 100%;
+	min-height: 20em;
 }
 
 heading {
