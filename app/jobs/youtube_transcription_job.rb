@@ -30,6 +30,7 @@ class YouTubeTranscriptionJob < ApplicationJob
       url: youtube_url,
       hero_image_path: archive.hero_image_path
     )
+    bookmark.save!
     transcription = media_object.build_transcription(
       source_hash: video_id,
       source_path: youtube_url,
@@ -37,7 +38,7 @@ class YouTubeTranscriptionJob < ApplicationJob
       source: "youtube",
       status: "processing"
     )
-    # don't save the bookmark with the new objects unless we succed in transcribing
+    # don't save the bookmark with the new transcription unless we succed in transcribing
 
     begin
       fetched_transcript = YoutubeRb::Transcript::YouTubeTranscriptApi.new.fetch(video_id)

@@ -21,6 +21,27 @@ class TranscribeAudioJob < ApplicationJob
     core_perform(bookmark_id: bookmark_id, audio_local_path: audio_local_path, archive_id: archive_id)
   end
 
+  def add_media_object(archive, audio_local_path)
+    mime          = Rack::Mime.mime_type(File.extname(audio_local_path).downcase, nil)
+    archive.media_objects.build(
+      mime_type: mime,
+      simple_type: "audio",
+      url: audio_local_path
+    )
+  end
+
+  def add_transcription_object(bookmark, media_object, audio_local_path, model_path)
+    source_hash   = File.basename(audio_local_path, ".*")
+    media_object.build_transcription(
+      source_hash: source_hash,
+      source_path: audio_local_path,
+      bookmark_id: bookmark.id,
+      source: "whisper",
+      whisper_model: File.basename(model_path),
+      status: "processing"
+    )
+  end
+
   def core_perform(bookmark_id:, audio_local_path:, archive_id: nil)
     unless BackupBrain::WhisperClient.enabled?
       Rails.logger.warn("TranscribeAudioJob: ENABLE_AUDIO_TRANSCRIPTIONS is not set to 'true', skipping")
@@ -56,26 +77,13 @@ class TranscribeAudioJob < ApplicationJob
       return false
     end
 
-    source_hash   = File.basename(audio_local_path, ".*")
     bookmark      = Bookmark.find(_id: bookmark_id.to_s) # will error if invalid id
     archive       = bookmark.archives.find(_id: archive_id.to_s)
+    media_object  = add_media_object(archive, archive_local_path)
+    bookmark.save!
+    transcription = add_transcription_object(bookmark, media_object, audio_local_path, model_path)
 
-    mime          = Rack::Mime.mime_type(File.extname(audio_local_path).downcase, nil)
-    media_object  = archive.media_objects.build(
-      mime_type: mime,
-      simple_type: "audio",
-      url: audio_local_path
-    )
-    transcription = media_object.build_transcription(
-      source_hash: source_hash,
-      source_path: audio_local_path,
-      bookmark_id: bookmark_bson,
-      source: "whisper",
-      whisper_model: File.basename(model_path),
-      status: "processing"
-    )
-
-    # don't save the bookmark with the new objects unless we succed in transcribing
+    # don't save the bookmark with the new transcription unless we succed in transcribing
 
     begin
       transcription.text   = whisper.transcribe(fs_path)
