@@ -4,7 +4,7 @@
   <% if @archive&.hero_image_path.present? %>
     <meta property="og:image" content="<%= @archive.hero_image_path %>">
   <% end %>
-  <% if (yt_embed_url = youtube_embed_url(@bookmark.url)) %>
+  <% if @archive&.media_objects&.any? { |mo| mo.is_youtube? } %>
     <script src="https://www.youtube.com/iframe_api"></script>
     <script>
       var ytPlayer;
@@ -56,15 +56,6 @@
         </div>
 
 
-        <% if (yt_embed_url = youtube_embed_url(@bookmark.url)) %>
-          <div class="youtube-embed">
-            <iframe id="youtube-player"
-                    width="560" height="315"
-                    src="<%= yt_embed_url %><%= yt_embed_url.include?('?') ? '&' : '?' %>enablejsapi=1"
-                    frameborder="0"
-                    allowfullscreen></iframe>
-          </div>
-        <% end %>
 
         <%#TODO deal with rendering archives that might not be markdown %>
         <%= render partial: 'bookmark_md_archive',

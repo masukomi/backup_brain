@@ -1,9 +1,15 @@
 <%# Note: this exists within a bootstrap 'col' %>
+<% archive.media_objects.select(&:is_youtube?).each do |mo| %>
+  <% embed = BackupBrain::YouTube.embed_html(mo.url) %>
+  <%= embed.html_safe if embed %>
+<% end %>
 <archive>
 <%= ::Rendering::Markdown.instance.render(archive.string_data).html_safe %>
 </archive>
-<% if archive.transcription_ids.present? %>
-  <% Transcription.where(:_id.in => archive.transcription_ids, status: "completed").each_with_index do |transcription, idx| %>
+<% transcribed_media = archive.media_objects.select { |mo| mo.transcription&.status == "completed" } %>
+<% if transcribed_media.any? %>
+  <% transcribed_media.each_with_index do |mo, idx| %>
+    <% transcription = mo.transcription %>
     <div class="transcription-inline-header">
       <h3><%= t('transcriptions.headings.inline', name: idx + 1) %></h3>
       <span class="transcription-source-subheading"><%= t("transcriptions.source.#{transcription.source}") %></span>
