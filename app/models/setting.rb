@@ -47,6 +47,16 @@ class Setting
     value.nil? ? nil : value[:value]
   end
 
+  def is_boolean?
+    value_type == :boolean && is_value_bool?
+  end
+
+  def is_value_bool?
+    val = inner_value
+    # ugh. so surprised there isn't a BoolClass in ruby
+    val.is_a?(TrueClass) || val.is_a?(FalseClass)
+  end
+
   private
 
   def bust_cache
@@ -95,11 +105,5 @@ class Setting
         errors.add(:value, messages.join("\n"))
       end
     end
-  end
-
-  def is_value_bool?
-    val = inner_value
-    # ugh. so surprised there isn't a BoolClass in ruby
-    val.is_a?(TrueClass) || val.is_a?(FalseClass)
   end
 end
