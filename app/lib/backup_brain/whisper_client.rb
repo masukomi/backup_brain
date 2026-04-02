@@ -73,11 +73,14 @@ module BackupBrain
         out, status = Open3.capture2("which", name)
         return out.strip if status.success? && out.strip.present?
       end
-      # Homebrew fallback: binary may not be on PATH in all environments
-      prefix, status = Open3.capture2("brew", "--prefix", "whisper-cpp")
-      if status.success?
-        candidate = File.join(prefix.strip, "bin", "whisper-cli")
-        return candidate if File.executable?(candidate)
+      # Homebrew fallback: check known absolute paths directly because `brew`
+      # itself may not be on PATH in launchctl/systemd-started processes.
+      # /opt/homebrew = Apple Silicon, /usr/local = Intel Macs.
+      ["/opt/homebrew", "/usr/local"].each do |prefix|
+        ["whisper-cli", "whisper-cpp"].each do |name|
+          candidate = File.join(prefix, "bin", name)
+          return candidate if File.executable?(candidate)
+        end
       end
       nil
     rescue
