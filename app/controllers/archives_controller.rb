@@ -23,7 +23,9 @@ class ArchivesController < ApplicationController
     archive = Archive.new(bookmark: @parent, mime_type: "text/markdown")
     archive.string_data = params[:string_data]
     archive.manually_edited = true
-    archive.transcription_ids = @object.transcription_ids.dup
+    @object.media_objects.each do |mo|
+      archive.media_objects << mo.dup
+    end
     # @parent.archives << archive
 
     respond_to do |format|
