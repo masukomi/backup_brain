@@ -1,0 +1,187 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative "../../config/environment"
+
+VALID_VALUE_TYPES = Setting::VALID_VALUE_TYPES
+
+def prompt(msg)
+  print msg
+  $stdout.flush
+  gets.chomp
+end
+
+def yes?(msg)
+  answer = prompt("#{msg} (y/n): ").strip.downcase
+  answer == "y" || answer == "yes"
+end
+
+def prompt_multiline(msg)
+  puts "#{msg} (enter a single '.' on its own line to finish):"
+  lines = []
+  loop do
+    line = gets.chomp
+    break if line == "."
+    lines << line
+  end
+  lines.join("\n")
+end
+
+def coerce_value(raw, value_type)
+  case value_type
+  when :boolean
+    case raw.strip.downcase
+    when "true", "yes", "1" then true
+    when "false", "no", "0" then false
+    else
+      puts "  Invalid boolean. Please enter true/false/yes/no/1/0."
+      nil
+    end
+  when :integer
+    begin
+      Integer(raw.strip)
+    rescue ArgumentError
+      puts "  Invalid integer."
+      nil
+    end
+  when :string
+    raw
+  when :array, :hash
+    raw
+  end
+end
+
+def format_value(value, value_type)
+  case value_type
+  when :string
+    value.inspect
+  when :array, :hash
+    value
+  else
+    value.inspect
+  end
+end
+
+def escape_ruby_string(str)
+  str.gsub("\\", "\\\\\\\\").gsub('"', '\\"')
+end
+
+def collect_dependency(lookup_key, dep_index)
+  dep = {}
+
+  dep[:dependency_lookup_key] = prompt("  lookup_key of Setting this depends on: ").strip
+  unless Setting.where(lookup_key: dep[:dependency_lookup_key]).exists?
+    puts "  WARNING: No setting with lookup_key '#{dep[:dependency_lookup_key]}' found in the database."
+    puts "  You will need to create that setting before this dependency will work."
+  end
+
+  # dep[:name] = prompt("  Dependency name: ").strip
+  dep[:name] = dep[:dependency_lookup_key] + "_dependency"
+  dep[:notes] = prompt("  Dependency notes: ").strip
+  dep[:test] = prompt_multiline("  Dependency test (Ruby code)")
+
+  dep
+end
+
+def generate_seeds_block(lookup_key, summary, description, visible, value_type, value, dependencies)
+  var_name = "#{lookup_key}_setting"
+
+  lines = ["# #{lookup_key} setting ─────────────────────────────"]
+
+  lines << "if Setting.where(lookup_key: \"#{lookup_key}\").count == 0"
+  lines << "    warn(\"creating #{lookup_key} setting\")"
+  lines << ""
+  lines << "  #{var_name} = Setting.create!("
+  lines << "    {"
+  lines << "      lookup_key: \"#{lookup_key}\","
+  lines << "      summary: \"#{escape_ruby_string(summary)}\","
+  lines << "      description: \"#{escape_ruby_string(description)}\","
+  lines << "      visible: #{visible},"
+  lines << "      value_type: :#{value_type},"
+  lines << "      value: {value: #{format_value(value, value_type)}}"
+  lines << "    }"
+  lines << "  )"
+
+  dependencies.each_with_index do |dep, i|
+    dep_var = "#{lookup_key}_dep_#{i + 1}"
+    lines << "  #{dep_var} = SettingDependency.new("
+    lines << "    dependency_lookup_key: \"#{dep[:dependency_lookup_key]}\","
+    lines << "    name: \"#{escape_ruby_string(dep[:name])}\","
+    lines << "    notes: \"#{escape_ruby_string(dep[:notes])}\","
+    lines << "    test: <<~RUBY"
+    dep[:test].each_line do |test_line|
+      lines << "      #{test_line.chomp}"
+    end
+    lines << "    RUBY"
+    lines << "  )"
+    lines << "  #{var_name}.setting_dependencies << #{dep_var}"
+  end
+
+  lines << "  #{var_name}.save!" unless dependencies.empty?
+  lines << "end"
+
+  lines.join("\n")
+end
+
+# ─── Main ───────────────────────────────────────────────────────────────────
+
+puts "=== Add Setting to seeds.rb ==="
+puts
+
+lookup_key = prompt("lookup_key: ").strip
+
+if Setting.where(lookup_key: lookup_key).exists?
+  puts "WARNING: A setting with lookup_key '#{lookup_key}' already exists in the database."
+  unless yes?("Continue anyway?")
+    puts "Aborted."
+    exit 0
+  end
+end
+
+summary = prompt("summary (keep it very short): ").strip
+description = prompt_multiline("description")
+
+value_type = nil
+loop do
+  puts "value_type — valid types: #{VALID_VALUE_TYPES.join(", ")}"
+  raw_type = prompt("value_type: ").strip.to_sym
+  if VALID_VALUE_TYPES.include?(raw_type)
+    value_type = raw_type
+    break
+  else
+    puts "  Invalid value_type '#{raw_type}'. Please choose from: #{VALID_VALUE_TYPES.join(", ")}"
+  end
+end
+
+visible = yes?("visible?")
+
+value = nil
+loop do
+  raw = prompt("value (#{value_type}): ").strip
+  coerced = coerce_value(raw, value_type)
+  unless coerced.nil?
+    value = coerced
+    break
+  end
+end
+
+dependencies = []
+if yes?("Does this setting have any dependencies?")
+  loop do
+    puts "\n  --- Dependency #{dependencies.length + 1} ---"
+    dependencies << collect_dependency(lookup_key, dependencies.length + 1)
+    break unless yes?("  Add another dependency?")
+  end
+end
+
+block = generate_seeds_block(lookup_key, summary, description, visible, value_type, value, dependencies)
+
+seeds_path = File.expand_path("../../db/seeds.rb", __dir__)
+File.open(seeds_path, "a") do |f|
+  f.puts
+  f.puts block
+end
+
+puts "\n=== Generated block appended to db/seeds.rb ==="
+puts
+puts block
