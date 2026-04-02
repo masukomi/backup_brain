@@ -13,7 +13,6 @@ class Setting
 
   embeds_many :setting_dependencies, cascade_callbacks: true
 
-
   before_save :guarantee_value_default, :dependency_settings_presence
   validates :lookup_key, :summary, :description, presence: true
   validates :lookup_key, uniqueness: true
@@ -21,6 +20,16 @@ class Setting
   validates :value_type,
     inclusion: {in: VALID_VALUE_TYPES,
                 message: "value_type must be one of: #{VALID_VALUE_TYPES.join(", ")}"}
+
+  def self.get_value_of_key(lookup_key)
+    a_setting = Setting.where(lookup_key: lookup_key).first
+    unless a_setting
+      raise BackupBrain::Errors::UnknownSetting.new(
+        "No setting found with lookup_key: #{lookup_key}"
+      )
+    end
+    a_setting.inner_value
+  end
 
   def inner_value
     value.nil? ? nil : value[:value]
@@ -35,7 +44,7 @@ class Setting
 
   def dependency_settings_presence
     missing_dependency_settings = []
-    setting_dependencies.each do | sd |
+    setting_dependencies.each do |sd|
       missing_dependency_settings << sd.dependency_lookup_key
     end
     if missing_dependency_settings.present?
@@ -61,7 +70,7 @@ class Setting
     end
 
     # phew. Ok now let's test dependencies
-    setting_dependencies.each do | dep |
+    setting_dependencies.each do |dep|
       messages = []
       unless dep.dependable?
         messages << dep.failure_message
@@ -70,7 +79,6 @@ class Setting
         errors.add(:value, messages.join("\n"))
       end
     end
-
   end
 
   def is_value_bool?

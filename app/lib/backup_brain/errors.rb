@@ -6,5 +6,7 @@ module BackupBrain
     class StorageError    < StandardError; end
 
     class InvalidTag      < StandardError; end
+
+    class UnknownSetting  < StandardError; end
   end
 end
