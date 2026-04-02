@@ -25,8 +25,12 @@ module BackupBrain
 
     # Returns true if transcription is enabled, the model file exists on disk,
     # and the whisper-cli binary can be located.
+    def self.viable?
+      instance.viable?
+    end
+
     def viable?
-      self.class.enabled? && model_path.present? && File.exist?(model_path) && binary.present?
+      model_path.present? && File.exist?(model_path) && binary.present?
     end
 
     # Transcribes the audio file at +file_path+ and returns the transcript as a
@@ -45,8 +49,6 @@ module BackupBrain
       end
     end
 
-    private
-
     def model_path
       @model_path ||= begin
         raw = begin
@@ -59,6 +61,8 @@ module BackupBrain
         (path.absolute? ? path : Rails.root.join(raw)).to_s
       end
     end
+
+    private
 
     def binary
       @binary ||= find_binary
