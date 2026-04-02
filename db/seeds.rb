@@ -155,3 +155,57 @@ its path must be configured in the reader_path setting.",
   enable_archiving_setting.setting_dependencies << enable_archiving_dep_1
   enable_archiving_setting.save!
 end
+
+# missing_audio_audio_url setting ─────────────────────────────
+if Setting.where(lookup_key: "missing_audio_audio_url").count == 0
+  warn("creating missing_audio_audio_url setting")
+
+  Setting.create!(
+    {
+      lookup_key: "missing_audio_audio_url",
+      summary: "url to use when audio file is missing",
+      description: "An audio file url that is valid when referenced from within
+a rendered page. Can be /path/under/public/dir/missing_audio.mp3
+or https://example.com/missing_audio.mp3",
+      visible: true,
+      value_type: :string,
+      value: {value: "/audio/missing_audio_audio.mp3"}
+    }
+  )
+end
+
+# missing_image_image_url setting ─────────────────────────────
+if Setting.where(lookup_key: "missing_image_image_url").count == 0
+  warn("creating missing_image_image_url setting")
+
+  Setting.create!(
+    {
+      lookup_key: "missing_image_image_url",
+      summary: "url to use when image file is missing",
+      description: "An image url that is valid when referenced from within
+a rendered page. Can be /path/under/public/dir/missing_image.svg
+or https://example.com/missing_image.svg",
+      visible: true,
+      value_type: :string,
+      value: {value: "/images/icons/missing_image_image.svg"}
+    }
+  )
+end
+
+# archival_requests_timeout setting ─────────────────────────────
+if Setting.where(lookup_key: "archival_requests_timeout").count == 0
+  warn("creating archival_requests_timeout setting")
+
+  Setting.create!(
+    {
+      lookup_key: "archival_requests_timeout",
+      summary: "HTTP timeout in seconds",
+      description: "The number of seconds an HTTP request should
+wait before giving up on a response when
+attempting to archive a bookmarked page.",
+      visible: true,
+      value_type: :integer,
+      value: {value: 10}
+    }
+  )
+end

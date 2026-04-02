@@ -250,7 +250,7 @@ class Bookmark
     # FIXME: this is hack until we can replace the "reader"
     # command line tool with a ruby library that actually works
     # https://github.com/masukomi/backup_brain/issues/55
-    return unless ENV["I_INSTALLED_READER"] == "true"
+    return unless (Setting.get_value_of_key("enable_archiving") == true rescue false)
 
     if url.blank?
       # only a warning because this shouldn't be a surprise.

@@ -11,7 +11,10 @@ RSpec.describe BackupBrain::Archiver do
   let(:bookmark) { Bookmark.new(url: "https://example.com/page") }
 
   # Prevent any real DB writes that come from record_failed_attempt
-  before { allow(bookmark).to receive(:save!) }
+  before do
+    allow(bookmark).to receive(:save!)
+    allow(instance).to receive_messages(missing_audio_audio_url: "/audio/missing_audio_audio.mp3", missing_image_image_url: "/images/icons/missing_image_image.svg")
+  end
 
   describe "#download_asset" do
     let(:url) { "https://example.com/audio.mp3" }
@@ -155,8 +158,8 @@ RSpec.describe BackupBrain::Archiver do
     context "when the url is not downloadable" do
       before { allow(instance).to receive(:url_downloadable?).with(url, include_code: true).and_return([false, 403]) }
 
-      it "returns MISSING_AUDIO_AUDIO_URL" do
-        expect(instance.download_audio(bookmark, url)).to eq(described_class::MISSING_AUDIO_AUDIO_URL)
+      it "returns missing_audio_audio_url" do
+        expect(instance.download_audio(bookmark, url)).to eq("/audio/missing_audio_audio.mp3")
       end
 
       it "records a failed attempt with the error code" do
@@ -251,9 +254,9 @@ RSpec.describe BackupBrain::Archiver do
     context "when the url is not downloadable" do
       before { allow(instance).to receive(:url_downloadable?).with(url, include_code: true).and_return([false, 404]) }
 
-      it "returns MISSING_IMAGE_IMAGE_URL" do
+      it "returns missing_image_image_url" do
         allow(instance).to receive(:record_failed_attempt)
-        expect(instance.download_image(bookmark, url)).to eq(described_class::MISSING_IMAGE_IMAGE_URL)
+        expect(instance.download_image(bookmark, url)).to eq("/images/icons/missing_image_image.svg")
       end
 
       it "records a failed attempt" do
@@ -288,17 +291,17 @@ RSpec.describe BackupBrain::Archiver do
     let(:domain) { "https://example.com" }
     let(:directory) { "https://example.com" }
 
-    context "when the stored url is MISSING_AUDIO_AUDIO_URL" do
+    context "when the stored url is missing_audio_audio_url" do
       it "does not attempt to download" do
         sha = Digest::SHA2.hexdigest("original")
-        hashes = {sha => {url: described_class::MISSING_AUDIO_AUDIO_URL, extension: ".mp3"}}
+        hashes = {sha => {url: "/audio/missing_audio_audio.mp3", extension: ".mp3"}}
         expect(instance).not_to receive(:download_audio)
         instance.qualify_and_apply_audio_url_hashes(bookmark, hashes, %(src="#{sha}"), domain, directory)
       end
 
-      it "substitutes the hash with MISSING_AUDIO_AUDIO_URL in the line", :aggregate_failures do
+      it "substitutes the hash with missing_audio_audio_url in the line", :aggregate_failures do
         sha = Digest::SHA2.hexdigest("original")
-        missing = described_class::MISSING_AUDIO_AUDIO_URL
+        missing = "/audio/missing_audio_audio.mp3"
         hashes = {sha => {url: missing, extension: ".mp3"}}
         result = instance.qualify_and_apply_audio_url_hashes(bookmark, hashes, %(src="#{sha}"), domain, directory)
         expect(result).to include(missing)
@@ -345,17 +348,17 @@ RSpec.describe BackupBrain::Archiver do
     let(:domain) { "https://example.com" }
     let(:directory) { "https://example.com" }
 
-    context "when the stored url is MISSING_IMAGE_IMAGE_URL" do
+    context "when the stored url is missing_image_image_url" do
       it "does not attempt to download" do
         sha = Digest::SHA2.hexdigest("original")
-        hashes = {sha => {url: described_class::MISSING_IMAGE_IMAGE_URL, extension: ".svg"}}
+        hashes = {sha => {url: "/images/icons/missing_image_image.svg", extension: ".svg"}}
         expect(instance).not_to receive(:download_image)
         instance.qualify_and_apply_image_url_hashes(bookmark, hashes, "![](#{sha})", domain, directory)
       end
 
       it "substitutes the hash with the missing image markdown" do
         sha = Digest::SHA2.hexdigest("original")
-        missing = described_class::MISSING_IMAGE_IMAGE_URL
+        missing = "/images/icons/missing_image_image.svg"
         hashes = {sha => {url: missing, extension: ".svg"}}
         result = instance.qualify_and_apply_image_url_hashes(bookmark, hashes, sha.dup, domain, directory)
         expect(result).to eq("![](#{missing})")

@@ -18,7 +18,9 @@ module BackupBrain
     end
 
     def self.enabled?
-      ENV["ENABLE_AUDIO_TRANSCRIPTIONS"] == "true"
+      Setting.get_value_of_key("enable_audio_transcriptions") == true
+    rescue BackupBrain::Errors::UnknownSetting
+      false
     end
 
     # Returns true if transcription is enabled, the model file exists on disk,
@@ -47,7 +49,11 @@ module BackupBrain
 
     def model_path
       @model_path ||= begin
-        raw = ENV.fetch("WHISPER_MODEL_PATH", "").strip
+        raw = begin
+          Setting.get_value_of_key("whisper_model_path").to_s.strip
+        rescue BackupBrain::Errors::UnknownSetting
+          ""
+        end
         return nil if raw.empty?
         path = Pathname.new(raw)
         (path.absolute? ? path : Rails.root.join(raw)).to_s

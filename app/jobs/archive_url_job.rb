@@ -22,8 +22,12 @@ class ArchiveUrlJob < ApplicationJob
       return false
     end
 
-    unless ENV["I_INSTALLED_READER"] == "true"
-      Rails.logger.warn("ArchiveUrlJob: I_INSTALLED_READER is not set to 'true'")
+    unless begin
+      Setting.get_value_of_key("enable_archiving") == true
+    rescue
+      false
+    end
+      Rails.logger.warn("ArchiveUrlJob: enable_archiving setting is not true")
       return false
     end
     unless BackupBrain::ToolDispatcher.instance.viable_install?
@@ -82,7 +86,7 @@ class ArchiveUrlJob < ApplicationJob
     begin
       response = HTTParty.get(bookmark.url,
         verify: false,
-        timeout: BackupBrain::ArchiveTools::ARCHIVE_TIMEOUT,
+        timeout: archival_requests_timeout,
         headers: BackupBrain::RequestHeaders.instance.headers_for(bookmark.url))
       if response.code < 400
         body = response.body.encode!("UTF-8", "binary",

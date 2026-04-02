@@ -7,10 +7,6 @@ module BackupBrain
   # Shared archiving logic used by jobs that need to create Archive documents
   # from markdown or HTML content, qualify URLs, and locally cache images.
   module Archiver
-    ARCHIVE_TIMEOUT = ENV.fetch("ARCHIVE_TIMEOUT", "10").to_i
-    MISSING_IMAGE_IMAGE_URL = ENV.fetch("MISSING_IMAGE_IMAGE_URL", "/images/icons/missing_image_image.svg")
-    MISSING_AUDIO_AUDIO_URL = ENV.fetch("MISSING_AUDIO_AUDIO_URL", "/audio/missing_audio_audio.mp3")
-
     # Converts an HTML string to a markdown Archive document.
     # Fully qualifies relative URLs and locally caches any images.
     #
@@ -62,7 +58,7 @@ module BackupBrain
       hashes.each do |sha, url_data|
         url = url_data[:url]
         extension = url_data[:extension]
-        if url != MISSING_IMAGE_IMAGE_URL && !url.start_with?("/images/archival/#{bookmark._id}/")
+        if url != missing_image_image_url && !url.start_with?("/images/archival/#{bookmark._id}/")
           full_url = fully_qualify_path(url, domain, directory)
           url = download_image(bookmark, full_url, extension: extension)
         end
@@ -75,13 +71,13 @@ module BackupBrain
       hashes.each do |sha, url_data|
         url = url_data[:url]
         extension = url_data[:extension]
-        if url != MISSING_AUDIO_AUDIO_URL && !url.start_with?(archive_web_path_for_doc(bookmark))
+        if url != missing_audio_audio_url && !url.start_with?(archive_web_path_for_doc(bookmark))
           full_url = fully_qualify_path(url, domain, directory)
           url = download_audio(bookmark, full_url, extension: extension)
         end
         line.sub!(sha, url)
-        if url == MISSING_AUDIO_AUDIO_URL
-          missing_mime = Rack::Mime.mime_type(File.extname(MISSING_AUDIO_AUDIO_URL))
+        if url == missing_audio_audio_url
+          missing_mime = Rack::Mime.mime_type(File.extname(missing_audio_audio_url))
           line.sub!(/\btype=(["'])audio\/[^"']+\1/, "type=\\1#{missing_mime}\\1")
         end
       end
@@ -98,7 +94,7 @@ module BackupBrain
         record_failed_attempt(bookmark, error_code,
           message: "Remote server prevented audio download. Status code: #{error_code} URL: #{url.sub(/\?.*?$/, "?…<query_string>")}",
           should_raise: false)
-        return MISSING_AUDIO_AUDIO_URL
+        return missing_audio_audio_url
       end
 
       download_asset(bookmark, url, asset_label: "audio", extension: extension)
@@ -147,7 +143,7 @@ module BackupBrain
         record_failed_attempt(bookmark, error_code,
           message: "Remote server prevented image download. Status code: #{error_code} URL: #{url.sub(/\?.*?$/, "?…<query_string>")}",
           should_raise: !(error_code > 399 && error_code < 500))
-        return MISSING_IMAGE_IMAGE_URL
+        return missing_image_image_url
       end
 
       download_asset(bookmark, url, asset_label: "image", extension: extension)
@@ -190,7 +186,7 @@ module BackupBrain
           http_response = HTTParty.get(url,
             verify: false,
             follow_redirects: true,
-            timeout: ARCHIVE_TIMEOUT,
+            timeout: archival_requests_timeout,
             headers: BackupBrain::RequestHeaders.instance.headers_for(url)) do |fragment|
             file.write(fragment)
           end
@@ -271,6 +267,18 @@ module BackupBrain
       path.match?(/\.m3u8\z/i) || path.match?(/\.mpd\z/i)
     rescue URI::InvalidURIError
       false
+    end
+
+    def missing_image_image_url
+      Setting.get_value_of_key("missing_image_image_url")
+    rescue BackupBrain::Errors::UnknownSetting
+      "/images/icons/missing_image_image.svg"
+    end
+
+    def missing_audio_audio_url
+      Setting.get_value_of_key("missing_audio_audio_url")
+    rescue BackupBrain::Errors::UnknownSetting
+      "/audio/missing_audio_audio.mp3"
     end
 
     def record_failed_attempt(bookmark, error_code, message: nil, should_raise: true)

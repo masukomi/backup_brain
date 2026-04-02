@@ -21,13 +21,17 @@ class TranscribeAudioJob < ApplicationJob
 
   def core_perform(bookmark_id:, audio_local_path:, archive_id:, media_object_id:)
     unless BackupBrain::WhisperClient.enabled?
-      Rails.logger.warn("TranscribeAudioJob: ENABLE_AUDIO_TRANSCRIPTIONS is not set to 'true', skipping")
+      Rails.logger.warn("TranscribeAudioJob: enable_audio_transcriptions setting is false, skipping")
       return false
     end
 
-    model_path = ENV["WHISPER_MODEL_PATH"].to_s.strip
+    model_path = begin
+      Setting.get_value_of_key("whisper_model_path").to_s.strip
+    rescue BackupBrain::Errors::UnknownSetting
+      ""
+    end
     if model_path.empty?
-      Rails.logger.warn("TranscribeAudioJob: WHISPER_MODEL_PATH is not set, skipping")
+      Rails.logger.warn("TranscribeAudioJob: whisper_model_path setting is not set, skipping")
       return false
     end
 

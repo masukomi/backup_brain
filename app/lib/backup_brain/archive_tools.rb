@@ -2,8 +2,18 @@ require "rack/mime"
 module BackupBrain
   module ArchiveTools
     ARCHIVES_FOLDER = File.join("archives")
-    MISSING_IMAGE_IMAGE_URL = ENV.fetch("MISSING_IMAGE_IMAGE_URL", "/images/icons/missing_image_image.svg")
-    ARCHIVE_TIMEOUT = ENV.fetch("ARCHIVE_TIMEOUT", "10").to_i
+
+    def archival_requests_timeout
+      Setting.get_value_of_key("archival_requests_timeout")
+    rescue BackupBrain::Errors::UnknownSetting
+      10
+    end
+
+    def self.valid_reader_path?
+      reader_path = Setting.where(lookup_key: "reader_path").first
+      return false unless reader_path
+      File.executable_real?(reader_path.inner_value)
+    end
 
     # @param mongoid_doc [Mongoid::Document]
     # @return [Dir]
@@ -25,7 +35,7 @@ module BackupBrain
       begin
         code = HTTParty.head(url_string,
           verify: false,
-          timeout: ARCHIVE_TIMEOUT,
+          timeout: archival_requests_timeout,
           headers: BackupBrain::RequestHeaders.instance.headers_for(url_string)).response.code.to_i
       rescue Socket::ResolutionError
         code = 666 # devilish url
@@ -37,7 +47,7 @@ module BackupBrain
         begin
           code = HTTParty.get(url_string,
             verify: false,
-            timeout: ARCHIVE_TIMEOUT,
+            timeout: archival_requests_timeout,
             headers: BackupBrain::RequestHeaders.instance.headers_for(url_string)).response.code.to_i
         rescue
           # keep code as 403

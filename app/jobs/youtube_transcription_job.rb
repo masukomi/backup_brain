@@ -2,7 +2,9 @@ class YouTubeTranscriptionJob < ApplicationJob
   queue_as :low_priority
 
   def self.enabled?
-    ENV["ENABLE_YOUTUBE_TRANSCRIPTIONS"] == "true"
+    Setting.get_value_of_key("enable_youtube_transcriptions") == true
+  rescue BackupBrain::Errors::UnknownSetting
+    false
   end
 
   # @param bookmark_id [String] the bookmark's BSON ObjectId as a string
@@ -11,7 +13,7 @@ class YouTubeTranscriptionJob < ApplicationJob
   # @param media_object_id [String] the MediaObject's BSON ObjectId as a string
   def perform(bookmark_id:, video_id:, archive_id:, media_object_id:)
     unless self.class.enabled?
-      Rails.logger.warn("YouTubeTranscriptionJob: ENABLE_YOUTUBE_TRANSCRIPTIONS is not set to 'true', skipping")
+      Rails.logger.warn("YouTubeTranscriptionJob: enable_youtube_transcriptions setting is false, skipping")
       return false
     end
 
