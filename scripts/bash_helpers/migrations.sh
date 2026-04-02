@@ -11,7 +11,13 @@ source $SCRIPT_DIR/colors.sh
 
 function get_schema_version() {
   echo "about to get schema_version" >&2
-  schema_version=$($PATH_TO_BUNDLE exec rails runner "puts Setting.where(lookup_key: 'schema_version').first&.value" | tail -n1)
+  schema_version=$($PATH_TO_BUNDLE exec rails runner "puts Setting.where(lookup_key: 'schema_version').first&.inner_value rescue 'LEGACY_SETTING'" | tail -n1)
+
+  if [ "$schema_version" == "LEGACY_SETTING" ]; then
+     schema_version=$($PATH_TO_BUNDLE exec rails runner "puts Setting.where(lookup_key: 'schema_version').first&.value rescue 'LEGACY_SETTING'" | tail -n1)
+  fi
+
+
 
   if [ "$schema_version" == "" ]; then
     schema_version=1
