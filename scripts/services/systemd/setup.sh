@@ -114,9 +114,9 @@ if [[ "${install_choice:-n}" =~ ^[Yy]$ ]]; then
     filename="$(basename "$svc")"
     label="${filename%.service}"
 
-    # delayed_job@.service is a template — it is started automatically via
+    # backup_brain_delayed_job@.service is a template — it is started automatically via
     # backup_brain.service's Wants= directive; enabling it directly would fail.
-    [[ "$label" == "delayed_job@" ]] && continue
+    [[ "$label" == "backup_brain_delayed_job@" ]] && continue
 
     sudo systemctl enable --now "$label"
     echo "Enabled and started: $label"
@@ -150,11 +150,11 @@ Managing the Services
 
   # Check status
   sudo systemctl status backup_brain
-  sudo systemctl status "delayed_job@*"
+  sudo systemctl status "backup_brain_delayed_job@*"
 
   # View logs
   journalctl -u backup_brain -f
-  journalctl -u "delayed_job@1" -f
+  journalctl -u "backup_brain_delayed_job@1" -f
 
   # Reload systemd after manually editing a service file
   sudo systemctl daemon-reload

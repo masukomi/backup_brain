@@ -13,8 +13,8 @@ a single-user self-hosted app. They do not require root/sudo.
 | File                                      | Purpose                                             |
 |-------------------------------------------+-----------------------------------------------------|
 | =app.backup_brain.app.plist=              | Main Rails app (Puma)                               |
-| =app.backup_brain.delayed_job.1.plist=    | Background job worker 1                             |
-| =app.backup_brain.delayed_job.2.plist=    | Background job worker 2                             |
+| =app.backup_brain.backup_brain_delayed_job.1.plist=    | Background job worker 1                             |
+| =app.backup_brain.backup_brain_delayed_job.2.plist=    | Background job worker 2                             |
 | =app.backup_brain.meilisearch.plist=      | Meilisearch search engine (see note below)          |
 | =app.backup_brain.tailscale_funnel.plist= | Optional: exposes Backup Brain via Tailscale Funnel |
 | =tailscale_funnel=                        | Script invoked by =tailscale_funnel.plist=          |
@@ -26,7 +26,7 @@ a single-user self-hosted app. They do not require root/sudo.
 Replace every =/path/to/backup_brain= placeholder with the absolute path to
 the repo root (e.g. =/Users/alice/backup_brain=).
 
-** =app.backup_brain.app.plist= and =app.backup_brain.delayed_job.*.plist=
+** =app.backup_brain.app.plist= and =app.backup_brain.backup_brain_delayed_job.*.plist=
 
 | Placeholder             | Replace with                                                      |
 |-------------------------+-------------------------------------------------------------------|
@@ -34,7 +34,7 @@ the repo root (e.g. =/Users/alice/backup_brain=).
 | =RAILS_ENV=development= | Change to =production= if running in production mode              |
 
 To adjust the number of background job workers, add or remove numbered
-=delayed_job= plist files (=app.backup_brain.delayed_job.3.plist=, etc.) by
+=backup_brain_delayed_job= plist files (=app.backup_brain.backup_brain_delayed_job.3.plist=, etc.) by
 copying an existing one and updating the =Label= and log file path inside it.
 
 ** Shell environment (rbenv / asdf / mise)
@@ -109,12 +109,12 @@ file to =~/Library/LaunchAgents/=.
 
 #+begin_src sh
 cp app.backup_brain.app.plist ~/Library/LaunchAgents/
-cp app.backup_brain.delayed_job.1.plist ~/Library/LaunchAgents/
-cp app.backup_brain.delayed_job.2.plist ~/Library/LaunchAgents/
+cp app.backup_brain.backup_brain_delayed_job.1.plist ~/Library/LaunchAgents/
+cp app.backup_brain.backup_brain_delayed_job.2.plist ~/Library/LaunchAgents/
 
 launchctl load ~/Library/LaunchAgents/app.backup_brain.app.plist
-launchctl load ~/Library/LaunchAgents/app.backup_brain.delayed_job.1.plist
-launchctl load ~/Library/LaunchAgents/app.backup_brain.delayed_job.2.plist
+launchctl load ~/Library/LaunchAgents/app.backup_brain.backup_brain_delayed_job.1.plist
+launchctl load ~/Library/LaunchAgents/app.backup_brain.backup_brain_delayed_job.2.plist
 #+end_src
 
 ** Meilisearch (if not using Homebrew)
@@ -137,18 +137,18 @@ launchctl load ~/Library/LaunchAgents/app.backup_brain.tailscale_funnel.plist
 # Start the services
 # NOTE: unlike systemd launchdb doesn't have a concept of dependency so they must be started individually
 launchctl start app.backup_brain.app
-launchctl start app.backup_brain.delayed_job.1
-launchctl start app.backup_brain.delayed_job.2
+launchctl start app.backup_brain.backup_brain_delayed_job.1
+launchctl start app.backup_brain.backup_brain_delayed_job.2
 
 # Stop a service (it will not restart until next login or manual start)
 launchctl stop app.backup_brain.app
-launchctl stop app.backup_brain.delayed_job.1
-launchctl stop app.backup_brain.delayed_job.2
+launchctl stop app.backup_brain.backup_brain_delayed_job.1
+launchctl stop app.backup_brain.backup_brain_delayed_job.2
 
 # Unload (disable autostart) and stop
 launchctl unload ~/Library/LaunchAgents/app.backup_brain.app.plist
-launchctl unload ~/Library/LaunchAgents/app.backup_brain.delayed_job.1.plist
-launchctl unload ~/Library/LaunchAgents/app.backup_brain.delayed_job.2.plist
+launchctl unload ~/Library/LaunchAgents/app.backup_brain.backup_brain_delayed_job.1.plist
+launchctl unload ~/Library/LaunchAgents/app.backup_brain.backup_brain_delayed_job.2.plist
 
 # Re-load after editing a plist
 launchctl unload ~/Library/LaunchAgents/app.backup_brain.app.plist
@@ -174,7 +174,7 @@ which bundle
 ls ~/.rbenv/shims/bundle
 #+end_src
 
-Then update =ProgramArguments= in the delayed_job plist to use the full path:
+Then update =ProgramArguments= in the backup_brain_delayed_job plist to use the full path:
 
 #+begin_src xml
 <array>
@@ -193,8 +193,8 @@ inside each plist (defaults to files inside the repo's =log/= directory):
 
 #+begin_src sh
 tail -f /path/to/backup_brain/log/launchd_app.log
-tail -f /path/to/backup_brain/log/launchd_delayed_job_1.log
-tail -f /path/to/backup_brain/log/launchd_delayed_job_2.log
+tail -f /path/to/backup_brain/log/launchd_backup_brain_delayed_job_1.log
+tail -f /path/to/backup_brain/log/launchd_backup_brain_delayed_job_2.log
 #+end_src
 
 ** Service restarts immediately after stopping

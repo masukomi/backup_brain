@@ -1,13 +1,13 @@
 [Unit]
-Description=Backup Brain
+Description=BackupBrain
 Requires=mongod.service
 Requires=meilisearch.service
 After=mongod.service
 After=meilisearch.service
 # Start delayed_job workers alongside this service; stopping this also stops them (via PartOf).
 # Add or remove instances here to change the worker count.
-Wants=delayed_job@1.service delayed_job@2.service
-After=delayed_job@1.service delayed_job@2.service
+Wants=backup_brain_delayed_job@1.service backup_brain_delayed_job@2.service
+After=backup_brain_delayed_job@1.service backup_brain_delayed_job@2.service
 
 [Service]
 User=YOUR_USERNAME

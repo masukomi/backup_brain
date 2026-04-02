@@ -9,7 +9,7 @@ so they start automatically on boot and restart on failure.
 | File                       | Purpose                                                     |
 |----------------------------+-------------------------------------------------------------|
 | =backup_brain.service=     | Main Rails app (Puma)                                       |
-| =delayed_job@.service=     | Template unit for background job workers (one per instance) |
+| =backup_brain_delayed_job@.service=     | Template unit for background job workers (one per instance) |
 | =meilisearch.service=      | Meilisearch search engine                                   |
 | =meilisearch.toml=         | Meilisearch configuration (goes to =/etc/meilisearch.toml=) |
 | =tailscale_funnel=         | Script invoked by =tailscale_funnel.service=                |
@@ -17,7 +17,7 @@ so they start automatically on boot and restart on failure.
 
 * Required Changes Before Installing
 
-** =backup_brain.service= and =delayed_job@.service=
+** =backup_brain.service= and =backup_brain_delayed_job@.service=
 
 Both files share the same set of placeholders:
 
@@ -32,11 +32,11 @@ To adjust the number of background job workers, edit the =Wants= and =After=
 lines in =backup_brain.service=. The default is 2 workers:
 
 #+begin_src ini
-Wants=delayed_job@1.service delayed_job@2.service
-After=delayed_job@1.service delayed_job@2.service
+Wants=backup_brain_delayed_job@1.service backup_brain_delayed_job@2.service
+After=backup_brain_delayed_job@1.service backup_brain_delayed_job@2.service
 #+end_src
 
-Add or remove entries (=delayed_job@3.service=, etc.) to change the count.
+Add or remove entries (=backup_brain_delayed_job@3.service=, etc.) to change the count.
 
 ** =meilisearch.toml=
 
@@ -78,14 +78,14 @@ sudo systemctl enable --now meilisearch
 
 #+begin_src sh
 sudo cp backup_brain.service /etc/systemd/system/
-sudo cp "delayed_job@.service" /etc/systemd/system/
+sudo cp "backup_brain_delayed_job@.service" /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable --now backup_brain
 #+end_src
 
-Enabling =backup_brain= is sufficient — it will start the =delayed_job@N=
+Enabling =backup_brain= is sufficient — it will start the =backup_brain_delayed_job@N=
 instances automatically via =Wants=. You do not need to enable the
-=delayed_job@.service= template or individual instances separately.
+=backup_brain_delayed_job@.service= template or individual instances separately.
 
 ** Tailscale Funnel (optional)
 
@@ -97,7 +97,7 @@ sudo systemctl enable --now tailscale_funnel
 
 * Troubleshooting
 
-** =delayed_job@N.service= fails with =status=127=
+** =backup_brain_delayed_job@N.service= fails with =status=127=
 
 The shell cannot find =bundle=. The login shell loaded by =-lc= may not have
 the right =PATH= for the user the service runs as.
@@ -110,7 +110,7 @@ which bundle
 ls ~/.rbenv/shims/bundle
 #+end_src
 
-Then update =ExecStart= in =delayed_job@.service= to use the full path:
+Then update =ExecStart= in =backup_brain_delayed_job@.service= to use the full path:
 
 #+begin_src ini
 # rbenv:
@@ -124,12 +124,12 @@ After editing, reload and restart:
 
 #+begin_src sh
 sudo systemctl daemon-reload
-sudo systemctl restart "delayed_job@*"
+sudo systemctl restart "backup_brain_delayed_job@*"
 #+end_src
 
-** =delayed_job@N.service= fails with =status=200/CHDIR=
+** =backup_brain_delayed_job@N.service= fails with =status=200/CHDIR=
 
-=WorkingDirectory= in =delayed_job@.service= still contains the
+=WorkingDirectory= in =backup_brain_delayed_job@.service= still contains the
 =/path/to/backup_brain= placeholder. Update it to the absolute path of the
 repo on this machine.
 
@@ -143,11 +143,11 @@ sudo systemctl restart backup_brain
 
 # Check status
 sudo systemctl status backup_brain
-sudo systemctl status "delayed_job@*"
+sudo systemctl status "backup_brain_delayed_job@*"
 
 # View logs
 journalctl -u backup_brain -f
-journalctl -u "delayed_job@1" -f
+journalctl -u "backup_brain_delayed_job@1" -f
 
 # Reload systemd after editing a service file
 sudo systemctl daemon-reload
