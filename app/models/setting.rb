@@ -2,6 +2,10 @@ class Setting
   include Mongoid::Document
   include Mongoid::Timestamps
 
+  # NOTE: There was a really good reason why value is a hash with a value key.
+  # However, I wrote it years ago, for another app, and
+  # I just don't remember what it was. 😿
+
   VALID_VALUE_TYPES = %i[boolean integer string array hash].freeze
 
   field :lookup_key,  type:    String
@@ -14,6 +18,7 @@ class Setting
   embeds_many :setting_dependencies, cascade_callbacks: true
 
   before_save :guarantee_value_default, :dependency_settings_presence
+  after_save :bust_cache
   validates :lookup_key, :summary, :description, presence: true
   validates :lookup_key, uniqueness: true
   validate :valid_value
@@ -21,14 +26,21 @@ class Setting
     inclusion: {in: VALID_VALUE_TYPES,
                 message: "value_type must be one of: #{VALID_VALUE_TYPES.join(", ")}"}
 
+  def self.cached_values
+    @cached_values ||= Setting.all.each_with_object({}) do |s, hash|
+      hash[s.lookup_key] = s.value
+    end
+  end
+
   def self.get_value_of_key(lookup_key)
-    a_setting = Setting.where(lookup_key: lookup_key).first
-    unless a_setting
+    cache = cached_values
+    unless cache.key?(lookup_key)
       raise BackupBrain::Errors::UnknownSetting.new(
         "No setting found with lookup_key: #{lookup_key}"
       )
     end
-    a_setting.inner_value
+    value_hash = cache[lookup_key]
+    value_hash.nil? ? nil : value_hash[:value]
   end
 
   def inner_value
@@ -36,6 +48,10 @@ class Setting
   end
 
   private
+
+  def bust_cache
+    self.class.instance_variable_set(:@cached_values, nil)
+  end
 
   def guarantee_value_default
     return if value.present? && value.is_a?(Hash) && value.has_key?(:value)
