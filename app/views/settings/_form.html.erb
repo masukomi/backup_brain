@@ -41,7 +41,7 @@
         <%= t('settings.lookup_key') %>
       </div>
       <div class="col">
-        <%= setting.lookup_key %>
+        <code><%= setting.lookup_key %></code>
       </div>
     </div>
 
@@ -88,7 +88,7 @@
                   role: "switch",
                   checked: setting.value
                 },
-                "true", "false"
+                true, false
                 %>
           </span>
       <% else %>

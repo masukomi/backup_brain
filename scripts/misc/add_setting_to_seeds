@@ -70,7 +70,7 @@ def collect_dependency(lookup_key, dep_index)
   dep = {}
 
   dep[:dependency_lookup_key] = prompt("  lookup_key of Setting this depends on: ").strip
-  unless Setting.where(lookup_key: dep[:dependency_lookup_key]).exists?
+  unless Setting.exists?(lookup_key: dep[:dependency_lookup_key])
     puts "  WARNING: No setting with lookup_key '#{dep[:dependency_lookup_key]}' found in the database."
     puts "  You will need to create that setting before this dependency will work."
   end
@@ -114,6 +114,7 @@ def generate_seeds_block(lookup_key, summary, description, visible, value_type, 
     end
     lines << "    RUBY"
     lines << "  )"
+    lines << "  #{dep_var}.test.strip!"
     lines << "  #{var_name}.setting_dependencies << #{dep_var}"
   end
 
@@ -130,7 +131,7 @@ puts
 
 lookup_key = prompt("lookup_key: ").strip
 
-if Setting.where(lookup_key: lookup_key).exists?
+if Setting.exists?(lookup_key: lookup_key)
   puts "WARNING: A setting with lookup_key '#{lookup_key}' already exists in the database."
   unless yes?("Continue anyway?")
     puts "Aborted."

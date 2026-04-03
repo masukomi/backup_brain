@@ -113,6 +113,7 @@ en:
       value_doesnt_match_type: "The supplied value doesn't match the value type"
       unsupported_value_type: "%{type} is not a supported value type"
       update_error: "An error was encountered while updating that setting."
+      validation_error: "attribute: %{attribute} → %{problem}"
   transcriptions:
     headings:
       inline: "Transcription %{name}"

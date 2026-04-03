@@ -50,10 +50,7 @@ whisper_model_path setting.
     dependency_lookup_key: whisper_model_path_lookup_key,
     name: "Whisper Model Path",
     notes: "must be a valid path to a whisper model",
-    test: <<~RUBY
-      BackupBrain::WhisperClient.instance.viable?
-    RUBY
-
+    test: "BackupBrain::WhisperClient.instance.viable?"
   )
   setting.setting_dependencies << sd
   setting.save!

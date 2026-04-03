@@ -19,7 +19,7 @@
       <%# favicon %>
       <div class="row">
         <div class="col">
-          <% if get_setting('enable_favicons') == true %>
+          <% if Setting.get_value_of_key('enable_favicons') == true %>
             <% if bookmark.domain.present? %>
               <img aria-hidden="true" class="favicon"
                   src="<%= request.protocol %>www.google.com/s2/favicons?sz=64&domain=<%= bookmark.domain %>" />

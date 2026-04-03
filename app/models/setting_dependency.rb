@@ -6,6 +6,8 @@ class SettingDependency
 
   field :dependency_lookup_key,  type: String
   # A bit of ruby code that must return true
+  # This is not something that can ever be set via the app.
+  # Has to be done via command line, migration, etc.
   field :test,        type: String
   field :name,        type: String
   field :notes,       type: String
@@ -16,10 +18,13 @@ class SettingDependency
   def dependent_setting_exists?
     Setting.where(lookup_key: dependency_lookup_key).count > 0
   end
+
+  # rubocop:disable Security/Eval
   def dependable?
     return false unless dependent_setting_exists?
     eval(test) == true
   end
+  # rubocop:enable Security/Eval
 
   def failure_message
     "#{name} #{notes}"
