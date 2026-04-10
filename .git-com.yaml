@@ -1,62 +1,62 @@
 change-type:
-    after-string: ']'
-    before-string: '['
     destination: title
-    instructions: What kind of change?
+    type: select
     modifiable: true
+    instructions: What kind of change?
+    before-string: '['
+    after-string: ']'
     format: "%-12s"
     options:
         - fix
         - add
         - refactor
         - clean-up
-    type: select
 breaking-indicator:
+    destination: title
+    type: select
     after-string: ': '
     allow-empty: true
-    destination: title
     empty-selection-text: Skip
     instructions: Skip unless breaking change
     options:
-        - breaking
-    type: select
+        - ⚠️
 commit-title:
     destination: title
-    placeholder: Commit Title
     type: text
+    placeholder: Commit Title
 commit-description:
-    allow-empty: true
     destination: body
-    instructions: Please describe your changes.
     type: multiline-text
-code-sections:
     allow-empty: true
-    before-string: "\nCode Sections: "
+    instructions: Please describe your changes.
+code-sections:
     destination: body
-    instructions: Which section(s) of the codebase?
+    type: multi-select
+    allow-empty: true
     modifiable: true
+    record-as: joined-string
+    before-string: "\nCode Sections: "
+    instructions: Which section(s) of the codebase?
     options:
-        - tags
         - bookmarks
+        - archives
         - ui
-        - css
         - ux
+        - css
         - config
         - meta
         - tests
-        - oauth
         - migrations
-        - archives
         - infrastructure
-    record-as: joined-string
-    type: multi-select
+        - tags
+        - oauth
 ticket-number:
+    destination: body
+    type: text
     allow-empty: true
     before-string: "\n\nTicket: "
     data-type: integer
-    destination: body
     instructions: Associated Ticket Number (if any)
-    type: text
 meta_element_changelog:
     display_aliases:
         fix: "fixed"
