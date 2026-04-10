@@ -22,7 +22,7 @@
           <% if Setting.get_value_of_key('enable_favicons') == true %>
             <% if bookmark.domain.present? %>
               <img aria-hidden="true" class="favicon"
-                  src="<%= request.protocol %>www.google.com/s2/favicons?sz=64&domain=<%= bookmark.domain %>" />
+                  src="<%= favicon_path(domain_name: bookmark.domain) %>" />
             <% else %>
               <%= inline_icon("missing_image", icon_class: "favicon", aria_hidden: true) %>
             <% end %>

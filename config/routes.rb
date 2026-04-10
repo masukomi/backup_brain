@@ -27,11 +27,10 @@ Rails.application.routes.draw do
   post "archives/:object_type/:parent_id/:id/modify", controller: :archives, action: :modify, as: :modify_archive
   get "archives/:object_type/:id/:filename", controller: :archives, action: :show
 
-
   get "importer", controller: :importer, action: :index, as: :importer_form
   post "importer/import", controller: :importer, action: :import, as: :importer_import
 
-  match "/debugging/echo" => "debugging#echo", via: [:get, :post, :put, :patch, :delete]
+  match "/debugging/echo" => "debugging#echo", :via => [:get, :post, :put, :patch, :delete]
 
   get    "jobs",                                       controller: :jobs, action: :index,     as: :jobs
   post   "jobs/:job_class/run",                        controller: :jobs, action: :run,        as: :run_job
@@ -43,6 +42,8 @@ Rails.application.routes.draw do
   delete "remote_credentials/:id",         controller: :remote_credentials, action: :destroy,    as: :remote_credential
   get    "remote_authorizations/callback", controller: :remote_credentials, action: :callback,   as: :remote_authorization_callback
 
+  get "favicon/:domain_name", controller: :favicons, action: :get_favicon, as: :favicon, constraints: {domain_name: /[^\/]+/}
+
   # Tell those script kiddes to fuck off.
   # Is this needed? no.
   # Does it work? Depends on how you define "work"
@@ -53,11 +54,6 @@ Rails.application.routes.draw do
   get "*.php*",      controller: :script_kiddies, action: :fuck_off
   get "*.jsp*",      controller: :script_kiddies, action: :fuck_off
 
-
-
-
   # Defines the root path route ("/")
   root "bookmarks#index"
-
-
 end
