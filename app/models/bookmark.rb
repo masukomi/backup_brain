@@ -30,8 +30,7 @@ class Bookmark
 
   belongs_to :user
 
-  validates :title, presence: true
-  validates :url, presence: true
+  validates :title, :url, presence: true
   validates :url, uniqueness: true
 
   before_save    :emojify_default_fields
@@ -250,7 +249,11 @@ class Bookmark
     # FIXME: this is hack until we can replace the "reader"
     # command line tool with a ruby library that actually works
     # https://github.com/masukomi/backup_brain/issues/55
-    return unless (Setting.get_value_of_key("enable_archiving") == true rescue false)
+    return unless begin
+      Setting.get_value_of_key("enable_archiving") == true
+    rescue
+      false
+    end
 
     if url.blank?
       # only a warning because this shouldn't be a surprise.
