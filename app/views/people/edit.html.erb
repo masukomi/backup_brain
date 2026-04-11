@@ -1,0 +1,17 @@
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <heading><%= t("people.edit_heading", name: @person.name) %></heading>
+    </div>
+  </div>
+</div>
+
+<%= render "form", person: @person %>
+
+<div class="container non-essential">
+  <div class="row">
+    <div class="col">
+      <%= link_to t("people.back_to_person"), @person %>
+    </div>
+  </div>
+</div>

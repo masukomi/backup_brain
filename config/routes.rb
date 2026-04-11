@@ -20,6 +20,10 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :people do
+    resources :social_media_accounts, only: [:new, :create, :destroy]
+  end
+
   resources :settings
   resources :tags do
     get :autocomplete, on: :collection
@@ -27,6 +31,7 @@ Rails.application.routes.draw do
 
   get "archives/:object_type/:parent_id/:id/edit", controller: :archives, action: :edit, as: :edit_archive
   post "archives/:object_type/:parent_id/:id/modify", controller: :archives, action: :modify, as: :modify_archive
+  get "archives/:object_type/:id/:grouping/:filename", controller: :archives, action: :show
   get "archives/:object_type/:id/:filename", controller: :archives, action: :show
 
   get "importer", controller: :importer, action: :index, as: :importer_form

@@ -1,0 +1,27 @@
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <heading><%= t("people.list_heading") %></heading>
+    </div>
+  </div>
+</div>
+
+<% if @people.empty? %>
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <%= t("people.no_people_message") %>
+      </div>
+    </div>
+  </div>
+<% else %>
+  <div class="container" id="people">
+    <% @people.each do |person| %>
+      <div class="row">
+        <div class="col">
+          <%= render person %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>

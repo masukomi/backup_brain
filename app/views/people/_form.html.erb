@@ -1,0 +1,89 @@
+<div class="container">
+  <%= render partial: "shared/errors_row", locals: {thing: person} %>
+  <%= form_with(model: person) do |form| %>
+
+    <div class="row">
+      <div class="col-2">
+        <%= form.label :name, style: "display: block" %>
+      </div>
+      <div class="col-9">
+        <%= form.text_field :name, class: "bookmark-input-field" %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-2">
+        <%= form.label :pronouns, style: "display: block" %>
+      </div>
+      <div class="col-9">
+        <%= form.text_field :pronouns, class: "bookmark-input-field" %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-2">
+        <%= form.label :description, style: "display: block" %>
+      </div>
+      <div class="col-9">
+        <%= form.text_area :description, class: "bookmark-textarea-field" %>
+        <div style="float: right;"><%== t("misc.markdown_supported_here") %></div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-2">
+        <%= form.label :aliases, style: "display: block" %>
+      </div>
+      <div class="col-9">
+        <%= form.text_field :aliases,
+                            class: "bookmark-input-field",
+                            value: person.aliases.join(", "),
+                            name: "person[aliases_string]" %>
+        <div class="metadata"><%= t("people.aliases_field_hint") %></div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-2">
+        <%= form.label :home_url, style: "display: block" %>
+      </div>
+      <div class="col-9">
+        <%= form.text_field :home_url, class: "bookmark-input-field" %>
+      </div>
+    </div>
+
+    <div class="row safe-space">
+      <div class="col-2">
+        <%= form.label :domains, style: "display: block" %>
+      </div>
+      <div class="col-9">
+        <div data-controller="domain-input"
+             data-domain-input-existing-value="<%= person.domains.to_json %>">
+          <div class="tag-chips-area mb-1" data-domain-input-target="chipsArea"></div>
+          <div class="input-group">
+            <input type="text"
+                   class="form-control"
+                   data-domain-input-target="textInput"
+                   data-action="input->domain-input#handleInput keydown->domain-input#handleKeydown"
+                   placeholder="e.g. example.com"
+                   autocomplete="off">
+            <button type="button"
+                    class="btn btn-secondary"
+                    data-domain-input-target="addButton"
+                    data-action="click->domain-input#addDomain"
+                    disabled><%= t("people.add_domain_button") %></button>
+          </div>
+          <div data-domain-input-target="hiddenFields"></div>
+        </div>
+        <div class="metadata"><%= t("people.domains_field_hint") %></div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <%= form.submit class: "btn btn-primary" %>
+      </div>
+    </div>
+
+  <% end %>
+</div>

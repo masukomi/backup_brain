@@ -29,6 +29,9 @@ class Bookmark
   embeds_many :failed_archive_attempts
 
   belongs_to :user
+  has_and_belongs_to_many :people # NEVER DEPENDENT DESTROY
+  # typically an author or someone responsible for the site
+  # the bookmark was published on
 
   validates :title, :url, presence: true
   validates :url, uniqueness: true
@@ -38,6 +41,8 @@ class Bookmark
   before_save    :set_domain
   before_save    :maybe_generate_archive
   before_save    :clean_orphaned_tags
+
+  before_create  :find_associated_people
   after_create   :generate_archive
 
   before_destroy :clean_orphaned_tags
@@ -154,6 +159,11 @@ class Bookmark
   # Deletes the entire folder
   def remove_archived_images
     FileUtils.rm_rf(Bookmark.archive_folder_path_for_doc(self))
+  end
+
+  def find_associated_people
+    # TODO find Person records whose domain's list includes the domain of this bookmark
+    # associate them with this record.
   end
 
   # END HOOKS

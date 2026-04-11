@@ -1,0 +1,35 @@
+<div tabindex="0" id="<%= dom_id person %>" class="container bookmark-list-item">
+  <div class="row">
+    <div class="col-8">
+
+      <div class="row">
+        <div class="col">
+          <% if person.avatar_image_path.present? %>
+            <%= image_tag person.avatar_image_path, class: "favicon", aria_hidden: true %>
+          <% end %>
+          <%= link_to person.name, person_path(person) %>
+        </div>
+      </div>
+
+      <% if person.description.present? %>
+        <div class="row">
+          <div class="col">
+            <%== ::Rendering::Markdown.instance.render(person.description) %>
+          </div>
+        </div>
+      <% end %>
+
+      <% if person.social_media_accounts.any? %>
+        <div class="row">
+          <div class="col metadata">
+            <% person.social_media_accounts.each do |sma| %>
+              <%= link_to (sma.username.presence || sma.service), sma.profile_url,
+                          target: "_blank", rel: "noopener noreferrer" %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+    </div>
+  </div>
+</div>

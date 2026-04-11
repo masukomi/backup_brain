@@ -1,0 +1,92 @@
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <% if @person.avatar_image_path.present? %>
+        <%= image_tag @person.avatar_image_path, class: "heading-person-avatar", alt: @person.name, align: "left" %>
+      <% end %>
+      <heading><%= @person.name %></heading>
+      <% if @person.pronouns.present? %>
+        <span class="metadata"><%= @person.pronouns %></span>
+      <% end %>
+      <% if @person.description.present? %>
+          <%== ::Rendering::Markdown.instance.render(@person.description) %>
+      <% end %>
+    </div>
+  </div>
+
+
+  <% if @person.home_url.present? %>
+    <div class="row">
+      <div class="col">
+        <%= link_to @person.home_url, @person.home_url, target: "_blank", rel: "noopener noreferrer" %>
+      </div>
+    </div>
+  <% end %>
+  <% if @person.domains.present? %>
+    <div class="row safe-space">
+      <div class="col">
+        <heading><%= t('people.domains_heading') %></heading>
+        <br />
+
+        <% @person.domains.each do | domain | %>
+          <span class="nobr inline-links">
+            <% if Setting.get_value_of_key('enable_favicons')
+              url = BackupBrain::Favicons.cached_or_fetched_path(domain)
+            %>
+            <% if url  %>
+              <img aria-hidden="true"
+                    class="favicon"
+                    src="<%= favicon_path(domain_name: domain) %>" />
+            <% end %>
+          <% end %>
+          <%= link_to(domain, "https://#{domain}") %>
+          </span>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <% if @person.social_media_accounts.any? %>
+    <div class="row safe-space">
+      <div class="col">
+        <h2><%= t("social_media_accounts.list_heading") %></h2>
+        <% @person.social_media_accounts.each do |sma| %>
+          <%= render partial: "social_media_accounts/social_media_account", locals: {sma: sma} %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="row safe-space">
+    <div class="col">
+      <%= link_to t("social_media_accounts.add"), new_person_social_media_account_path(@person),
+                  class: "btn btn-primary compact-button" %>
+    </div>
+  </div>
+</div>
+
+<% content_for :sidebar do %>
+  <%= render partial: "shared/sidebar_page_actions_top" %>
+  <div id="page-actions">
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <ul>
+            <li><%= link_to t("people.edit_link"), edit_person_path(@person),
+                            class: "btn btn-primary compact-button" %></li>
+          </ul>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <div class="safe-space">
+            <%= button_to t("people.delete_link"), @person,
+                          method: :delete,
+                          class: "btn btn-danger compact-button",
+                          form: {data: {turbo_confirm: t("misc.are_you_sure")}} %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

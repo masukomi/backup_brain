@@ -1,0 +1,66 @@
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <heading><%= t("social_media_accounts.new_heading", name: @person.name) %></heading>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <%= render partial: "shared/errors_row", locals: {thing: @social_media_account} %>
+  <%= form_with(model: [@person, @social_media_account]) do |form| %>
+
+    <div class="row">
+      <div class="col-2">
+        <%= form.label :profile_url, style: "display: block" %>
+      </div>
+      <div class="col-9">
+        <%= form.text_field :profile_url, class: "bookmark-input-field",
+                            placeholder: "https://mastodon.social/@you" %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-2">
+        <%= form.label :type, style: "display: block" %>
+      </div>
+      <div class="col-9">
+        <%= form.select :type,
+            SocialMediaAccount::VALID_TYPES,
+            class: "bookmark-input-field",
+                            placeholder: "https://mastodon.social/@you" %>
+      </div>
+    </div>
+
+    <div class="row safe-space">
+      <div class="col-10">
+        <%= form.label :preferred,
+                       t("social_media_accounts.preferred_label"),
+                       style: "display: block",
+                       class: "form-check-label",
+                       for: "preferredSwitch" %>
+      </div>
+      <div class="col-1 form-check form-switch">
+        <%= form.check_box :preferred,
+                           class: "bookmark-checkbox-field form-check-input toggle",
+                           role: "switch",
+                           id: "preferredSwitch" %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <%= form.submit class: "btn btn-primary" %>
+      </div>
+    </div>
+
+  <% end %>
+</div>
+
+<div class="container non-essential">
+  <div class="row">
+    <div class="col">
+      <%= link_to t("people.back_to_person"), @person %>
+    </div>
+  </div>
+</div>

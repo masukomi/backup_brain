@@ -1,65 +1,66 @@
 change-type:
-    destination: title
-    type: select
-    modifiable: true
-    instructions: What kind of change?
-    before-string: '['
-    after-string: ']'
-    format: "%-12s"
-    options:
-        - fix
-        - add
-        - refactor
-        - clean-up
+  destination: title
+  type: select
+  instructions: What kind of change?
+  before-string: "["
+  after-string: "]"
+  format: "%-12s"
+  options:
+  - fix
+  - add
+  - refactor
+  - clean-up
+  modifiable: true
 breaking-indicator:
-    destination: title
-    type: select
-    after-string: ': '
-    allow-empty: true
-    empty-selection-text: Skip
-    instructions: Skip unless breaking change
-    options:
-        - ⚠️
+  destination: title
+  type: select
+  instructions: Skip unless breaking change
+  after-string: ": "
+  allow-empty: true
+  options:
+  - ⚠️
+  empty-selection-text: Skip
 commit-title:
-    destination: title
-    type: text
-    placeholder: Commit Title
+  destination: title
+  type: text
+  placeholder: Commit Title
 commit-description:
-    destination: body
-    type: multiline-text
-    allow-empty: true
-    instructions: Please describe your changes.
+  destination: body
+  type: multiline-text
+  instructions: Please describe your changes.
+  allow-empty: true
 code-sections:
-    destination: body
-    type: multi-select
-    allow-empty: true
-    modifiable: true
-    record-as: joined-string
-    before-string: "\nCode Sections: "
-    instructions: Which section(s) of the codebase?
-    options:
-        - bookmarks
-        - archives
-        - ui
-        - ux
-        - css
-        - config
-        - meta
-        - tests
-        - migrations
-        - infrastructure
-        - tags
-        - oauth
+  destination: body
+  type: multi-select
+  instructions: Which section(s) of the codebase?
+  before-string: "\nCode Sections: "
+  allow-empty: true
+  options:
+  - bookmarks
+  - archives
+  - ui
+  - ux
+  - css
+  - config
+  - meta
+  - tests
+  - migrations
+  - infrastructure
+  - tags
+  - oauth
+  - people
+  modifiable: true
+  record-as: joined-string
 ticket-number:
-    destination: body
-    type: text
-    allow-empty: true
-    before-string: "\n\nTicket: "
-    data-type: integer
-    instructions: Associated Ticket Number (if any)
+  destination: body
+  type: text
+  instructions: Associated Ticket Number (if any)
+  before-string: "\n\nTicket: "
+  allow-empty: true
+  data-type: integer
 meta_element_changelog:
-    display_aliases:
-        fix: "fixed"
-        add: "added"
-        refactor: "refactored"
-        clean-up: "cleaned"
+  display_aliases:
+    fix: fixed
+    add: added
+    refactor: refactored
+    clean-up: cleaned

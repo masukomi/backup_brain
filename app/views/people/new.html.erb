@@ -1,0 +1,17 @@
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <heading><%= t("people.new_heading") %></heading>
+    </div>
+  </div>
+</div>
+
+<%= render "form", person: @person %>
+
+<div class="container non-essential">
+  <div class="row">
+    <div class="col">
+      <%= link_to t("people.list_link"), people_path %>
+    </div>
+  </div>
+</div>

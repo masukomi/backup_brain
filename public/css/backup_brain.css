@@ -2,6 +2,11 @@
 body {
 	color: #484337;
 }
+.nobr	{ white-space:nowrap; }
+.inline-links{
+	display: inline-block;
+	padding-left: 0.5em;
+}
 h1 {
 	font-size: 2rem;
 	max-height: 2rem;
@@ -499,4 +504,19 @@ debugging::before{
 	left: 0;
 	width: 100%;
 	z-index: 1000;
+}
+/* people */
+.heading-person-avatar,
+.person-avatar {
+	max-width: 4em;
+	border-radius: 100%;
+}
+.heading-person-avatar{
+	padding-right: 0.5em;
+}
+.sma-header-image {
+	width: 100%;
+	height: 15em;
+	object-fit: cover;
+	/* object-position: center top; */
 }

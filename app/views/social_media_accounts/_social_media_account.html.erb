@@ -1,0 +1,52 @@
+<div tabindex="0" id="<%= dom_id sma %>" class="container bookmark-list-item">
+  <% if sma.header_image_path.present? %>
+    <div class="row">
+      <div class="col">
+        <%= image_tag sma.header_image_path, class: "sma-header-image", alt: "" %>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="row">
+    <div class="col-8">
+      <div class="row">
+        <div class="col">
+          <% if sma.avatar_image_path.present? %>
+            <%= image_tag sma.avatar_image_path, class: "favicon", aria_hidden: true %>
+          <% end %>
+          <%= link_to (sma.username.presence || sma.profile_url), sma.profile_url,
+                      target: "_blank", rel: "noopener noreferrer" %>
+          <span class="metadata"><%= sma.service %></span>
+          <% if sma.preferred? %>
+            <span class="metadata"><%= t("social_media_accounts.preferred_badge") %></span>
+          <% end %>
+        </div>
+      </div>
+      <div class="row">
+          <div class="col">
+              <% if sma.description.present? %>
+              <%= ::Rendering::Markdown.instance.render(sma.description).html_safe %>
+              <% elsif sma.has_supported_service? %>
+                  <%= t("social_media_accounts.no_description") %>
+              <% end %>
+        </div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="action-icons">
+        <div class="action-icon delete-action-icon">
+          <%== link_to image_tag("/images/icons/delete.svg",
+                                 class: "inline-link-icon delete-icon",
+                                 "aria-hidden": true) + t("social_media_accounts.delete_link"),
+                       person_social_media_account_path(sma.person, sma),
+                       class: "inline-link-icon delete-link-icon",
+                       data: {
+                         turbo_method: :delete,
+                         turbo_confirm: t("misc.are_you_sure")
+                       } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

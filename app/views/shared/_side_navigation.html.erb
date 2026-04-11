@@ -14,6 +14,8 @@
         <li><%= link_to t('navigation.unarchived_link'), bookmarks_unarchived_path %></li>
         <% if current_user %>
         <li><%= link_to t('tags.link'), tags_path %></li>
+        <li><%= link_to t('people.list_link'), people_path %></li>
+        <li><%= link_to t('people.add'), new_person_path %></li>
         <% end %>
 
 

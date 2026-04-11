@@ -39,10 +39,19 @@
 
 en:
   mongoid:
+    errors:
+      models:
+        person:
+          attributes:
+            domains:
+              invalid: "These don't look like domains: %{invalid_domains}"
+        social_media_account:
+          attributes:
+            type:
+              inclusion: "%{value} is not a valid type"
     attributes:
       bookmark:
         tags: "Tags"
-  errors:
     bookmarks:
       no_archive_found: "No archive was found for this bookmark."
       cant_archive_without_url: "Can't create an archive without an url."
@@ -120,6 +129,34 @@ en:
     source:
       youtube: "Source: YouTube"
       whisper: "Source: Whisper"
+  people:
+    list_link: "People"
+    list_heading: "People"
+    add: "Add Someone"
+    new_heading: "Add Someone"
+    edit_heading: "Editing %{name}"
+    domains_heading: "Domains"
+    back_to_person: "Back to person"
+    creation_success: "Person successfully added."
+    update_success: "Person successfully updated."
+    deletion_success: "Person successfully deleted."
+    edit_link: "Edit Person"
+    delete_link: "Delete Person"
+    no_people_message: "No people added yet."
+    aliases_field_hint: "Other names they go by. Separate multiple aliases with commas."
+    domains_field_hint: "Other domains associated with this person (e.g. their personal site)"
+    add_domain_button: "Add Domain"
+  social_media_accounts:
+    list_heading: "Social Media Accounts"
+    add: "Add Social Media Account"
+    new_heading: "Add Social Media Account for %{name}"
+    delete_link: "delete"
+    preferred_label: "Preferred account for this person"
+    preferred_badge: "preferred"
+    creation_success_supported: "Account saved. We'll gather their profile info in the background shortly."
+    creation_success_unsupported: "Account saved. We don't support automatic profile gathering for this type of site."
+    deletion_success: "Account removed."
+    no_description: "No description found on server."
   bookmarks:
     headings:
       simple: "Bookmarks"
