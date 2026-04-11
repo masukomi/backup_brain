@@ -437,3 +437,66 @@ debugging::before{
 	cursor: pointer;
 	color: lightblue;
 }
+
+/* Tag chip input */
+.tag-input-wrapper {
+	position: relative;
+	width: 100%;
+}
+.tag-chips-area {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0.375rem 0.75rem;
+	background-color: #fff;
+	border: 1px solid #8f8f9d;
+	border-radius: 0.1rem;
+	min-height: 2.5rem;
+	cursor: text;
+}
+.tag-chips-area:focus-within {
+	border-color: #86b7fe;
+	box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+	outline: 0;
+}
+.tag-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	background-color: #86b7fe;
+	/*border: 1px solid #86b7fe;*/
+	border-radius: 0.25rem;
+	padding: 0.125rem 0.375rem;
+	font-size: 0.875rem;
+	white-space: nowrap;
+}
+.tag-chip-remove {
+	background: none;
+	border: none;
+	padding: 0;
+	font-size: 1rem;
+	line-height: 1;
+	cursor: pointer;
+	color: #6c757d;
+}
+.tag-chip-remove:hover {
+	color: #000;
+	font-weight: bold;
+}
+.tag-text-input {
+	border: none;
+	outline: none;
+	flex: 1;
+	min-width: 5rem;
+	background: transparent;
+	padding: 0;
+	font-size: 1rem;
+}
+.tag-autocomplete-dropdown {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	width: 100%;
+	z-index: 1000;
+}

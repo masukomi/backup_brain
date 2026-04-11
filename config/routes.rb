@@ -21,7 +21,9 @@ Rails.application.routes.draw do
   end
 
   resources :settings
-  resources :tags
+  resources :tags do
+    get :autocomplete, on: :collection
+  end
 
   get "archives/:object_type/:parent_id/:id/edit", controller: :archives, action: :edit, as: :edit_archive
   post "archives/:object_type/:parent_id/:id/modify", controller: :archives, action: :modify, as: :modify_archive

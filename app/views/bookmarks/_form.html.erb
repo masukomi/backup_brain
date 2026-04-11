@@ -38,7 +38,25 @@
         <%= form.label :tags, style: "display: block" %>
       </div>
       <div class="col-9">
-        <%= form.text_field :tags, class: 'bookmark-input-field' %>
+        <div class="tag-input-wrapper bookmark-input-field"
+             data-controller="tag-input"
+             data-tag-input-autocomplete-url-value="<%= autocomplete_tags_path %>"
+             data-action="click->tag-input#focusInput">
+          <input type="hidden"
+                 name="bookmark[tags]"
+                 value="<%= bookmark.tags.join(' ') %>"
+                 data-tag-input-target="hidden">
+          <div class="tag-chips-area" data-tag-input-target="chipsArea">
+            <input type="text"
+                   class="tag-text-input"
+                   data-tag-input-target="textInput"
+                   data-action="keydown->tag-input#handleKeydown input->tag-input#handleInput"
+                   autocomplete="off"
+                   placeholder="add tags...">
+          </div>
+          <ul class="dropdown-menu tag-autocomplete-dropdown"
+              data-tag-input-target="dropdown"></ul>
+        </div>
       </div>
     </div>
 

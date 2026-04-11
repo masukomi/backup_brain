@@ -74,6 +74,14 @@ class TagsController < ApplicationController
     end
   end
 
+  # GET /tags/autocomplete?q=foo
+  def autocomplete
+    q = params[:q].to_s.strip.downcase
+    return render(json: []) if q.length < 3
+    tags = Tag.where(name: /\A#{Regexp.escape(q)}/i).limit(10).pluck(:name)
+    render json: tags
+  end
+
   private
 
   # Use callbacks to share common setup or constraints between actions.
