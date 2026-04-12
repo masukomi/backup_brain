@@ -6,14 +6,14 @@ so they start automatically on boot and restart on failure.
 
 * Files
 
-| File                       | Purpose                                                     |
-|----------------------------+-------------------------------------------------------------|
-| =backup_brain.service=     | Main Rails app (Puma)                                       |
-| =backup_brain_delayed_job@.service=     | Template unit for background job workers (one per instance) |
-| =meilisearch.service=      | Meilisearch search engine                                   |
-| =meilisearch.toml=         | Meilisearch configuration (goes to =/etc/meilisearch.toml=) |
-| =tailscale_funnel=         | Script invoked by =tailscale_funnel.service=                |
-| =tailscale_funnel.service= | Optional: exposes Backup Brain via Tailscale Funnel         |
+| File                                | Purpose                                                     |
+|-------------------------------------+-------------------------------------------------------------|
+| =backup_brain.service=              | Main Rails app (Puma)                                       |
+| =backup_brain_delayed_job@.service= | Template unit for background job workers (one per instance) |
+| =meilisearch.service=               | Meilisearch search engine                                   |
+| =meilisearch.toml=                  | Meilisearch configuration (goes to =/etc/meilisearch.toml=) |
+| =tailscale_funnel=                  | Script invoked by =tailscale_funnel.service=                |
+| =tailscale_funnel.service=          | Optional: exposes Backup Brain via Tailscale Funnel         |
 
 * Required Changes Before Installing
 

@@ -116,7 +116,11 @@ if [[ "${install_choice:-n}" =~ ^[Yy]$ ]]; then
 
     # backup_brain_delayed_job@.service is a template — it is started automatically via
     # backup_brain.service's Wants= directive; enabling it directly would fail.
-    [[ "$label" == "backup_brain_delayed_job@" ]] && continue
+    if [[ "$label" == "backup_brain_delayed_job@" ]]; then
+      echo "backup_brain_delayed_job@.service is started automatically via backup_brain.service"
+      echo "skipping it"
+      continue
+    fi
 
     sudo systemctl enable --now "$label"
     echo "Enabled and started: $label"
