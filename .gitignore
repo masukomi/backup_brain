@@ -10,6 +10,7 @@ scripts/mongo_exports/*
 .env
 bin/reader
 whisper-models/*
+public/images/favicons/*
 *.bak
 .idea/*
 data.ms/*
