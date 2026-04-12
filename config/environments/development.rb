@@ -8,7 +8,7 @@ Rails.application.configure do
     config.log_level = env_log_level
     # normally this is :fatal in development
     # rubocop:disable Rails/Output
-    puts("ℹ️ set log level to #{env_log_level} via LOG_LEVEL evironment variable")
+    # puts("ℹ️ set log level to #{env_log_level} via LOG_LEVEL evironment variable")
     # rubocop:enable Rails/Output
   end
 
