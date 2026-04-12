@@ -162,8 +162,8 @@ class Bookmark
   end
 
   def find_associated_people
-    # TODO find Person records whose domain's list includes the domain of this bookmark
-    # associate them with this record.
+    return if domain.blank?
+    self.people |= Person.where(domains: domain).to_a
   end
 
   # END HOOKS

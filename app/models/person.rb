@@ -32,6 +32,7 @@ class Person
   validates :name, presence: true
   validate  :validate_domains
   before_save :emojify_default_fields, :guarantee_home_url_domain, :clean_domains
+  before_create :find_associated_bookmarks
 
   # enabled?() is controlled by the SEARCH_ENABLED environment variable
   if Search::Client.instance.enabled?
@@ -78,5 +79,10 @@ class Person
     invalid = domains.reject { |d| d.match?(/(?:\w+\.)+\w+$/) }
     return if invalid.empty?
     errors.add(:domains, :invalid, invalid_domains: invalid.join(", "))
+  end
+
+  def find_associated_bookmarks
+    return if domains.blank?
+    self.bookmarks |= Bookmark.in(domain: domains).to_a
   end
 end
