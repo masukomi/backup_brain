@@ -1,0 +1,21 @@
+<div class="timeline timeline-left">
+  <% date_prefix ||= t('dashboards.dailies.default_date_prefix') %> <%# most timelines are grouped by week %>
+  <% grouped_items.keys.reverse.each do | date | %>
+    <% items = grouped_items[date] %>
+    <div class="row">
+      <div class="col">
+        <div class="timeline-breaker"><%= date_prefix %>
+          <%= date.strftime("%a %b %d, %Y") %>
+        </div>
+      </div>
+    </div>
+    <%# there may or may not be anything in items %>
+    <% items.reverse.each do | item | %>
+      <div class="timeline-item row <%= item.class.name.underscore.gsub('_', '-') %>-row">
+        <div class="col">
+          <%= render item %>
+        </div>
+      </div>
+    <% end %> <%# end timeline-item %>
+  <% end %>
+</div> <%# end timeline%>

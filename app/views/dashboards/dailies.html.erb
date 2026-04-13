@@ -1,0 +1,44 @@
+<% prev_until = @until + 1
+   prev_since = @since + 1
+   next_until = @until - 1
+   next_since = @since - 1
+   at_present = @until <= 0
+%>
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <heading><%= t('dashboards.dailies.heading') %></heading>
+    </div>
+  </div>
+  <%= render partial: "month_pagination_row", locals: {
+    prev_until: prev_until, prev_since: prev_since,
+    next_until: next_until, next_since: next_since,
+    at_present: at_present
+  }%>
+
+  <% if @grouped_dailies.size == 0 %>
+    <div class="row">
+      <div class="col">
+        <% date_fmt = t('dashboards.dailies.no_records_strftime')
+        until_strftime = @until_date.strftime(date_fmt)
+        since_strftime = @since_date.strftime(date_fmt)
+        %>
+        <%= t('dashboards.dailies.no_records_in_range', since: since_strftime, until: until_strftime) %>
+      </div>
+    </div>
+  <% end %>
+  <div class="row dailies-list">
+    <div class="col">
+      <%= render partial: 'shared/card_timeline', locals: {
+        grouped_items: @grouped_dailies,
+        date_prefix: 'Day of',
+        include_author: false
+      } %>
+    </div>
+  </div>
+  <%= render partial: "month_pagination_row", locals: {
+    prev_until: prev_until, prev_since: prev_since,
+    next_until: next_until, next_since: next_since,
+    at_present: at_present
+  }%>
+</div>

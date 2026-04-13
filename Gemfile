@@ -68,6 +68,10 @@ gem "gemoji"
 
 gem "htmlentities" # escape html entities https://github.com/threedaymonk/htmlentities
 
+# Groupdate extends Array (and Enumerable) with methods like
+# group_by_day, group_by_week, group_by_month, etc.,
+# which group elements by a datetime value extracted via a block.
+gem "groupdate"
 gem "httparty" # for importer to check if urls are serving.
 gem "youtube-transcript-rb" # fetch transcripts from YouTube videos
 # gem "carrierwave-mongoid" # for file uploads

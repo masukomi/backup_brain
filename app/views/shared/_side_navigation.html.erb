@@ -2,8 +2,10 @@
   <div class="row">
     <div class="col">
       <ul id="side-nav-items">
-        <% unless current_user %>
+        <% if ! current_user %>
           <li><span class="learn-more"><a href="https://BackupBrain.app" title="<%= t('misc.learn_more_title')%>"><%==t('misc.learn_more_link')%></a></span></li>
+        <% else %>
+          <li><%= link_to t('dashboards.dailies.sidebar_link'), dailies_path %>
         <% end  %>
 
         <li><%= link_to t('bookmarks.all_link'), bookmarks_path %>
@@ -16,7 +18,7 @@
         <% if current_user %>
         <li><%= link_to t('tags.link'), tags_path %></li>
         <li><%= link_to t('people.list_link'), people_path %></li>
-        <li><%= link_to t('people.add'), new_person_path %></li>
+        <!-- <li><%= link_to t('people.add'), new_person_path %></li> -->
         <li><%= link_to t('domain_triggers.list_link'), domain_triggers_path %></li>
         <% end %>
 

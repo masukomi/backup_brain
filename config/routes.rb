@@ -32,6 +32,7 @@ Rails.application.routes.draw do
   resources :tags do
     get :autocomplete, on: :collection
   end
+  get "/dashboards/dailies", as: :dailies
 
   get  "archives/:object_type/:parent_id/new",        controller: :archives, action: :new,    as: :new_archive
   post "archives/:object_type/:parent_id",             controller: :archives, action: :create, as: :create_archive

@@ -1,5 +1,6 @@
 class ApplicationController < ActionController::Base
   include Pagy::Backend
+  include BackupBrain::Grouping
   VALID_ALTERNATE_LAYOUTS = %w[application webextension]
   layout :get_layout
 

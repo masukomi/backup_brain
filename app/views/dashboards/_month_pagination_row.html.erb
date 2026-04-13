@@ -1,0 +1,18 @@
+  <div class="row">
+    <div class="col">
+      <nav class="pagy-bootstrap-nav" role="navigation">
+        <ul class="pagination">
+          <li class="page-item prev">
+            <%= link_to t('dashboards.dailies.previous_month'), dailies_path(since: prev_since, until: prev_until), class: 'page-link' %>
+          </li>
+          <li class="page-item next <%= 'disabled' if at_present %>">
+            <% if at_present %>
+                <a class="page-link"><%= t('dashboards.dailies.next_month') %></a>
+            <% else %>
+                <%= link_to t('dashboards.dailies.next_month'), dailies_path(since: next_since, until: next_until), class: 'page-link' %>
+            <% end %>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>

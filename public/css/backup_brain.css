@@ -529,3 +529,19 @@ debugging::before{
 	object-fit: cover;
 	/* object-position: center top; */
 }
+
+/* dailies / timelines */
+.timeline-item {
+	background: none;
+	border: none;
+	margin: 0px !important;
+	padding: 0px !important;
+}
+.timeline-breaker{
+	margin-bottom: 1em !important;
+	text-align: left;
+	min-width: 90%;
+	border-radius: 0.25rem;
+	background: #2d4747;
+}
+/*.person-row, .note-row, .bookmark-row */

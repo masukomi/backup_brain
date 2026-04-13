@@ -4,7 +4,6 @@
   background-repeat: repeat-y;
   background-position: center top;
   padding: 0;
-  margin: 2em 0;
   text-align: center
 }
 
@@ -102,30 +101,8 @@ all and (min-device-pixel-ratio:1.5) {
   color: #eee
 }
 
-.timeline-breaker:after,
-.timeline-breaker:before {
-  top: 100%;
-  border: solid transparent;
-  content: " ";
-  height: 1px;
-  width: 0;
-  position: absolute;
-  pointer-events: none
-}
 
-.timeline-breaker:after {
-  border-top-color: #1b1b1b;
-  border-width: 10px;
-  left: 50%;
-  margin-left: -10px
-}
 
-.timeline-breaker:before {
-  border-top-color: rgba(0, 0, 0, .01);
-  border-width: 11px;
-  left: 50%;
-  margin-left: -11px
-}
 
 .timeline-breaker.timeline-breaker-bottom,
 .timeline-breaker.timeline-breaker-middle {
@@ -138,19 +115,7 @@ all and (min-device-pixel-ratio:1.5) {
   margin-bottom: 0
 }
 
-.timeline-breaker.timeline-breaker-bottom:after,
-.timeline-breaker.timeline-breaker-bottom:before {
-  top: -10px;
-  border-top: none
-}
 
-.timeline-breaker.timeline-breaker-bottom:after {
-  border-bottom-color: #1b1b1b
-}
-
-.timeline-breaker.timeline-breaker-bottom:before {
-  border-bottom-color: rgba(0, 0, 0, .01)
-}
 
 .timeline-item.timeline-item-first {
   margin-top: 20px !important
@@ -181,52 +146,6 @@ all and (min-device-pixel-ratio:1.5) {
   content: ""
 }
 
-.timeline-item:after,
-.timeline-item:before {
-  top: -20px;
-  right: 50%;
-  left: 50%;
-  position: absolute;
-  pointer-events: none;
-  display: block;
-  font-size: 30px;
-  height: 30px;
-  line-height: 30px;
-  width: 30px;
-  text-align: center;
-  margin-top: 0;
-  margin-left: -14px
-}
-
-.timeline-item:after,
-.timeline-item:before,
-.timeline-stacked-down .timeline-item:before {
-  display: inline-block;
-  font-weight: 900;
-  font-family: 'Font Awesome 5 Free';
-  font-style: normal;
-  speak: none
-}
-
-/* the diamond pointing to the target */
-/*.timeline-item:before {
-  content: "\F0D8";
-  color: #f6f6f6;
-}*/
-
-/* \f140 is the unicode for the font awesome bullseye */
-/*.timeline-item:after {
-  content: "\f140";
-  top: -39px;
-  background: #fff;
-}*/
-
-.timeline-item.highlight:after,
-.timeline-item.marker-highlight:after,
-.timeline-item.tag-featured:after {
-  color: #65b1a5
-}
-
 .timeline-item.overlap-push-large {
   margin-top: 120px
 }
@@ -245,21 +164,6 @@ all and (min-device-pixel-ratio:1.5) {
 
 .timeline-stacked-down .timeline-item:last-child {
   margin-bottom: 60px
-}
-
-.timeline-stacked-down .timeline-item:after,
-.timeline-stacked-down .timeline-item:before {
-  bottom: -20px;
-  top: auto
-}
-
-.timeline-stacked-down .timeline-item:before {
-  content: "\F0D7";
-}
-
-.timeline-stacked-down .timeline-item:after {
-  bottom: -40px;
-  top: auto
 }
 
 .timeline-item-date {
@@ -285,39 +189,6 @@ all and (min-device-pixel-ratio:1.5) {
     margin-left: 2%;
     clear: left
   }
-  .timeline-item:after,
-  .timeline-item:before {
-    top: 10%;
-    bottom: auto;
-    right: -20px;
-    left: auto;
-    position: absolute;
-    pointer-events: none;
-    margin: 0;
-    display: block;
-    font-size: 30px;
-    height: 30px;
-    line-height: 30px;
-    width: 30px;
-    text-align: center
-  }
-  .timeline-item.even:before,
-  .timeline-item.right:before,
-  .timeline-item:before {
-    display: inline-block;
-    font-family: 'Font Awesome 5 Free';
-    font-weight: 900;
-    font-style: normal;
-    speak: none
-  }
-  /* the diamond pointing to the bullseye */
-  /*.timeline-item:before {
-    content: "\F0DA";
-  }*/
-  .timeline-item:after {
-    right: -46px
-  }
-  .timeline-item.even,
   .timeline-item.right {
     float: right;
     clear: right;
@@ -333,14 +204,6 @@ all and (min-device-pixel-ratio:1.5) {
   .timeline-item.right:before {
     left: -20px;
     top: 10%
-  }
-  /*.timeline-item.even:before,
-  .timeline-item.right:before {
-    content: "\F0D9"
-  }*/
-  .timeline-item.even:after,
-  .timeline-item.right:after {
-    left: -46px
   }
   .timeline-item.overlap-off {
     margin-top: 0
@@ -375,163 +238,7 @@ all and (min-device-pixel-ratio:1.5) {
     border-bottom: 3px solid #55A79A;
     text-align: left
   }
-  .timeline-stacked .timeline-item.even::after,
-  .timeline-stacked .timeline-item.right::after,
-  .timeline-stacked .timeline-item::after,
-  .timeline.timeline-stacked .timeline-item.even::after,
-  .timeline.timeline-stacked .timeline-item.right::after,
-  .timeline.timeline-stacked .timeline-item::after {
-    display: block;
-    clear: both;
-    content: ""
-  }
-  .timeline-stacked .timeline-item.even:after,
-  .timeline-stacked .timeline-item.even:before,
-  .timeline-stacked .timeline-item.right:after,
-  .timeline-stacked .timeline-item.right:before,
-  .timeline-stacked .timeline-item:after,
-  .timeline-stacked .timeline-item:before,
-  .timeline.timeline-stacked .timeline-item.even:after,
-  .timeline.timeline-stacked .timeline-item.even:before,
-  .timeline.timeline-stacked .timeline-item.right:after,
-  .timeline.timeline-stacked .timeline-item.right:before,
-  .timeline.timeline-stacked .timeline-item:after,
-  .timeline.timeline-stacked .timeline-item:before {
-    top: -20px;
-    right: 50%;
-    left: 50%;
-    position: absolute;
-    pointer-events: none;
-    display: block;
-    font-size: 30px;
-    height: 30px;
-    line-height: 30px;
-    width: 30px;
-    text-align: center;
-    margin-top: 0;
-    margin-left: -14px
-  }
 
-  /*
-  .timeline-stacked .timeline-item.even:before,
-  .timeline-stacked .timeline-item.right:before,
-  .timeline-stacked .timeline-item:before,
-  .timeline.timeline-stacked .timeline-item.even:before,
-  .timeline.timeline-stacked .timeline-item.right:before,
-  .timeline.timeline-stacked .timeline-item:before {
-    font-family: 'Font Awesome 5 Free';
-    font-weight: 900;
-    font-style: normal;
-    speak: none;
-    display: inline-block;
-    content: "\F0D8";
-    color: #f6f6f6
-  } */
-
-  /* \f140 is the unicode for the font awesome bullseye */
-  /*.timeline-stacked .timeline-item.even:after,
-  .timeline-stacked .timeline-item.right:after,
-  .timeline-stacked .timeline-item:after,
-  .timeline.timeline-stacked .timeline-item.even:after,
-  .timeline.timeline-stacked .timeline-item.right:after,
-  .timeline.timeline-stacked .timeline-item:after {
-    font-family: 'Font Awesome 5 Free';
-    font-weight: 900;
-    font-style: normal;
-    speak: none;
-    display: inline-block;
-    content: "\f140";
-    top: -39px;
-    background: #fff;
-  }*/
-
-  .timeline-stacked .timeline-item.even.highlight:after,
-  .timeline-stacked .timeline-item.even.marker-highlight:after,
-  .timeline-stacked .timeline-item.even.tag-featured:after,
-  .timeline-stacked .timeline-item.highlight:after,
-  .timeline-stacked .timeline-item.marker-highlight:after,
-  .timeline-stacked .timeline-item.right.highlight:after,
-  .timeline-stacked .timeline-item.right.marker-highlight:after,
-  .timeline-stacked .timeline-item.right.tag-featured:after,
-  .timeline-stacked .timeline-item.tag-featured:after,
-  .timeline.timeline-stacked .timeline-item.even.highlight:after,
-  .timeline.timeline-stacked .timeline-item.even.marker-highlight:after,
-  .timeline.timeline-stacked .timeline-item.even.tag-featured:after,
-  .timeline.timeline-stacked .timeline-item.highlight:after,
-  .timeline.timeline-stacked .timeline-item.marker-highlight:after,
-  .timeline.timeline-stacked .timeline-item.right.highlight:after,
-  .timeline.timeline-stacked .timeline-item.right.marker-highlight:after,
-  .timeline.timeline-stacked .timeline-item.right.tag-featured:after,
-  .timeline.timeline-stacked .timeline-item.tag-featured:after {
-    color: #65b1a5
-  }
-  .timeline-stacked .timeline-item.even.overlap-push-large,
-  .timeline-stacked .timeline-item.overlap-push-large,
-  .timeline-stacked .timeline-item.right.overlap-push-large,
-  .timeline.timeline-stacked .timeline-item.even.overlap-push-large,
-  .timeline.timeline-stacked .timeline-item.overlap-push-large,
-  .timeline.timeline-stacked .timeline-item.right.overlap-push-large {
-    margin-top: 120px
-  }
-  .timeline-stacked .timeline-item.even.overlap-push-medium,
-  .timeline-stacked .timeline-item.overlap-push-medium,
-  .timeline-stacked .timeline-item.right.overlap-push-medium,
-  .timeline.timeline-stacked .timeline-item.even.overlap-push-medium,
-  .timeline.timeline-stacked .timeline-item.overlap-push-medium,
-  .timeline.timeline-stacked .timeline-item.right.overlap-push-medium {
-    margin-top: 60px
-  }
-  .timeline-stacked .timeline-item.even.overlap-push-small,
-  .timeline-stacked .timeline-item.overlap-push-small,
-  .timeline-stacked .timeline-item.right.overlap-push-small,
-  .timeline.timeline-stacked .timeline-item.even.overlap-push-small,
-  .timeline.timeline-stacked .timeline-item.overlap-push-small,
-  .timeline.timeline-stacked .timeline-item.right.overlap-push-small {
-    margin-top: 30px
-  }
-  .timeline-stacked.timeline-stacked-down .timeline-item:first-child,
-  .timeline.timeline-stacked.timeline-stacked-down .timeline-item:first-child {
-    margin-top: 40px
-  }
-  .timeline-stacked.timeline-stacked-down .timeline-item:last-child,
-  .timeline.timeline-stacked.timeline-stacked-down .timeline-item:last-child {
-    margin-bottom: 60px
-  }
-  .timeline-stacked.timeline-stacked-down .timeline-item:after,
-  .timeline-stacked.timeline-stacked-down .timeline-item:before,
-  .timeline.timeline-stacked.timeline-stacked-down .timeline-item:after,
-  .timeline.timeline-stacked.timeline-stacked-down .timeline-item:before {
-    bottom: -20px;
-    top: auto
-  }
-  .timeline-stacked.timeline-stacked-down .timeline-item:before,
-  .timeline.timeline-stacked.timeline-stacked-down .timeline-item:before {
-    font-family: 'Font Awesome 5 Free';
-    font-weight: 900;
-    font-style: normal;
-    speak: none;
-    display: inline-block;
-    content: "\F0D7"
-  }
-  .timeline-stacked.timeline-stacked-down .timeline-item:after,
-  .timeline.timeline-stacked.timeline-stacked-down .timeline-item:after {
-    bottom: -40px;
-    top: auto
-  }
-  .timeline-stacked.timeline-stacked-down .timeline-item.even.last,
-  .timeline-stacked.timeline-stacked-down .timeline-item.last,
-  .timeline-stacked.timeline-stacked-down .timeline-item.right.last,
-  .timeline.timeline-stacked.timeline-stacked-down .timeline-item.even.last,
-  .timeline.timeline-stacked.timeline-stacked-down .timeline-item.last,
-  .timeline.timeline-stacked.timeline-stacked-down .timeline-item.right.last {
-    margin-bottom: 40px
-  }
-  .timeline-stacked .timeline-breaker.timeline-breaker-bottom,
-  .timeline-stacked .timeline-breaker.timeline-breaker-middle,
-  .timeline.timeline-stacked .timeline-breaker.timeline-breaker-bottom,
-  .timeline.timeline-stacked .timeline-breaker.timeline-breaker-middle {
-    top: auto
-  }
 }
 
 .timeline-left,

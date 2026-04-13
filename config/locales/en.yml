@@ -266,6 +266,16 @@ en:
     attributes:
       labels:
         string_data: "Contents"
+  dashboards:
+    dailies:
+      heading: "Dailies"
+      default_date_prefix: "Week of"
+      sidebar_link: "Dailies"
+      previous_month: "〈 Previous Month"
+      next_month: "Next Month 〉"
+      no_records_strftime: "%B %d, %Y"
+      no_records_in_range: "No records created from %{since} → %{until}"
+      # TODO deal with this not working for rtl languages
   icons:
     alt_text:
       hand: "a hand icon"
