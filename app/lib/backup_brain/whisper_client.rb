@@ -5,6 +5,7 @@ require "json"
 
 module BackupBrain
   class WhisperClient
+    include BackupBrain::Executables
     # Formats that whisper-cli accepts natively (no conversion needed).
     NATIVE_FORMATS = %w[flac mp3 ogg wav].freeze
 
@@ -30,6 +31,7 @@ module BackupBrain
     end
 
     def viable?
+      # TODO refactor call to binary to binaries[???]
       model_path.present? && File.exist?(model_path) && binary.present?
     end
 
@@ -64,29 +66,6 @@ module BackupBrain
 
     private
 
-    def binary
-      @binary ||= find_binary
-    end
-
-    def find_binary
-      ["whisper-cli", "whisper-cpp"].each do |name|
-        out, status = Open3.capture2("which", name)
-        return out.strip if status.success? && out.strip.present?
-      end
-      # Homebrew fallback: check known absolute paths directly because `brew`
-      # itself may not be on PATH in launchctl/systemd-started processes.
-      # /opt/homebrew = Apple Silicon, /usr/local = Intel Macs.
-      ["/opt/homebrew", "/usr/local"].each do |prefix|
-        ["whisper-cli", "whisper-cpp"].each do |name|
-          candidate = File.join(prefix, "bin", name)
-          return candidate if File.executable?(candidate)
-        end
-      end
-      nil
-    rescue
-      nil
-    end
-
     # Runs whisper-cli on +input_path+ (must be a natively supported format).
     # Uses --output-json to get per-segment timestamps. Returns the transcript
     # as newline-separated lines of the form "seconds text", e.g. "42.0 Hello world."
@@ -95,24 +74,28 @@ module BackupBrain
       output_stem = output_tmp.path
       output_tmp.close
       File.unlink(output_stem) if File.exist?(output_stem)
+      whisper_executable = executable_path("whisper-cli") || executable_path("whisper-cpp")
+      if whisper_executable
+        _stdout, stderr, status = Open3.capture3(
+          whisper_executable, "-m", model_path, "-np", "--output-json", "-of", output_stem, input_path
+        )
 
-      _stdout, stderr, status = Open3.capture3(
-        binary, "-m", model_path, "-np", "--output-json", "-of", output_stem, input_path
-      )
+        json_path = "#{output_stem}.json"
+        unless status.success? && File.exist?(json_path)
+          raise "#{whisper_executable} failed (exit #{status.exitstatus}): #{stderr.strip}"
+        end
 
-      json_path = "#{output_stem}.json"
-      unless status.success? && File.exist?(json_path)
-        raise "whisper-cli failed (exit #{status.exitstatus}): #{stderr.strip}"
+        data = JSON.parse(File.read(json_path))
+        File.unlink(json_path)
+
+        (data["transcription"] || []).map do |seg|
+          seconds = (seg.dig("offsets", "from") || 0) / 1000.0
+          text = seg["text"].to_s.strip
+          "#{sprintf "%-12s", seconds.to_s} #{text}"
+        end.join("\n")
+      else
+        raise "Couldn't find whisper-cli or whisper-cpp"
       end
-
-      data = JSON.parse(File.read(json_path))
-      File.unlink(json_path)
-
-      (data["transcription"] || []).map do |seg|
-        seconds = (seg.dig("offsets", "from") || 0) / 1000.0
-        text = seg["text"].to_s.strip
-        "#{sprintf "%-12s", seconds.to_s} #{text}"
-      end.join("\n")
     end
 
     # Converts +file_path+ to a 16 kHz mono WAV tempfile via ffmpeg, transcribes
@@ -121,20 +104,25 @@ module BackupBrain
       tmp = Tempfile.new(["bb_whisper_wav", ".wav"])
       tmp.close
 
-      _out, err, status = Open3.capture3(
-        "ffmpeg", "-y", "-i", file_path,
-        "-ar", "16000", "-ac", "1", "-c:a", "pcm_s16le",
-        tmp.path
-      )
-      unless status.success?
-        tmp.unlink
-        raise "ffmpeg conversion failed for transcription of #{File.basename(file_path)}: #{err.strip}"
-      end
+      ffmpeg = executable_path("ffmpeg")
+      if ffmpeg
+        _out, err, status = Open3.capture3(
+          ffmpeg, "-y", "-i", file_path,
+          "-ar", "16000", "-ac", "1", "-c:a", "pcm_s16le",
+          tmp.path
+        )
+        unless status.success?
+          tmp.unlink
+          raise "#{ffmpeg} conversion failed for transcription of #{File.basename(file_path)}: #{err.strip}"
+        end
 
-      begin
-        run_whisper(tmp.path)
-      ensure
-        tmp.unlink
+        begin
+          run_whisper(tmp.path)
+        ensure
+          tmp.unlink
+        end
+      else
+        raise "Couldn't find ffmpeg"
       end
     end
   end
