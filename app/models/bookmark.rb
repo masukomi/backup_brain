@@ -151,12 +151,6 @@ class Bookmark
     generate_archive(false) if url_changed?
   end
 
-  def clean_orphaned_tags
-    if tags_changed? || destroyed?
-      DeleteOrphanedTagsJob.schedule_unless_pending
-    end
-  end
-
   # Deletes the entire folder
   def remove_archived_images
     FileUtils.rm_rf(Bookmark.archive_folder_path_for_doc(self))

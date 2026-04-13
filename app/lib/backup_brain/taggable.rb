@@ -75,6 +75,12 @@ module BackupBrain
         self.tags
       end
 
+      def clean_orphaned_tags
+        if tags_changed? || destroyed?
+          DeleteOrphanedTagsJob.schedule_unless_pending
+        end
+      end
+
       # @return Boolean - true or false  indicating if the array of
       #                    tag strings are all valid
       def valid_tags?(array_o_strings)
