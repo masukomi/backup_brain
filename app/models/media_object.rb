@@ -27,7 +27,7 @@ class MediaObject
   def transcribe
     # migrating old data we may and up attaching an existing Transcription
     # to a new MediaObject
-    return unless transcription.nil?
+    return if transcription.present?
     if is_youtube?
       return unless YouTubeTranscriptionJob.enabled?
       video_id = extract_youtube_video_id
