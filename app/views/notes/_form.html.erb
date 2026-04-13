@@ -1,0 +1,84 @@
+<%= form_with(model: note, class: "form") do |form| %>
+  <% if note.errors.any? %>
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <div id="error_explanation">
+            <p><%= t('misc.errors.num_errors_prevented_save',
+                     number: note.errors.count,
+                     thing_type: Note.model_name.human) %></p>
+            <ul>
+              <% note.errors.each do |error| %>
+                <li><%= error.full_message %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="container">
+
+    <div class="row">
+      <div class="col">
+        <div class="label">
+          <%= form.label :string_data, t('notes.attributes.labels.string_data') %>
+        </div>
+        <div class="big-text">
+          <%= form.text_area :string_data,
+              size: "80x10",
+              rows: text_area_rows(note.string_data),
+              class: 'object-input-field' %>
+        </div>
+        <%== t('misc.markdown_supported_here') %>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-9">
+        <div class="tag-input-wrapper bookmark-input-field"
+             data-controller="tag-input"
+             data-tag-input-autocomplete-url-value="<%= autocomplete_tags_path %>"
+             data-action="click->tag-input#focusInput">
+          <input type="hidden"
+                 name="note[tags]"
+                 value="<%= note.tags.join(' ') %>"
+                 data-tag-input-target="hidden">
+          <div class="tag-chips-area" data-tag-input-target="chipsArea">
+            <input type="text"
+                   class="tag-text-input"
+                   data-tag-input-target="textInput"
+                   data-action="keydown->tag-input#handleKeydown input->tag-input#handleInput"
+                   autocomplete="off"
+                   placeholder="add tags...">
+          </div>
+          <ul class="dropdown-menu tag-autocomplete-dropdown"
+              data-tag-input-target="dropdown"></ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-2">
+        <%= form.label :private,
+            style: "display: block",
+            class: "form-check-label",
+            for: "privateSwitch" %>
+      </div>
+      <div class="col-1 form-check form-switch">
+        <%= inline_icon("private") %>
+        <%= form.check_box :private,
+            class: 'bookmark-checkbox-field form-check-input toggle',
+            role: "switch",
+            id: "privateSwitch",
+            checked: note.private %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <%= form.submit class: "btn btn-primary" %>
+      </div>
+    </div>
+  </div>
+<% end %>

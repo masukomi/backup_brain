@@ -161,10 +161,12 @@ heading > .inline-icon{
 	margin-right: 1.7rem;
 	white-space: nowrap;
 }
+.note-tags-and-date-row,
 .bookmark-tags-and-date-row {
 	display: flex;
 	height: 100%;
 }
+.note-date-col,
 .bookmark-date-col {
 	display: inline-block;
 	align-self: flex-end;
@@ -248,6 +250,7 @@ heading > .inline-icon{
 	font-size: 80%;
 	text-decoration: none;
 }
+.note-list-item,
 .bookmark-list-item {
 	border: 1px dashed #aaaaaa;
 	border-radius: 0.5rem;
@@ -274,6 +277,7 @@ heading > .inline-icon{
 	color: slategray;
 	white-space: nowrap;
 }
+.private-note,
 .private-bookmark {
 	background-color: #f0f8ff;
 }
@@ -398,11 +402,16 @@ debugging::before{
 	content: "🐞(debugging)";
 }
 
+.medium-top-margin,
 .vertically-separated {
-	margin-top: 1rem;
+	margin-top: 1em;
 }
+.small-top-margin {
+	margin-top: 0.5em;
+}
+.medium-bottom-margin,
 .form-row {
-	margin-bottom: 1rem;
+	margin-bottom: 1em;
 }
 
 .radio-label-and-button {

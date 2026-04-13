@@ -1,0 +1,30 @@
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <% if current_user %>
+        <%= link_to t('notes.edit_link'), edit_note_path(@note) %>
+        <%= link_to t('notes.delete_link'), note_path(@note),
+            data: { turbo_method: :delete, turbo_confirm: t('misc.are_you_sure') } %>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <div class="archive-text">
+        <%== ::Rendering::Markdown.instance.render(@note.string_data.to_s) %>
+      </div>
+    </div>
+  </div>
+
+  <div class="row bookmark-tags-and-date-row">
+    <div class="col-9">
+      <%= render partial: 'notes/inline_tag_list', locals: {tags: @note.tags} %>
+    </div>
+    <div class="col bookmark-date-col metadata">
+      <%== @note.updated_at.strftime(t('date.formats.default')) %>
+    </div>
+  </div>
+</div>

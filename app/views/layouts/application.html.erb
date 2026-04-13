@@ -85,7 +85,7 @@
           <%= render partial: 'shared/side_navigation' %>
           <%= yield :sidebar %>
 
-          <% if defined?(@tags_list) %>
+          <% if defined?(@tags_list) && controller_name != 'notes' %>
             <%= render partial: 'shared/side_tags' %>
           <% end %>
           <%= render partial: 'shared/side_administration' %>

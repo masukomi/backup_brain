@@ -1,0 +1,54 @@
+<% content_for(:sidebar) do %>
+  <%= render partial: 'notes/side_tags' %>
+<% end %>
+
+<div class="container">
+  <div class="row small-top-margin">
+    <div class="col">
+      <heading><%= t('notes.list_heading') %></heading>
+    </div>
+    <% if current_user %>
+      <div class="col-auto">
+        <%= link_to t('notes.add'),
+                    new_note_path,
+                    class: 'btn btn-primary compact-button' %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<% if @notes.empty? %>
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <%= t('notes.no_notes_message') %>
+      </div>
+    </div>
+  </div>
+<% else %>
+  <div class="container" id="notes">
+    <% if !@pagy.nil? && @pagy.count > (@pagy.items * @pagy.page) %>
+      <div class="row">
+        <div class="col">
+          <%= render partial: 'pagy/notes_db_results', locals: {pagy: @pagy} %>
+        </div>
+      </div>
+    <% end %>
+
+    <% @notes.each do |note| %>
+      <div class="row">
+        <div class="col">
+          <%= render note %>
+        </div>
+      </div>
+    <% end %>
+
+    <% if !@pagy.nil? && @pagy.count > (@pagy.items * @pagy.page) %>
+      <div class="row">
+        <div class="col">
+          <%= render partial: 'pagy/notes_db_results', locals: {pagy: @pagy} %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>

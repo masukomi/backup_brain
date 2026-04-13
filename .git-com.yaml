@@ -49,6 +49,7 @@ code-sections:
   - tags
   - oauth
   - people
+  - notes
   modifiable: true
   record-as: joined-string
 ticket-number:

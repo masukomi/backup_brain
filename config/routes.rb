@@ -20,6 +20,9 @@ Rails.application.routes.draw do
     end
   end
 
+  get "notes/tagged_with/:tags", controller: :notes, action: :tagged_with, as: :notes_tagged_with
+  resources :notes
+
   resources :people do
     resources :social_media_accounts, only: [:new, :create, :destroy]
   end

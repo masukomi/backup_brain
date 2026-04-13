@@ -148,6 +148,24 @@ en:
     delete_link: "delete"
     edit_link: "edit"
     add: "Add a Domain Trigger"
+  notes:
+    list_heading: "Notes"
+    list_link: "Notes"
+    add: "Add a Note"
+    new_heading: "New Note"
+    edit_heading: "Edit Note"
+    creation_success: "Note saved."
+    update_success: "Note updated."
+    deletion_success: "Note deleted."
+    edit_link: "Edit"
+    delete_link: "delete"
+    no_notes_message: "No notes yet."
+    no_tags_message: "(no tags)"
+    private_hint: "Shhh…"
+    attributes:
+      labels:
+        string_data: "Your note…"
+        public: "Public"
   people:
     list_link: "People"
     list_heading: "People"
