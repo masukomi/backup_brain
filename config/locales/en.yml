@@ -130,7 +130,7 @@ en:
   transcriptions:
     headings:
       inline: "Transcription %{name}"
-      failed_inline: "Transcription %{name}"
+      failed_inline: "Transcription %{count}"
     source:
       youtube: "Source: YouTube"
       whisper: "Source: Whisper"
