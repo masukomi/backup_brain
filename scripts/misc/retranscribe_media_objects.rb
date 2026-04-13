@@ -1,4 +1,5 @@
 # run me via the rails console or rails runner.
+# bundle exec rails runner scripts/misc/retranscribe_media_objects.rb
 # finds all the MediaObject records that either
 # don't have a transcription OR whose
 # attempt at transcription failed with errors.
