@@ -6,7 +6,7 @@
   </div>
 </div>
 
-<% if @people.empty? %>
+<% if @people_first_characters.empty? %>
   <div class="container">
     <div class="row">
       <div class="col">
@@ -15,6 +15,22 @@
     </div>
   </div>
 <% else %>
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <nav class="pagy-bootstrap-nav" role="navigation">
+        <ul class="pagination tag-admin-list">
+        <% @people_first_characters.each do |char| %>
+          <li class="page-item<% if @starting_with == char %> active<% end %>">
+            <%= link_to(char, people_path(starting_with: char),
+                class: "page-link tags-page-link"
+                ) %>
+          </li>
+        <% end %>
+        </ul>
+      </div>
+    </div>
+  </div>
   <div class="container" id="people">
     <% @people.each do |person| %>
       <div class="row">

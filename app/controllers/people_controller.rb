@@ -3,7 +3,13 @@ class PeopleController < ApplicationController
   before_action :set_person, only: %i[show edit update destroy]
 
   def index
+    @starting_with = params[:starting_with]
     @people = Person.all.order_by(name: :asc)
+    @people_first_characters = @people.map { |p| p.name[0] }.uniq
+    if @starting_with
+      regexp_char = /\w/.match?(@starting_with) ? @starting_with : "\\#{@starting_with}"
+      @people = @people.where(name: /^#{regexp_char}/)
+    end
   end
 
   def show
