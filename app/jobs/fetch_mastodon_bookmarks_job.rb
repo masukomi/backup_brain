@@ -10,6 +10,12 @@ class FetchMastodonBookmarksJob < ApplicationJob
   TITLE_CHAR_LIMIT = 80
   REQUEST_TIMEOUT = 30
 
+  def self.schedule_unless_pending
+    already_queued = Delayed::Backend::Mongoid::Job
+      .exists?(failed_at: nil, handler: /job_class: FetchMastodonBookmarksJob\n/)
+    perform_later(reschedulable: true) unless already_queued
+  end
+
   def perform(reschedulable: true)
     manual_perform(reschedulable)
   end
@@ -324,6 +330,8 @@ class FetchMastodonBookmarksJob < ApplicationJob
   end
 
   def reschedule
-    self.class.set(wait: 10.minutes).perform_later
+    already_queued = Delayed::Backend::Mongoid::Job
+      .exists?(failed_at: nil, handler: /job_class: FetchMastodonBookmarksJob\n/)
+    self.class.set(wait: 10.minutes).perform_later(reschedulable: true) unless already_queued
   end
 end
