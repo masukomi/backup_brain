@@ -27,7 +27,11 @@ class MediaObject
   def transcribe
     # migrating old data we may and up attaching an existing Transcription
     # to a new MediaObject
-    return if transcription.present?
+    return if transcription.present? && transcription.error.blank?
+    if transcription.present? # must have errored
+      transcription.destroy
+      save
+    end
     if is_youtube?
       return unless YouTubeTranscriptionJob.enabled?
       video_id = extract_youtube_video_id

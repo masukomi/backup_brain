@@ -19,7 +19,7 @@
   <% transcribed_media.each_with_index do |mo, idx| %>
     <% transcription = mo.transcription %>
     <div class="transcription-inline-header">
-      <h3><%= t('transcriptions.headings.inline', name: idx + 1) %></h3>
+      <heading><%= t('transcriptions.headings.inline', name: idx + 1) %></heading>
       <span class="transcription-source-subheading"><%= t("transcriptions.source.#{transcription.source}") %></span>
     </div>
     <div class="transcription-div">
@@ -44,4 +44,20 @@
       <% end %>
     </div>
   <% end %>
+<% end %>
+
+<% failed_transcriptions = archive.media_objects.select { |mo| mo.transcription&.status == "failed" }.map{|mo| mo.transcription} %>
+
+<% if failed_transcriptions.any? %>
+    <div class="transcription-inline-header">
+      <heading><%= t('transcriptions.headings.failed_inline', count: faild_transcriptions.size) %></heading>
+    </div>
+    <% unique_errors = failed_transcriptions.map{|t| t.error}.uniq %>
+    <div class="transcription-errors">
+      <ul>
+        <% unique_errors.each do | error |  %>
+          <li><%= error %></ul>
+        <% end %>
+      </ul>
+    </div>
 <% end %>
