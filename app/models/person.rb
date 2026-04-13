@@ -10,6 +10,7 @@ class Person
   include BackupBrain::Taggable::InstanceMethods
   include Search::InstanceMethods
   include BackupBrain::EmojiHelper
+  include BackupBrain::Domains
 
   CLASS_PREFIXED_SEARCH_IDS = true
   SEARCHABLE_ATTRIBUTES     = %w[name description]
@@ -31,7 +32,7 @@ class Person
 
   validates :name, presence: true
   validate  :validate_domains
-  before_save :emojify_default_fields, :guarantee_home_url_domain, :clean_domains
+  before_save :emojify_default_fields, :guarantee_home_url_domain, :clean_domains!
   before_create :find_associated_bookmarks
 
   # enabled?() is controlled by the SEARCH_ENABLED environment variable
@@ -56,29 +57,6 @@ class Person
         domains << home_url_domain
       end
     end
-  end
-
-  # downcases all the domains, and makes sure the list
-  # doesn't contain duplicates
-  def clean_domains
-    return if domains.blank?
-    self.domains = domains.map do |item|
-      next item unless item.include?("://")
-      begin
-        PublicSuffix.domain(URI.parse(item).host)
-      rescue
-        item
-      end
-    end.compact.sort.uniq
-  end
-
-  # validates that all the domains are strings that
-  # at least vagualy resemble domains
-  def validate_domains
-    return if domains.blank?
-    invalid = domains.reject { |d| d.match?(/(?:\w+\.)+\w+$/) }
-    return if invalid.empty?
-    errors.add(:domains, :invalid, invalid_domains: invalid.join(", "))
   end
 
   def find_associated_bookmarks
