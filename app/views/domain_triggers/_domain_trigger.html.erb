@@ -1,0 +1,59 @@
+<div tabindex="0" id="<%= dom_id domain_trigger %>" class="container bookmark-list-item">
+  <div class="row">
+    <div class="col-8">
+
+      <div class="row">
+        <div class="col">
+          <% if Setting.get_value_of_key('enable_favicons') == true %>
+            <img aria-hidden="true" class="favicon"
+                 src="<%= favicon_path(domain_name: domain_trigger.domain) %>" />
+          <% end %>
+          <%= link_to domain_trigger.domain, "https://#{domain_trigger.domain}",
+                      target: "_blank", rel: "noopener noreferrer" %>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          <%= t("domain_triggers.mark_as_private_label") %>:
+          <%= domain_trigger.mark_as_private? ? "✅" : "❌" %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <%= t("domain_triggers.mark_to_read_label") %>:
+          <%= domain_trigger.mark_to_read? ? "✅" : "❌" %>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="col">
+      <div class="action-icons">
+        <div class="action-icon">
+          <%= icon_link("edit", edit_domain_trigger_path(domain_trigger),
+                        link_css: "inline-link-icon edit-link-icon",
+                        text: t("domain_triggers.edit_link"),
+                        aria_hidden: true) %>
+        </div>
+        <div class="action-icon delete-action-icon">
+          <%== link_to image_tag("/images/icons/delete.svg",
+                                 class: "inline-link-icon delete-icon",
+                                 "aria-hidden": true) + t("domain_triggers.delete_link"),
+                       domain_trigger_path(domain_trigger),
+                       class: "inline-link-icon delete-link-icon",
+                       data: {
+                         turbo_method: :delete,
+                         turbo_confirm: t("misc.are_you_sure")
+                       } %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row bookmark-tags-and-date-row">
+    <div class="col-9">
+      <%= render partial: "shared/inline_tag_list", locals: {tags: domain_trigger.tags} %>
+    </div>
+  </div>
+</div>

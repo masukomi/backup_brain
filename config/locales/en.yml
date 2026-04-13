@@ -41,6 +41,10 @@ en:
   mongoid:
     errors:
       models:
+        domain_trigger:
+          attributes:
+            domain:
+              invalid: "This doesn't look like a valid domain: %{invalid_domain}"
         person:
           attributes:
             domains:
@@ -129,6 +133,20 @@ en:
     source:
       youtube: "Source: YouTube"
       whisper: "Source: Whisper"
+  domain_triggers:
+    list_link: "Domain Triggers"
+    list_heading: "Domain Triggers"
+    new_heading: "Add Domain Trigger"
+    edit_heading: "Edit Domain Trigger"
+    creation_success: "Domain trigger saved."
+    update_success: "Domain trigger updated."
+    deletion_success: "Domain trigger deleted."
+    no_triggers_message: "No domain triggers configured yet."
+    mark_as_private_label: "Mark as Private"
+    mark_to_read_label: "Mark to Read"
+    delete_link: "delete"
+    edit_link: "edit"
+    add: "Add a Domain Trigger"
   people:
     list_link: "People"
     list_heading: "People"

@@ -24,6 +24,7 @@ Rails.application.routes.draw do
     resources :social_media_accounts, only: [:new, :create, :destroy]
   end
 
+  resources :domain_triggers
   resources :settings
   resources :tags do
     get :autocomplete, on: :collection

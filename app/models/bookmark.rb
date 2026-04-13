@@ -41,6 +41,7 @@ class Bookmark
   before_save    :set_domain
   before_save    :maybe_generate_archive
   before_save    :clean_orphaned_tags
+  before_save    :apply_domain_trigger
 
   before_create  :find_associated_people
   after_create   :generate_archive
@@ -151,7 +152,7 @@ class Bookmark
   end
 
   def clean_orphaned_tags
-    if tags_changed?
+    if tags_changed? || destroyed?
       DeleteOrphanedTagsJob.schedule_unless_pending
     end
   end
@@ -164,6 +165,15 @@ class Bookmark
   def find_associated_people
     return if domain.blank?
     self.people |= Person.where(domains: domain).to_a
+  end
+
+  def apply_domain_trigger
+    trigger = DomainTrigger.trigger_for_domain(domain)
+    return unless trigger
+    # add any tags we don't already have
+    self.tags = tags + (trigger.tags - tags)
+    self.private = true if trigger.mark_as_private
+    self.to_read = true if trigger.mark_to_read
   end
 
   # END HOOKS

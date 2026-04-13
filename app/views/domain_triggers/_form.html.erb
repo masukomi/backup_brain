@@ -1,0 +1,85 @@
+<div class="container">
+  <%= render partial: "shared/errors_row", locals: {thing: domain_trigger} %>
+  <%= form_with(model: domain_trigger) do |form| %>
+
+    <div class="row">
+      <div class="col-2">
+        <%= form.label :domain, style: "display: block" %>
+      </div>
+      <div class="col-9">
+        <%= form.text_field :domain, class: "bookmark-input-field",
+                            placeholder: "e.g. youtube.com" %>
+      </div>
+    </div>
+
+    <div class="row safe-space">
+      <div class="col-2">
+        <%= form.label :tags, style: "display: block" %>
+      </div>
+      <div class="col-9">
+        <div class="tag-input-wrapper bookmark-input-field"
+             data-controller="tag-input"
+             data-tag-input-autocomplete-url-value="<%= autocomplete_tags_path %>"
+             data-action="click->tag-input#focusInput">
+          <input type="hidden"
+                 name="domain_trigger[tags]"
+                 value="<%= domain_trigger.tags.join(' ') %>"
+                 data-tag-input-target="hidden">
+          <div class="tag-chips-area" data-tag-input-target="chipsArea">
+            <input type="text"
+                   class="tag-text-input"
+                   data-tag-input-target="textInput"
+                   data-action="keydown->tag-input#handleKeydown input->tag-input#handleInput"
+                   autocomplete="off"
+                   placeholder="add tags...">
+          </div>
+          <ul class="dropdown-menu tag-autocomplete-dropdown"
+              data-tag-input-target="dropdown"></ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-2">
+        <%= form.label :mark_as_private,
+                       t("domain_triggers.mark_as_private_label"),
+                       style: "display: block",
+                       class: "form-check-label",
+                       for: "markAsPrivateSwitch" %>
+      </div>
+      <div class="col-1 form-check form-switch">
+        <%= inline_icon("private") %>
+        <%= form.check_box :mark_as_private,
+                           class: "bookmark-checkbox-field form-check-input toggle",
+                           role: "switch",
+                           id: "markAsPrivateSwitch",
+                           checked: domain_trigger.mark_as_private? %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-2">
+        <%= form.label :mark_to_read,
+                       t("domain_triggers.mark_to_read_label"),
+                       style: "display: block",
+                       class: "form-check-label",
+                       for: "markToReadSwitch" %>
+      </div>
+      <div class="col-1 form-check form-switch">
+        <%= inline_icon("to_read") %>
+        <%= form.check_box :mark_to_read,
+                           class: "bookmark-checkbox-field form-check-input toggle",
+                           role: "switch",
+                           id: "markToReadSwitch",
+                           checked: domain_trigger.mark_to_read? %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <%= form.submit class: "btn btn-primary" %>
+      </div>
+    </div>
+
+  <% end %>
+</div>
