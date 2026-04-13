@@ -1,0 +1,24 @@
+<div class="container">
+  <%= render partial: 'shared/errors_row', locals: {thing: @object} %>
+  <%= form_with(url: create_archive_path(parent_id: @parent._id.to_s, object_type: @object_type), method: "POST") do |form| %>
+    <div class="row">
+      <div class="col">
+        <div class="label">
+          <%= form.label :string_data, t('archives.attributes.labels.string_data'), style: "display: block" %>
+        </div>
+        <div class="metadata"><%= t('archives.notes.manual_creation') %></div>
+        <div class="big-text">
+          <%= form.text_area :string_data,
+               value: @object.string_data,
+               size: "80x10",
+               class: 'object-input-field' %>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <%= form.submit class: "btn btn-primary" %>
+      </div>
+    </div>
+  <% end %>
+</div>

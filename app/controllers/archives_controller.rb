@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
 class ArchivesController < ApplicationController
-  before_action :authenticate_user!, only: %i[show edit modify]
+  before_action :authenticate_user!, only: %i[show edit modify new create]
   before_action :set_object_and_parent, only: %i[edit modify]
-  before_action :set_object_type, only: %i[show edit]
+  before_action :set_object_type, only: %i[show edit new create]
   before_action :set_object, only: %i[show]
 
   def show
@@ -17,8 +17,31 @@ class ArchivesController < ApplicationController
     send_file path, disposition: "inline"
   end
 
+  def new
+    set_parent_only
+    @object = Archive.new
+    @lines_of_text = 10
+  end
+
   def edit
     @lines_of_text = @object.string_data.split("\n").size
+  end
+
+  def create
+    set_parent_only
+    @object = Archive.new(
+      string_data: params[:string_data],
+      mime_type: "text/markdown",
+      manually_edited: true
+    )
+    @parent.archives << @object
+    if @parent.save
+      flash_message(:notice, t("archives.notices.creation_success"))
+      redirect_to bookmark_path(@parent)
+    else
+      @lines_of_text = 10
+      render :new, status: :unprocessable_entity
+    end
   end
 
   def modify
@@ -49,6 +72,10 @@ class ArchivesController < ApplicationController
   protected
 
   # --- helpers
+
+  def set_parent_only
+    @parent = Bookmark.find(sanitize_path_component(params[:parent_id]))
+  end
 
   # This only gets called when editing / modifying Bookmark Archives
   def set_object_and_parent

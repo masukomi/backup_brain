@@ -97,6 +97,9 @@
                archive_bookmark_path(@bookmark),
                method: :put,
                class: 'btn btn-primary compact-button' %></li>
+          <li><%= link_to t('bookmarks.create_archive_manually_link'),
+               new_archive_path(object_type: 'bookmarks', parent_id: @bookmark._id.to_s),
+               class: 'btn btn-secondary compact-button' %></li>
           </ul>
         </div>
       </row>

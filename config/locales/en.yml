@@ -223,6 +223,7 @@ en:
     inline_deletion_message: "⛔ Deleted"
     download_archive_link: "Download Markdown"
     edit_archive_link: "Edit Archive"
+    create_archive_manually_link: "Manually Archive"
     none_message: "
         <h4>You poor thing. You've got no bookmarks!</h4>
         <p>Go click the \"Add a bookmark\" link on the right
@@ -235,12 +236,14 @@ en:
     default_title_for_blank: "Untitled"
   archives:
     headings:
+      new_type: "Create %{type} Archive"
       edit_type: "Edit %{type} Archive"
     notices:
       creation_success: "New Archive Successfully created"
       manually_edited: "This archive was manually edited"
     notes:
       new_copy: "Note: editing an archive will create a new version with your changes."
+      manual_creation: "We suggest using a 'Copy As Markdown' browser extension to grab the page's content & paste it here."
     attributes:
       labels:
         string_data: "Contents"

@@ -98,6 +98,19 @@
                     target: '_blank') %>
               </span>
             <% end %>
+            <div class="action-icon archive-action-icon">
+              <%== link_to  image_tag(
+                '/images/icons/create_archive.svg',
+                class: 'inline-link-icon archive-link-icon'
+              ) +
+              t('bookmarks.create_archive_manually_link'),
+               new_archive_path(object_type: 'bookmarks', parent_id: bookmark._id.to_s),
+               class: "inline-link-icon archive-link-icon"
+
+              %>
+              <%# link_to t('bookmarks.create_archive_manually_link'),
+                          new_archive_path(object_type: 'bookmarks', parent_id: bookmark._id.to_s) %>
+            </div>
           </div>
         <% end %>
 

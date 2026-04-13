@@ -30,8 +30,10 @@ Rails.application.routes.draw do
     get :autocomplete, on: :collection
   end
 
-  get "archives/:object_type/:parent_id/:id/edit", controller: :archives, action: :edit, as: :edit_archive
-  post "archives/:object_type/:parent_id/:id/modify", controller: :archives, action: :modify, as: :modify_archive
+  get  "archives/:object_type/:parent_id/new",        controller: :archives, action: :new,    as: :new_archive
+  post "archives/:object_type/:parent_id",             controller: :archives, action: :create, as: :create_archive
+  get  "archives/:object_type/:parent_id/:id/edit",    controller: :archives, action: :edit,   as: :edit_archive
+  post "archives/:object_type/:parent_id/:id/modify",  controller: :archives, action: :modify, as: :modify_archive
   get "archives/:object_type/:id/:grouping/:filename", controller: :archives, action: :show
   get "archives/:object_type/:id/:filename", controller: :archives, action: :show
 
