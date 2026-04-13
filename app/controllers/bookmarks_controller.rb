@@ -106,6 +106,9 @@ class BookmarksController < ApplicationController
       options = add_tags_to_search_options(@query_tags, options)
     end
 
+    # Separate options for fetching ALL matching IDs across all pages (for tags sidebar)
+    all_ids_options = options.except(:limit, :offset).merge(limit: 10_000)
+
     begin
       # if we were searching for _any_ record we'd use `filtered_by_class: false`
       # note: already privatized via filter
@@ -115,6 +118,11 @@ class BookmarksController < ApplicationController
         options: options,
         ids_only: true,
         filtered_by_class: true)
+      all_ids_results = Bookmark.search(@query,
+        options: all_ids_options,
+        ids_only: true,
+        filtered_by_class: true)
+
       @bookmarks = Bookmark.where(:id.in => raw_results["matches"])
       if @query_tags&.present?
         # in theory, this is redundant because the search criteria
@@ -122,7 +130,9 @@ class BookmarksController < ApplicationController
         @bookmarks = @bookmarks.tagged_with_all(@query_tags)
       end
 
-      @tags_list = @bookmarks.pluck(:tags).flatten.sort.uniq
+      all_matching = Bookmark.where(:id.in => all_ids_results["matches"])
+      all_matching = all_matching.tagged_with_all(@query_tags) if @query_tags&.present?
+      @tags_list = all_matching.pluck(:tags).flatten.sort.uniq
       @pagy      = pagify_search(raw_results["search_result_metadata"]["nbHits"])
 
       render :index
