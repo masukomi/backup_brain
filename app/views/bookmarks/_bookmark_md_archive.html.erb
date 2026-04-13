@@ -50,7 +50,7 @@
 
 <% if failed_transcriptions.any? %>
     <div class="transcription-inline-header">
-      <heading><%= t('transcriptions.headings.failed_inline', count: faild_transcriptions.size) %></heading>
+      <heading><%= t('transcriptions.headings.failed_inline', count: failed_transcriptions.size) %></heading>
     </div>
     <% unique_errors = failed_transcriptions.map{|t| t.error}.uniq %>
     <div class="transcription-errors">
