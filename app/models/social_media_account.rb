@@ -10,13 +10,22 @@ class SocialMediaAccount
   VALID_TYPES = %w[personal professional unknown].freeze
   SUPPORTED_SERVICES = %(mastodon).freeze
   CONSOLIDATED_SERVICE_MAP = {
-    "mastodon" => "mastodon",
-    "pleroma" => "mastodon",
-    "akkoma" => "mastodon",
-    "gotosocial" => "mastodon",
-    "misskey" => "misskey",
-    "calckey" => "misskey",
-    "calkey" => "misskey",
+    "mastodon" => "mastodon", # https://joinmastodon.org/
+    "pleroma" => "mastodon", # https://pleroma.social/
+    "akkoma" => "mastodon", # https://akkoma.social/
+    "gotosocial" => "mastodon", # https://gotosocial.org/
+    "hometown" => "mastodon", # https://github.com/hometown-fork/hometown
+    "snac" => "mastodon", # https://codeberg.org/grunfink/snac2/
+    "takahe" => "mastodon", # https://jointakahe.org/
+    # should work for this, but won't work for bookmark importing
+    # --
+    # "glitch-soc" => "mastodon", # https://glitch-soc.github.io/docs/
+    # glitch-soc reports itself as "mastodon"
+    # --
+    # "rebased" => "mastodon"
+    # rebased reports itself as "pleroma"
+    "misskey" => "misskey", # https://misskey-hub.net/
+    "calckey" => "misskey", # A.K.A. Firefish (discontinued)
     "firefish" => "misskey",
     "iceshrimp" => "misskey",
     "sharkey" => "misskey",
