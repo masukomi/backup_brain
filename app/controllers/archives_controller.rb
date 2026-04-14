@@ -103,8 +103,9 @@ class ArchivesController < ApplicationController
       end
       # this may also raise a 404? I think
       @object = Person.find(sanitize_path_component(params[:id]))
+    elsif @object_type == "social_media_accounts"
+      @object = SocialMediaAccount.find(sanitize_path_component(params[:id]))
     else
-      Rails.logger.debug("params: #{params.inspect}")
       raise "Unsupported Object Type ( #{@object_type.inspect} ) in Archive Path"
     end
   end
@@ -120,6 +121,6 @@ class ArchivesController < ApplicationController
   # so only ascii letters and numbers
   def sanitize_path_component(string)
     return "" if string.blank?
-    string.gsub(/[^a-zA-Z0-9]/, "")
+    string.gsub(/[^a-zA-Z0-9_]/, "")
   end
 end
