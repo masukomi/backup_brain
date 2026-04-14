@@ -50,6 +50,7 @@ code-sections:
   - oauth
   - people
   - notes
+  - social_media_accounts
   modifiable: true
   record-as: joined-string
 ticket-number:
