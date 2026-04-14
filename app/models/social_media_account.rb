@@ -8,7 +8,6 @@ class SocialMediaAccount
   include Search::InstanceMethods
 
   VALID_TYPES = %w[personal professional unknown].freeze
-  SUPPORTED_SERVICES = %(mastodon).freeze
   CONSOLIDATED_SERVICE_MAP = {
     "mastodon" => "mastodon", # https://joinmastodon.org/
     "pleroma" => "mastodon", # https://pleroma.social/
@@ -37,6 +36,7 @@ class SocialMediaAccount
     "threads.net" => "fascist_mysoginist"
 
   }.freeze
+  SUPPORTED_SERVICES = CONSOLIDATED_SERVICE_MAP.select { |k, v| v == "mastodon" }.keys.freeze
 
   field :service,           type: String
   field :profile_url,       type: String
@@ -75,8 +75,9 @@ class SocialMediaAccount
   # avatar on the service so that we can download it.
   def avatar_image_url
     return nil unless SocialMediaAccount.supported_service?(service)
-    case service
-    when "mastodon", "pleroma", "akkoma", "gotosocial"
+
+    case CONSOLIDATED_SERVICE_MAP[service]
+    when "mastodon"
       remote_account_data&.dig("avatar")
     end
   end
@@ -85,8 +86,9 @@ class SocialMediaAccount
   # user's profile on the service so that we can download it.
   def header_image_url
     return nil unless SocialMediaAccount.supported_service?(service)
-    case service
-    when "mastodon", "pleroma", "akkoma", "gotosocial"
+
+    case CONSOLIDATED_SERVICE_MAP[service]
+    when "mastodon"
       remote_account_data&.dig("header")
     end
   end
@@ -95,8 +97,8 @@ class SocialMediaAccount
     data = remote_account_data
     return nil unless data
 
-    case service
-    when "mastodon", "pleroma", "akkoma", "gotosocial"
+    case CONSOLIDATED_SERVICE_MAP[service]
+    when "mastodon"
       extract_mastodon_user_description(data)
     end
   end
@@ -214,7 +216,14 @@ class SocialMediaAccount
   end
 
   def remote_account_data
-    @remote_account_data ||= fetch_mastodon_account_data
+    return @remote_account_data unless @remote_account_data.nil?
+
+    case CONSOLIDATED_SERVICE_MAP[service]
+    when "mastodon"
+      @remote_account_data ||= fetch_mastodon_account_data
+    else
+      @remote_account_data = {}
+    end
   end
 
   def fetch_mastodon_account_data
