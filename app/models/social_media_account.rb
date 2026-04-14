@@ -194,7 +194,7 @@ class SocialMediaAccount
   # will still detect it post-download.
 
   def default_avatar_image_path
-    archive_folder_path = archive_folder_path_for(self)
+    archive_folder_path = archive_folder_path_for_doc(self)
     case CONSOLIDATED_SERVICE_MAP[service]
     when "mastodon"
       ext = File.extname(URI.parse(remote_account_data&.dig("avatar").to_s).path)
@@ -204,7 +204,7 @@ class SocialMediaAccount
   end
 
   def default_header_image_path
-    archive_folder_path = archive_folder_path_for(self)
+    archive_folder_path = archive_folder_path_for_doc(self)
     case CONSOLIDATED_SERVICE_MAP[service]
     when "mastodon"
       ext = File.extname(URI.parse(remote_account_data&.dig("header").to_s).path)
