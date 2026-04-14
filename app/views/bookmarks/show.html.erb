@@ -16,7 +16,7 @@
     </script>
   <% end %>
   <script>
-   document.addEventListener('DOMContentLoaded', function() {
+   document.addEventListener('turbo:load', function() {
      let audioPlayers = {};
      document.querySelectorAll("archive audio, archive video").forEach(function(el) {
        const p = new Plyr(el, { iconUrl: "/js/plyr/plyr.svg" });
