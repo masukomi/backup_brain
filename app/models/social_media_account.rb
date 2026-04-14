@@ -4,7 +4,7 @@ class SocialMediaAccount
   include Mongoid::Pagination
 
   extend Search::ClassMethods
-  extend BackupBrain::ArchiveTools
+  include BackupBrain::ArchiveTools
   include Search::InstanceMethods
 
   VALID_TYPES = %w[personal professional unknown].freeze
