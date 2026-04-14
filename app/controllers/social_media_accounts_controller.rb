@@ -7,10 +7,19 @@ class SocialMediaAccountsController < ApplicationController
   end
 
   def create
-    @social_media_account = @person.social_media_accounts.build(sma_params)
-    if @social_media_account.profile_url
-      @social_media_account.service = SocialMediaAccount.query_service_type(@social_media_account.profile_url)
-      # if there isn't one the .save will fail and list any other errors
+    profile_url = sma_params[:profile_url]
+    existing    = SocialMediaAccount.find_by(profile_url: profile_url) if profile_url.present?
+
+    if existing
+      existing.assign_attributes(sma_params.except(:profile_url))
+      existing.person = @person
+      @social_media_account = existing
+    else
+      @social_media_account = @person.social_media_accounts.build(sma_params)
+      if @social_media_account.profile_url
+        @social_media_account.service = SocialMediaAccount.query_service_type(@social_media_account.profile_url)
+        # if there isn't one the .save will fail and list any other errors
+      end
     end
 
     if @social_media_account.save

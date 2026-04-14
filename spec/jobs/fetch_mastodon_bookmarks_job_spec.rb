@@ -457,6 +457,107 @@ RSpec.describe FetchMastodonBookmarksJob do
     end
   end
 
+  describe "#find_or_create_sma_for" do
+    let(:profile_url) { "https://mastodon.social/@alice" }
+    let(:account_data) do
+      {
+        "url" => profile_url,
+        "acct" => "alice@mastodon.social",
+        "avatar" => "https://cdn.mastodon.social/avatar.jpg",
+        "header" => "https://cdn.mastodon.social/header.jpg"
+      }
+    end
+
+    before do
+      allow(Rails.logger).to(receive(:error))
+    end
+
+    context "when profile_url is blank" do
+      it "returns nil" do
+        expect(job.send(:find_or_create_sma_for, account_data.merge("url" => ""))).to(be_nil)
+      end
+    end
+
+    context "when a SocialMediaAccount already exists for the profile_url" do
+      let(:existing_sma) { instance_double(SocialMediaAccount) }
+
+      before do
+        allow(SocialMediaAccount).to(receive(:find_by).with(profile_url: profile_url).and_return(existing_sma))
+      end
+
+      it "returns the existing SMA" do
+        expect(job.send(:find_or_create_sma_for, account_data)).to(eq(existing_sma))
+      end
+
+      it "does not enqueue ArchiveSocialMediaAccountJob" do
+        expect(ArchiveSocialMediaAccountJob).not_to(receive(:perform_later))
+        job.send(:find_or_create_sma_for, account_data)
+      end
+    end
+
+    context "when no SocialMediaAccount exists for the profile_url" do
+      # rubocop:disable RSpec/VerifiedDoubles
+      let(:sma_id) { BSON::ObjectId.new }
+      let(:new_sma) { double("SocialMediaAccount", id: sma_id) }
+      # rubocop:enable RSpec/VerifiedDoubles
+
+      before do
+        allow(SocialMediaAccount).to(receive(:find_by).with(profile_url: profile_url).and_return(nil))
+        allow(SocialMediaAccount).to(receive(:new).and_return(new_sma))
+        allow(new_sma).to(receive(:suppress_auto_archive_job!))
+        allow(ArchiveSocialMediaAccountJob).to(receive(:perform_later))
+      end
+
+      context "when the new SMA saves successfully" do
+        before { allow(new_sma).to(receive(:save).and_return(true)) }
+
+        it "returns the new SMA" do
+          expect(job.send(:find_or_create_sma_for, account_data)).to(eq(new_sma))
+        end
+
+        it "calls suppress_auto_archive_job! before saving", :aggregate_failures do
+          expect(new_sma).to(receive(:suppress_auto_archive_job!).ordered)
+          expect(new_sma).to(receive(:save).ordered.and_return(true))
+          job.send(:find_or_create_sma_for, account_data)
+        end
+
+        it "enqueues ArchiveSocialMediaAccountJob with the known avatar and header URLs" do
+          expect(ArchiveSocialMediaAccountJob).to(receive(:perform_later).with(
+            hash_including(
+              avatar_url: account_data["avatar"],
+              header_url: account_data["header"]
+            )
+          ))
+          job.send(:find_or_create_sma_for, account_data)
+        end
+      end
+
+      context "when the new SMA fails to save" do
+        before { allow(new_sma).to(receive(:save).and_return(false)) }
+
+        it "returns the unsaved SMA" do
+          expect(job.send(:find_or_create_sma_for, account_data)).to(eq(new_sma))
+        end
+
+        it "does not enqueue ArchiveSocialMediaAccountJob" do
+          expect(ArchiveSocialMediaAccountJob).not_to(receive(:perform_later))
+          job.send(:find_or_create_sma_for, account_data)
+        end
+      end
+    end
+
+    context "when an exception is raised" do
+      before do
+        allow(SocialMediaAccount).to(receive(:find_by).and_raise(StandardError, "db error"))
+      end
+
+      it "logs the error and returns nil", :aggregate_failures do
+        expect(Rails.logger).to(receive(:error).with(/could not find\/create SMA/))
+        expect(job.send(:find_or_create_sma_for, account_data)).to(be_nil)
+      end
+    end
+  end
+
   describe "#truncate_markdown" do
     it "returns text unchanged when at or under the limit" do
       text = "short text"

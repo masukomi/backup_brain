@@ -49,7 +49,13 @@ class SocialMediaAccount
   field :type,              type: String
   field :preferred,         type: Boolean, default: false
 
-  belongs_to :person
+  belongs_to :person, optional: true
+
+  has_and_belongs_to_many :bookmarks
+  # a direct association to a bookmark indicates that this
+  # social media account is responsible for posting
+  # the thing we bookmarked.
+  # It is not uncommon for this to be blank.
 
   validates :profile_url, presence: true
   validates :type, inclusion: {in: VALID_TYPES}
@@ -60,7 +66,7 @@ class SocialMediaAccount
   # the user specified, OR use the output to
   # choose / set service
   before_save :standardize_service
-  after_create :schedule_archive_job, if: -> { SocialMediaAccount.supported_service?(service) }
+  after_create :schedule_archive_job, if: -> { SocialMediaAccount.supported_service?(service) && !@skip_auto_archive_job }
   after_save :demote_sibling_accounts, if: -> { preferred? && preferred_previously_changed? }
 
   def standardize_service
@@ -214,12 +220,17 @@ class SocialMediaAccount
   # and we're just toggling a boolean field that
   # is always valid in either state
   def demote_sibling_accounts
+    return unless person
     # Aww We're sorry. They still love you. Probably…
     person.social_media_accounts
       .where(:id.ne => _id, :preferred => true)
       .update_all(preferred: false)
   end
   # rubocop:enable Rails/SkipsModelValidations
+
+  def suppress_auto_archive_job!
+    @skip_auto_archive_job = true
+  end
 
   def schedule_archive_job
     ArchiveSocialMediaAccountJob.perform_later(social_media_account_id: _id.to_s)

@@ -105,7 +105,8 @@ class FetchMastodonBookmarksJob < ApplicationJob
   end
 
   def create_bookmark_from_status(status, user, oauth_site)
-    url = status["url"]
+    url          = status["url"]
+    account_data = status["account"]
     html_content = status["content"].to_s
 
     markdown = ReverseMarkdown.convert(html_content, unknown_tags: :bypass).strip
@@ -119,8 +120,10 @@ class FetchMastodonBookmarksJob < ApplicationJob
       user: user,
       tags: [MASTODON_TAG]
     )
-    person = Person.find_by(social_media_profile_url: status.dig("account", "url"))
+    sma    = find_or_create_sma_for(account_data)
+    person = sma&.person || Person.find_by(social_media_profile_url: account_data["url"])
     bookmark.people << person if person.present?
+    bookmark.social_media_accounts << sma
 
     # We already have the content — build an Archive from the status HTML
     # and skip the normal ArchiveUrlJob queue (which would 404 on private statuses).
@@ -255,6 +258,38 @@ class FetchMastodonBookmarksJob < ApplicationJob
     message = "FetchMastodonBookmarksJob: failed to download media attachment #{url}: #{e.message}"
     Rails.logger.error(message)
     {error: message}
+  end
+
+  def find_or_create_sma_for(account_data)
+    profile_url = account_data["url"]
+    return nil if profile_url.blank?
+
+    existing = SocialMediaAccount.find_by(profile_url: profile_url)
+    return existing if existing
+
+    sma = SocialMediaAccount.new(
+      profile_url: profile_url,
+      service: "mastodon",
+      username: account_data["acct"],
+      type: "unknown"
+    )
+    # we don't want it to auto-archive because that would
+    # result in extra calls to the server for
+    # info we have right now.
+    sma.suppress_auto_archive_job!
+    if sma.save
+      # archive it using the urls we already have
+      ArchiveSocialMediaAccountJob.perform_later(
+        social_media_account_id: sma.id.to_s,
+        avatar_url: account_data["avatar"],
+        header_url: account_data["header"],
+        replace_description: true
+      )
+    end
+    sma
+  rescue => e
+    Rails.logger.error("FetchMastodonBookmarksJob: could not find/create SMA for #{profile_url}: #{e.message}")
+    nil
   end
 
   # TODO: make this username (@foo@bar.com) + status.created_at.strftime("???")

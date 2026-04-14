@@ -19,7 +19,13 @@
       <%# favicon %>
       <div class="row">
         <div class="col">
-          <% if Setting.get_value_of_key('enable_favicons') == true %>
+          <% sma = bookmark.social_media_accounts&.first
+          # there should never be more than one in this direction
+
+          if sma.present? && sma.avatar_image_path.present? %>
+              <img aria-hidden="true" class="favicon"
+                  src="<%= sma.avatar_image_path %>" />
+          <% elsif Setting.get_value_of_key('enable_favicons') == true %>
             <% if bookmark.domain.present? %>
               <img aria-hidden="true" class="favicon"
                   src="<%= favicon_path(domain_name: bookmark.domain) %>" />

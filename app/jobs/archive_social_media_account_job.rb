@@ -19,16 +19,18 @@ class ArchiveSocialMediaAccountJob < ArchiveUrlJob
   #        if false this will not attempt to replace
   #        contents of the description field. If true it will attempt
   #        to get the latest version from the account's profile
-  def perform(social_media_account_id:, replace_archived_images: true, replace_description: true)
+  def perform(social_media_account_id:, replace_archived_images: true, replace_description: true, avatar_url: nil, header_url: nil)
     process_social_media_account(
       social_media_account_id: social_media_account_id,
       replace_archived_images: replace_archived_images,
-      replace_description: replace_description
+      replace_description: replace_description,
+      avatar_url: avatar_url,
+      header_url: header_url
     )
   end
 
   # @return [Bookmark, nil] the bookmark if it was archived, nil if it wasn't
-  def process_social_media_account(social_media_account_id:, replace_archived_images: true, replace_description: true)
+  def process_social_media_account(social_media_account_id:, replace_archived_images: true, replace_description: true, avatar_url: nil, header_url: nil)
     sma = begin
       SocialMediaAccount.find(social_media_account_id)
     rescue
@@ -44,12 +46,12 @@ class ArchiveSocialMediaAccountJob < ArchiveUrlJob
 
     begin
       if sma.avatar_image_path.blank? || replace_archived_images
-        url = sma.avatar_image_url
+        url = avatar_url.presence || sma.avatar_image_url
         Rails.logger.debug("Attempting to download avatar image with url: \"#{url}\"")
         sma.avatar_image_path = download_asset(sma, url, asset_label: "avatar image", to_path: sma.default_avatar_image_path) if url.present?
       end
       if sma.header_image_path.blank? || replace_archived_images
-        url = sma.header_image_url
+        url = header_url.presence || sma.header_image_url
         Rails.logger.debug("Attempting to download header image with url: \"#{url}\"")
         sma.header_image_path = download_asset(sma, url, asset_label: "header image", to_path: sma.default_header_image_path) if url.present?
       end
@@ -57,7 +59,7 @@ class ArchiveSocialMediaAccountJob < ArchiveUrlJob
         Rails.logger.debug("replacing description with remote description")
         sma.description = sma.remote_description
       end
-      if sma.preferred && sma.avatar_image_path && (sma.person.avatar_image_path != sma.avatar_image_path)
+      if sma.preferred && sma.avatar_image_path && sma.person.present? && (sma.person.avatar_image_path != sma.avatar_image_path)
         sma.person.avatar_image_path = sma.avatar_image_path
         sma.person.save
       end

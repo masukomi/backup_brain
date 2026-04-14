@@ -33,6 +33,11 @@ class Bookmark
   # typically an author or someone responsible for the site
   # the bookmark was published on
 
+  has_and_belongs_to_many :social_media_accounts # NEVER DEPENDENT DESTROY
+  # this will only ever be nil or one record
+  # It represents the SocialMediaAccount of the
+  # person who posted the thing we've bookmarked
+
   validates :title, :url, presence: true
   validates :url, uniqueness: true
 
