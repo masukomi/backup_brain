@@ -125,6 +125,7 @@ class Tag
 
     # NOTE: replace will handle deletion just fine
     Bookmark.replace_tag!(old_name, new_name)
+    Note.replace_tag!(old_name, new_name)
     # INSERT OTHER TAGGABLE MODELS HERE
   end
 

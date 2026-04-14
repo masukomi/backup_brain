@@ -7,7 +7,6 @@ class Person
   include Mongoid::Pagination
 
   extend Search::ClassMethods
-  include BackupBrain::Taggable::InstanceMethods
   include Search::InstanceMethods
   include BackupBrain::EmojiHelper
   include BackupBrain::Domains
