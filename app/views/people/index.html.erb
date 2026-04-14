@@ -1,8 +1,14 @@
 <div class="container">
-  <div class="row">
+  <div class="row small-top-margin">
     <div class="col">
       <heading><%= t("people.list_heading") %></heading>
     </div>
+    <% if current_user %>
+      <div class="col-auto">
+        <%= link_to t('people.add'), new_person_path, class: 'btn btn-primary compact-button' %>
+      </div>
+    <% end %>
+
   </div>
 </div>
 
