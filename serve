@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 
-if [ -e "$HOME/.rbenv/shims/bundle" ]; then
-  PATH_TO_BUNDLE="$HOME/.rbenv/shims/bundle"
-else
-  PATH_TO_BUNDLE="bundle"
+if [ -z ${PATH_TO_BUNDLE} ]; then
+  if [ -e "$HOME/.rbenv/shims/bundle" ]; then
+    export PATH_TO_BUNDLE="$HOME/.rbenv/shims/bundle"
+  else
+    export PATH_TO_BUNDLE="bundle"
+  fi
 fi
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $SCRIPT_DIR
@@ -138,6 +140,10 @@ else
   echo $YELLOW"Search is disabled via .env"$NOCOLOR
 fi
 
+# won't work if run via systemd
+# and probably not launchctl
+# because relies on user's rbenv shims
+# to find the bundle path
 run_next_migration_file_if_present
 
 

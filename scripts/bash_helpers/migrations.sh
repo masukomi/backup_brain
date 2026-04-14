@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 
-if [ -e "$HOME/.rbenv/shims/bundle" ]; then
-  PATH_TO_BUNDLE="$HOME/.rbenv/shims/bundle"
-else
-  PATH_TO_BUNDLE="bundle"
+if [ -z ${PATH_TO_BUNDLE} ]; then
+  if [ -e "$HOME/.rbenv/shims/bundle" ]; then
+    export PATH_TO_BUNDLE="$HOME/.rbenv/shims/bundle"
+  else
+    export PATH_TO_BUNDLE="bundle"
+  fi
 fi
 set -e
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
