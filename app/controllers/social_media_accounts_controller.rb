@@ -8,7 +8,7 @@ class SocialMediaAccountsController < ApplicationController
 
   def create
     profile_url = sma_params[:profile_url]
-    existing    = SocialMediaAccount.find_by(profile_url: profile_url) if profile_url.present?
+    existing    = SocialMediaAccount.where(profile_url: profile_url).first if profile_url.present?
 
     if existing
       existing.assign_attributes(sma_params.except(:profile_url))
