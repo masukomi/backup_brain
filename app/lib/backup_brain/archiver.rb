@@ -158,17 +158,17 @@ module BackupBrain
     # When +extension+ is nil (type unknown), checks for a previously-detected file
     # via glob, downloads to a bare SHA256 name, then runs +detect_file_extension+
     # and renames the file before returning.
-    def download_asset(bookmark, url, asset_label:, extension: nil, to_path: nil)
+    def download_asset(mongoid_doc, url, asset_label:, extension: nil, to_path: nil)
       if to_path
         archive_folder_path = File.dirname(to_path)
         local_name = File.basename(to_path)
         file_path = to_path
         new_url = "/#{to_path}"
       else
-        archive_folder_path = archive_folder_path_for_doc(bookmark)
+        archive_folder_path = archive_folder_path_for_doc(mongoid_doc)
         local_name = archived_image_name(url, extension)
         file_path = File.join(archive_folder_path, local_name)
-        new_url = archive_web_path_for_doc(bookmark) + "/#{local_name}"
+        new_url = archive_web_path_for_doc(mongoid_doc) + "/#{local_name}"
       end
 
       begin
