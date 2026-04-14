@@ -42,9 +42,9 @@ class SocialMediaAccount
   field :profile_url,       type: String
   field :username,          type: String
   field :avatar_image_path, type: String # path to avatar image
-  # typically /archives/people/<id>/<service>/avatar.<extension>
+  # typically /archives/social_media_accounts/<id>/avatar.<extension>
   field :header_image_path, type: String # path to header image
-  # typically /archives/people/<id>/<service>/header.<extension>
+  # typically /archives/social_media_accounts/<id>/header.<extension>
   field :description,       type: String
   field :type,              type: String
   field :preferred,         type: Boolean, default: false
@@ -188,13 +188,23 @@ class SocialMediaAccount
   # will still detect it post-download.
 
   def default_avatar_image_path
-    ext = File.extname(URI.parse(remote_account_data&.dig("avatar").to_s).path)
-    File.join("archives", "people", person._id.to_s, service, "avatar#{ext}")
+    archive_folder_path = archive_folder_path_for(self)
+    case CONSOLIDATED_SERVICE_MAP[service]
+    when "mastodon"
+      ext = File.extname(URI.parse(remote_account_data&.dig("avatar").to_s).path)
+      return File.join(archive_folder_path, "avatar#{ext}")
+    end
+    nil
   end
 
   def default_header_image_path
-    ext = File.extname(URI.parse(remote_account_data&.dig("header").to_s).path)
-    File.join("archives", "people", person._id.to_s, service, "header#{ext}")
+    archive_folder_path = archive_folder_path_for(self)
+    case CONSOLIDATED_SERVICE_MAP[service]
+    when "mastodon"
+      ext = File.extname(URI.parse(remote_account_data&.dig("header").to_s).path)
+      return File.join(archive_folder_path, "header#{ext}")
+    end
+    nil
   end
 
   private
