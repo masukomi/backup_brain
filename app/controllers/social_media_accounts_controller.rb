@@ -16,6 +16,10 @@ class SocialMediaAccountsController < ApplicationController
       @social_media_account = existing
     else
       @social_media_account = @person.social_media_accounts.build(sma_params)
+      if @person.social_media_accounts.size == 0
+        @social_media_account.preferred = true
+        # if the new one is the only one it's going to be the preferred one.
+      end
       if @social_media_account.profile_url
         @social_media_account.service = SocialMediaAccount.query_service_type(@social_media_account.profile_url)
         # if there isn't one the .save will fail and list any other errors
