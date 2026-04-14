@@ -119,6 +119,9 @@ class FetchMastodonBookmarksJob < ApplicationJob
       user: user,
       tags: [MASTODON_TAG]
     )
+    person = Person.find_by(social_media_profile_url: status.dig("account", "url"))
+    bookmark.people << person if person.present?
+
     # We already have the content — build an Archive from the status HTML
     # and skip the normal ArchiveUrlJob queue (which would 404 on private statuses).
     bookmark.suppress_auto_archive!

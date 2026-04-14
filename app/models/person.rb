@@ -42,6 +42,14 @@ class Person
     after_destroy :remove_from_search
   end
 
+  # @param profile_url [String] the canonical url of the user's profile.
+  # @return [Person|nil] The first person with a social media account
+  # matching the given profile_url
+  def self.find_by_social_media_profile_url(profile_url)
+    return nil if profile_url.blank?
+    SocialMediaAccount.where(profile_url: /\A#{Regexp.escape(profile_url)}\z/i).first&.person
+  end
+
   # BEGIN HOOKS
   # guarantees that the domain of home_url (if present) is
   # included in the list of domains
