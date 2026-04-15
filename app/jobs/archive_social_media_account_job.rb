@@ -30,7 +30,12 @@ class ArchiveSocialMediaAccountJob < ArchiveUrlJob
   end
 
   # @return [Bookmark, nil] the bookmark if it was archived, nil if it wasn't
-  def process_social_media_account(social_media_account_id:, replace_archived_images: true, replace_description: true, avatar_url: nil, header_url: nil)
+  def process_social_media_account(social_media_account_id:,
+    replace_archived_images: true,
+    replace_description: true,
+    replace_username: true,
+    avatar_url: nil,
+    header_url: nil)
     sma = begin
       SocialMediaAccount.find(social_media_account_id)
     rescue
@@ -45,19 +50,37 @@ class ArchiveSocialMediaAccountJob < ArchiveUrlJob
     end
 
     begin
-      if sma.avatar_image_path.blank? || replace_archived_images
-        url = avatar_url.presence || sma.avatar_image_url
-        Rails.logger.debug("Attempting to download avatar image with url: \"#{url}\"")
-        sma.avatar_image_path = download_asset(sma, url, asset_label: "avatar image", to_path: sma.default_avatar_image_path) if url.present?
-      end
-      if sma.header_image_path.blank? || replace_archived_images
-        url = header_url.presence || sma.header_image_url
-        Rails.logger.debug("Attempting to download header image with url: \"#{url}\"")
-        sma.header_image_path = download_asset(sma, url, asset_label: "header image", to_path: sma.default_header_image_path) if url.present?
+      if sma.username.blank? || replace_username
+        Rails.logger.debug("replacing username with remote username")
+        sma.description = sma.remote_username
       end
       if sma.description.blank? || replace_description
         Rails.logger.debug("replacing description with remote description")
         sma.description = sma.remote_description
+      end
+      if sma.avatar_image_path.blank? || replace_archived_images
+        url = avatar_url.presence || sma.avatar_image_url
+        Rails.logger.debug("Attempting to download avatar image with url: \"#{url}\"")
+        if url.present?
+          sma.avatar_image_path = download_asset(
+            sma,
+            url,
+            asset_label: "avatar image",
+            to_path: sma.default_avatar_image_path
+          )
+        end
+      end
+      if sma.header_image_path.blank? || replace_archived_images
+        url = header_url.presence || sma.header_image_url
+        Rails.logger.debug("Attempting to download header image with url: \"#{url}\"")
+        if url.present?
+          sma.header_image_path = download_asset(
+            sma,
+            url,
+            asset_label: "header image",
+            to_path: sma.default_header_image_path
+          )
+        end
       end
       if sma.preferred && sma.avatar_image_path && sma.person.present? && (sma.person.avatar_image_path != sma.avatar_image_path)
         sma.person.avatar_image_path = sma.avatar_image_path

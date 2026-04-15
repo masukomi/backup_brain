@@ -84,7 +84,8 @@ class SocialMediaAccount
 
     case CONSOLIDATED_SERVICE_MAP[service]
     when "mastodon"
-      remote_account_data&.dig("avatar")
+      validated_image_url(remote_account_data&.dig("avatar"))
+
     end
   end
 
@@ -95,7 +96,7 @@ class SocialMediaAccount
 
     case CONSOLIDATED_SERVICE_MAP[service]
     when "mastodon"
-      remote_account_data&.dig("header")
+      validated_image_url(remote_account_data&.dig("header"))
     end
   end
 
@@ -109,17 +110,13 @@ class SocialMediaAccount
     end
   end
 
-  def extract_mastodon_user_description(data)
-    note = ReverseMarkdown.convert(data["note"].to_s).strip
-    fields = (data["fields"] || []).map do |field|
-      "**#{field["name"]}**: #{ReverseMarkdown.convert(field["value"].to_s).strip}"
-    end
+  def remote_username
+    data = remote_account_data
+    return nil unless data
 
-    fields.reject!(&:empty?)
-    if fields.present?
-      (note + "\n\n-" + fields.join("  \n-"))
-    else
-      note
+    case CONSOLIDATED_SERVICE_MAP[service]
+    when "mastodon"
+      extract_mastodon_full_username(data)
     end
   end
 
@@ -213,6 +210,26 @@ class SocialMediaAccount
   def default_mastodon_image_path(avatar_or_header)
     archive_folder_path = archive_folder_path_for_doc(self)
     future_image_path_or_nil(remote_account_data&.dig(avatar_or_header), avatar_or_header, archive_folder_path)
+  end
+
+  def extract_mastodon_full_username(data)
+    partial_username = data["acct"] # => mary@example.com
+    # because fuck consistency. That's why. Grrrr
+    partial_username.present? ? "@#{partial_username}" : nil
+  end
+
+  def extract_mastodon_user_description(data)
+    note = ReverseMarkdown.convert(data["note"].to_s).strip
+    fields = (data["fields"] || []).map do |field|
+      "**#{field["name"]}**: #{ReverseMarkdown.convert(field["value"].to_s).strip}"
+    end
+
+    fields.reject!(&:empty?)
+    if fields.present?
+      (note + "\n\n-" + fields.join("  \n-"))
+    else
+      note
+    end
   end
 
   # @param image_url [String|nil] hopefully fully qualified url to an image
