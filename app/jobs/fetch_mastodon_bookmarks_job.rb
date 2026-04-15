@@ -270,7 +270,7 @@ class FetchMastodonBookmarksJob < ApplicationJob
     sma = SocialMediaAccount.new(
       profile_url: profile_url,
       service: "mastodon",
-      username: account_data["acct"],
+      username: "@#{account_data["acct"]}",
       type: "unknown"
     )
     # we don't want it to auto-archive because that would
