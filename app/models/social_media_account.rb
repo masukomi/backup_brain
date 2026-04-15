@@ -194,26 +194,52 @@ class SocialMediaAccount
   # will still detect it post-download.
 
   def default_avatar_image_path
-    archive_folder_path = archive_folder_path_for_doc(self)
-    case CONSOLIDATED_SERVICE_MAP[service]
-    when "mastodon"
-      ext = File.extname(URI.parse(remote_account_data&.dig("avatar").to_s).path)
-      return File.join(archive_folder_path, "avatar#{ext}")
-    end
-    nil
+    default_service_image_path(service, "avatar")
   end
 
   def default_header_image_path
-    archive_folder_path = archive_folder_path_for_doc(self)
-    case CONSOLIDATED_SERVICE_MAP[service]
-    when "mastodon"
-      ext = File.extname(URI.parse(remote_account_data&.dig("header").to_s).path)
-      return File.join(archive_folder_path, "header#{ext}")
-    end
-    nil
+    default_service_image_path(service, "header")
   end
 
   private
+
+  def default_service_image_path(service, avatar_or_header)
+    case CONSOLIDATED_SERVICE_MAP[service]
+    when "mastodon"
+      default_mastodon_image_path(avatar_or_header)
+    end
+  end
+
+  def default_mastodon_image_path(avatar_or_header)
+    archive_folder_path = archive_folder_path_for_doc(self)
+    future_image_path_or_nil(remote_account_data&.dig(avatar_or_header), avatar_or_header, archive_folder_path)
+  end
+
+  # @param image_url [String|nil] hopefully fully qualified url to an image
+  # @param filename [String] name you want to call the file without the extension
+  #        ex. "header" or "avatar"
+  # @param archive_folder_path [String] local archives path
+  # @return nil or filename + extension
+  def future_image_path_or_nil(image_url, file_name, archive_folder_path)
+    return nil if image_url.blank?
+    # NOTE: the URI.parse is needed because an url ending in
+    # avatar.png?v=42 would return .png?v=42 as the extension
+    # rescue nil because if they gave us something we can't parse as an url
+    # there's no point in continuing
+    ext = begin
+      File.extname(URI.parse(image_url).path)
+    rescue
+      nil
+    end
+    return nil if ext.blank?
+    File.join(archive_folder_path, "#{file_name}#{ext}")
+  end
+
+  def validated_image_url(image_url)
+    return nil if image_url.blank?
+    return nil if image_url == "missing.png" # mastodon's missing image image
+    image_url
+  end
 
   # rubocop:disable Rails/SkipsModelValidations
   # No need to validate since they're already saved
