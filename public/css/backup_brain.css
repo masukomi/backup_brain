@@ -528,6 +528,8 @@ debugging::before{
 	height: 15em;
 	object-fit: cover;
 	/* object-position: center top; */
+	border-radius: 0.5em;
+	margin-top: 0.5em;
 }
 
 /* dailies / timelines */

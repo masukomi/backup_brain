@@ -16,10 +16,10 @@
           <% end %>
           <%= link_to (sma.username.presence || sma.profile_url), sma.profile_url,
                       target: "_blank", rel: "noopener noreferrer" %>
-          <span class="metadata"><%= sma.service %></span>
-          <% if sma.preferred? %>
-            <span class="metadata"><%= t("social_media_accounts.preferred_badge") %></span>
-          <% end %>
+          <span class="metadata">
+            <%= sma.service %>
+            <% if sma.preferred? %><%= t("social_media_accounts.preferred_badge") %><% end %>
+          </span>
         </div>
       </div>
       <div class="row">

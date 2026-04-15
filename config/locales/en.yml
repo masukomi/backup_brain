@@ -189,7 +189,7 @@ en:
     new_heading: "Add Social Media Account for %{name}"
     delete_link: "delete"
     preferred_label: "Preferred account for this person"
-    preferred_badge: "preferred"
+    preferred_badge: "✨"
     creation_success_supported: "Account saved. We'll gather their profile info in the background shortly."
     creation_success_unsupported: "Account saved. We don't support automatic profile gathering for this type of site."
     deletion_success: "Account removed."
