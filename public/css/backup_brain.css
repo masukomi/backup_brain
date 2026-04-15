@@ -555,3 +555,11 @@ debugging::before{
     -ms-filter: blur(5px);
     filter: blur(5px);
 }
+
+.form-switch .form-check-input {
+  background-position: left center;
+}
+
+.form-switch .form-check-input:checked {
+  background-position: right center;
+}
