@@ -30,7 +30,7 @@
         </div>
       <% end %>
       <% if person.domains&.any? %>
-        <div class="row bookmark-tags-and-date-row">
+        <div class="row bookmark-tags-and-date-row small-top-margin">
           <div class="col-9">
             <%= render partial: 'shared/inline_domains_list',
                       locals: {domain_pairs: Hash[*person.domains.map{|d| [d, "https://#{d}"]}.flatten]} %>
