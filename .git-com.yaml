@@ -33,7 +33,7 @@ code-sections:
   destination: body
   type: multi-select
   instructions: Which section(s) of the codebase?
-  before-string: "\nCode Sections: "
+  before-string: "\n\nCode Sections: "
   allow-empty: true
   options:
   - bookmarks
@@ -51,6 +51,7 @@ code-sections:
   - people
   - notes
   - social_media_accounts
+  - docs
   modifiable: true
   record-as: joined-string
 ticket-number:
