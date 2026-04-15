@@ -194,6 +194,7 @@ en:
     creation_success_unsupported: "Account saved. We don't support automatic profile gathering for this type of site."
     deletion_success: "Account removed."
     no_description: "No description found on server."
+    gathering_info: "Will gather details in background."
   bookmarks:
     headings:
       simple: "Bookmarks"

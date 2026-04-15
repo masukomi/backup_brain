@@ -23,12 +23,14 @@
         </div>
       </div>
       <div class="row">
-          <div class="col">
-              <% if sma.description.present? %>
-              <%= ::Rendering::Markdown.instance.render(sma.description).html_safe %>
-              <% elsif sma.has_supported_service? %>
-                  <%= t("social_media_accounts.no_description") %>
-              <% end %>
+        <div class="col">
+          <% if sma.description.present? %>
+            <%= ::Rendering::Markdown.instance.render(sma.description).html_safe %>
+          <% elsif sma.has_supported_service?() && (sma.created_at > 3.minutes.ago) %>
+            <%= t("social_media_accounts.gathering_info") %>
+          <% elsif sma.has_supported_service? %>
+            <%= t("social_media_accounts.no_description") %>
+          <% end %>
         </div>
       </div>
     </div>
