@@ -11,7 +11,7 @@ class TagsController < ApplicationController
     # then narrow it down to what was requested (if anything)
     if @starting_with
       regexp_char = /\w/.match?(@starting_with) ? @starting_with : "\\#{@starting_with}"
-      @tags = @tags.where(name: /^#{regexp_char}/)
+      @tags = @tags.where(name: /^#{regexp_char}/i)
     end
   end
 
