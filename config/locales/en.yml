@@ -56,6 +56,9 @@ en:
     attributes:
       bookmark:
         tags: "Tags"
+      note:
+        private: "Private"
+        sensitive: "Sensitive"
     bookmarks:
       no_archive_found: "No archive was found for this bookmark."
       cant_archive_without_url: "Can't create an archive without an url."
@@ -162,6 +165,8 @@ en:
     no_notes_message: "No notes yet."
     no_tags_message: "(no tags)"
     private_hint: "Shhh…"
+    sensitive_form_hint: "Sensitive contents will be blurred by default."
+    private_form_hint: "Private notes won't be visible unless logged in."
     attributes:
       labels:
         string_data: "Your note…"

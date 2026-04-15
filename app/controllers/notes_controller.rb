@@ -87,7 +87,7 @@ class NotesController < ApplicationController
   end
 
   def note_params
-    raw = params.require(:note).permit(:string_data, :private, :tags)
+    raw = params.require(:note).permit(:string_data, :private, :sensitive, :tags)
     tags = Tag.split_tags(raw[:tags] || "")
     raw.merge(tags: tags)
   end

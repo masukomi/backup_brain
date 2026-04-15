@@ -21,7 +21,8 @@ class Note
 
   field :mime_type,   type: String, default: "text/markdown"
   field :string_data, type: String
-  field :private,      type: Boolean, default: true
+  field :private,     type: Boolean, default: true
+  field :sensitive,   type: Boolean, default: false
   field :tags,        type: Array,   default: []
 
   before_save    :clean_tags!, :clean_orphaned_tags

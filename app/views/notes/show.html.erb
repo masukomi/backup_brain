@@ -13,14 +13,14 @@
 <div class="container">
   <div class="row">
     <div class="col">
-      <div class="archive-text">
+      <div class="archive-text<%= @note.sensitive ? " blurred" : ""%>" id="<%= dom_id @note %>-content">
         <%== ::Rendering::Markdown.instance.render(@note.string_data.to_s) %>
       </div>
     </div>
   </div>
 
   <div class="row bookmark-tags-and-date-row">
-    <div class="col-9">
+    <div class="col-9<%= @note.sensitive ? " blurred" : ""%>">
       <%= render partial: 'notes/inline_tag_list', locals: {tags: @note.tags} %>
     </div>
     <div class="col bookmark-date-col metadata">

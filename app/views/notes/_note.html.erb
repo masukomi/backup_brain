@@ -21,7 +21,7 @@ privacy_class = (note.private? ? 'private-note' : '')
     <div class="col-8">
       <%# description %>
       <div class="row">
-        <div class="col">
+        <div class="col<%= note.sensitive ? " blurred" : ""%>" id="<%= dom_id note %>-content">
           <%= link_to note_path(note) do %>
             <%== ::Rendering::Markdown.instance.render(preview) %>
           <% end %>
@@ -69,10 +69,11 @@ privacy_class = (note.private? ? 'private-note' : '')
         <% end %> <%# end requires login %>
       </div><%# end action-icons %>
     </div> <%# end col %>
+
     <%# tags %>
 
     <div class="row note-tags-and-date-row">
-      <div class="col-9">
+      <div class="col-9<%= note.sensitive ? " blurred" : ""%>">
         <%= render partial: 'notes/inline_tag_list', locals: {tags: note.tags} %>
       </div>
       <div class="col note-date-col metadata">

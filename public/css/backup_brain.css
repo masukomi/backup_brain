@@ -547,3 +547,11 @@ debugging::before{
 	background: #2d4747;
 }
 /*.person-row, .note-row, .bookmark-row */
+
+.blurred {
+	-webkit-filter: blur(5px);
+    -moz-filter: blur(5px);
+    -o-filter: blur(5px);
+    -ms-filter: blur(5px);
+    filter: blur(5px);
+}

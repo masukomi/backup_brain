@@ -74,6 +74,33 @@
             checked: note.private %>
       </div>
     </div>
+    <div class="row">
+      <div class="col-9 metadata">
+        <%= t('notes.private_form_hint') %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-2">
+        <%= form.label :sensitive,
+            style: "display: block",
+            class: "form-check-label",
+            for: "sensitiveSwitch" %>
+      </div>
+      <div class="col-1 form-check form-switch">
+        <%= inline_icon("sensitive") %>
+        <%= form.check_box :sensitive,
+            class: 'bookmark-checkbox-field form-check-input toggle',
+            role: "switch",
+            id: "sensitiveSwitch",
+            checked: note.sensitive %>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-9 metadata">
+        <%= t('notes.sensitive_form_hint') %>
+      </div>
+    </div>
 
     <div class="row">
       <div class="col">
