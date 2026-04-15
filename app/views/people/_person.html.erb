@@ -1,6 +1,6 @@
 <div tabindex="0" id="<%= dom_id person %>" class="container bookmark-list-item">
   <div class="row">
-    <div class="col-8">
+    <div class="col-auto">
 
       <div class="row">
         <div class="col">
@@ -26,6 +26,14 @@
               <%= link_to (sma.username.presence || sma.service), sma.profile_url,
                           target: "_blank", rel: "noopener noreferrer" %>
             <% end %>
+          </div>
+        </div>
+      <% end %>
+      <% if person.domains.any? %>
+        <div class="row bookmark-tags-and-date-row">
+          <div class="col-9">
+            <%= render partial: 'shared/inline_domains_list',
+                      locals: {domain_pairs: Hash[*person.domains.map{|d| [d, "https://#{d}"]}.flatten]} %>
           </div>
         </div>
       <% end %>

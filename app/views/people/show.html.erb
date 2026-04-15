@@ -22,7 +22,9 @@
       </div>
     </div>
   <% end %>
-  <% if @person.domains.present? %>
+  <% if @person.domains.present?
+    use_favicons = Setting.get_value_of_key('enable_favicons')
+  %>
     <div class="row safe-space">
       <div class="col">
         <heading><%= t('people.domains_heading') %></heading>
@@ -30,7 +32,7 @@
 
         <% @person.domains.each do | domain | %>
           <span class="nobr inline-links">
-            <% if Setting.get_value_of_key('enable_favicons')
+            <% if use_favicons
               url = BackupBrain::Favicons.cached_or_fetched_path(domain)
             %>
             <% if url  %>
