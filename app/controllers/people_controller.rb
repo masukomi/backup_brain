@@ -5,10 +5,10 @@ class PeopleController < ApplicationController
   def index
     @starting_with = params[:starting_with]
     @people = Person.all.order_by(name: :asc)
-    @people_first_characters = @people.map { |p| p.name[0] }.uniq
+    @people_first_characters = @people.map { |p| p.name[0].downcase }.uniq
     if @starting_with
       regexp_char = /\w/.match?(@starting_with) ? @starting_with : "\\#{@starting_with}"
-      @people = @people.where(name: /^#{regexp_char}/)
+      @people = @people.where(name: /^#{regexp_char}/i)
     end
   end
 
