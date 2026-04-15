@@ -71,7 +71,7 @@ class Setting
   def dependency_settings_presence
     missing_dependency_settings = []
     setting_dependencies.each do |sd|
-      missing_dependency_settings << sd.dependency_lookup_key
+      missing_dependency_settings << sd.dependency_lookup_key unless sd.dependable?
     end
     if missing_dependency_settings.present?
       errors.add(:setting_dependencies, "the following dependency settings are missing: #{missing_dependency_settings.join(", ")}")
