@@ -328,7 +328,8 @@ en:
       token_missing: "registered, not authorized"
       delete: "Disconnect"
       site_type_label: "Server type"
-      base_url_label: "Server domain (e.g. mastodon.social)"
+      base_url_label: "Server domain"
+      base_url_hint: "This will work with all Fediverse servers that implement the Mastodon API: Mastodon, Pleroma, Akkoma, GoToSocial, Hometown, takahe, etc. Alas, this doesn't include Misskey or Sharkey…<i>yet</i>."
       submit: "Connect"
   importer:
       instructions: "
