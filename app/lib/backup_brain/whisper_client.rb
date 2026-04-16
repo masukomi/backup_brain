@@ -31,8 +31,8 @@ module BackupBrain
     end
 
     def viable?
-      # TODO refactor call to binary to binaries[???]
-      model_path.present? && File.exist?(model_path) && binary.present?
+      model_path.present? && File.exist?(model_path) &&
+        (executable_path("whisper-cli") || executable_path("whisper-cpp")).present?
     end
 
     # Transcribes the audio file at +file_path+ and returns the transcript as a
