@@ -1,6 +1,12 @@
 class TranscribeAudioJob < ApplicationJob
   queue_as :low_priority
 
+  # Transcription on a Pi can be very slow for long audio files.
+  # > 30min run time for ~13 min audio on a Pi5
+  def max_run_time
+    2.hours
+  end
+
   # @param bookmark_id [String] the bookmark's BSON ObjectId as a string
   # @param audio_local_path [String] web-relative path to the archived audio file,
   #   e.g. "/archives/bookmarks/<id>/abc123def.mp3"
