@@ -59,6 +59,8 @@ en:
       note:
         private: "Private"
         sensitive: "Sensitive"
+      person:
+        email: "Email"
     bookmarks:
       no_archive_found: "No archive was found for this bookmark."
       cant_archive_without_url: "Can't create an archive without an url."

@@ -82,7 +82,12 @@ class ArchiveSocialMediaAccountJob < ArchiveUrlJob
           )
         end
       end
-      if sma.preferred && sma.avatar_image_path && sma.person.present? && (sma.person.avatar_image_path != sma.avatar_image_path)
+      if sma.preferred &&
+          sma.avatar_image_path &&
+          sma.person.present? &&
+          (sma.person.avatar_image_path != sma.avatar_image_path)
+
+        # overwrite that crap with our hotness!
         sma.person.avatar_image_path = sma.avatar_image_path
         sma.person.save
       end

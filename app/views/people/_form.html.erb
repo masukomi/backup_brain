@@ -43,6 +43,16 @@
       </div>
     </div>
 
+
+    <div class="row">
+      <div class="col-2">
+        <%= form.label :email, style: "display: block" %>
+      </div>
+      <div class="col-9">
+        <%= form.text_field :email, class: "bookmark-input-field" %>
+      </div>
+    </div>
+
     <div class="row">
       <div class="col-2">
         <%= form.label :home_url, style: "display: block" %>
@@ -59,7 +69,6 @@
       <div class="col-9">
         <div data-controller="domain-input"
              data-domain-input-existing-value="<%= person.domains.to_json %>">
-          <div class="tag-chips-area mb-1" data-domain-input-target="chipsArea"></div>
           <div class="input-group">
             <input type="text"
                    class="form-control"
@@ -73,6 +82,7 @@
                     data-action="click->domain-input#addDomain"
                     disabled><%= t("people.add_domain_button") %></button>
           </div>
+          <div class="tag-chips-area mb-1" data-domain-input-target="chipsArea"></div>
           <div data-domain-input-target="hiddenFields"></div>
         </div>
         <div class="metadata"><%= t("people.domains_field_hint") %></div>

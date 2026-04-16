@@ -23,7 +23,7 @@ class PeopleController < ApplicationController
   end
 
   def create
-    @person = Person.new(person_params.merge(aliases: split_aliases))
+    @person = Person.new(person_params.except(:aliases_string).merge(aliases: split_aliases))
     if @person.save
       flash_message(:notice, t("people.creation_success"))
       redirect_to @person
@@ -33,7 +33,7 @@ class PeopleController < ApplicationController
   end
 
   def update
-    if @person.update(person_params.merge(aliases: split_aliases))
+    if @person.update(person_params.except(:aliases_string).merge(aliases: split_aliases))
       flash_message(:notice, t("people.update_success"))
       redirect_to @person
     else
@@ -54,12 +54,19 @@ class PeopleController < ApplicationController
   end
 
   def person_params
-    params.require(:person).permit(:name, :description, :pronouns, :home_url,
-      domains: [])
+    params.require(:person).permit(
+      :name,
+      :description,
+      :pronouns,
+      :email,
+      :home_url,
+      :aliases_string,
+      domains: []
+    )
   end
 
   def split_aliases
-    params.dig(:person, :aliases_string).to_s
+    person_params[:aliases_string].to_s
       .split(",")
       .map(&:strip)
       .reject(&:empty?)
