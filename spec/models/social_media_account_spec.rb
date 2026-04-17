@@ -65,7 +65,7 @@ RSpec.describe SocialMediaAccount do
       # rubocop:enable RSpec/ContextWording
     end
 
-    context "when the service is unsupported (misskey)" do
+    context "when the service is misskey" do
       let(:sma) do
         described_class.new(
           profile_url: "https://misskey.io/@alice",
@@ -74,15 +74,39 @@ RSpec.describe SocialMediaAccount do
         )
       end
 
-      before do
-        allow(sma).to(receive(:remote_account_data).and_return(
-          {"url" => "https://misskey.io/@alice", "username" => "alice"}
-        ))
+      # rubocop:disable RSpec/ContextWording
+      context "and the account data includes a host" do
+        before do
+          allow(sma).to(receive(:remote_account_data).and_return(
+            {"username" => "alice", "host" => "misskey.io"}
+          ))
+        end
+
+        it "returns @username@host" do
+          expect(sma.remote_username).to(eq("@alice@misskey.io"))
+        end
       end
 
-      it "returns nil" do
-        expect(sma.remote_username).to(be_nil)
+      context "and the host is nil (local user)" do
+        before do
+          allow(sma).to(receive(:remote_account_data).and_return(
+            {"username" => "alice", "host" => nil}
+          ))
+        end
+
+        it "returns @username without a host" do
+          expect(sma.remote_username).to(eq("@alice"))
+        end
       end
+
+      context "and remote_account_data returns nil (fetch failed)" do
+        before { allow(sma).to(receive(:remote_account_data).and_return(nil)) }
+
+        it "returns nil" do
+          expect(sma.remote_username).to(be_nil)
+        end
+      end
+      # rubocop:enable RSpec/ContextWording
     end
   end
 
@@ -162,7 +186,7 @@ RSpec.describe SocialMediaAccount do
       # rubocop:enable RSpec/ContextWording
     end
 
-    context "when the service is unsupported (misskey)" do
+    context "when the service is misskey" do
       let(:sma) do
         described_class.new(
           profile_url: "https://misskey.io/@alice",
@@ -171,15 +195,167 @@ RSpec.describe SocialMediaAccount do
         )
       end
 
-      before do
-        allow(sma).to(receive(:remote_account_data).and_return(
-          {"note" => "<p>bio</p>", "fields" => []}
-        ))
+      # rubocop:disable RSpec/ContextWording
+      context "and the account has a plain-text description and no fields" do
+        before do
+          allow(sma).to(receive(:remote_account_data).and_return(
+            {"description" => "I make things.", "fields" => []}
+          ))
+        end
+
+        it "returns the description as-is without HTML conversion" do
+          expect(sma.remote_description).to(eq("I make things."))
+        end
       end
 
-      it "returns nil" do
-        expect(sma.remote_description).to(be_nil)
+      context "and the account has fields with plain-text values" do
+        before do
+          allow(sma).to(receive(:remote_account_data).and_return(
+            {"description" => "", "fields" => [
+              {"name" => "Website", "value" => "example.com"},
+              {"name" => "Pronouns", "value" => "she/her"}
+            ]}
+          ))
+        end
+
+        it "returns fields formatted with bold labels", :aggregate_failures do
+          result = sma.remote_description
+          expect(result).to(include("**Website**"))
+          expect(result).to(include("**Pronouns**"))
+          expect(result).to(include("she/her"))
+        end
       end
+
+      context "and remote_account_data returns nil (fetch failed)" do
+        before { allow(sma).to(receive(:remote_account_data).and_return(nil)) }
+
+        it "returns nil" do
+          expect(sma.remote_description).to(be_nil)
+        end
+      end
+      # rubocop:enable RSpec/ContextWording
+    end
+  end
+
+  # ---------------------------------------------------------------------------
+  describe "#avatar_image_url" do
+    context "when the service is mastodon" do
+      # rubocop:disable RSpec/ContextWording
+      context "and remote_account_data returns a valid avatar URL" do
+        before do
+          allow(sma).to(receive(:remote_account_data).and_return(
+            {"avatar" => "https://cdn.mastodon.social/accounts/avatars/001/original/alice.jpg"}
+          ))
+        end
+
+        it "returns the avatar URL" do
+          expect(sma.avatar_image_url).to(eq("https://cdn.mastodon.social/accounts/avatars/001/original/alice.jpg"))
+        end
+      end
+
+      context "and remote_account_data returns nil" do
+        before { allow(sma).to(receive(:remote_account_data).and_return(nil)) }
+
+        it "returns nil" do
+          expect(sma.avatar_image_url).to(be_nil)
+        end
+      end
+      # rubocop:enable RSpec/ContextWording
+    end
+
+    context "when the service is misskey" do
+      let(:sma) do
+        described_class.new(
+          profile_url: "https://misskey.io/@alice",
+          service: "misskey",
+          type: "unknown"
+        )
+      end
+
+      # rubocop:disable RSpec/ContextWording
+      context "and remote_account_data returns a valid avatarUrl" do
+        before do
+          allow(sma).to(receive(:remote_account_data).and_return(
+            {"avatarUrl" => "https://misskey.io/files/alice-avatar.jpg"}
+          ))
+        end
+
+        it "returns the avatarUrl value" do
+          expect(sma.avatar_image_url).to(eq("https://misskey.io/files/alice-avatar.jpg"))
+        end
+      end
+
+      context "and avatarUrl is nil" do
+        before do
+          allow(sma).to(receive(:remote_account_data).and_return({"avatarUrl" => nil}))
+        end
+
+        it "returns nil" do
+          expect(sma.avatar_image_url).to(be_nil)
+        end
+      end
+      # rubocop:enable RSpec/ContextWording
+    end
+  end
+
+  # ---------------------------------------------------------------------------
+  describe "#header_image_url" do
+    context "when the service is mastodon" do
+      # rubocop:disable RSpec/ContextWording
+      context "and remote_account_data returns a valid header URL" do
+        before do
+          allow(sma).to(receive(:remote_account_data).and_return(
+            {"header" => "https://cdn.mastodon.social/accounts/headers/001/original/banner.png"}
+          ))
+        end
+
+        it "returns the header URL" do
+          expect(sma.header_image_url).to(eq("https://cdn.mastodon.social/accounts/headers/001/original/banner.png"))
+        end
+      end
+
+      context "and remote_account_data returns nil" do
+        before { allow(sma).to(receive(:remote_account_data).and_return(nil)) }
+
+        it "returns nil" do
+          expect(sma.header_image_url).to(be_nil)
+        end
+      end
+      # rubocop:enable RSpec/ContextWording
+    end
+
+    context "when the service is misskey" do
+      let(:sma) do
+        described_class.new(
+          profile_url: "https://misskey.io/@alice",
+          service: "misskey",
+          type: "unknown"
+        )
+      end
+
+      # rubocop:disable RSpec/ContextWording
+      context "and remote_account_data returns a valid bannerUrl" do
+        before do
+          allow(sma).to(receive(:remote_account_data).and_return(
+            {"bannerUrl" => "https://misskey.io/files/alice-banner.png"}
+          ))
+        end
+
+        it "returns the bannerUrl value" do
+          expect(sma.header_image_url).to(eq("https://misskey.io/files/alice-banner.png"))
+        end
+      end
+
+      context "and bannerUrl is nil" do
+        before do
+          allow(sma).to(receive(:remote_account_data).and_return({"bannerUrl" => nil}))
+        end
+
+        it "returns nil" do
+          expect(sma.header_image_url).to(be_nil)
+        end
+      end
+      # rubocop:enable RSpec/ContextWording
     end
   end
 
@@ -269,7 +445,7 @@ RSpec.describe SocialMediaAccount do
       end
     end
 
-    context "when the service is unsupported (e.g. misskey)" do
+    context "when the service is misskey" do
       let(:sma) do
         described_class.new(
           profile_url: "https://misskey.io/@alice",
@@ -282,9 +458,37 @@ RSpec.describe SocialMediaAccount do
         allow(sma).to(receive(:archive_folder_path_for_doc).with(sma).and_return(archive_folder))
       end
 
-      it "returns nil" do
-        expect(sma.default_avatar_image_path).to(be_nil)
+      # rubocop:disable RSpec/ContextWording
+      context "and remote_account_data returns an avatarUrl with an extension" do
+        before do
+          allow(sma).to(receive(:remote_account_data).and_return(
+            {"avatarUrl" => "https://misskey.io/files/alice-avatar.jpg", "bannerUrl" => nil}
+          ))
+        end
+
+        it "returns a path under the archive folder named avatar with the correct extension" do
+          expect(sma.default_avatar_image_path).to(eq("#{archive_folder}/avatar.jpg"))
+        end
       end
+
+      context "and avatarUrl is nil" do
+        before do
+          allow(sma).to(receive(:remote_account_data).and_return({"avatarUrl" => nil, "bannerUrl" => nil}))
+        end
+
+        it "returns nil" do
+          expect(sma.default_avatar_image_path).to(be_nil)
+        end
+      end
+
+      context "and remote_account_data is nil" do
+        before { allow(sma).to(receive(:remote_account_data).and_return(nil)) }
+
+        it "returns nil" do
+          expect(sma.default_avatar_image_path).to(be_nil)
+        end
+      end
+      # rubocop:enable RSpec/ContextWording
     end
   end
 
@@ -339,7 +543,7 @@ RSpec.describe SocialMediaAccount do
       # rubocop:enable RSpec/ContextWording
     end
 
-    context "when the service is unsupported" do
+    context "when the service is misskey" do
       let(:sma) do
         described_class.new(
           profile_url: "https://misskey.io/@alice",
@@ -352,9 +556,37 @@ RSpec.describe SocialMediaAccount do
         allow(sma).to(receive(:archive_folder_path_for_doc).with(sma).and_return(archive_folder))
       end
 
-      it "returns nil" do
-        expect(sma.default_header_image_path).to(be_nil)
+      # rubocop:disable RSpec/ContextWording
+      context "and remote_account_data returns a bannerUrl with an extension" do
+        before do
+          allow(sma).to(receive(:remote_account_data).and_return(
+            {"avatarUrl" => nil, "bannerUrl" => "https://misskey.io/files/alice-banner.png"}
+          ))
+        end
+
+        it "returns a path under the archive folder named header with the correct extension" do
+          expect(sma.default_header_image_path).to(eq("#{archive_folder}/header.png"))
+        end
       end
+
+      context "and bannerUrl is nil" do
+        before do
+          allow(sma).to(receive(:remote_account_data).and_return({"avatarUrl" => nil, "bannerUrl" => nil}))
+        end
+
+        it "returns nil" do
+          expect(sma.default_header_image_path).to(be_nil)
+        end
+      end
+
+      context "and remote_account_data is nil" do
+        before { allow(sma).to(receive(:remote_account_data).and_return(nil)) }
+
+        it "returns nil" do
+          expect(sma.default_header_image_path).to(be_nil)
+        end
+      end
+      # rubocop:enable RSpec/ContextWording
     end
   end
 end

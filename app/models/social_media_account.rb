@@ -36,7 +36,9 @@ class SocialMediaAccount
     "threads.net" => "fascist_mysoginist"
 
   }.freeze
-  SUPPORTED_SERVICES = CONSOLIDATED_SERVICE_MAP.select { |k, v| v == "mastodon" }.keys.freeze
+  SUPPORTED_SERVICES = CONSOLIDATED_SERVICE_MAP.select { |k, v|
+    ["mastodon", "misskey"].include?(v)
+  }.keys.freeze
 
   field :service,           type: String
   field :profile_url,       type: String
@@ -84,8 +86,9 @@ class SocialMediaAccount
 
     case CONSOLIDATED_SERVICE_MAP[service]
     when "mastodon"
-      validated_image_url(remote_account_data&.dig("avatar"))
-
+      extract_mastodon_avatar_image_url(remote_account_data)
+    when "misskey"
+      extract_misskey_avatar_image_url(remote_account_data)
     end
   end
 
@@ -96,7 +99,9 @@ class SocialMediaAccount
 
     case CONSOLIDATED_SERVICE_MAP[service]
     when "mastodon"
-      validated_image_url(remote_account_data&.dig("header"))
+      extract_mastodon_header_image_url(remote_account_data)
+    when "misskey"
+      extract_misskey_header_image_url(remote_account_data)
     end
   end
 
@@ -107,6 +112,8 @@ class SocialMediaAccount
     case CONSOLIDATED_SERVICE_MAP[service]
     when "mastodon"
       extract_mastodon_user_description(data)
+    when "misskey"
+      extract_misskey_user_description(data)
     end
   end
 
@@ -117,6 +124,8 @@ class SocialMediaAccount
     case CONSOLIDATED_SERVICE_MAP[service]
     when "mastodon"
       extract_mastodon_full_username(data)
+    when "misskey"
+      extract_misskey_full_username(data)
     end
   end
 
@@ -204,31 +213,8 @@ class SocialMediaAccount
     case CONSOLIDATED_SERVICE_MAP[service]
     when "mastodon"
       default_mastodon_image_path(avatar_or_header)
-    end
-  end
-
-  def default_mastodon_image_path(avatar_or_header)
-    archive_folder_path = archive_folder_path_for_doc(self)
-    future_image_path_or_nil(remote_account_data&.dig(avatar_or_header), avatar_or_header, archive_folder_path)
-  end
-
-  def extract_mastodon_full_username(data)
-    partial_username = data["acct"] # => mary@example.com
-    # because fuck consistency. That's why. Grrrr
-    partial_username.present? ? "@#{partial_username}" : nil
-  end
-
-  def extract_mastodon_user_description(data)
-    note = ReverseMarkdown.convert(data["note"].to_s).strip
-    fields = (data["fields"] || []).map do |field|
-      "**#{field["name"]}**: #{ReverseMarkdown.convert(field["value"].to_s).strip}"
-    end
-
-    fields.reject!(&:empty?)
-    if fields.present?
-      (note + "\n\n-" + fields.join("  \n-"))
-    else
-      note
+    when "misskey"
+      default_misskey_image_path(avatar_or_header)
     end
   end
 
@@ -285,11 +271,68 @@ class SocialMediaAccount
     case CONSOLIDATED_SERVICE_MAP[service]
     when "mastodon"
       @remote_account_data ||= fetch_mastodon_account_data
+    when "misskey"
+      @remote_account_data ||= fetch_misskey_account_data
     else
       @remote_account_data = {}
     end
   end
 
+  ######## MISSKEY METHODS
+  def fetch_misskey_account_data
+    uri = URI.parse(profile_url)
+    base_url = "#{uri.scheme}://#{uri.host}"
+    username = uri.path.split("/").last.delete_prefix("@")
+    response = HTTParty.post(
+      "#{base_url}/api/users/show",
+      body: {username: username}.to_json,
+      headers: {"Content-Type" => "application/json", "Accept" => "application/json"},
+      verify: false,
+      timeout: 10,
+      follow_redirects: true
+    )
+    return nil unless response.code == 200
+    JSON.parse(response.body)
+  rescue => e
+    Rails.logger.error("SocialMediaAccount: failed to fetch Misskey account data for #{profile_url}: #{e.message}")
+    nil
+  end
+
+  def default_misskey_image_path(avatar_or_header)
+    misskey_key = (avatar_or_header == "avatar") ? "avatarUrl" : "bannerUrl"
+    archive_folder_path = archive_folder_path_for_doc(self)
+    future_image_path_or_nil(remote_account_data&.dig(misskey_key), avatar_or_header, archive_folder_path)
+  end
+
+  def extract_misskey_avatar_image_url(data)
+    validated_image_url(data&.dig("avatarUrl"))
+  end
+
+  def extract_misskey_header_image_url(data)
+    validated_image_url(data&.dig("bannerUrl"))
+  end
+
+  def extract_misskey_full_username(data)
+    return nil if data&.dig("username").blank?
+    host = data["host"]
+    host.present? ? "@#{data["username"]}@#{host}" : "@#{data["username"]}"
+  end
+
+  def extract_misskey_user_description(data)
+    note = data["description"].to_s.strip
+    fields = (data["fields"] || []).map do |field|
+      "**#{field["name"]}**: #{field["value"].to_s.strip}"
+    end
+
+    fields.reject!(&:empty?)
+    if fields.present?
+      (note + "\n\n-" + fields.join("  \n-"))
+    else
+      note
+    end
+  end
+
+  ######## MASTODON METHODS
   def fetch_mastodon_account_data
     uri = URI.parse(profile_url)
     base_url = "#{uri.scheme}://#{uri.host}"
@@ -306,5 +349,38 @@ class SocialMediaAccount
   rescue => e
     Rails.logger.error("SocialMediaAccount: failed to fetch Mastodon account data for #{profile_url}: #{e.message}")
     nil
+  end
+
+  def default_mastodon_image_path(avatar_or_header)
+    archive_folder_path = archive_folder_path_for_doc(self)
+    future_image_path_or_nil(remote_account_data&.dig(avatar_or_header), avatar_or_header, archive_folder_path)
+  end
+
+  def extract_mastodon_avatar_image_url(data)
+    validated_image_url(remote_account_data&.dig("avatar"))
+  end
+
+  def extract_mastodon_header_image_url(data)
+    validated_image_url(remote_account_data&.dig("header"))
+  end
+
+  def extract_mastodon_full_username(data)
+    partial_username = data["acct"] # => mary@example.com
+    # because fuck consistency. That's why. Grrrr
+    partial_username.present? ? "@#{partial_username}" : nil
+  end
+
+  def extract_mastodon_user_description(data)
+    note = ReverseMarkdown.convert(data["note"].to_s).strip
+    fields = (data["fields"] || []).map do |field|
+      "**#{field["name"]}**: #{ReverseMarkdown.convert(field["value"].to_s).strip}"
+    end
+
+    fields.reject!(&:empty?)
+    if fields.present?
+      (note + "\n\n-" + fields.join("  \n-"))
+    else
+      note
+    end
   end
 end
