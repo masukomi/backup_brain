@@ -69,7 +69,7 @@ class RemoteCredentialsController < ApplicationController
     end
 
     effective_redirect_uri = site_type.requires_pkce ?
-      OauthRegistration::IndieAuthStrategy::RELAY_URL : callback_url
+      OauthRegistration::IndieAuthStrategy.relay_url : callback_url
     effective_state = if site_type.requires_pkce
       Base64.strict_encode64(JSON.generate(id: oauth_site._id.to_s, u: local_url))
     else
@@ -115,7 +115,7 @@ class RemoteCredentialsController < ApplicationController
     begin
       token_params = {
         redirect_uri: site_type.requires_pkce ?
-          OauthRegistration::IndieAuthStrategy::RELAY_URL : callback_url
+          OauthRegistration::IndieAuthStrategy.relay_url : callback_url
       }
       if site_type.requires_pkce
         code_verifier = session.delete("pkce_#{oauth_site._id}")

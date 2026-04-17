@@ -7,11 +7,15 @@ RSpec.describe RemoteCredentialsController, type: :controller do
   let(:callback_url) { "#{local_url}/remote_authorizations/callback" }
 
   # Stub ENV so local_url / callback_url work without a real .env
+  # Stub Setting so IndieAuthStrategy.client_id / relay_url don't need a real DB
   before do
     allow(ENV).to receive(:fetch).and_call_original
     allow(ENV).to receive(:fetch).with("HOST_NAME").and_return("brain.test")
     allow(ENV).to receive(:fetch).with("HOST_USES_SSH", "false").and_return("false")
     allow(ENV).to receive(:fetch).with("PORT").and_return("3334")
+    allow(Setting).to receive(:get_value_of_key).and_call_original
+    allow(Setting).to receive(:get_value_of_key)
+      .with("indieauth_client_id_url").and_return("https://backupbrain.app")
   end
 
   def build_site_type(requires_pkce:)
@@ -37,7 +41,7 @@ RSpec.describe RemoteCredentialsController, type: :controller do
           base_url: base_url,
           registered_url: local_url,
           oauth_site_type: site_type,
-          client_id: OauthRegistration::IndieAuthStrategy::CLIENT_ID,
+          client_id: OauthRegistration::IndieAuthStrategy.client_id,
           client_secret: nil,
           client_secret_expires_at: 0
         )
@@ -47,7 +51,7 @@ RSpec.describe RemoteCredentialsController, type: :controller do
         allow(OauthSiteType).to receive(:find).and_return(site_type)
         # rubocop:disable RSpec/VerifiedDoubles
         allow(OauthRegistration::IndieAuthStrategy).to receive(:new).and_return(
-          double(register!: {client_id: OauthRegistration::IndieAuthStrategy::CLIENT_ID, client_secret: nil, client_secret_expires_at: 0})
+          double(register!: {client_id: OauthRegistration::IndieAuthStrategy.client_id, client_secret: nil, client_secret_expires_at: 0})
         )
         allow(OauthSite).to receive_messages(where: double(first: nil, count: 0, delete_all: nil), create!: oauth_site)
         # rubocop:enable RSpec/VerifiedDoubles
@@ -74,7 +78,7 @@ RSpec.describe RemoteCredentialsController, type: :controller do
       it "uses the IndieAuth relay URL as redirect_uri" do
         post :begin_auth, params: {base_url: base_url, site_type_id: site_type.id.to_s}
         query = URI.decode_www_form(URI.parse(response.location).query).to_h
-        expect(query["redirect_uri"]).to eq(OauthRegistration::IndieAuthStrategy::RELAY_URL)
+        expect(query["redirect_uri"]).to eq(OauthRegistration::IndieAuthStrategy.relay_url)
       end
 
       it "encodes state as Base64 JSON with id and u keys" do # rubocop:disable RSpec/MultipleExpectations
@@ -175,7 +179,7 @@ RSpec.describe RemoteCredentialsController, type: :controller do
           code,
           hash_including(
             code_verifier: verifier,
-            redirect_uri: OauthRegistration::IndieAuthStrategy::RELAY_URL
+            redirect_uri: OauthRegistration::IndieAuthStrategy.relay_url
           )
         ).and_return(oauth2_token)
         # rubocop:enable RSpec/StubbedMock

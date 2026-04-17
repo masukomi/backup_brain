@@ -8,5 +8,7 @@ module BackupBrain
     class InvalidTag      < StandardError; end
 
     class UnknownSetting  < StandardError; end
+
+    class InvalidSetting  < StandardError; end
   end
 end

@@ -1,24 +1,44 @@
 OauthSiteType.find_or_create_by!(slug: "misskey") do |t|
-  t.name                  = "Misskey"
-  t.slug                  = "misskey"
-  t.description           = "Connect to any Misskey instance"
+  t.name = "Misskey"
+  t.slug = "misskey"
+  t.description = "Connect to any Misskey / Sharkey instance"
   t.registration_strategy = "indie_auth"
-  t.registration_path     = nil
-  t.authorization_path    = "/oauth/authorize"
-  t.token_path            = "/oauth/token"
-  t.default_scopes        = ["read:favorites"]
-  t.requires_pkce         = true
+  t.registration_path = nil
+  t.authorization_path = "/oauth/authorize"
+  t.token_path = "/oauth/token"
+  t.default_scopes = ["read:favorites"]
+  t.requires_pkce = true
 end
 
 OauthSiteType.find_or_create_by!(slug: "mastodon") do |t|
-  t.name                  = "Mastodon"
-  t.slug                  = "mastodon"
-  t.description           = "Connect to any Mastodon instance"
+  t.name = "Mastodon"
+  t.slug = "mastodon"
+  t.description = "Connect to any Mastodon instance"
   t.registration_strategy = "mastodon_v1_apps"
-  t.registration_path     = "/api/v1/apps"
-  t.authorization_path    = "/oauth/authorize"
-  t.token_path            = "/oauth/token"
-  t.default_scopes        = ["read"]
+  t.registration_path = "/api/v1/apps"
+  t.authorization_path = "/oauth/authorize"
+  t.token_path = "/oauth/token"
+  t.default_scopes = ["read"]
+end
+
+# IndieAuth Settings
+if Setting.where(lookup_key: "indieauth_client_id_url").count == 0
+  warn("creating indieauth_client_id_url setting")
+  Setting.create!(
+    lookup_key: "indieauth_client_id_url",
+    summary: "Public URLs used for Indieauth Client identification",
+    description: "<p><code>base_url</code> is a publicly reachable URL that IndieAuth servers
+like Misskey and Sharkey will fetch to discover this app's allowed OAuth redirect URIs.
+The page at this URL must include a <code>&lt;link rel=\"redirect_uri\"&gt;</code> tag pointing to the
+<code>redirect_uri</code> which is the relay page that bounces the browser
+back to your local instance. This will default to <code>{base_url}/indeauth-callback</code></p>
+
+<p>Change this only if you are self-hosting the relay page at a different domain.</p>",
+    visible: true,
+    value_type: :string,
+    value: {value: {base_url: "https://backupbrain.app",
+                    redirect_uri: "https://backupbrain.app/indieauth-callback"}}
+  )
 end
 
 # Audio Transcriptions Settings

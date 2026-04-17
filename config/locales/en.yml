@@ -333,7 +333,7 @@ en:
       delete: "Disconnect"
       site_type_label: "Server type"
       base_url_label: "Server domain"
-      base_url_hint: "This will work with all Fediverse servers that implement the Mastodon API: Mastodon, Pleroma, Akkoma, GoToSocial, Hometown, takahe, etc."
+      base_url_hint: "This will work with all Fediverse servers that implement the Mastodon API or Misskey API: Mastodon, Pleroma, Akkoma, GoToSocial, Hometown, Takahe, Misskey, Sharkey"
       submit: "Connect"
   importer:
       instructions: "
