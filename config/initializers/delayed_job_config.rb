@@ -2,9 +2,9 @@ Delayed::Worker.destroy_failed_jobs = true
 Delayed::Worker.sleep_delay = 60
 Delayed::Worker.max_attempts = 3
 
-# setting to 30 minutes max_run_time because
-# transcription jobs on a pi are NOT fast.
-Delayed::Worker.max_run_time = 30.minutes
+# Whisper Transcription on a Pi can be *very* slow for long audio files.
+# > 30min run time for ~13 min audio on a Pi5
+Delayed::Worker.max_run_time = 2.hours
 Delayed::Worker.read_ahead = 10
 Delayed::Worker.default_queue_name = "default"
 Delayed::Worker.delay_jobs = !Rails.env.test?
