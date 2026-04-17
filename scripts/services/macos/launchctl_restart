@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+shopt -s nullglob
+plists=(~/Library/LaunchAgents/app.backup_brain.*.plist)
+
+if [[ ${#plists[@]} -eq 0 ]]; then
+  echo "No app.backup_brain.* plists found in ~/Library/LaunchAgents/" >&2
+  echo "Run scripts/services/macos/setup.sh first." >&2
+  exit 1
+fi
+
+# why, the eff, is there no effing "restart" ?!
+echo "Stopping…
+"
+for plist in "${plists[@]}"; do
+  label="$(basename "$plist" .plist)"
+  launchctl stop "$label"
+  echo "Stopped: $label"
+done
+
+echo "
+Starting…
+"
+for plist in "${plists[@]}"; do
+  label="$(basename "$plist" .plist)"
+  launchctl start "$label"
+  echo "Started: $label"
+done
+echo "
+DONE"
