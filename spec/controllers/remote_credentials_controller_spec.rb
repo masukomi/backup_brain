@@ -37,7 +37,7 @@ RSpec.describe RemoteCredentialsController, type: :controller do
           base_url: base_url,
           registered_url: local_url,
           oauth_site_type: site_type,
-          client_id: local_url,
+          client_id: OauthRegistration::IndieAuthStrategy::CLIENT_ID,
           client_secret: nil,
           client_secret_expires_at: 0
         )
@@ -47,7 +47,7 @@ RSpec.describe RemoteCredentialsController, type: :controller do
         allow(OauthSiteType).to receive(:find).and_return(site_type)
         # rubocop:disable RSpec/VerifiedDoubles
         allow(OauthRegistration::IndieAuthStrategy).to receive(:new).and_return(
-          double(register!: {client_id: local_url, client_secret: nil, client_secret_expires_at: 0})
+          double(register!: {client_id: OauthRegistration::IndieAuthStrategy::CLIENT_ID, client_secret: nil, client_secret_expires_at: 0})
         )
         allow(OauthSite).to receive_messages(where: double(first: nil, count: 0, delete_all: nil), create!: oauth_site)
         # rubocop:enable RSpec/VerifiedDoubles
@@ -69,6 +69,20 @@ RSpec.describe RemoteCredentialsController, type: :controller do
         post :begin_auth, params: {base_url: base_url, site_type_id: site_type.id.to_s}
         session_key = "pkce_#{oauth_site._id}"
         expect(session[session_key]).to be_present
+      end
+
+      it "uses the IndieAuth relay URL as redirect_uri" do
+        post :begin_auth, params: {base_url: base_url, site_type_id: site_type.id.to_s}
+        query = URI.decode_www_form(URI.parse(response.location).query).to_h
+        expect(query["redirect_uri"]).to eq(OauthRegistration::IndieAuthStrategy::RELAY_URL)
+      end
+
+      it "encodes state as Base64 JSON with id and u keys" do # rubocop:disable RSpec/MultipleExpectations
+        post :begin_auth, params: {base_url: base_url, site_type_id: site_type.id.to_s}
+        query = URI.decode_www_form(URI.parse(response.location).query).to_h
+        state = JSON.parse(Base64.decode64(query["state"]))
+        expect(state["id"]).to eq(oauth_site._id.to_s)
+        expect(state["u"]).to eq(local_url)
       end
     end
 
@@ -145,6 +159,7 @@ RSpec.describe RemoteCredentialsController, type: :controller do
         )
       end
       let(:verifier) { "stored_code_verifier" }
+      let(:pkce_state) { Base64.strict_encode64(JSON.generate(id: site_id.to_s, u: "http://brain.test:3334")) }
 
       before do
         # rubocop:disable RSpec/VerifiedDoubles
@@ -154,18 +169,21 @@ RSpec.describe RemoteCredentialsController, type: :controller do
         allow(auth_code_strategy).to receive(:get_token).and_return(oauth2_token)
       end
 
-      it "passes code_verifier to get_token" do
+      it "passes code_verifier and relay redirect_uri to get_token" do
         # rubocop:disable RSpec/StubbedMock
         expect(auth_code_strategy).to receive(:get_token).with(
           code,
-          hash_including(code_verifier: verifier)
+          hash_including(
+            code_verifier: verifier,
+            redirect_uri: OauthRegistration::IndieAuthStrategy::RELAY_URL
+          )
         ).and_return(oauth2_token)
         # rubocop:enable RSpec/StubbedMock
-        get :callback, params: {code: code, state: site_id.to_s}
+        get :callback, params: {code: code, state: pkce_state}
       end
 
       it "clears the verifier from the session after use" do
-        get :callback, params: {code: code, state: site_id.to_s}
+        get :callback, params: {code: code, state: pkce_state}
         expect(session["pkce_#{site_id}"]).to be_nil
       end
     end
@@ -201,6 +219,35 @@ RSpec.describe RemoteCredentialsController, type: :controller do
         ).and_return(oauth2_token)
         # rubocop:enable RSpec/StubbedMock
         get :callback, params: {code: code, state: site_id.to_s}
+      end
+    end
+
+    context "when state is a plain site_id (non-PKCE legacy format)" do
+      let(:site_type) { build_site_type(requires_pkce: false) }
+      let(:oauth_site) do
+        instance_double(
+          OauthSite,
+          :_id => site_id,
+          :client_id => "mastodon_client_id",
+          :client_secret => "mastodon_secret",
+          :oauth_site_type => site_type,
+          :base_url => "https://mastodon.social",
+          "access_token=" => nil,
+          "access_token_expires_at=" => nil,
+          :save! => true
+        )
+      end
+
+      before do
+        # rubocop:disable RSpec/VerifiedDoubles
+        allow(OauthSite).to receive(:where).and_return(double(first: oauth_site))
+        # rubocop:enable RSpec/VerifiedDoubles
+        allow(auth_code_strategy).to receive(:get_token).and_return(oauth2_token)
+      end
+
+      it "resolves the site from the plain id and completes the callback" do
+        get :callback, params: {code: code, state: site_id.to_s}
+        expect(response).to redirect_to(root_path)
       end
     end
   end

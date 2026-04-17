@@ -68,9 +68,17 @@ class RemoteCredentialsController < ApplicationController
       pkce_params = {code_challenge: code_challenge, code_challenge_method: "S256"}
     end
 
+    effective_redirect_uri = site_type.requires_pkce ?
+      OauthRegistration::IndieAuthStrategy::RELAY_URL : callback_url
+    effective_state = if site_type.requires_pkce
+      Base64.strict_encode64(JSON.generate(id: oauth_site._id.to_s, u: local_url))
+    else
+      oauth_site._id.to_s
+    end
+
     redirect_to client.auth_code.authorize_url(
-      redirect_uri: callback_url,
-      state: oauth_site._id.to_s,
+      redirect_uri: effective_redirect_uri,
+      state: effective_state,
       scope: site_type.default_scopes.join(" "),
       **pkce_params
     ), allow_other_host: true
@@ -85,7 +93,13 @@ class RemoteCredentialsController < ApplicationController
         expected: "code & state parameters"))
     end
 
-    oauth_site = OauthSite.where(_id: params[:state]).first
+    site_id = begin
+      decoded = JSON.parse(Base64.decode64(params[:state]))
+      decoded["id"]
+    rescue
+      params[:state]
+    end
+    oauth_site = OauthSite.where(_id: site_id).first
     raise OAuth2::Error.new(nil, I18n.t("oauth2.errors.state_failure")) unless oauth_site
 
     site_type = oauth_site.oauth_site_type
@@ -99,7 +113,10 @@ class RemoteCredentialsController < ApplicationController
     )
 
     begin
-      token_params = {redirect_uri: callback_url}
+      token_params = {
+        redirect_uri: site_type.requires_pkce ?
+          OauthRegistration::IndieAuthStrategy::RELAY_URL : callback_url
+      }
       if site_type.requires_pkce
         code_verifier = session.delete("pkce_#{oauth_site._id}")
         token_params[:code_verifier] = code_verifier if code_verifier.present?
