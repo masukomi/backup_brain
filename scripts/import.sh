@@ -26,7 +26,7 @@ echo "Importing to the \"$DATABASE_NAME\" database found on"
 echo "$MONGODB_URL"
 echo "----------------------------------------------"
 
-declare -a collections=("bookmarks" "users" "tags" "settings")
+declare -a collections=("bookmarks" "users" "tags" "settings", "people", "social_media_accounts", "notes", "domain_triggers", "oauth_site_types", "media_objects", "transcriptions")
 
 for collection in "${collections[@]}"; do
   import_file=mongo_exports/$collection.json
