@@ -13,8 +13,8 @@ class RemoteCredentialsController < ApplicationController
 
   # The user has entered a domain name, chosen a site type, and clicked "Connect".
   def begin_auth
-    base_url  = params[:base_url].to_s.downcase.strip.chomp("/")
-    base_url  = "https://#{base_url}" unless base_url.start_with?("http")
+    base_url = params[:base_url].to_s.downcase.strip.chomp("/")
+    base_url = "https://#{base_url}" unless base_url.start_with?("http")
 
     site_type = OauthSiteType.find(params[:site_type_id])
 
@@ -39,7 +39,7 @@ class RemoteCredentialsController < ApplicationController
       if OauthSite.where(base_url: base_url).count > 0
         OauthSite.where(base_url: base_url).delete_all
       end
-      result     = strategy_for(base_url, site_type).register!
+      result = strategy_for(base_url, site_type).register!
       oauth_site = OauthSite.create!(
         base_url: base_url,
         registered_url: current_local_url,
@@ -60,10 +60,19 @@ class RemoteCredentialsController < ApplicationController
       token_url: site_type.token_path
     )
 
+    pkce_params = {}
+    if site_type.requires_pkce
+      code_verifier = SecureRandom.urlsafe_base64(96)
+      code_challenge = Base64.urlsafe_encode64(Digest::SHA256.digest(code_verifier), padding: false)
+      session["pkce_#{oauth_site._id}"] = code_verifier
+      pkce_params = {code_challenge: code_challenge, code_challenge_method: "S256"}
+    end
+
     redirect_to client.auth_code.authorize_url(
       redirect_uri: callback_url,
       state: oauth_site._id.to_s,
-      scope: site_type.default_scopes.join(" ")
+      scope: site_type.default_scopes.join(" "),
+      **pkce_params
     ), allow_other_host: true
   end
 
@@ -90,9 +99,15 @@ class RemoteCredentialsController < ApplicationController
     )
 
     begin
-      oauth2_access_token = client.auth_code.get_token(params[:code], redirect_uri: callback_url)
+      token_params = {redirect_uri: callback_url}
+      if site_type.requires_pkce
+        code_verifier = session.delete("pkce_#{oauth_site._id}")
+        token_params[:code_verifier] = code_verifier if code_verifier.present?
+      end
 
-      oauth_site.access_token            = oauth2_access_token.token
+      oauth2_access_token = client.auth_code.get_token(params[:code], **token_params)
+
+      oauth_site.access_token = oauth2_access_token.token
       oauth_site.access_token_expires_at = oauth2_access_token.expires_at
       oauth_site.save!
 
@@ -106,7 +121,7 @@ class RemoteCredentialsController < ApplicationController
   private
 
   def local_url
-    host_name     = ENV.fetch("HOST_NAME")
+    host_name = ENV.fetch("HOST_NAME")
     host_uses_ssl = ENV.fetch("HOST_USES_SSH", "false") == "true"
     return "https://#{host_name}" if host_uses_ssl
     port = ENV.fetch("PORT")

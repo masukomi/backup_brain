@@ -1,3 +1,15 @@
+OauthSiteType.find_or_create_by!(slug: "misskey") do |t|
+  t.name                  = "Misskey"
+  t.slug                  = "misskey"
+  t.description           = "Connect to any Misskey instance"
+  t.registration_strategy = "indie_auth"
+  t.registration_path     = nil
+  t.authorization_path    = "/oauth/authorize"
+  t.token_path            = "/oauth/token"
+  t.default_scopes        = ["read:favorites"]
+  t.requires_pkce         = true
+end
+
 OauthSiteType.find_or_create_by!(slug: "mastodon") do |t|
   t.name                  = "Mastodon"
   t.slug                  = "mastodon"

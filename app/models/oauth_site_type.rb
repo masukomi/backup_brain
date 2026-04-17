@@ -4,19 +4,21 @@ class OauthSiteType
 
   STRATEGIES = {
     "mastodon_v1_apps" => "OauthRegistration::MastodonStrategy",
-    "rfc7591" => "OauthRegistration::Rfc7591Strategy"
+    "rfc7591" => "OauthRegistration::Rfc7591Strategy",
+    "indie_auth" => "OauthRegistration::IndieAuthStrategy"
   }.freeze
 
-  field :name,                  type: String  # "Mastodon"
-  field :slug,                  type: String  # "mastodon"
-  field :description,           type: String
+  field :name, type: String  # "Mastodon"
+  field :slug, type: String  # "mastodon"
+  field :description, type: String
   field :registration_strategy, type: String  # "mastodon_v1_apps" | "rfc7591"
-  field :registration_path,     type: String  # "/api/v1/apps"
-  field :authorization_path,    type: String  # "/oauth/authorize"
-  field :token_path,            type: String  # "/oauth/token"
-  field :default_scopes,        type: Array, default: []  # ["read"]
+  field :registration_path, type: String  # "/api/v1/apps"
+  field :authorization_path, type: String  # "/oauth/authorize"
+  field :token_path, type: String  # "/oauth/token"
+  field :default_scopes, type: Array, default: []  # ["read"]
+  field :requires_pkce, type: Boolean, default: false
 
-  has_many :oauth_sites
+  has_many :oauth_sites # rubocop:disable Rails/HasManyOrHasOneDependent
 
   validates :name, :slug, :registration_strategy,
     :authorization_path, :token_path, presence: true

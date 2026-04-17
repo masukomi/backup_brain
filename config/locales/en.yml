@@ -311,6 +311,8 @@ en:
       scheduled_multiple: "%{count} scheduled, next in %{time}"
     mastodon:
       bookmark_title: "@%{author} - %{timestamp}"
+    misskey:
+      bookmark_title: "@%{author} - %{timestamp}"
   oauth2:
     errors:
       registration_failed: "Client Registration Failed"
@@ -331,7 +333,7 @@ en:
       delete: "Disconnect"
       site_type_label: "Server type"
       base_url_label: "Server domain"
-      base_url_hint: "This will work with all Fediverse servers that implement the Mastodon API: Mastodon, Pleroma, Akkoma, GoToSocial, Hometown, takahe, etc. Alas, this doesn't include Misskey or Sharkey…<i>yet</i>."
+      base_url_hint: "This will work with all Fediverse servers that implement the Mastodon API: Mastodon, Pleroma, Akkoma, GoToSocial, Hometown, takahe, etc."
       submit: "Connect"
   importer:
       instructions: "

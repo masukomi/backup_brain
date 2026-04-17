@@ -3,10 +3,10 @@ require "oauth2"
 module OauthRegistration
   class Rfc7591Strategy
     def initialize(base_url:, callback_url:, local_url:, site_type:)
-      @base_url     = base_url
+      @base_url = base_url
       @callback_url = callback_url
-      @local_url    = local_url
-      @site_type    = site_type
+      @local_url = local_url
+      @site_type = site_type
     end
 
     # Returns a symbolized hash with :client_id, :client_secret,
@@ -25,13 +25,13 @@ module OauthRegistration
         scope: @site_type.default_scopes.join(" ")
       }
 
-      http             = Net::HTTP.new(registration_uri.host, registration_uri.port)
-      http.use_ssl     = registration_uri.scheme == "https"
+      http = Net::HTTP.new(registration_uri.host, registration_uri.port)
+      http.use_ssl = registration_uri.scheme == "https"
       http.verify_mode = OpenSSL::SSL::VERIFY_PEER
 
-      request                 = Net::HTTP::Post.new(registration_uri)
+      request = Net::HTTP::Post.new(registration_uri)
       request["Content-Type"] = "application/json"
-      request.body            = payload.to_json
+      request.body = payload.to_json
 
       response = http.request(request)
 
@@ -51,17 +51,19 @@ module OauthRegistration
     private
 
     def discover_registration_uri
-      discovery_uri = URI.join(@base_url, ".well-known/openid-configuration")
-      resp = Net::HTTP.get_response(discovery_uri)
-
-      if resp.is_a?(Net::HTTPSuccess)
-        discovery = JSON.parse(resp.body)
-        return URI.parse(discovery["registration_endpoint"]) if discovery["registration_endpoint"]
+      # Try RFC 8414 (used by Misskey) first, then OpenID Connect, then fallback.
+      [
+        URI.join(@base_url, ".well-known/oauth-authorization-server"),
+        URI.join(@base_url, ".well-known/openid-configuration")
+      ].each do |discovery_uri|
+        resp = Net::HTTP.get_response(discovery_uri)
+        if resp.is_a?(Net::HTTPSuccess)
+          discovery = JSON.parse(resp.body)
+          return URI.parse(discovery["registration_endpoint"]) if discovery["registration_endpoint"]
+        end
+      rescue => e
+        Rails.logger.warn "Discovery endpoint #{discovery_uri} unreachable: #{e.message}"
       end
-
-      URI.join(@base_url, "/oauth2/register")
-    rescue => e
-      Rails.logger.warn "Discovery endpoint missing or unreachable: #{e.message}"
       URI.join(@base_url, "/oauth2/register")
     end
   end
