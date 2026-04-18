@@ -196,4 +196,50 @@ RSpec.describe Bookmark do
     end
     # rubocop:enable RSpec/MultipleMemoizedHelpers
   end
+
+  # rubocop:disable RSpec/VerifiedDoubles, RSpec/MultipleMemoizedHelpers
+  describe "#check_social_media_accounts" do
+    let(:bookmark) { described_class.new(url: "https://example.social/@user", title: "some profile") }
+    let(:sma_list) { double("sma_list") }  # rubocop:disable RSpec/VerifiedDoubles
+
+    before do
+      allow(bookmark).to(receive(:social_media_accounts).and_return(sma_list))
+    end
+
+    context "when social_media_accounts are already associated" do
+      before { allow(sma_list).to(receive(:present?).and_return(true)) }
+
+      it "does not query SocialMediaAccount" do
+        expect(SocialMediaAccount).not_to(receive(:where))
+        bookmark.check_social_media_accounts
+      end
+    end
+
+    context "when no SocialMediaAccount has a matching profile_url" do
+      before do
+        allow(sma_list).to(receive(:present?).and_return(false))
+        allow(SocialMediaAccount).to(receive(:where).with(profile_url: bookmark.url).and_return(double(first: nil)))
+      end
+
+      it "does not add any social_media_accounts" do
+        expect(sma_list).not_to(receive(:<<))
+        bookmark.check_social_media_accounts
+      end
+    end
+
+    context "when a SocialMediaAccount matches the bookmark url" do
+      let(:sma) { instance_double(SocialMediaAccount) }
+
+      before do
+        allow(sma_list).to(receive(:present?).and_return(false))
+        allow(SocialMediaAccount).to(receive(:where).with(profile_url: bookmark.url).and_return(double(first: sma)))
+      end
+
+      it "associates the matching SocialMediaAccount" do
+        expect(sma_list).to(receive(:<<).with(sma))
+        bookmark.check_social_media_accounts
+      end
+    end
+  end
+  # rubocop:enable RSpec/VerifiedDoubles, RSpec/MultipleMemoizedHelpers
 end

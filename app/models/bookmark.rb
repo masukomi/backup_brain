@@ -47,6 +47,7 @@ class Bookmark
   before_save    :maybe_generate_archive
   before_save    :clean_orphaned_tags
   before_save    :apply_domain_trigger
+  before_save    :check_social_media_accounts
 
   before_create  :find_associated_people
   after_create   :generate_archive
@@ -173,6 +174,15 @@ class Bookmark
     self.tags = tags + (trigger.tags - tags)
     self.private = true if trigger.mark_as_private
     self.to_read = true if trigger.mark_to_read
+  end
+
+  # If a social media account has not been associated with
+  # this bookmark it will look for one, and associate it if
+  # found.
+  def check_social_media_accounts
+    return if social_media_accounts.present?
+    sma = SocialMediaAccount.where(profile_url: url).first
+    social_media_accounts << sma if sma
   end
 
   # END HOOKS
