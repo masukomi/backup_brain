@@ -76,29 +76,52 @@ class SettingsController < ApplicationController
 
   # Only allow a list of trusted parameters through.
   def setting_params
-    params.require(:setting).permit(:lookup_key, :summary, :description, :value, :value_type)
+    permitted = params.require(:setting).permit(:lookup_key, :summary, :description, :value_type)
+    permitted[:value] = params.require(:setting).fetch(:value, nil)
+    permitted
   end
 
   def clean_params(setting, params_hash)
-    # # first the value type
     value_type = params_hash[:value_type]
     params_hash[:value_type] = value_type.present? ? value_type.to_sym : setting.value_type
 
-    # and then the value
     raw_value = params_hash[:value]
     params_hash[:value] = if raw_value.is_a?(ActionController::Parameters)
-      raw_value.to_unsafe_h.transform_keys(&:to_sym)
+      {value: convert_hash_params(setting, raw_value.to_unsafe_h)}
     elsif raw_value.to_s.strip.present?
-      {value: JSON.parse(raw_value.to_s.strip)}
+      convert_simple_params(setting.value_type.to_s, raw_value.to_s.strip)
     else
       {value: nil}
     end
     params_hash
-    # symbolified = {}
-    # params_hash.each do | key, val|
-    #   symbolified[key.to_sym] = val
-    # end
-    # symbolified
+  end
+
+  def convert_simple_params(type, str)
+    value = case type
+    when "boolean" then str == "true"
+    when "integer" then str.to_i
+    when "array"   then str.split(",\s*").map(&:strip)
+    else str
+    end
+    {value: value}
+  end
+
+  def convert_hash_params(setting, raw_hash)
+    display_types = setting.display_value_as
+    raw_hash.each_with_object({}) do |(key, val), result|
+      sym_key = key.to_sym
+      type = display_types.is_a?(Hash) ? (display_types[sym_key] || display_types[key.to_s]) : "string"
+      result[sym_key] = type_cast_value(val, type)
+    end
+  end
+
+  def type_cast_value(val, type)
+    case type.to_s
+    when "boolean" then val.to_s == "true"
+    when "integer" then val.to_s.to_i
+    when "array"   then val.to_s.split(",").map(&:strip)
+    else val.to_s
+    end
   end
 
   # 🤫 Sssshhhh is secret 1337 k0ntrol! No tell secret!

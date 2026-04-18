@@ -6,13 +6,13 @@ class Setting
   # However, I wrote it years ago, for another app, and
   # I just don't remember what it was. 😿
 
-  VALID_VALUE_TYPES = %i[boolean integer string array hash].freeze
+  VALID_VALUE_TYPES = %w[boolean integer string array hash text].freeze
 
   field :lookup_key,  type:    String
   field :summary,     type:    String
   field :description, type:    String
   field :value,       type:    Hash
-  field :value_type,  default: :boolean
+  field :value_type,  type:    String, default: "boolean"
   field :visible,     type:    Boolean, default: false
 
   embeds_many :setting_dependencies, cascade_callbacks: true
@@ -43,18 +43,44 @@ class Setting
     value_hash.nil? ? nil : value_hash[:value]
   end
 
+  def value
+    raw = read_attribute(:value)
+    return raw unless raw.is_a?(Hash)
+    raw.transform_keys(&:to_sym)
+  end
+
   def inner_value
     value.nil? ? nil : value[:value]
   end
 
   def is_boolean?
-    value_type == :boolean && is_value_bool?
+    value_type == "boolean" && is_value_bool?
   end
 
   def is_value_bool?
     val = inner_value
     # ugh. so surprised there isn't a BoolClass in ruby
     val.is_a?(TrueClass) || val.is_a?(FalseClass)
+  end
+
+  def display_value_as
+    return value_type if value_type != "hash" && value_type != "string"
+    return (inner_value.nil? || inner_value.split("\n").size == 1) ? "string" : "text" if value_type == "string"
+    display_types = {}
+    inner_value.each do |k, v|
+      v_type = case v
+      when NilClass, String
+        (v.to_s.split("\n").size == 1) ? "string" : "text"
+      when Integer
+        "integer"
+      when Array
+        "array"
+      when TrueClass, FalseClass
+        "boolean"
+      end
+      display_types[k.to_sym] = v_type
+    end
+    display_types
   end
 
   private
@@ -79,19 +105,19 @@ class Setting
   end
 
   def valid_value
-    if (value_type == :boolean) && !is_value_bool?
+    if (value_type == "boolean") && !is_value_bool?
       errors.add(:value, "must be a boolean is a #{inner_value.class.name}")
     end
-    if (value_type == :integer) && !inner_value.is_a?(Integer)
+    if (value_type == "integer") && !inner_value.is_a?(Integer)
       errors.add(:value, "must be an integer is a #{inner_value.class.name}")
     end
-    if (value_type == :string) && !inner_value.is_a?(String)
+    if (value_type == "string") && !inner_value.is_a?(String)
       errors.add(:value, "must be a string is a #{inner_value.class.name}")
     end
-    if (value_type == :array) && !inner_value.is_a?(Array)
+    if (value_type == "array") && !inner_value.is_a?(Array)
       errors.add(:value, "must be an array is a #{inner_value.class.name}")
     end
-    if (value_type == :hash) && !inner_value.is_a?(Hash)
+    if (value_type == "hash") && !inner_value.is_a?(Hash)
       errors.add(:value, "must be a hash is a #{inner_value.class.name}")
     end
 

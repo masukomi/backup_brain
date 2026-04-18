@@ -124,7 +124,7 @@ en:
     description: "Description"
     summary: "Summary"
     form:
-      json_instructions: "Note: this must be valid JSON"
+      array_hint: "Enter as a comma-separated list"
     errors:
       invalid_json: "The value you supplied is not valid JSON"
       update_failure: "An error occurred while trying to update that"

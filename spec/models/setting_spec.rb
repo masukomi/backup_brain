@@ -9,6 +9,88 @@ RSpec.describe Setting do
   end
 
   # ---------------------------------------------------------------------------
+  describe "#display_value_as" do
+    context "when value_type is a simple non-string, non-hash type" do
+      %w[boolean integer array text].each do |vtype|
+        it "returns #{vtype.inspect} unchanged" do
+          setting.value_type = vtype
+          expect(setting.display_value_as).to(eq(vtype))
+        end
+      end
+    end
+
+    context "when value_type is 'string'" do
+      before { setting.value_type = "string" }
+
+      it "returns 'string' when the inner value has no newlines" do
+        setting.value = {value: "hello"}
+        expect(setting.display_value_as).to(eq("string"))
+      end
+
+      it "returns 'text' when the inner value has newlines" do
+        setting.value = {value: "line one\nline two"}
+        expect(setting.display_value_as).to(eq("text"))
+      end
+
+      it "returns 'string' when the inner value is nil" do
+        setting.value = {value: nil}
+        expect(setting.display_value_as).to(eq("string"))
+      end
+    end
+
+    context "when value_type is 'hash'" do
+      before { setting.value_type = "hash" }
+
+      it "returns a hash mapping each key to 'string' for single-line string values" do
+        setting.value = {value: {base_url: "https://example.com", name: "backup"}}
+        expect(setting.display_value_as).to(eq({base_url: "string", name: "string"}))
+      end
+
+      it "maps a multi-line string value to 'text'" do
+        setting.value = {value: {notes: "line one\nline two"}}
+        expect(setting.display_value_as).to(eq({notes: "text"}))
+      end
+
+      it "maps an integer value to 'integer'" do
+        setting.value = {value: {timeout: 30}}
+        expect(setting.display_value_as).to(eq({timeout: "integer"}))
+      end
+
+      it "maps an array value to 'array'" do
+        setting.value = {value: {tags: ["a", "b"]}}
+        expect(setting.display_value_as).to(eq({tags: "array"}))
+      end
+
+      it "maps a true value to 'boolean'" do
+        setting.value = {value: {enabled: true}}
+        expect(setting.display_value_as).to(eq({enabled: "boolean"}))
+      end
+
+      it "maps a false value to 'boolean'" do
+        setting.value = {value: {enabled: false}}
+        expect(setting.display_value_as).to(eq({enabled: "boolean"}))
+      end
+
+      it "handles a hash with mixed types" do
+        setting.value = {value: {
+          label: "hello",
+          count: 5,
+          active: true,
+          items: ["x"],
+          notes: "a\nb"
+        }}
+        expect(setting.display_value_as).to(eq({
+          label: "string",
+          count: "integer",
+          active: "boolean",
+          items: "array",
+          notes: "text"
+        }))
+      end
+    end
+  end
+
+  # ---------------------------------------------------------------------------
   describe "#inner_value" do
     it "returns the :value entry from the value hash" do
       setting.value = {value: 42}

@@ -35,7 +35,7 @@ back to your local instance. This will default to <code>{base_url}/indeauth-call
 
 <p>Change this only if you are self-hosting the relay page at a different domain.</p>",
     visible: true,
-    value_type: :string,
+    value_type: "hash",
     value: {value: {base_url: "https://backupbrain.app",
                     redirect_uri: "https://backupbrain.app/indieauth-callback"}}
   )
@@ -56,7 +56,7 @@ if Setting.where(lookup_key: "enable_audio_transcriptions").count == 0
   Must be a readable whisper model file.
   ",
         visible: true,
-        value_type: :string,
+        value_type: "string",
         value: {value: "whisper-models/ggml-large-v3-turbo-q5_0.bin"}
       }
     )
@@ -73,7 +73,7 @@ Before enabling this, download a whisper model and set its file path in the
 whisper_model_path setting.
 ",
       visible: true,
-      value_type: :boolean,
+      value_type: "string",
       value: {value: false}
     }
   )
@@ -101,7 +101,7 @@ if Setting.where(lookup_key: "oauth2_client_secret").count == 0
     summary: "a unique oauth2 client secret for this Backup Brain installation",
     description: "Used when communicating with OAuth authenticated servers",
     visible: false,
-    value_type: :string,
+    value_type: "string",
     value: {value: secret}
   )
 end
@@ -118,7 +118,7 @@ if !oauth2_client_id
     summary: "a unique oauth2 client id for this Backup Brain installation",
     description: "Used when communicating with OAuth authenticated servers",
     visible: false,
-    value_type: :string,
+    value_type: "string",
     value: {value: uuid}
   )
 end
@@ -131,7 +131,7 @@ if Setting.where(lookup_key: "enable_youtube_transcriptions").count == 0
       summary: "downloads transcripts for YouTube videos",
       description: "Uses the YouTube API to download the transcript from any public video.",
       visible: true,
-      value_type: :boolean,
+      value_type: "boolean",
       value: {value: true}
     }
   )
@@ -149,7 +149,7 @@ if Setting.where(lookup_key: "reader_path").count == 0
 This can be an absolute path or relative to the root of
 this project.",
       visible: true,
-      value_type: :string,
+      value_type: "string",
       value: {value: "bin/reader"}
     }
   )
@@ -169,7 +169,7 @@ bookmarked web pages and converts them to markdown.
 The reader cli tool must be installed and
 its path must be configured in the reader_path setting.",
       visible: true,
-      value_type: :boolean,
+      value_type: "boolean",
       value: {value: false}
     }
   )
@@ -197,7 +197,7 @@ if Setting.where(lookup_key: "missing_audio_audio_url").count == 0
 a rendered page. Can be /path/under/public/dir/missing_audio.mp3
 or https://example.com/missing_audio.mp3",
       visible: true,
-      value_type: :string,
+      value_type: "string",
       value: {value: "/audio/missing_audio_audio.mp3"}
     }
   )
@@ -215,7 +215,7 @@ if Setting.where(lookup_key: "missing_image_image_url").count == 0
 a rendered page. Can be /path/under/public/dir/missing_image.svg
 or https://example.com/missing_image.svg",
       visible: true,
-      value_type: :string,
+      value_type: "string",
       value: {value: "/images/icons/missing_image_image.svg"}
     }
   )
@@ -233,7 +233,7 @@ if Setting.where(lookup_key: "archival_requests_timeout").count == 0
 wait before giving up on a response when
 attempting to archive a bookmarked page.",
       visible: true,
-      value_type: :integer,
+      value_type: "integer",
       value: {value: 10}
     }
   )

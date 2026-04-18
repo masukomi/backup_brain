@@ -67,41 +67,82 @@
 
     <% end %>
 
-    <div class="row">
-      <div class="col-2">
-        <% if setting.is_boolean? %>
-          <%= form.label :value,
-              style: "display: block",
-              "aria-label": t('settings.enable_disable_toggle_label')
-              %>
-        <% else %>
-          <%= form.label :value, style: "display: block" %>
-        <% end %>
+    <% display_as = setting.display_value_as %>
+    <% inner = setting.inner_value %>
 
-      </div>
-      <% if setting.is_boolean? %>
-        <div class="col-2">
-          <span class="form-check form-switch">
-            <%= form.check_box :value,
-                {
-                  class: 'bookmark-checkbox-field form-check-input toggle',
-                  role: "switch",
-                  checked: setting.value
-                },
-                true, false
-                %>
-          </span>
-      <% else %>
-        <div class="col">
-          <div class="metadata"><%= t("settings.form.json_instructions") %></div>
-          <%= form.text_area :value,
-              value: setting.value.to_json,
-              cols: 60,
-              rows: text_area_rows(setting.value),
-              dir: "auto" %>
+    <% if display_as.is_a?(Hash) %>
+      <%# Hash type: one row per inner key %>
+      <% display_as.each do |key, type| %>
+        <% field_value = inner.is_a?(Hash) ? (inner[key] || inner[key.to_s]) : nil %>
+        <div class="row">
+          <div class="col-2">
+            <label for="setting_value_<%= key %>"><%= key %></label>
+          </div>
+          <div class="col">
+            <% if type == "boolean" %>
+              <span class="form-check form-switch">
+                <%= hidden_field_tag "setting[value][#{key}]", "false" %>
+                <%= check_box_tag "setting[value][#{key}]", "true", field_value == true,
+                    class: "bookmark-checkbox-field form-check-input toggle", role: "switch",
+                    id: "setting_value_#{key}" %>
+              </span>
+            <% elsif type == "integer" %>
+              <%= number_field_tag "setting[value][#{key}]", field_value,
+                  id: "setting_value_#{key}" %>
+            <% elsif type == "string" %>
+              <%= text_field_tag "setting[value][#{key}]", field_value,
+                  id: "setting_value_#{key}", dir: "auto" %>
+            <% elsif type == "array" %>
+              <div class="metadata"><%= t("settings.form.array_hint") %></div>
+              <%= text_field_tag "setting[value][#{key}]", field_value&.join(", "),
+                  id: "setting_value_#{key}", dir: "auto" %>
+            <% elsif type == "text" %>
+              <%= text_area_tag "setting[value][#{key}]", field_value,
+                  id: "setting_value_#{key}",
+                  cols: 60,
+                  rows: text_area_rows(field_value, minimum: 4),
+                  dir: "auto" %>
+            <% end %>
+          </div>
+        </div>
       <% end %>
+    <% else %>
+      <div class="row">
+        <div class="col-2">
+          <% if display_as == "boolean" %>
+            <%= form.label :value,
+                style: "display: block",
+                "aria-label": t("settings.enable_disable_toggle_label") %>
+          <% else %>
+            <%= form.label :value, style: "display: block" %>
+          <% end %>
+        </div>
+        <div class="<%= display_as == "boolean" ? "col-2" : "col" %>">
+          <% if display_as == "boolean" %>
+            <span class="form-check form-switch">
+              <%= form.check_box :value,
+                  {class: "bookmark-checkbox-field form-check-input toggle", role: "switch",
+                   checked: inner == true},
+                  "true", "false" %>
+            </span>
+          <% elsif display_as == "integer" %>
+            <%= form.number_field :value, value: inner %>
+          <% elsif display_as == "string" %>
+            <%= form.text_field :value, value: inner, dir: "auto" %>
+          <% elsif display_as == "array" %>
+            <div class="metadata"><%= t("settings.form.array_hint") %></div>
+            <%= form.text_field :value, value: inner&.join(", "), dir: "auto" %>
+          <% else %>
+            <%# "text" or any unknown type %>
+            <%= form.text_area :value,
+                value: inner,
+                cols: 60,
+                rows: text_area_rows(inner, minimum: 4),
+                dir: "auto" %>
+          <% end %>
+        </div>
       </div>
-    </div>
+    <% end %>
 
     <div class="row">
       <div class="col">
