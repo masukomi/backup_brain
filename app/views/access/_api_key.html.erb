@@ -1,0 +1,48 @@
+<div tabindex="0" id="<%= dom_id api_key %>" class="container bookmark-list-item">
+  <div class="row">
+    <div class="col-8">
+      <div class="row">
+        <div class="col">
+          <strong><%= api_key.name %></strong>
+          <% if api_key.expired? %>
+            <span class="badge bg-danger"><%= t("access.api_keys.expired_badge") %></span>
+          <% end %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <%= t("access.api_keys.expiration_date_label") %>:
+          <%= api_key.expiration_date.present? ? api_key.expiration_date : t("access.api_keys.never_expires") %>
+        </div>
+      </div>
+      <% if api_key.permissions.any? %>
+        <div class="row">
+          <div class="col">
+            <%= api_key.permissions.join(", ") %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+    <div class="col">
+      <div class="action-icons">
+        <div class="action-icon">
+          <%= icon_link("edit", rename_api_key_form_path(api_key),
+                        link_css: "inline-link-icon edit-link-icon",
+                        text: t("access.api_keys.rename_link"),
+                        aria_hidden: true) %>
+        </div>
+        <div class="action-icon delete-action-icon">
+          <%== link_to image_tag("/images/icons/delete.svg",
+                                 class: "inline-link-icon delete-icon",
+                                 "aria-hidden": true) + t("access.api_keys.delete_link"),
+                       api_key_path(api_key),
+                       class: "inline-link-icon delete-link-icon",
+                       data: {
+                         turbo_method: :delete,
+                         turbo_confirm: t("misc.are_you_sure")
+                       } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

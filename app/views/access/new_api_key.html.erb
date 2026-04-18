@@ -1,0 +1,17 @@
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <heading><%= t("access.api_keys.new_heading") %></heading>
+    </div>
+  </div>
+</div>
+
+<%= render partial: "access/api_key_form", locals: {api_key: @api_key} %>
+
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <%= link_to t("access.back_to_access"), access_path %>
+    </div>
+  </div>
+</div>

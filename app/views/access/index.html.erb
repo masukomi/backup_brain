@@ -1,0 +1,65 @@
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <heading><%= t("access.secret_keys.section_heading") %></heading>
+    </div>
+  </div>
+</div>
+
+<% content_for :sidebar do %>
+  <%= render partial: "shared/sidebar_page_actions_top" %>
+  <div id="page-actions">
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <ul>
+            <li><%= link_to t("access.secret_keys.new_heading"), new_secret_key_path,
+                            class: "btn btn-primary compact-button" %></li>
+            <li><%= link_to t("access.api_keys.new_heading"), new_api_key_path,
+                            class: "btn btn-primary compact-button" %></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<% if @secret_keys.empty? %>
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <%= t("access.secret_keys.no_keys_message") %>
+      </div>
+    </div>
+  </div>
+<% else %>
+  <div class="container" id="secret-keys">
+    <% @secret_keys.each do |secret_key| %>
+      <%= render partial: "access/secret_key", locals: {secret_key: secret_key} %>
+    <% end %>
+  </div>
+<% end %>
+
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <heading><%= t("access.api_keys.section_heading") %></heading>
+    </div>
+  </div>
+</div>
+
+<% if @api_keys.empty? %>
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <%= t("access.api_keys.no_keys_message") %>
+      </div>
+    </div>
+  </div>
+<% else %>
+  <div class="container" id="api-keys">
+    <% @api_keys.each do |api_key| %>
+      <%= render partial: "access/api_key", locals: {api_key: api_key} %>
+    <% end %>
+  </div>
+<% end %>

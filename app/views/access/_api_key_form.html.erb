@@ -1,0 +1,46 @@
+<%= render partial: "shared/errors_row", locals: {thing: api_key} %>
+<%= form_with(model: api_key, url: api_keys_path) do |form| %>
+  <div class="container">
+    <div class="row">
+      <div class="col-2">
+        <%= form.label :name, t("access.api_keys.name_label"), class: "col-form-label" %>
+      </div>
+      <div class="col-9">
+        <%= form.text_field :name, class: "form-control" %>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-2">
+        <%= form.label :expiration_date, t("access.api_keys.expiration_date_label"), class: "col-form-label" %>
+      </div>
+      <div class="col-9">
+        <%= form.date_field :expiration_date, class: "form-control" %>
+        <div class="form-text"><%= t("access.api_keys.expiration_date_hint") %></div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-2">
+        <%= t("access.api_keys.permissions_label") %>
+      </div>
+      <div class="col-9">
+        <% ApiKey::PERMISSIONABLE_MODELS.each do |klass| %>
+          <% api_key_permissions_for(klass).each do |perm| %>
+            <div class="form-check">
+              <%= check_box_tag "api_key[permissions][]",
+                    perm,
+                    api_key.permissions.include?(perm),
+                    id: "perm_#{perm.gsub(":", "_")}",
+                    class: "form-check-input" %>
+              <%= label_tag "perm_#{perm.gsub(":", "_")}", perm, class: "form-check-label" %>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <%= form.submit class: "btn btn-primary" %>
+      </div>
+    </div>
+  </div>
+<% end %>

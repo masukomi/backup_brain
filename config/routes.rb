@@ -58,6 +58,20 @@ Rails.application.routes.draw do
 
   get "favicon/:domain_name", controller: :favicons, action: :get_favicon, as: :favicon, constraints: {domain_name: /[^\/]+/}
 
+  get    "access",                            controller: :access, action: :index,                  as: :access
+  get    "access/secret_keys/new",            controller: :access, action: :new_secret_key,         as: :new_secret_key
+  post   "access/secret_keys",                controller: :access, action: :create_secret_key,      as: :secret_keys
+  get    "access/secret_keys/:id",            controller: :access, action: :show_secret_key,        as: :show_secret_key
+  delete "access/secret_keys/:id",            controller: :access, action: :destroy_secret_key,     as: :secret_key
+  get    "access/secret_keys/:id/rename",     controller: :access, action: :rename_secret_key_form, as: :rename_secret_key_form
+  patch  "access/secret_keys/:id/rename",     controller: :access, action: :rename_secret_key,      as: :rename_secret_key
+
+  get    "access/api_keys/new",               controller: :access, action: :new_api_key,            as: :new_api_key
+  post   "access/api_keys",                   controller: :access, action: :create_api_key,         as: :api_keys
+  delete "access/api_keys/:id",               controller: :access, action: :destroy_api_key,        as: :api_key
+  get    "access/api_keys/:id/rename",        controller: :access, action: :rename_api_key_form,    as: :rename_api_key_form
+  patch  "access/api_keys/:id/rename",        controller: :access, action: :rename_api_key,         as: :rename_api_key
+
   # Tell those script kiddes to fuck off.
   # Is this needed? no.
   # Does it work? Depends on how you define "work"

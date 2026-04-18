@@ -1,0 +1,34 @@
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <heading><%= t("access.api_keys.rename_heading") %></heading>
+    </div>
+  </div>
+</div>
+
+<%= render partial: "shared/errors_row", locals: {thing: @api_key} %>
+<%= form_with(model: @api_key, url: rename_api_key_path(@api_key), method: :patch) do |form| %>
+  <div class="container">
+    <div class="row">
+      <div class="col-2">
+        <%= form.label :name, t("access.api_keys.name_label"), class: "col-form-label" %>
+      </div>
+      <div class="col-9">
+        <%= form.text_field :name, class: "form-control" %>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <%= form.submit class: "btn btn-primary" %>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <%= link_to t("access.back_to_access"), access_path %>
+    </div>
+  </div>
+</div>
