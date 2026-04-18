@@ -40,17 +40,24 @@ class Setting
       )
     end
     value_hash = cache[lookup_key]
-    value_hash.nil? ? nil : value_hash[:value]
+    value_hash.nil? ? nil : value_hash["value"]
   end
 
   def value
     raw = read_attribute(:value)
     return raw unless raw.is_a?(Hash)
-    raw.transform_keys(&:to_sym)
+    raw.transform_keys(&:to_s)
+  end
+
+  def set_value_and_type(new_value)
+    # there may be old data from how we used to
+    # represent values. Blow it away since we're setting a new value
+    self.value = (value.is_a?(Hash) ? value : {}).merge("value" => new_value)
+    self.value_type = value_type_for_obj(new_value)
   end
 
   def inner_value
-    value.nil? ? nil : value[:value]
+    value.nil? ? nil : value["value"]
   end
 
   def is_boolean?
@@ -68,19 +75,25 @@ class Setting
     return (inner_value.nil? || inner_value.split("\n").size == 1) ? "string" : "text" if value_type == "string"
     display_types = {}
     inner_value.each do |k, v|
-      v_type = case v
-      when NilClass, String
-        (v.to_s.split("\n").size == 1) ? "string" : "text"
-      when Integer
-        "integer"
-      when Array
-        "array"
-      when TrueClass, FalseClass
-        "boolean"
-      end
-      display_types[k.to_sym] = v_type
+      display_types[k.to_sym] = value_type_for_obj(v)
     end
     display_types
+  end
+
+  def value_type_for_obj(obj)
+    return "hash" if obj.is_a?(Hash)
+    case obj
+    when NilClass
+      "string"
+    when String
+      (obj.split("\n").size == 1) ? "string" : "text"
+    when Integer
+      "integer"
+    when Array
+      "array"
+    when TrueClass, FalseClass
+      "boolean"
+    end
   end
 
   private
@@ -90,8 +103,8 @@ class Setting
   end
 
   def guarantee_value_default
-    return if value.present? && value.is_a?(Hash) && value.has_key?(:value)
-    self.value = {value: nil}
+    return if value.present? && value.is_a?(Hash) && value.has_key?("value")
+    self.value = {"value" => nil}
   end
 
   def dependency_settings_presence

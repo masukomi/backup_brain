@@ -28,7 +28,7 @@ class SettingsController < ApplicationController
 
   # GET /settings/new
   def new
-    @setting = Setting.new(value: {value: nil})
+    @setting = Setting.new(value: {"value" => nil})
   end
 
   # GET /settings/1/edit
@@ -83,15 +83,15 @@ class SettingsController < ApplicationController
 
   def clean_params(setting, params_hash)
     value_type = params_hash[:value_type]
-    params_hash[:value_type] = value_type.present? ? value_type.to_sym : setting.value_type
+    params_hash[:value_type] = value_type.present? ? value_type.to_s : setting.value_type
 
     raw_value = params_hash[:value]
     params_hash[:value] = if raw_value.is_a?(ActionController::Parameters)
-      {value: convert_hash_params(setting, raw_value.to_unsafe_h)}
+      {"value" => convert_hash_params(setting, raw_value.to_unsafe_h)}
     elsif raw_value.to_s.strip.present?
       convert_simple_params(setting.value_type.to_s, raw_value.to_s.strip)
     else
-      {value: nil}
+      {"value" => nil}
     end
     params_hash
   end
@@ -103,7 +103,7 @@ class SettingsController < ApplicationController
     when "array"   then str.split(",\s*").map(&:strip)
     else str
     end
-    {value: value}
+    {"value" => value}
   end
 
   def convert_hash_params(setting, raw_hash)
@@ -111,7 +111,7 @@ class SettingsController < ApplicationController
     raw_hash.each_with_object({}) do |(key, val), result|
       sym_key = key.to_sym
       type = display_types.is_a?(Hash) ? (display_types[sym_key] || display_types[key.to_s]) : "string"
-      result[sym_key] = type_cast_value(val, type)
+      result[key.to_s] = type_cast_value(val, type)
     end
   end
 

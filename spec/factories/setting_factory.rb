@@ -7,6 +7,6 @@ FactoryBot.define do
     description { "bogus description" }
     visible     { true }
     value_type  { :boolean }
-    value       { {value: true} }
+    value       { {"value" => true} }
   end
 end
