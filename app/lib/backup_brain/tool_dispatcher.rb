@@ -29,8 +29,13 @@ module BackupBrain
         @handles_download = config["handles_download"] == true
       end
 
-      def default? = @default
-      def handles_download? = @handles_download
+      def default?
+        @default
+      end
+
+      def handles_download?
+        @handles_download
+      end
 
       def matches_host?(host)
         @domains.any? { |d| host == d || host.end_with?(".#{d}") }
@@ -53,7 +58,7 @@ module BackupBrain
       else
         Rails.logger.warn("config/archive_tools.yml not found; falling back to default reader invocation")
         tools = [Tool.new("name" => "reader", "default" => true,
-                          "command" => "bin/reader -o --image-mode none {TEMPFILE}")]
+          "command" => "bin/reader -o --image-mode none {TEMPFILE}")]
       end
 
       @default_tool = tools.find(&:default?) || tools.last
