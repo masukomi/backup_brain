@@ -288,6 +288,8 @@ GEM
       psych (>= 4.0.0)
       tsort
     redcarpet (3.6.0)
+    reddit_post_to_markdown (0.1.0)
+      httparty (~> 0.22)
     redis (4.8.1)
     regexp_parser (2.9.2)
     reline (0.6.3)
@@ -436,6 +438,7 @@ DEPENDENCIES
   pygments.rb
   rails (>= 7.2.3.1, < 8)
   redcarpet
+  reddit_post_to_markdown
   redis (~> 4.0)
   reverse_markdown
   rspec-rails

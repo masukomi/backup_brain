@@ -1,0 +1,38 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# converts a reddit post & its comments to markdown
+#
+# prefaces it with a link to the tree css
+#
+
+# <link rel="stylesheet" href="/css/bb_tree.css">
+
+require "reddit_post_to_markdown"
+
+abort "Usage: #{$0} <url>" unless ARGV.size == 1
+
+url = ARGV[0]
+
+begin
+  markdown = RedditPostToMarkdown.convert(
+    url,
+    include_comments: true,
+    filters: {
+      min_upvotes: 1,
+      message: "[ removed by filter ]"
+    }
+  )
+
+  css_link = '<link rel="stylesheet" href="/css/bb_tree.css">'
+  puts "#{css_link}\n\n#{markdown}"
+rescue RedditPostToMarkdown::NotAPostError => e
+  warn "Not a post URL: #{e.message}"
+  exit 65 # EXT_DATAERR
+rescue RedditPostToMarkdown::FetchError => e
+  warn "Could not reach Reddit: #{e.message}"
+  exit 69 # EX_UNAVAILABLE
+rescue RedditPostToMarkdown::InvalidResponseError => e
+  warn "Unexpected response: #{e.message}"
+  exit 75 # EX_TEMPFAIL (I hope)
+end

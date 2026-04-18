@@ -74,6 +74,9 @@ gem "htmlentities" # escape html entities https://github.com/threedaymonk/htmlen
 gem "groupdate"
 gem "httparty" # for importer to check if urls are serving.
 gem "youtube-transcript-rb" # fetch transcripts from YouTube videos
+
+# convert a reddit post to markdown
+gem "reddit_post_to_markdown"
 # gem "carrierwave-mongoid" # for file uploads
 
 ### rake task support
