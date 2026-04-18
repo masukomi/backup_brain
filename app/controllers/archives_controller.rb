@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 class ArchivesController < ApplicationController
-  before_action :authenticate_user!, only: %i[show edit modify new create]
+  before_action :authenticate_user!, only: %i[edit modify new create]
+  before_action :require_show_access, only: %i[show]
   before_action :set_object_and_parent, only: %i[edit modify]
   before_action :set_object_type, only: %i[show edit new create]
   before_action :set_object, only: %i[show]
@@ -73,6 +74,12 @@ class ArchivesController < ApplicationController
 
   # --- helpers
 
+  def require_show_access
+    return if user_signed_in?
+    return if SecretKey.is_valid?(params[:secret_key])
+    authenticate_user!
+  end
+
   def set_parent_only
     @parent = Bookmark.find(sanitize_path_component(params[:parent_id]))
   end
@@ -92,7 +99,7 @@ class ArchivesController < ApplicationController
 
     if @object_type == "bookmarks"
       @object = Bookmark.find(sanitize_path_component(params[:id]))
-      if @object.private? && !user_signed_in?
+      if @object.private? && !user_signed_in? && !SecretKey.is_valid?(params[:secret_key])
         @object = nil
         raise ActionController::MissingFile "File Not Found"
       end

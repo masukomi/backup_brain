@@ -58,6 +58,9 @@ Rails.application.routes.draw do
 
   get "favicon/:domain_name", controller: :favicons, action: :get_favicon, as: :favicon, constraints: {domain_name: /[^\/]+/}
 
+  get "feeds/audio",   controller: :feeds, action: :audio,   as: :audio_feed
+  get "feeds/to_read", controller: :feeds, action: :to_read, as: :to_read_feed
+
   get    "access",                            controller: :access, action: :index,                  as: :access
   get    "access/secret_keys/new",            controller: :access, action: :new_secret_key,         as: :new_secret_key
   post   "access/secret_keys",                controller: :access, action: :create_secret_key,      as: :secret_keys
