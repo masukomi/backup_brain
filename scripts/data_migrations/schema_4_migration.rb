@@ -1,11 +1,11 @@
 require "paint"
 schema_version_setting = Setting.where(lookup_key: "schema_version").first
-if schema_version_setting&.value == 3
+if schema_version_setting.inner_value == 3
   puts "Beginning migration to schema_version 4"
   # load the new mastodon OauthSiteType data
   Rails.application.load_seed
 
-  schema_version_setting.value = 4
+  schema_version_setting.set_value_and_type(4)
   if schema_version_setting.save
     puts Paint["✅ Updated schema_version setting to 4", :green]
 

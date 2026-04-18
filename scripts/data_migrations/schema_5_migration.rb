@@ -1,7 +1,7 @@
 require "paint"
 
 schema_version_setting = Setting.where(lookup_key: "schema_version").first
-if schema_version_setting&.value == 4
+if schema_version_setting.inner_value == 4
   puts "Beginning migration to schema_version 5"
 
   # Archive gained two new fields:
@@ -25,7 +25,7 @@ if schema_version_setting&.value == 4
   )
   puts Paint["✅ Set hero_image_path: nil on archives in #{result.modified_count} bookmark(s)", :green]
 
-  schema_version_setting.value = 5
+  schema_version_setting.set_value_and_type(5)
   if schema_version_setting.save
     puts Paint["✅ Updated schema_version setting to 5", :green]
   else

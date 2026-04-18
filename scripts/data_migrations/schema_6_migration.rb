@@ -1,7 +1,7 @@
 require "paint"
 
 schema_version_setting = Setting.where(lookup_key: "schema_version").first
-if schema_version_setting&.value == 5 || schema_version_setting&.inner_value == 5
+if schema_version_setting.inner_value == 5
   puts "Beginning migration to schema_version 6"
   # feels like doing surgery on yourself to redefine the setting
   # enabled this to run.
@@ -24,11 +24,11 @@ if schema_version_setting&.value == 5 || schema_version_setting&.inner_value == 
     end
 
     enable_favicons_setting = Setting.find_by(lookup_key: "enable_favicons")
-    if enable_favicons_setting&.value&.is_a?(TrueClass) || enable_favicons_setting&.value&.is_a?(TrueClass)
+    if enable_favicons_setting.read_attribute(:value)
+      # old use of value. record needs replacing.
       puts Paint["Updating enable_favicons setting", :yellow]
       replacement_setting = enable_favicons_setting.dup
-      replacement_setting.value_type = :boolean
-      replacement_setting.value = {value: enable_favicons_setting.value}
+      replacement_setting.set_value_and_type(enable_favicons_setting.value)
       enable_favicons_setting.destroy!
       replacement_setting.save!
     elsif enable_favicons_setting
@@ -56,25 +56,9 @@ if schema_version_setting&.value == 5 || schema_version_setting&.inner_value == 
 
     raise "Failed to update settings…" unless success
 
-    schema_version_setting = Setting.find_by(lookup_key: "schema_version")
-    if schema_version_setting&.value&.is_a? Integer
-      puts Paint["Updating schema_version setting", :yellow]
-      replacement_setting = schema_version_setting.dup
-      replacement_setting.value_type = :integer
-      replacement_setting.value = {value: 6}
-      schema_version_setting.destroy!
-      replacement_setting.save!
-      puts Paint["✅ schema_version setting is good to go", :green]
-    elsif schema_version_setting&.value&.is_a? Hash
-      schema_version_setting.value[:value] = 6
-      schema_version_setting.save!
-    elsif schema_version_setting.nil?
-      # how do you even compute bro?!
-      warn Paint["⚠️ IMPOSSIBLE! schema_version setting is missing", :red]
-      success = false
-    end
-  rescue StandardError => e
-
+    schema_version_setting.set_value_and_type(6)
+    schema_version_setting.save!
+  rescue => e
     warn Paint["⚠️  #{e.message}", :red]
     success = false
   end
