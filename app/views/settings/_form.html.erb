@@ -75,7 +75,7 @@
       <% display_as.each do |key, type| %>
         <% field_value = inner.is_a?(Hash) ? (inner[key] || inner[key.to_s]) : nil %>
         <div class="row">
-          <div class="col-2">
+          <div class="col">
             <label for="setting_value_<%= key %>"><%= key %></label>
           </div>
           <div class="col">
@@ -108,7 +108,7 @@
       <% end %>
     <% else %>
       <div class="row">
-        <div class="col-2">
+        <div class="col">
           <% if display_as == "boolean" %>
             <%= form.label :value,
                 style: "display: block",
