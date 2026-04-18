@@ -1,6 +1,7 @@
 # BackupBrain::EmojiHelper provides methods to translate
 # slack style emoji text like ":ambulance:" into 🚑
-#
+# This is built on top of the gemoji gem
+# https://github.com/github/gemoji
 module BackupBrain
   module EmojiHelper
     # Finds and replaces any slack style emoji in a given text
@@ -27,7 +28,7 @@ module BackupBrain
     def emojify_fields(fields)
       fields.each do |field|
         next if field.blank?
-        send("#{field}=".to_sym, emojify(send(field)))
+        send(:"#{field}=", emojify(send(field)))
       end
     end
 

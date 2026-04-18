@@ -18,7 +18,6 @@ module OauthRegistration
       "https://backupbrain.app"
     end
 
-    # TODO move this into the setting
     def self.relay_url
       begin
         return Setting.get_value_of_key("indieauth_client_id_relay").fetch("relay_uri")
