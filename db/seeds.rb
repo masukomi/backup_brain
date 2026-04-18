@@ -22,7 +22,7 @@ OauthSiteType.find_or_create_by!(slug: "mastodon") do |t|
 end
 
 # IndieAuth Settings
-if Setting.where(lookup_key: "indieauth_client_id_url").count == 0
+if Setting.where(lookup_key: "indieauth_client_id_urls").count == 0
   warn("creating indieauth_client_id_url setting")
   Setting.create!(
     lookup_key: "indieauth_client_id_url",
@@ -37,7 +37,7 @@ back to your local instance. This will default to <code>{base_url}/indeauth-call
     visible: true,
     value_type: "hash",
     value: {value: {base_url: "https://backupbrain.app",
-                    redirect_uri: "https://backupbrain.app/indieauth-callback"}}
+                    redirect_url: "https://backupbrain.app/indieauth-callback"}}
   )
 end
 

@@ -15,7 +15,10 @@ RSpec.describe RemoteCredentialsController, type: :controller do
     allow(ENV).to receive(:fetch).with("PORT").and_return("3334")
     allow(Setting).to receive(:get_value_of_key).and_call_original
     allow(Setting).to receive(:get_value_of_key)
-      .with("indieauth_client_id_url").and_return("https://backupbrain.app")
+      .with("indieauth_client_id_urls").and_return({
+        "base_url" => "https://backupbrain.app",
+        "redirect_url" => "https://backupbrain.app/indieauth-callback"
+      })
   end
 
   def build_site_type(requires_pkce:)

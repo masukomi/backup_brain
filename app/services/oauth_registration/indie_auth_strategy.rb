@@ -9,22 +9,22 @@ module OauthRegistration
   class IndieAuthStrategy
     def self.client_id
       begin
-        return Setting.get_value_of_key("indieauth_client_id_relay").fetch("base_url")
+        return Setting.get_value_of_key("indieauth_client_id_urls").fetch("base_url")
       rescue BackupBrain::Errors::UnknownSetting
-        Rails.logger.warning("indieauth_client_id_relay doesn't exist")
+        Rails.logger.warn("indieauth_client_id_relay doesn't exist")
       rescue KeyError
-        Rails.logger.warning("indieauth_client_id_relay doesn't have base_url defined")
+        Rails.logger.warn("indieauth_client_id_relay doesn't have base_url defined")
       end
       "https://backupbrain.app"
     end
 
     def self.relay_url
       begin
-        return Setting.get_value_of_key("indieauth_client_id_relay").fetch("relay_uri")
+        return Setting.get_value_of_key("indieauth_client_id_urls").fetch("relay_url")
       rescue BackupBrain::Errors::UnknownSetting
-        Rails.logger.warning("indieauth_client_id_relay doesn't exist")
+        Rails.logger.warn("indieauth_client_id_relay doesn't exist")
       rescue KeyError
-        Rails.logger.warning("indieauth_client_id_relay doesn't have the relay_uri defined")
+        Rails.logger.warn("indieauth_client_id_relay doesn't have the relay_uri defined")
       end
       "#{client_id}/indieauth-callback"
     end
