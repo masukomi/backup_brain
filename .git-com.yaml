@@ -56,6 +56,7 @@ code-sections:
   - docs
   - settings
   - triggers
+  - search
   modifiable: true
   record-as: joined-string
 ticket-number:
