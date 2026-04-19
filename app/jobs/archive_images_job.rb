@@ -118,10 +118,9 @@ class ArchiveImagesJob < ArchiveUrlJob
       return bookmark if updated_markdown.blank?
       return bookmark if updated_markdown == markdown
 
-      bookmark.archives << Archive.new(
-        mime_type: "text/markdown",
-        string_data: updated_markdown
-      )
+      archive = Archive.new(mime_type: "text/markdown", string_data: updated_markdown)
+      bookmark.archives << archive
+      ContentTrigger.apply_triggers(test_string: archive.string_data, apply_to: bookmark)
       bookmark.save!
     rescue BackupBrain::Errors::UnarchivableUrl => e
       Rails.logger.error(e.message)

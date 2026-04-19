@@ -58,6 +58,7 @@ class ArchiveUrlJob < ApplicationJob
       archive.audio_urls.each { |url| archive.add_media_object(url, simple_type: "audio") }
       archive.video_urls.each { |url| archive.add_media_object(url, simple_type: "video") }
       bookmark.archives << archive
+      ContentTrigger.apply_triggers(test_string: archive.string_data, apply_to: bookmark)
       bookmark.save!
       bookmark
     rescue BackupBrain::Errors::UnarchivableUrl => e

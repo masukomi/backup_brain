@@ -147,6 +147,7 @@ class FetchMastodonBookmarksJob < ApplicationJob
       archive.created_at = DateTime.now
       archive.updated_at = archive.created_at
       bookmark.archives << archive
+      ContentTrigger.apply_triggers(test_string: archive.string_data, apply_to: bookmark)
     end
     bookmark.save!
   rescue => e

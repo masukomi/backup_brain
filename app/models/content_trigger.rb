@@ -22,10 +22,10 @@ class ContentTrigger
   # applies all applicable ContentTrigger triggers
   def self.apply_triggers(test_string:, apply_to:)
     unless SUPPORTED_OBJECT_TYPES.include?(apply_to.class)
-      raise BackupBrain::Errors::UnsupportedDocumentType.new("Don't know how to apply triggers to #{test_doc.class}")
+      raise BackupBrain::Errors::UnsupportedDocumentType.new("Don't know how to apply triggers to #{apply_to.class}")
     end
     # presumes that the doc responds_to: :tags, :to_read, and :private
-    return if cached_values.blank?
+    return false if cached_triggers.blank?
 
     applied = false
     cached_triggers.each do |trigger|

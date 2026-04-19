@@ -36,6 +36,7 @@ class ArchivesController < ApplicationController
       manually_edited: true
     )
     @parent.archives << @object
+    ContentTrigger.apply_triggers(test_string: @object.string_data, apply_to: @parent) if @object.string_data.present?
     if @parent.save
       flash_message(:notice, t("archives.notices.creation_success"))
       redirect_to bookmark_path(@parent)
@@ -58,6 +59,8 @@ class ArchivesController < ApplicationController
 
     respond_to do |format|
       if archive.save
+        ContentTrigger.apply_triggers(test_string: archive.string_data, apply_to: @parent) if archive.string_data.present?
+        @parent.save
         format.html {
           flash_message(:notice, t("archives.notices.creation_success"))
           # NOTE: this needs to be updated when

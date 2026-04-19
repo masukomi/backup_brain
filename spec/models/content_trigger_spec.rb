@@ -124,22 +124,37 @@ RSpec.describe ContentTrigger do
     context "with an unsupported document type" do
       it "raises UnsupportedDocumentType" do
         expect {
-          described_class.apply_triggers(Setting.new)
+          described_class.apply_triggers(test_string: "foo", apply_to: Setting.new)
         }.to raise_error(BackupBrain::Errors::UnsupportedDocumentType)
       end
     end
 
     context "with a supported document type" do
-      # BUG: apply_triggers calls self.cached_values (undefined) instead of
-      # self.cached_triggers. This raises NoMethodError at runtime.
-      # This test documents the current broken behavior so it fails when the
-      # bug is fixed, prompting updated expectations.
-      it "raises NoMethodError due to cached_values bug" do
+      it "applies matching triggers to the document" do
+        described_class.create!(name: "YT Trigger", simple_triggers: ["youtube"], tags: ["video"])
+        bookmark = Bookmark.new(title: "youtube video", url: "https://youtube.com/watch?v=xyz", tags: [])
+        described_class.apply_triggers(test_string: "youtube content", apply_to: bookmark)
+        expect(bookmark.tags).to include("video")
+      end
+
+      it "returns true when a trigger was applied" do
         described_class.create!(name: "YT Trigger", simple_triggers: ["youtube"])
-        bookmark = Bookmark.new(title: "youtube video", url: "https://youtube.com/watch?v=xyz")
-        expect {
-          described_class.apply_triggers(bookmark)
-        }.to raise_error(NoMethodError)
+        bookmark = Bookmark.new(title: "youtube video", url: "https://youtube.com/watch?v=xyz", tags: [])
+        result = described_class.apply_triggers(test_string: "youtube content", apply_to: bookmark)
+        expect(result).to be true
+      end
+
+      it "returns false when no triggers match" do
+        described_class.create!(name: "YT Trigger", simple_triggers: ["youtube"])
+        bookmark = Bookmark.new(title: "unrelated", url: "https://example.com", tags: [])
+        result = described_class.apply_triggers(test_string: "unrelated content", apply_to: bookmark)
+        expect(result).to be false
+      end
+
+      it "returns false when there are no triggers" do
+        bookmark = Bookmark.new(title: "youtube video", url: "https://youtube.com/watch?v=xyz", tags: [])
+        result = described_class.apply_triggers(test_string: "youtube content", apply_to: bookmark)
+        expect(result).to be false
       end
     end
   end
