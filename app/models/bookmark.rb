@@ -48,6 +48,7 @@ class Bookmark
   before_save    :maybe_generate_archive
   before_save    :clean_orphaned_tags
   before_save    :apply_domain_trigger
+  before_save    :apply_content_triggers
   before_save    :check_social_media_accounts
 
   before_create  :find_associated_people
@@ -172,6 +173,15 @@ class Bookmark
     trigger = DomainTrigger.trigger_for_domain(domain)
     return unless trigger
     trigger.apply_to(self)
+  end
+
+  def apply_content_triggers
+    if title_changed?
+      ContentTrigger.apply_triggers(test_string: title, apply_to: self)
+    end
+    if description_changed?
+      ContentTrigger.apply_triggers(test_string: description, apply_to: self)
+    end
   end
 
   # If a social media account has not been associated with

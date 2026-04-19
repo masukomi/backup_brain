@@ -25,7 +25,7 @@ class Note
   field :sensitive,   type: Boolean, default: false
   field :tags,        type: Array,   default: []
 
-  before_save    :clean_tags!, :clean_orphaned_tags
+  before_save    :apply_content_triggers, :clean_tags!, :clean_orphaned_tags
 
   before_destroy :clean_orphaned_tags
   after_save     :update_central_tags_list
@@ -37,5 +37,13 @@ class Note
     after_create  :add_to_search
     after_update  :update_in_search
     after_destroy :remove_from_search
+  end
+
+  def apply_content_triggers
+    # string_data_changed? returns false on a new document where it's nil
+    # returns true once you set it or if it's an existing document that's changed
+    if string_data_changed?
+      ContentTrigger.apply_triggers(test_string: string_data, apply_to: self)
+    end
   end
 end

@@ -20,17 +20,17 @@ class ContentTrigger
   SUPPORTED_OBJECT_TYPES = [Bookmark, Archive, Note].freeze
 
   # applies all applicable ContentTrigger triggers
-  def self.apply_triggers(mongoid_doc)
-    unless SUPPORTED_OBJECT_TYPES.include?(mongoid_doc.class)
-      raise BackupBrain::Errors::UnsupportedDocumentType.new("Don't know how to apply triggers to #{mongoid_doc.class}")
+  def self.apply_triggers(test_string:, apply_to:)
+    unless SUPPORTED_OBJECT_TYPES.include?(apply_to.class)
+      raise BackupBrain::Errors::UnsupportedDocumentType.new("Don't know how to apply triggers to #{test_doc.class}")
     end
     # presumes that the doc responds_to: :tags, :to_read, and :private
     return if cached_values.blank?
 
     applied = false
     cached_triggers.each do |trigger|
-      next unless trigger.applies?(mongoid_doc)
-      trigger.apply_to(mongoid_doc)
+      next unless trigger.applies?(test_string)
+      trigger.apply_to(apply_to)
       applied = true
     end
     applied # don't want to return cached_values
@@ -38,9 +38,9 @@ class ContentTrigger
 
   # applies all applicable ContentTrigger triggers
   # and calls save! on the mongoid_doc
-  def self.apply_triggers!(mongoid_doc)
-    applied = apply_triggers(mongoid_doc)
-    mongoid_doc.save! if applied
+  def self.apply_triggers!(test_string:, apply_to:)
+    applied = apply_triggers(test_string, apply_to)
+    apply_to.save! if applied
   end
 
   def self.cached_triggers
