@@ -55,6 +55,7 @@ code-sections:
   - social_media_accounts
   - docs
   - settings
+  - triggers
   modifiable: true
   record-as: joined-string
 ticket-number:
