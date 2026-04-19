@@ -54,7 +54,7 @@ class ContentTriggersController < ApplicationController
   def split_params
     tags = params.dig(:content_trigger, :tags).to_s.split.uniq
     simple_triggers = params.dig(:content_trigger, :simple_triggers)
-      .to_s.split(",").map(&:strip).compact_blank.uniq
+      .to_s.split(/,\s+/).map(&:strip).compact_blank.uniq
     content_trigger_params.merge(tags: tags, simple_triggers: simple_triggers)
   end
 end
