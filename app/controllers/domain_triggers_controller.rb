@@ -45,7 +45,7 @@ class DomainTriggersController < ApplicationController
   end
 
   def domain_trigger_params
-    params.require(:domain_trigger).permit(:domain, :mark_as_private, :mark_to_read)
+    params.require(:domain_trigger).permit(:domain, :mark_as_private, :mark_as_sensitive, :mark_to_read)
   end
 
   def split_tag_params

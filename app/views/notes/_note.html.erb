@@ -3,6 +3,7 @@ non_blank = note.string_data.to_s.lines.reject { |l| l.strip.empty? }
 truncated = non_blank.length > 3
 preview   = non_blank.first(3).join.strip + "…"
 privacy_class = (note.private? ? 'private-note' : '')
+sentsitive_class = (note.sensitive ? " blurred" : "")
 %>
 <div tabindex="0" id="<%= dom_id note %>"
      class="container note-list-item <%= privacy_class %>">
@@ -21,7 +22,7 @@ privacy_class = (note.private? ? 'private-note' : '')
     <div class="col-8">
       <%# description %>
       <div class="row">
-        <div class="col<%= note.sensitive ? " blurred" : ""%>" id="<%= dom_id note %>-content">
+        <div class="col<%= sensitive_class %>" id="<%= dom_id note %>-content">
           <%= link_to note_path(note) do %>
             <%== ::Rendering::Markdown.instance.render(preview) %>
           <% end %>
@@ -73,7 +74,7 @@ privacy_class = (note.private? ? 'private-note' : '')
     <%# tags %>
 
     <div class="row note-tags-and-date-row">
-      <div class="col-9<%= note.sensitive ? " blurred" : ""%>">
+      <div class="col-9<%= sensitive_class %>">
         <%= render partial: 'notes/inline_tag_list', locals: {tags: note.tags} %>
       </div>
       <div class="col note-date-col metadata">

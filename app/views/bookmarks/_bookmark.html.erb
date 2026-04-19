@@ -1,5 +1,6 @@
 <% privacy_class = (bookmark.private? ? 'private-bookmark' : '')
    to_read_class = (bookmark.to_read? ? 'to-read-list-item' : '')
+   sensitive_class = (bookmark.sensitive ? " blurred" : "")
    %>
 <div tabindex="0" id="<%= dom_id bookmark %>" class="container bookmark-list-item <%= privacy_class %> <%= to_read_class %>">
   <%# inline flash row %>
@@ -39,7 +40,7 @@
 
       <%# description %>
       <div class="row">
-        <div class="col">
+        <div class="col<%= sensitive_class %>">
           <% if bookmark.description.present? %>
             <%== ::Rendering::Markdown.instance.render(bookmark.description) %>
           <% else %>
@@ -196,7 +197,7 @@
     </div>
       <%# tags %>
       <div class="row bookmark-tags-and-date-row">
-        <div class="col-9">
+        <div class="col-9<%= sensitive_class %>">
           <%= render partial: 'shared/inline_tag_list',
                      locals: {tags: bookmark.tags} %>
         </div>

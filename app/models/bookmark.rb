@@ -24,6 +24,7 @@ class Bookmark
   field :tags,        type: Array,   default: []
   field :private,     type: Boolean, default: false
   field :to_read,     type: Boolean, default: false
+  field :sensitive,   type: Boolean, default: false
 
   embeds_many :archives, cascade_callbacks: true
   embeds_many :failed_archive_attempts
@@ -170,10 +171,7 @@ class Bookmark
   def apply_domain_trigger
     trigger = DomainTrigger.trigger_for_domain(domain)
     return unless trigger
-    # add any tags we don't already have
-    self.tags = tags + (trigger.tags - tags)
-    self.private = true if trigger.mark_as_private
-    self.to_read = true if trigger.mark_to_read
+    trigger.apply_to(self)
   end
 
   # If a social media account has not been associated with

@@ -3,14 +3,14 @@ class DomainTrigger
   include Mongoid::Timestamps
 
   include BackupBrain::Domains
+  include BackupBrain::Triggers
   include BackupBrain::Taggable::InstanceMethods
 
-  VALID_VALUE_TYPES = %i[boolean integer string array hash].freeze
-
-  field :domain,          type:    String
-  field :mark_as_private, type:    Boolean, default: false
-  field :mark_to_read,    type:    Boolean, default: false
-  field :tags,            type:    Array,   default: []
+  field :domain,            type:    String
+  field :mark_as_private,   type:    Boolean, default: false
+  field :mark_as_sensitive, type:    Boolean, default: false
+  field :mark_to_read,      type:    Boolean, default: false
+  field :tags,              type:    Array,   default: []
 
   before_save :clean_tags!, :clean_domain!
   validates :domain, presence: true, uniqueness: true

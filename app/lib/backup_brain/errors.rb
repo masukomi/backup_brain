@@ -10,5 +10,7 @@ module BackupBrain
     class UnknownSetting  < StandardError; end
 
     class InvalidSetting  < StandardError; end
+
+    class UnsupportedDocumentType < StandardError; end
   end
 end

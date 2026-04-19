@@ -17,39 +17,39 @@
   <% end %>
   <script>
    document.addEventListener('turbo:load', function() {
-     let audioPlayers = {};
-     document.querySelectorAll("archive audio, archive video").forEach(function(el) {
-       const p = new Plyr(el, { iconUrl: "/js/plyr/plyr.svg" });
-       if (el.tagName === 'AUDIO') {
-         const sourceEl = el.querySelector('source');
-         const src = sourceEl ? sourceEl.getAttribute('src') : el.getAttribute('src');
-         if (src) audioPlayers[src] = p;
-       }
-     });
-
-     <% if @archive&.media_objects&.any? { |mo| mo.transcription&.source == "whisper" && mo.transcription&.status == "completed" } %>
-       document.querySelectorAll('.plyr-timestamp').forEach(function(el) {
-         el.addEventListener('click', function() {
-           var player = audioPlayers[el.dataset.playerSrc];
-           if (player) player.currentTime = parseFloat(el.dataset.seconds);
-         });
-       });
-     <% end %>
-     <% if @archive&.media_objects&.any? { |mo| mo.is_youtube? } %>
-       document.querySelectorAll('.youtube-timestamp').forEach(function(el) {
-         el.addEventListener('click', function() {
-           var player = ytPlayers[el.dataset.playerId];
-           if (player && player.seekTo) {
-             player.seekTo(parseFloat(el.dataset.seconds), true);
+       let audioPlayers = {};
+       document.querySelectorAll("archive audio, archive video").forEach(function(el) {
+           const p = new Plyr(el, { iconUrl: "/js/plyr/plyr.svg" });
+           if (el.tagName === 'AUDIO') {
+               const sourceEl = el.querySelector('source');
+               const src = sourceEl ? sourceEl.getAttribute('src') : el.getAttribute('src');
+               if (src) audioPlayers[src] = p;
            }
-         });
        });
-     <% end %>
+
+       <% if @archive&.media_objects&.any? { |mo| mo.transcription&.source == "whisper" && mo.transcription&.status == "completed" } %>
+       document.querySelectorAll('.plyr-timestamp').forEach(function(el) {
+           el.addEventListener('click', function() {
+               var player = audioPlayers[el.dataset.playerSrc];
+               if (player) player.currentTime = parseFloat(el.dataset.seconds);
+           });
+       });
+       <% end %>
+       <% if @archive&.media_objects&.any? { |mo| mo.is_youtube? } %>
+       document.querySelectorAll('.youtube-timestamp').forEach(function(el) {
+           el.addEventListener('click', function() {
+               var player = ytPlayers[el.dataset.playerId];
+               if (player && player.seekTo) {
+                   player.seekTo(parseFloat(el.dataset.seconds), true);
+               }
+           });
+       });
+       <% end %>
    });
   </script>
 <% end %>
-
-<div class="container">
+<%# blur the whole thing if it's sensitive%>
+<div class="container<%=(@bookmark.sensitive ? " blurred" : "") %>">
   <% if @archive.present?  %>
     <div class="row">
       <div class="col">
