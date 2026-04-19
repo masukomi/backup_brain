@@ -132,6 +132,117 @@ en:
       unsupported_value_type: "%{type} is not a supported value type"
       update_error: "An error was encountered while updating that setting."
       validation_error: "attribute: %{attribute} → %{problem}"
+    details:
+      archival_requests_timeout:
+        summary: "HTTP Timeout for archival requests"
+        description: >-
+          The number of seconds we should wait before giving up
+          on getting a response when attempting to archive a
+          bookmarked page.
+
+          You may want to increase this if you are on a particularly
+          slow internet connection.
+      enable_archiving:
+        summary: "Enables creation of a Markdown archive for each bookmark"
+        description: >-
+          Use various tools to extract the important content from
+          bookmarked web pages and converts them to markdown.
+
+          The `reader` CLI tool is used by default, but custom
+          scripts can be created for some harder to process sites.
+          See [the documentation](https://backupbrain.app/documentation/)
+          for details if a site you bookmark regularly isn't being
+          archived correctly.
+      enable_audio_transcriptions:
+        summary: "Enable Whisper transcriptions of audio files."
+        description: >-
+          Whisper must be installed and available on your path for this
+          to work.
+
+          **Before enabling this,** download a whisper model and set its file path
+          in the `whisper_model_path` setting.
+      enable_favicons:
+        summary: "Enable showing favicons next to each bookmark"
+        description: >-
+          When enabled BackupBrain will request a favicon from the domain name you have
+          bookmarked, and display them alongside the bookmark.
+
+          Note: Favicon acquisition has become stupidly complex. We outsource the
+          lookup to a Google API the first time. If enabled, a request will be made
+          to Google servers that will associate the domain name you bookmarked
+          with the IP address of your BackupBrain server. We'll archive it and
+          serve it locally after that.
+
+          See [the documentation](https://backupbrain.app/documentation/) for how
+          to pre-populate the local cache to avoid Google API calls
+          and / or add custom favicons for sites that don't have them.
+      enable_youtube_transcriptions:
+        summary: "Enable downloading of transcripts for YouTube videos."
+        description: >-
+          Uses the YouTube API to download the transcript from any public
+          YouTube video. This _will_ involve contacting YouTube servers,
+          but will _not_ need any cookies or account information.
+      indieauth_client_id_urls:
+        summary: "Public URLs used or IndieAuth client identification."
+        description: >-
+          `base_url` is a publicly reachable URL that IndieAuth servers
+          like Misskey and Sharkey will fetch to discover this app's allowed
+          oAuth Redirect URIs. The page at this URL _must_ include a
+          `<link rel="redirect_url"… >` tag pointing to the `redirect_uri`
+          which is the relay page that bounces the browser back to your local instance.
+          This will default to `{base_url}/indieauth-callback`
+
+          Change this only if you are self hosting the relay page at a different
+          domain or <https://backupbrain.app> no longer contains this.
+      missing_audio_audio_url:
+        summary: "URL of audio file to use when archived audio file is missing"
+        description: >-
+          An audio file URL that is valid when referenced from within
+          a rendered page. Can look like `/path/under/public/dir/missing_audio.mp3`
+          or `https://example.com/missing_audio.mp3`
+
+          This should only ever be used when something has gone missing from the
+          archives.
+      missing_image_image_url:
+        summary: "URL of image file to use when archived image file is missing"
+        description: >-
+          An image URL that is valid when referenced from within a rendered page.
+          Can look like `/path/under/public/dir/missing_image.svg` or
+          `https://example.com/missing_image.svg`
+
+          This should only ever be used when something has gone missing from
+          the archives.
+      oauth2_client_id:
+        summary: "A unique oauth2 client id for this BackupBrain installation."
+        description: "Use when registering this app with oAuth authenticated servers."
+      oauth2_client_secret:
+        summary: "A unique oauth2 client secret for this BackupBrain installation"
+        description: "Used when registering this app with oAuth authenticated servers."
+      reader_path:
+        summary: "Path to the `reader` executable."
+        description: >-
+          The path to the reader executable.
+
+          This can be an absolute path or relative to the root of this project.
+
+          [reader](https://github.com/mrusme/reader) is an open source CLI app
+          that uses the Readability algorithm (think reader view) to extract
+          the core content from web pages and then converts it to Markdown
+          for your archives.
+      schema_version:
+        summary: "Database Schema Version"
+        description: >-
+          Used by the migration scripts to perform data migrations
+          as database schemas change over time.
+
+          **⚠️ DO NOT ALTER THIS.**
+      whisper_model_path:
+        summary: "File path to a downloaded Whisper model."
+        decription: >-
+          A valid path to a downloaded Whisper model.
+
+          Path can be absolute or relative to the root of this app.
+          Must be a readable whisper model file.
   transcriptions:
     headings:
       inline: "Transcription %{name}"

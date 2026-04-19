@@ -14,24 +14,28 @@
 
   <% if @settings.count > 0 %>
     <% @settings.each do |setting| %>
-      <div class="row">
-        <div class="col-1">
-          <%= icon_link("edit", edit_setting_path(setting),
-              link_css: "inline-link-icon edit-link-icon",
-              method: :put,
-              text: nil) %>
-        </div>
+      <div class="row setting-list-item">
         <div class="col">
-          <code><%= setting.lookup_key %></code>
-          <br />
-          <%= setting.summary %>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-1">&nbsp;</div>
-        <div class="col">
-          <%= t("settings.value") %> »
-          <code><%=setting.inner_value %></code>
+          <div class="row">
+            <div class="col-1">
+              <%= icon_link("edit", edit_setting_path(setting),
+                  link_css: "inline-link-icon edit-link-icon",
+                  method: :put,
+                  text: nil) %>
+            </div>
+            <div class="col">
+              <code><%= setting.lookup_key %></code>
+              <br />
+              <%= setting.summary %>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-1">&nbsp;</div>
+            <div class="col">
+              <%= t("settings.value") %> »
+              <code><%=setting.inner_value %></code>
+            </div>
+          </div>
         </div>
       </div>
     <% end %>

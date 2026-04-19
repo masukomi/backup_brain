@@ -25,7 +25,7 @@ end
 if Setting.where(lookup_key: "indieauth_client_id_urls").count == 0
   warn("creating indieauth_client_id_url setting")
   Setting.create!(
-    lookup_key: "indieauth_client_id_url",
+    lookup_key: "indieauth_client_id_urls",
     summary: "Public URLs used for Indieauth Client identification",
     description: "<p><code>base_url</code> is a publicly reachable URL that IndieAuth servers
 like Misskey and Sharkey will fetch to discover this app's allowed OAuth redirect URIs.

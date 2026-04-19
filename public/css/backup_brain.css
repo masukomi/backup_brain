@@ -250,6 +250,7 @@ heading > .inline-icon{
 	font-size: 80%;
 	text-decoration: none;
 }
+.setting-list-item,
 .note-list-item,
 .bookmark-list-item {
 	border: 1px dashed #aaaaaa;
@@ -291,6 +292,9 @@ note,
 	font-style: italic;
 	font-size: 0.8rem;
 	color: #aaa !important;
+}
+.metadata code {
+	color: #182777;
 }
 note {
 	display: block;
