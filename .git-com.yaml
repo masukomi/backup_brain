@@ -1,18 +1,18 @@
 change-type:
   destination: title
   type: select
-  modifiable: true
   instructions: What kind of change?
   before-string: "["
   after-string: "]"
   format: "%-12s"
   agent-hint: "[option definitions] fix: fixing something broken, add: adding new functionality, change: changing behavior without really adding new functionality, refactor: changing code flow without changing functionality, clean-up: minor changes like comment and whitespace changes"
   options:
-    - fix
-    - add
-    - change
-    - refactor
-    - clean-up
+  - fix
+  - add
+  - change
+  - refactor
+  - clean-up
+  modifiable: true
 breaking-indicator:
   destination: title
   type: select
@@ -38,22 +38,23 @@ code-sections:
   before-string: "\n\nCode Sections: "
   allow-empty: true
   options:
-    - bookmarks
-    - archives
-    - ui
-    - ux
-    - css
-    - config
-    - meta
-    - tests
-    - migrations
-    - infrastructure
-    - tags
-    - oauth
-    - people
-    - notes
-    - social_media_accounts
-    - docs
+  - bookmarks
+  - archives
+  - ui
+  - ux
+  - css
+  - config
+  - meta
+  - tests
+  - migrations
+  - infrastructure
+  - tags
+  - oauth
+  - people
+  - notes
+  - social_media_accounts
+  - docs
+  - settings
   modifiable: true
   record-as: joined-string
 ticket-number:
