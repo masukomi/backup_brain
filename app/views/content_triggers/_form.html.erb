@@ -7,8 +7,8 @@
         <%= form.label :name, t("content_triggers.name_label"), style: "display: block" %>
       </div>
       <div class="col-9">
-        <%= form.text_field :name, class: "bookmark-input-field",
-                            placeholder: "e.g. My YouTube Trigger" %>
+          <%= form.text_field :name, class: "bookmark-input-field",
+                            placeholder: t("content_triggers.name_placeholder") %>
       </div>
     </div>
 
@@ -19,11 +19,11 @@
                        style: "display: block" %>
       </div>
       <div class="col-9">
-        <%= form.text_field :simple_triggers,
-                            class: "bookmark-input-field",
-                            value: content_trigger.simple_triggers.join(", "),
-                            placeholder: "e.g. youtube, youtu.be, yt.be" %>
-        <small class="form-text text-muted"><%= t("content_triggers.simple_triggers_hint") %></small>
+          <%= form.text_field :simple_triggers,
+                                       class: "bookmark-input-field",
+                                       value: content_trigger.simple_triggers.join(", "),
+                                       placeholder: t("content_triggers.simple_triggers_placeholder") %>
+        <div class="metadata"><%= t("content_triggers.simple_triggers_hint") %></div>
       </div>
     </div>
 
@@ -55,7 +55,7 @@
     </div>
 
     <div class="row">
-      <div class="col-2">
+      <div class="col-4">
         <%= form.label :case_insensitive,
                        t("content_triggers.case_insensitive_label"),
                        style: "display: block",
@@ -72,7 +72,7 @@
     </div>
 
     <div class="row">
-      <div class="col-2">
+      <div class="col-4">
         <%= form.label :mark_as_private,
                        t("content_triggers.mark_as_private_label"),
                        style: "display: block",
@@ -90,7 +90,7 @@
     </div>
 
     <div class="row">
-      <div class="col-2">
+      <div class="col-4">
         <%= form.label :mark_as_sensitive,
                        t("content_triggers.mark_as_sensitive_label"),
                        style: "display: block",
@@ -108,7 +108,7 @@
     </div>
 
     <div class="row">
-      <div class="col-2">
+      <div class="col-4">
         <%= form.label :mark_to_read,
                        t("content_triggers.mark_to_read_label"),
                        style: "display: block",
