@@ -17,8 +17,8 @@
       <% if @sort == "newest" %>checked<% end %>
         id="sort_radio_newest" >
       <label for="sort_radio_newest" ><%=I18n.t("search.newest_sort_label")%></label>
-      <%= form.check_box :archives_only, {id: "archives_only_checkbox", checked: @archives_only}, "true", "false"  %>
-      <label for="archives_only_checkbox" ><%=I18n.t("search.archives_only_label")%></label>
+      <%= form.check_box :search_archives, {id: "search_archives_checkbox", checked: @search_archives}, "true", "false"  %>
+      <label for="search_archives_checkbox" ><%=I18n.t("search.search_archives_label")%></label>
     </div>
   <% end %>
 </div>
