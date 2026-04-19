@@ -335,7 +335,7 @@ class BookmarksController < ApplicationController
 
   # Only allow a list of trusted parameters through.
   def bookmark_params
-    params.require(:bookmark).permit(:title, :url, :description, :tags, :private, :to_read)
+    params.require(:bookmark).permit(:title, :url, :description, :tags, :private, :sensitive, :to_read)
   end
 
   def split_tag_params

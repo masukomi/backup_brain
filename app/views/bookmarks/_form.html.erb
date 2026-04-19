@@ -81,6 +81,25 @@
 
     <div class="row">
       <div class="col-2">
+        <%= form.label :sensitive,
+            style: "display: block",
+            class: "form-check-label",
+            for: "sensitiveSwitch"
+            %>
+      </div>
+      <div class="col-1 form-check form-switch">
+        <%= inline_icon("sensitive") %>
+        <%= form.check_box :sensitive,
+            class: 'bookmark-checkbox-field form-check-input toggle',
+            role: "switch",
+            id: "sensitiveSwitch",
+            checked: bookmark.sensitive?
+            %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-2">
         <%= form.label :to_read,
             style: "display: block",
             class: "form-check-label",
