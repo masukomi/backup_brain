@@ -28,6 +28,7 @@ Rails.application.routes.draw do
   end
 
   resources :domain_triggers
+  resources :content_triggers
   resources :settings
   resources :tags do
     get :autocomplete, on: :collection

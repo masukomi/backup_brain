@@ -1,0 +1,75 @@
+<div tabindex="0" id="<%= dom_id content_trigger %>" class="container bookmark-list-item">
+  <div class="row">
+    <div class="col-8">
+
+      <div class="row">
+        <div class="col">
+          <strong><%= content_trigger.name %></strong>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          <em><%= content_trigger.simple_triggers.join(", ") %></em>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          <%= t("content_triggers.case_insensitive_label") %>:
+          <%= content_trigger.case_insensitive? ? "✅" : "❌" %>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          <%= t("content_triggers.mark_as_private_label") %>:
+          <%= content_trigger.mark_as_private? ? "✅" : "❌" %>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          <%= t("content_triggers.mark_as_sensitive_label") %>:
+          <%= content_trigger.mark_as_sensitive? ? "✅" : "❌" %>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          <%= t("content_triggers.mark_to_read_label") %>:
+          <%= content_trigger.mark_to_read? ? "✅" : "❌" %>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="col">
+      <div class="action-icons">
+        <div class="action-icon">
+          <%= icon_link("edit", edit_content_trigger_path(content_trigger),
+                        link_css: "inline-link-icon edit-link-icon",
+                        text: t("content_triggers.edit_link"),
+                        aria_hidden: true) %>
+        </div>
+        <div class="action-icon delete-action-icon">
+          <%== link_to image_tag("/images/icons/delete.svg",
+                                 class: "inline-link-icon delete-icon",
+                                 "aria-hidden": true) + t("content_triggers.delete_link"),
+                       content_trigger_path(content_trigger),
+                       class: "inline-link-icon delete-link-icon",
+                       data: {
+                         turbo_method: :delete,
+                         turbo_confirm: t("misc.are_you_sure")
+                       } %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row bookmark-tags-and-date-row">
+    <div class="col-9">
+      <%= render partial: "shared/inline_tag_list", locals: {tags: content_trigger.tags} %>
+    </div>
+  </div>
+</div>

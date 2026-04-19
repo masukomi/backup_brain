@@ -1,0 +1,135 @@
+<div class="container">
+  <%= render partial: "shared/errors_row", locals: {thing: content_trigger} %>
+  <%= form_with(model: content_trigger) do |form| %>
+
+    <div class="row">
+      <div class="col-2">
+        <%= form.label :name, t("content_triggers.name_label"), style: "display: block" %>
+      </div>
+      <div class="col-9">
+        <%= form.text_field :name, class: "bookmark-input-field",
+                            placeholder: "e.g. My YouTube Trigger" %>
+      </div>
+    </div>
+
+    <div class="row safe-space">
+      <div class="col-2">
+        <%= form.label :simple_triggers,
+                       t("content_triggers.simple_triggers_label"),
+                       style: "display: block" %>
+      </div>
+      <div class="col-9">
+        <%= form.text_field :simple_triggers,
+                            class: "bookmark-input-field",
+                            value: content_trigger.simple_triggers.join(", "),
+                            placeholder: "e.g. youtube, youtu.be, yt.be" %>
+        <small class="form-text text-muted"><%= t("content_triggers.simple_triggers_hint") %></small>
+      </div>
+    </div>
+
+    <div class="row safe-space">
+      <div class="col-2">
+        <%= form.label :tags, style: "display: block" %>
+      </div>
+      <div class="col-9">
+        <div class="tag-input-wrapper bookmark-input-field"
+             data-controller="tag-input"
+             data-tag-input-autocomplete-url-value="<%= autocomplete_tags_path %>"
+             data-action="click->tag-input#focusInput">
+          <input type="hidden"
+                 name="content_trigger[tags]"
+                 value="<%= content_trigger.tags.join(' ') %>"
+                 data-tag-input-target="hidden">
+          <div class="tag-chips-area" data-tag-input-target="chipsArea">
+            <input type="text"
+                   class="tag-text-input"
+                   data-tag-input-target="textInput"
+                   data-action="keydown->tag-input#handleKeydown input->tag-input#handleInput"
+                   autocomplete="off"
+                   placeholder="add tags...">
+          </div>
+          <ul class="dropdown-menu tag-autocomplete-dropdown"
+              data-tag-input-target="dropdown"></ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-2">
+        <%= form.label :case_insensitive,
+                       t("content_triggers.case_insensitive_label"),
+                       style: "display: block",
+                       class: "form-check-label",
+                       for: "caseInsensitiveSwitch" %>
+      </div>
+      <div class="col-1 form-check form-switch">
+        <%= form.check_box :case_insensitive,
+                           class: "bookmark-checkbox-field form-check-input toggle",
+                           role: "switch",
+                           id: "caseInsensitiveSwitch",
+                           checked: content_trigger.case_insensitive? %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-2">
+        <%= form.label :mark_as_private,
+                       t("content_triggers.mark_as_private_label"),
+                       style: "display: block",
+                       class: "form-check-label",
+                       for: "markAsPrivateSwitch" %>
+      </div>
+      <div class="col-1 form-check form-switch">
+        <%= inline_icon("private") %>
+        <%= form.check_box :mark_as_private,
+                           class: "bookmark-checkbox-field form-check-input toggle",
+                           role: "switch",
+                           id: "markAsPrivateSwitch",
+                           checked: content_trigger.mark_as_private? %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-2">
+        <%= form.label :mark_as_sensitive,
+                       t("content_triggers.mark_as_sensitive_label"),
+                       style: "display: block",
+                       class: "form-check-label",
+                       for: "markAsSensitiveSwitch" %>
+      </div>
+      <div class="col-1 form-check form-switch">
+        <%= inline_icon("sensitive") %>
+        <%= form.check_box :mark_as_sensitive,
+                           class: "bookmark-checkbox-field form-check-input toggle",
+                           role: "switch",
+                           id: "markAsSensitiveSwitch",
+                           checked: content_trigger.mark_as_sensitive? %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-2">
+        <%= form.label :mark_to_read,
+                       t("content_triggers.mark_to_read_label"),
+                       style: "display: block",
+                       class: "form-check-label",
+                       for: "markToReadSwitch" %>
+      </div>
+      <div class="col-1 form-check form-switch">
+        <%= inline_icon("to_read") %>
+        <%= form.check_box :mark_to_read,
+                           class: "bookmark-checkbox-field form-check-input toggle",
+                           role: "switch",
+                           id: "markToReadSwitch",
+                           checked: content_trigger.mark_to_read? %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <%= form.submit class: "btn btn-primary" %>
+      </div>
+    </div>
+
+  <% end %>
+</div>

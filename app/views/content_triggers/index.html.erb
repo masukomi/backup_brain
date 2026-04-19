@@ -1,0 +1,43 @@
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <heading><%= t("content_triggers.list_heading") %></heading>
+    </div>
+  </div>
+</div>
+
+<% content_for :sidebar do %>
+  <%= render partial: "shared/sidebar_page_actions_top" %>
+  <div id="page-actions">
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <ul>
+            <li><%= link_to t("content_triggers.add"), new_content_trigger_path,
+                            class: "btn btn-primary compact-button" %></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<% if @content_triggers.empty? %>
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <%= t("content_triggers.no_triggers_message") %>
+      </div>
+    </div>
+  </div>
+<% else %>
+  <div class="container" id="content-triggers">
+    <% @content_triggers.each do |content_trigger| %>
+      <div class="row">
+        <div class="col">
+          <%= render content_trigger %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>

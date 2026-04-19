@@ -1,0 +1,17 @@
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <heading><%= t("content_triggers.new_heading") %></heading>
+    </div>
+  </div>
+</div>
+
+<%= render "form", content_trigger: @content_trigger %>
+
+<div class="container non-essential">
+  <div class="row">
+    <div class="col">
+      <%= link_to t("content_triggers.list_link"), content_triggers_path %>
+    </div>
+  </div>
+</div>
