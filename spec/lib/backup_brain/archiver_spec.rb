@@ -254,14 +254,16 @@ RSpec.describe BackupBrain::Archiver do
     context "when the url is not downloadable" do
       before { allow(instance).to receive(:url_downloadable?).with(url, include_code: true).and_return([false, 404]) }
 
-      it "returns missing_image_image_url" do
+      it "raises UnarchivableUrl" do
         allow(instance).to receive(:record_failed_attempt)
-        expect(instance.download_image(bookmark, url)).to eq("/images/icons/missing_image_image.svg")
+        expect { instance.download_image(bookmark, url) }.to raise_error(BackupBrain::Errors::UnarchivableUrl)
       end
 
       it "records a failed attempt" do
         expect(instance).to receive(:record_failed_attempt).with(bookmark, 404, anything)
         instance.download_image(bookmark, url)
+      rescue BackupBrain::Errors::UnarchivableUrl
+        nil
       end
     end
 
@@ -377,6 +379,19 @@ RSpec.describe BackupBrain::Archiver do
         hashes = {sha => {url: remote_url, extension: ".jpg"}}
         result = instance.qualify_and_apply_image_url_hashes(bookmark, hashes, sha.dup, domain, directory)
         expect(result).to eq("![](#{local_url})")
+      end
+    end
+
+    context "when download_image raises UnarchivableUrl" do
+      let(:remote_url) { "https://example.com/image.jpg" }
+
+      before { allow(instance).to receive(:download_image).and_raise(BackupBrain::Errors::UnarchivableUrl, "server rejected") }
+
+      it "falls back to the original url instead of a placeholder" do
+        sha = Digest::SHA2.hexdigest(remote_url)
+        hashes = {sha => {url: remote_url, extension: ".jpg"}}
+        result = instance.qualify_and_apply_image_url_hashes(bookmark, hashes, sha.dup, domain, directory)
+        expect(result).to eq("![](#{remote_url})")
       end
     end
     # rubocop:enable RSpec/MultipleMemoizedHelpers

@@ -60,7 +60,12 @@ module BackupBrain
         extension = url_data[:extension]
         if url != missing_image_image_url && !url.start_with?("/images/archival/#{bookmark._id}/")
           full_url = fully_qualify_path(url, domain, directory)
-          url = download_image(bookmark, full_url, extension: extension)
+          begin
+            url = download_image(bookmark, full_url, extension: extension)
+          rescue BackupBrain::Errors::UnarchivableUrl
+            # better to point at the original than nothing
+            url = full_url
+          end
         end
         line.sub!(sha, "![](#{url})")
       end
@@ -140,12 +145,14 @@ module BackupBrain
 
       downloadable, error_code = url_downloadable?(url, include_code: true)
       unless downloadable
+        message = "Remote server prevented image download. Status code: #{error_code} URL: #{url.sub(/\?.*?$/, "?…<query_string>")}"
         record_failed_attempt(bookmark, error_code,
-          message: "Remote server prevented image download. Status code: #{error_code} URL: #{url.sub(/\?.*?$/, "?…<query_string>")}",
+          message: message,
           should_raise: !(error_code > 399 && error_code < 500))
-        return missing_image_image_url
+        raise BackupBrain::Errors::UnarchivableUrl.new(message)
       end
 
+      # ⚠️ may raise BackupBrain::Errors::UnarchivableUrl
       download_asset(bookmark, url, asset_label: "image", extension: extension)
     end
 
@@ -187,6 +194,19 @@ module BackupBrain
 
       return new_url if File.exist?(file_path)
 
+      # Use asset-appropriate Accept/Sec-Fetch headers so servers don't content-negotiate
+      # and return the wrong type (e.g. Reddit's i.redd.it returns an HTML media page when
+      # it sees Accept: text/html, even for direct image URLs).
+      request_headers = BackupBrain::RequestHeaders.instance.headers_for(url)
+      if asset_label == "image"
+        request_headers = request_headers.merge(
+          "Accept" => "image/jpeg,image/png,image/avif,image/webp,image/*,*/*;q=0.5",
+          "Sec-Fetch-Dest" => "image",
+          "Sec-Fetch-Mode" => "no-cors",
+          "Sec-Fetch-Site" => "cross-site"
+        )
+      end
+
       http_response = nil
       begin
         File.open(file_path, "wx") do |file|
@@ -195,7 +215,7 @@ module BackupBrain
             verify: false,
             follow_redirects: true,
             timeout: archival_requests_timeout,
-            headers: BackupBrain::RequestHeaders.instance.headers_for(url)) do |fragment|
+            headers: request_headers) do |fragment|
             file.write(fragment)
           end
         end
@@ -204,10 +224,18 @@ module BackupBrain
         raise e
       end
 
+      response_content_type = http_response.respond_to?(:headers) ? http_response.headers["content-type"].to_s : ""
+
+      # Guard against content negotiation returning HTML instead of the expected asset.
+      if asset_label == "image" && response_content_type.match?(/\Atext\/(html|plain)/i)
+        File.delete(file_path) if File.exist?(file_path)
+        Rails.logger.warn("Expected image but got #{response_content_type} from #{url} — server returned HTML via content negotiation")
+        raise BackupBrain::Errors::UnarchivableUrl.new("Expected image but received #{response_content_type} from #{url}")
+      end
+
       if needs_detection
         # Prefer the server's Content-Type header; fall back to file(1) inspection.
-        content_type = http_response.respond_to?(:headers) ? http_response.headers["content-type"].to_s : ""
-        detected = Archive.extension_for_mime_type(content_type)
+        detected = Archive.extension_for_mime_type(response_content_type)
         detected = detect_file_extension(file_path) if detected.blank?
         if detected.present?
           new_name = "#{local_name}#{detected}"
