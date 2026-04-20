@@ -3,7 +3,7 @@ non_blank = note.string_data.to_s.lines.reject { |l| l.strip.empty? }
 truncated = non_blank.length > 3
 preview   = non_blank.first(3).join.strip + "…"
 privacy_class = (note.private? ? 'private-note' : '')
-sentsitive_class = (note.sensitive ? " blurred" : "")
+sensitive_class = (note.sensitive ? " blurred" : "")
 %>
 <div tabindex="0" id="<%= dom_id note %>"
      class="container note-list-item <%= privacy_class %>">
