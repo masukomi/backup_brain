@@ -1,6 +1,7 @@
 <div class="container">
   <div class="row">
-    <div class="col"><h3 class='stylized-header'><%= link_to(t('tags.list_heading'), tags_path()) %></h3></div>
+    <div class="col"><heading><%= link_to(t('tags.list_heading'), tags_path()) %></heading>
+      <span class="metadata"><%= t('tags.list_subheading', count: @tags.count) %></span>
   </div>
 </div>
 <div id="tags" class="container">
