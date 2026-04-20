@@ -1,7 +1,13 @@
 <div class="container">
   <div class="row">
     <div class="col"><heading><%= link_to(t('tags.list_heading'), tags_path()) %></heading>
-      <span class="metadata"><%= t('tags.list_subheading', count: @tags.count) %></span>
+
+
+      <span class="metadata"><%= t('tags.list_subheading',
+                                   formatted_count: number_with_delimiter(
+                                                      @tags.count,
+                                                      delimiter: t('number.format.delimiter')
+                                   )) %></span>
   </div>
 </div>
 <div id="tags" class="container">
