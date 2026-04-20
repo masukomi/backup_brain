@@ -94,6 +94,7 @@ en:
     overlapping_tags: "Overlapping Tags:"
     list_heading: "Tags"
     list_subheading: "(%{formatted_count} and counting…)"
+    list_subheading_char_limited: "(%{formatted_count} starting with \"%{starting_with}\" and counting…)"
     link: "Tags"
     edit_link: "Edit"
     edit_icon_alt: "Edit Icon"
