@@ -1,0 +1,67 @@
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <heading><%= t("administration.heading") %></heading>
+    </div>
+  </div>
+</div>
+
+<div class="container" id="administration-links">
+  <div class="row">
+    <div class="col">
+      <ul>
+        <li><%= icon_link('state_change',
+                          domain_triggers_path,
+                          text: t('domain_triggers.list_link'),
+                          alt: nil,
+                          link_css: 'inline-link-icon admin-link-icon') %></li>
+        <li><%= icon_link('state_change',
+                          content_triggers_path,
+                          text: t('content_triggers.list_link'),
+                          alt: nil,
+                          link_css: 'inline-link-icon admin-link-icon') %></li>
+        <li><%= icon_link('settings',
+                          settings_path,
+                          text: t('settings.nav_link'),
+                          alt: nil,
+                          link_css: "inline-link-icon admin-link-icon"
+            ) %></li>
+        <li><%= icon_link('key',
+                          remote_credentials_path,
+                          text: t('oauth2.remote_credentials.nav_link'),
+                          alt: nil,
+                          link_css: "inline-link-icon admin-link-icon"
+            ) %></li>
+
+        <li><%= icon_link('scheduled_job',
+                          jobs_path,
+                          text: t('jobs.nav_link'),
+                          alt: nil,
+                          link_css: "inline-link-icon admin-link-icon"
+            ) %></li>
+        <li><%= icon_link('key',
+                          access_path,
+                          text: t('access.nav_link'),
+                          alt: nil,
+                          link_css: "inline-link-icon admin-link-icon"
+            ) %></li>
+        <li><%= icon_link('importing',
+                                         importer_form_path,
+                                         text: t('importer.import_link'),
+                                         alt: nil,
+                                         link_css: "inline-link-icon admin-link-icon"
+                           ) %></li>
+
+        <li><%= icon_link('file_a_ticket',
+                          "https://github.com/masukomi/backup_brain/issues/new/choose",
+                          text: t('misc.file_a_ticket'),
+                          title: t('misc.file_a_ticket_icon_title'),
+                          alt: nil,
+                          link_css: "inline-link-icon admin-link-icon",
+                          target: '_blank'
+            ) %></li>
+
+      </ul>
+    </div>
+  </div>
+</div>

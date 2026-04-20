@@ -3,53 +3,6 @@
     <div class="col">
       <hr />
       <ul id="bottom-side-nav-items">
-        <% if current_user %>
-          <li><div class="vertically-separated">
-               <%= icon_link('importing',
-                  importer_form_path,
-                  text: t('importer.import_link'),
-                  alt: t('importer.import_link_icon_alt'),
-                  link_css: "inline-link-icon admin-link-icon"
-                  ) %>
-              </div>
-          </li>
-          <li><div>
-              <%= icon_link('settings',
-                  settings_path,
-                  text: t('settings.nav_link'),
-                  alt: t('settings.icon_alt'),
-                  link_css: "inline-link-icon admin-link-icon"
-                  ) %>
-              </div>
-          </li>
-          <li><div>
-              <%= icon_link('scheduled_job',
-                  jobs_path,
-                  text: t('jobs.nav_link'),
-                  alt: t('jobs.icon_alt'),
-                  link_css: "inline-link-icon admin-link-icon"
-                  ) %>
-              </div>
-          </li>
-          <li><div>
-              <%= icon_link('key',
-                  remote_credentials_path,
-                  text: t('oauth2.remote_credentials.nav_link'),
-                  alt: t('oauth2.remote_credentials.icon_alt'),
-                  link_css: "inline-link-icon admin-link-icon"
-                  ) %>
-              </div>
-          </li>
-          <li><div>
-              <%= icon_link('key',
-                  access_path,
-                  text: t('access.nav_link'),
-                  alt: t('access.nav_icon_alt'),
-                  link_css: "inline-link-icon admin-link-icon"
-                  ) %>
-              </div>
-          </li>
-        <% end %>
         <li class="file-ticket">
           <div class="vertically-separated">
             <%= icon_link('file_a_ticket',

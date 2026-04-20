@@ -292,10 +292,13 @@ note,
 #bottom-side-nav-items > li > a{
 	font-style: italic;
 	font-size: 0.8rem;
-	color: #aaa !important;
+	color: #aaa;
 }
 .metadata code {
 	color: #182777;
+}
+.admin-link-icon .icon-link-text {
+	color: #4c4b4b;
 }
 code {
 	color: #0d6efd

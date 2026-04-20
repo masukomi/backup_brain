@@ -109,6 +109,9 @@ en:
       invalid_tag_names: "These tags are invalid: %{names}"
       invalid_tag_name: "Tag names must contain no spaces or commas"
       invalid_tag: "%{name} is not a valid tag"
+  administration:
+    heading: "Administration"
+    nav_link: "Administration"
   settings:
     nav_link: "Settings"
     icon_alt: "Gear icon with central heart"
