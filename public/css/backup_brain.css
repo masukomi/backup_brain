@@ -558,11 +558,11 @@ debugging::before{
 /*.person-row, .note-row, .bookmark-row */
 
 .blurred {
-	-webkit-filter: blur(5px);
-    -moz-filter: blur(5px);
-    -o-filter: blur(5px);
-    -ms-filter: blur(5px);
-    filter: blur(5px);
+	-webkit-filter: blur(12px);
+    -moz-filter: blur(12px);
+    -o-filter: blur(12px);
+    -ms-filter: blur(12px);
+    filter: blur(12px);
 }
 
 .form-switch .form-check-input {
