@@ -243,6 +243,7 @@ heading > .inline-icon{
 .delete-action-icon {
 	margin-top: 0.75rem;
 }
+#error_explanation,
 .archive-error-code a{
 	font-weight: bold;
 	font-style: italic;

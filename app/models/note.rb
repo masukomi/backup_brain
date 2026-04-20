@@ -19,6 +19,9 @@ class Note
   # Fields where it'll look for Slack-style emoji aliases
   EMOJIFIABLE_FIELDS = [:string_data]
 
+  # title is optional UNLESS sensitive is true.
+  # We need something un-fuzzed to display
+  field :title,       type: String
   field :mime_type,   type: String, default: "text/markdown"
   field :string_data, type: String
   field :private,     type: Boolean, default: true
@@ -31,6 +34,7 @@ class Note
   after_save     :update_central_tags_list
 
   validates :string_data, :mime_type, :private, presence: true
+  validates :title, presence: true, if: :sensitive?
 
   # enabled?() is controlled by the SEARCH_ENABLED environment variable
   if Search::Client.instance.enabled?

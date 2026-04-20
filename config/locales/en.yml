@@ -304,6 +304,7 @@ en:
     private_hint: "Shhh…"
     sensitive_form_hint: "Sensitive contents will be blurred by default."
     private_form_hint: "Private notes won't be visible unless logged in."
+    title_form_hint: "You only need a title if the note is marked sensitive."
     attributes:
       labels:
         string_data: "Your note…"

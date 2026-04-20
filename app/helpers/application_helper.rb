@@ -104,6 +104,10 @@ module ApplicationHelper
     @@html_entities.decode(text)
   end
 
+  def render_markdown(text)
+    ::Rendering::Markdown.instance.render(text)
+  end
+
   private
 
   def icon_link_text(text)

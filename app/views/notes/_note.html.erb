@@ -21,10 +21,21 @@ sensitive_class = (note.sensitive ? " blurred" : "")
     <%# everything but action items %>
     <div class="col-8">
       <%# description %>
+      <% if note.title.present? %>
+        <div class="row"><div class="col">
+          <%= link_to note_path(note) do %>
+            <%== render_markdown(note.title) %>
+          <% end %>
+        </div></div>
+      <% end %>
       <div class="row">
         <div class="col<%= sensitive_class %>" id="<%= dom_id note %>-content">
-          <%= link_to note_path(note) do %>
-            <%== ::Rendering::Markdown.instance.render(preview) %>
+          <% if ! note.title.present? %>
+            <%= link_to note_path(note) do %>
+              <%== render_markdown(preview) %>
+            <% end %>
+          <% else %>
+            <%== render_markdown(preview) %>
           <% end %>
         </div>
       </div>
