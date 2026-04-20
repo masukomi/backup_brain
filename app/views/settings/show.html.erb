@@ -15,12 +15,12 @@
   </div>
   <div class="row">
     <div class="col">
-      <%= ::Rendering::Markdown.instance.render(@setting.summary.to_s).html_safe %>
+      <%= render_markdown(@setting.summary.to_s).html_safe %>
     </div>
   </div>
   <div class="row">
     <div class="col">
-      <%= ::Rendering::Markdown.instance.render(@setting.description.to_s).html_safe %>
+      <%= render_markdown(@setting.description.to_s).html_safe %>
     </div>
   </div>
   <div class="row">

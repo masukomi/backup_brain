@@ -9,7 +9,7 @@
         <span class="metadata"><%= @person.pronouns %></span>
       <% end %>
       <% if @person.description.present? %>
-          <%== ::Rendering::Markdown.instance.render(@person.description) %>
+          <%== render_markdown(@person.description) %>
       <% end %>
     </div>
   </div>

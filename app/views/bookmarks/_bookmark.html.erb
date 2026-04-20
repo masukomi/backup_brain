@@ -42,7 +42,7 @@
       <div class="row">
         <div class="col<%= sensitive_class %>">
           <% if bookmark.description.present? %>
-            <%== ::Rendering::Markdown.instance.render(bookmark.description) %>
+            <%== render_markdown(bookmark.description) %>
           <% else %>
             &nbsp;
           <% end %>

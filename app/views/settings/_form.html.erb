@@ -49,7 +49,7 @@
       </div>
       <div class="col">
         <% summary = t("settings.details.#{setting.lookup_key}.summary") %>
-        <%== ::Rendering::Markdown.instance.render(summary.present? ? summary : setting.summary) %>
+        <%== render_markdown(summary.present? ? summary : setting.summary) %>
       </div>
     </div>
 
@@ -60,7 +60,7 @@
       <div class="col">
         <p>
           <% desc = t("settings.details.#{setting.lookup_key}.description") %>
-          <%== ::Rendering::Markdown.instance.render(desc.present? ? desc : setting.description) %>
+          <%== render_markdown(desc.present? ? desc : setting.description) %>
         </p>
       </div>
     </div>

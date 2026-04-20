@@ -12,7 +12,7 @@
   <% end %>
 <% end %>
 <archive>
-<%= ::Rendering::Markdown.instance.render(archive.string_data).html_safe %>
+<%= render_markdown(archive.string_data).html_safe %>
 </archive>
 <% transcribed_media = archive.media_objects.select { |mo| mo.transcription&.status == "completed" } %>
 <% if transcribed_media.any? %>

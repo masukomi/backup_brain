@@ -14,7 +14,7 @@
       <% if person.description.present? %>
         <div class="row">
           <div class="col">
-            <%== ::Rendering::Markdown.instance.render(person.description) %>
+            <%== render_markdown(person.description) %>
           </div>
         </div>
       <% end %>
