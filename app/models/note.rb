@@ -14,7 +14,7 @@ class Note
   include BackupBrain::Domains
 
   CLASS_PREFIXED_SEARCH_IDS = false
-  SEARCHABLE_ATTRIBUTES     = %w[string_data tags]
+  SEARCHABLE_ATTRIBUTES     = %w[title string_data tags]
   SEARCH_INDEX_NAME         = "backup_brain_notes"
   # Fields where it'll look for Slack-style emoji aliases
   EMOJIFIABLE_FIELDS = [:string_data]
