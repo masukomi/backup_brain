@@ -21,6 +21,12 @@
       </div>
       <div class="row">
         <div class="col">
+          <%= t("domain_triggers.mark_as_sensitive_label") %>:
+          <%= domain_trigger.mark_as_sensitive? ? "✅" : "❌" %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
           <%= t("domain_triggers.mark_to_read_label") %>:
           <%= domain_trigger.mark_to_read? ? "✅" : "❌" %>
         </div>
