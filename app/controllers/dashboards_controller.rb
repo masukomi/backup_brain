@@ -12,8 +12,8 @@ class DashboardsController < ApplicationController
     # TODO pick a better default
     @since = params[:since].blank? ? 1 : params[:since].to_i
     @until = params[:until].blank? ? 0 : params[:until].to_i
-    @until_date = @until.weeks.ago.end_of_month
-    @since_date = @since.weeks.ago.beginning_of_month
+    @until_date = @until.weeks.ago.end_of_week
+    @since_date = @since.weeks.ago.beginning_of_week
     query_params = {
       :created_at.gte => @since_date,
       :created_at.lte => @until_date
