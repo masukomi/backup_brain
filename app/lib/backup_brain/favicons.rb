@@ -62,5 +62,6 @@ module BackupBrain
       chop_length = Rails.root.to_s.length + 7 # 7 for "/public"
       absolute_path[chop_length..]
     end
+    module_function :strip_rails_root_public
   end
 end

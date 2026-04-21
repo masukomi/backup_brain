@@ -105,18 +105,16 @@ module ApplicationHelper
   end
 
   def maybe_favicon(domain)
-    return nil if Setting.get_value_of_key("enable_favicons")
+    return nil unless Setting.get_value_of_key("enable_favicons")
     favicon_url = BackupBrain::Favicons.cached_or_fetched_path(domain)
-    return nil unless favicon_url
-    # NOTE: Shouldn't we be able to use that url?
-    # FIXME ??
-    img_tag(favicon_path(domain_name: domain), class: "favicon", "aria-hidden": true)
+    return nil if favicon_url.blank?
+    image_tag(favicon_url, class: "favicon", "aria-hidden": true)
   end
 
   def maybe_favicon_link(domain, link, span_class: "no-wrap")
     img_tag = maybe_favicon(domain)
-    display_text = img_tag.present? ? "#{img_tag} #{domain}" : domain
-    "<span>#{link_to(display_text, link)}</span>".html_safe
+    display_text = (img_tag.present? ? "#{img_tag} #{domain}" : domain).html_safe
+    "<span class=\"#{span_class}\">#{link_to(display_text, link)}</span>".html_safe
   end
 
   def render_markdown(text)
