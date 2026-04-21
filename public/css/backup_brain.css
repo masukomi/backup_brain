@@ -161,10 +161,14 @@ heading > .inline-icon{
 	margin-right: 1.7rem;
 	white-space: nowrap;
 }
+.person-domains-row,
 .note-tags-and-date-row,
 .bookmark-tags-and-date-row {
 	display: flex;
 	height: 100%;
+}
+.person-domains-row{
+	margin-left: 0.5em;
 }
 .note-date-col,
 .bookmark-date-col {
@@ -253,7 +257,7 @@ heading > .inline-icon{
 }
 .setting-list-item,
 .note-list-item,
-.person-list_item,
+.person-list-item,
 .bookmark-list-item {
 	border: 1px dashed #aaaaaa;
 	border-radius: 0.5rem;
