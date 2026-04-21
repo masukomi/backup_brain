@@ -9,7 +9,7 @@ class Tag
   validates :name, uniqueness: true
   validate  :single_tag_only
 
-  before_save :downcase_name
+  before_save :clean_name
   before_destroy { |tag| Bookmark.remove_tag!(tag.name) }
 
   # BEGIN CLASS METHODS
@@ -132,8 +132,9 @@ class Tag
   private
 
   # THOU SHALT NOT USE UPPER CASE IN THINE TAGS!!! 😉
-  def downcase_name
-    name&.downcase
+  # NOR SHALT THOU BEGIN OR END THY TAGS WITH PERIODS!
+  def clean_name
+    name&.downcase&.gsub(/\A\.|\.\z/, "")
   end
 
   def single_tag_only
