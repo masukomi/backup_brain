@@ -30,19 +30,10 @@
         <heading><%= t('people.domains_heading') %></heading>
         <br />
 
-        <% @person.domains.each do | domain | %>
-          <span class="nobr inline-links">
-            <% if use_favicons
-              url = BackupBrain::Favicons.cached_or_fetched_path(domain)
-            %>
-            <% if url  %>
-              <img aria-hidden="true"
-                    class="favicon"
-                    src="<%= favicon_path(domain_name: domain) %>" />
-            <% end %>
-          <% end %>
-          <%= link_to(domain, "https://#{domain}") %>
-          </span>
+        <% @person.domains.each do | domain |
+             link="https://#{domain}"
+        %>
+          <%= maybe_favicon_link(domain, link, span_class: "no-br inline-links") %>
         <% end %>
       </div>
     </div>

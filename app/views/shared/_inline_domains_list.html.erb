@@ -2,17 +2,6 @@
     use_favicons = Setting.get_value_of_key('enable_favicons')
 %>
     <% domain_pairs.each do | domain, url | %>
-        <span class="no-wrap">
-            <% if use_favicons
-                favicon_url = BackupBrain::Favicons.cached_or_fetched_path(domain)
-               end
-            %>
-            <% if favicon_url  %>
-                <img aria-hidden="true"
-                        class="favicon"
-                        src="<%= favicon_path(domain_name: domain) %>" />
-            <% end %>
-            <%= link_to(domain, url) %>
-        </span>
+        <%= maybe_favicon_link(domain, url) %>
     <% end %>
 <% end %>

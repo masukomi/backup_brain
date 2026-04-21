@@ -113,11 +113,10 @@ module ApplicationHelper
     img_tag(favicon_path(domain_name: domain), class: "favicon", "aria-hidden": true)
   end
 
-  def maybe_favicon_link(domain, link)
+  def maybe_favicon_link(domain, link, span_class: "no-wrap")
     img_tag = maybe_favicon(domain)
     display_text = img_tag.present? ? "#{img_tag} #{domain}" : domain
-    url = "https://#{domain}"
-    link_to(display_text, url)
+    link_to(display_text, link)
     + "</span>".html_safe
   end
 

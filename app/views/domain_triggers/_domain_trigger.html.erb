@@ -4,12 +4,7 @@
 
       <div class="row">
         <div class="col">
-          <% if Setting.get_value_of_key('enable_favicons') == true %>
-            <img aria-hidden="true" class="favicon"
-                 src="<%= favicon_path(domain_name: domain_trigger.domain) %>" />
-          <% end %>
-          <%= link_to domain_trigger.domain, "https://#{domain_trigger.domain}",
-                      target: "_blank", rel: "noopener noreferrer" %>
+          <%= maybe_favicon_link(domain_trigger.domain, "https://#{domain_trigger.domain}") %>
         </div>
       </div>
 
