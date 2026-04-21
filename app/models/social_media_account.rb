@@ -373,9 +373,14 @@ class SocialMediaAccount
   end
 
   def extract_mastodon_full_username(data)
-    partial_username = data["acct"] # => mary@example.com
-    # because fuck consistency. That's why. Grrrr
-    partial_username.present? ? "@#{partial_username}" : nil
+    partial_username = data["acct"] # => mary
+    return nil if partial_username.blank?
+    host = begin
+      URI.parse(profile_url).host.downcase
+    rescue
+      nil
+    end
+    host.present? ? "@#{partial_username}@#{host}" : "@#{partial_username}"
   end
 
   def extract_mastodon_user_description(data)
