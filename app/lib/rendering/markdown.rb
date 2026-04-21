@@ -19,7 +19,7 @@ module Rendering
     end
 
     def render(raw_markdown)
-      if !/``` *mermaid/.match(raw_markdown)
+      rendered = if !/``` *mermaid/.match(raw_markdown)
         Redcarpet::Markdown.new(
           Hubdown::PygmentsRenderer.new({hard_wrap: false}),
           @md_options
@@ -27,6 +27,7 @@ module Rendering
       else
         fallback_render(raw_markdown)
       end
+      handle_spoilers(rendered)
     rescue MentosError => e # ClassNotFound => e
       simplified_message = e.message.sub(/.*?no lexer for alias '/m, "no lexer for alias '")
       # this will happen if someone specifies a language in codefences that
@@ -42,6 +43,10 @@ module Rendering
         Redcarpet::Render::HTML.new,
         @md_options
       ).render(raw_markdown)
+    end
+
+    def handle_spoilers(html)
+      html.gsub(/>!(?<spoiler>.*?)!</m, "<span class=\"blurred\">\\k<spoiler></span>")
     end
   end
 end
