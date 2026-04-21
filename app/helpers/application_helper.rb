@@ -116,8 +116,7 @@ module ApplicationHelper
   def maybe_favicon_link(domain, link, span_class: "no-wrap")
     img_tag = maybe_favicon(domain)
     display_text = img_tag.present? ? "#{img_tag} #{domain}" : domain
-    link_to(display_text, link)
-    + "</span>".html_safe
+    "<span>#{link_to(display_text, link)}</span>".html_safe
   end
 
   def render_markdown(text)
