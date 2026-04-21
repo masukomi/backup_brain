@@ -60,14 +60,14 @@ class Person
   # included in the list of domains
   def guarantee_home_url_domain
     if home_url
-      domains ||= []
+      self.domains ||= []
       home_url_domain = begin
         PublicSuffix.domain(URI.parse(home_url).host)&.downcase
       rescue
         nil
       end
       if home_url_domain.present? && domains.exclude?(home_url_domain)
-        domains << home_url_domain
+        self.domains << home_url_domain
       end
     end
   end
