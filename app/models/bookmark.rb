@@ -138,17 +138,10 @@ class Bookmark
   def set_domain
     return (self.domain = nil) if url.blank?
     self.domain = begin
-      PublicSuffix.domain(URI.parse(url).host)
+      URI.parse(url).host.downcase
     rescue
       nil
     end
-    # PublicSuffix uses the Public Suffix List:
-    # https://publicsuffix.org/
-    # to know that in "google.co.uk", "co.uk" is the domain suffix
-    # but in "google.com", ".com" is the suffix.
-    # calling .domain on it gets you the
-    # domain without the subdomains.
-    # eg myUsername.medium.com returns medium.com
   end
 
   # Generates a new archive asynchronously

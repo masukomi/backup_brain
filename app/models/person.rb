@@ -62,7 +62,7 @@ class Person
     if home_url
       self.domains ||= []
       home_url_domain = begin
-        PublicSuffix.domain(URI.parse(home_url).host)&.downcase
+        URI.parse(home_url).host.downcase
       rescue
         nil
       end
