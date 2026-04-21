@@ -11,14 +11,6 @@
         </div>
       </div>
 
-      <% if person.description.present? %>
-        <div class="row">
-          <div class="col">
-            <%== render_markdown(person.description) %>
-          </div>
-        </div>
-      <% end %>
-
       <% if person.social_media_accounts.any? %>
         <div class="row">
           <div class="col metadata">
@@ -31,7 +23,7 @@
       <% end %>
       <% if person.domains&.any? %>
         <div class="row bookmark-tags-and-date-row small-top-margin">
-          <div class="col-9">
+          <div class="col">
             <%= render partial: 'shared/inline_domains_list',
                       locals: {domain_pairs: Hash[*person.domains.map{|d| [d, "https://#{d}"]}.flatten]} %>
           </div>
