@@ -529,10 +529,10 @@ debugging::before{
 .heading-person-avatar,
 .person-avatar {
 	max-width: 4em;
-	border-radius: 100%;
+	border-radius: 50%;
 }
 .heading-person-avatar{
-	padding-right: 0.5em;
+	margin-right: 0.5em;
 }
 .sma-header-image {
 	width: 100%;
