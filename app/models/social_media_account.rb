@@ -313,8 +313,16 @@ class SocialMediaAccount
   end
 
   def extract_misskey_full_username(data)
-    return nil if data&.dig("username").blank?
+    username = data&.dig("username")
+    return nil if username.blank?
     host = data["host"]
+    if host.blank?
+      host = begin
+        URI.parse(profile_url).host.downcase
+      rescue
+        nil
+      end
+    end
     host.present? ? "@#{data["username"]}@#{host}" : "@#{data["username"]}"
   end
 
