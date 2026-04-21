@@ -3,10 +3,12 @@ import "@hotwired/turbo-rails"
 import "controllers"
 
 document.addEventListener("click", (event) => {
-  const blurred = event.target.closest(".blurred")
+  const blurred = event.target.closest(".blurred, spoiler")
   if (blurred) {
     event.preventDefault()
     event.stopPropagation()
     blurred.classList.remove("blurred")
+    blurred.removeAttribute("data-spoiler")
+    blurred.outerHTML = blurred.outerHTML.replace(/^<spoiler/, "<span").replace(/<\/spoiler>$/, "</span>")
   }
 })
