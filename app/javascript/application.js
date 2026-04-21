@@ -7,8 +7,12 @@ document.addEventListener("click", (event) => {
   if (blurred) {
     event.preventDefault()
     event.stopPropagation()
-    blurred.classList.remove("blurred")
-    blurred.removeAttribute("data-spoiler")
-    blurred.outerHTML = blurred.outerHTML.replace(/^<spoiler/, "<span").replace(/<\/spoiler>$/, "</span>")
+    if (blurred.tagName.toLowerCase() === "spoiler") {
+      const span = document.createElement("span")
+      span.innerHTML = blurred.innerHTML
+      blurred.replaceWith(span)
+    } else {
+      blurred.classList.remove("blurred")
+    }
   }
 })
