@@ -22,8 +22,7 @@
       </div>
     </div>
   <% end %>
-  <% if @person.domains.present?
-    use_favicons = Setting.get_value_of_key('enable_favicons')
+  <% if list_persons_domains?(@person)
   %>
     <div class="row safe-space">
       <div class="col">
