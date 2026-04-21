@@ -67,6 +67,7 @@ module Rendering
       html
         .gsub(/&gt;!(?<spoiler>.*?)!&lt;/m, "<spoiler>\\k<spoiler></spoiler>")
         .gsub(/<p><(\/?)spoiler><\/p>/, "<\\1spoiler>")
+        .gsub("<p><spoiler>", "<spoiler><p>")
     end
   end
 end
