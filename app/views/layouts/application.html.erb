@@ -78,10 +78,10 @@
 
     <div class="container" id="body-sections">
       <div class="row">
-        <div class="col-8" id="main-body">
+        <div class="col" id="main-body">
           <%= yield %>
         </div>
-        <div class="col" id="side-navigation">
+        <div class="col-4" id="side-navigation">
           <%= render partial: 'shared/side_navigation' %>
           <%= yield :sidebar %>
 

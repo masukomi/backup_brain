@@ -4,59 +4,58 @@
    %>
 <div tabindex="0" id="<%= dom_id bookmark %>" class="container bookmark-list-item <%= privacy_class %> <%= to_read_class %>">
   <%# inline flash row %>
-  <div class="row">
-    <div class="col">
-      <% if defined?(inline_flash) %>
-        <%= render partial: 'shared/inline_flash',
-            locals: {inline_flash: inline_flash} %>
-      <% end %>
+  <% if defined?(inline_flash) %>
+    <div class="row">
+      <div class="col">
+          <%= render partial: 'shared/inline_flash',
+              locals: {inline_flash: inline_flash} %>
+      </div>
     </div>
-  </div>
+  <% end %>
   <%# content row %>
   <div class="row">
     <%# everything but action items %>
-    <div class="col-8">
+    <div class="col-9 col-md-9 col-sm-12">
+      <div class="container">
+        <%# favicon %>
+        <div class="row">
+          <div class="col">
+            <% sma = bookmark.social_media_accounts&.first
+            # there should never be more than one in this direction
 
-      <%# favicon %>
-      <div class="row">
-        <div class="col">
-          <% sma = bookmark.social_media_accounts&.first
-          # there should never be more than one in this direction
-
-          if sma.present? && sma.avatar_image_path.present? %>
-              <img aria-hidden="true" class="favicon"
-                  src="<%= sma.avatar_image_path %>" />
-          <% elsif Setting.get_value_of_key('enable_favicons') == true %>
-            <% if bookmark.domain.present? %>
-              <img aria-hidden="true" class="favicon"
-                  src="<%= favicon_path(domain_name: bookmark.domain) %>" />
-            <% else %>
-              <%= inline_icon("missing_image", icon_class: "favicon", aria_hidden: true) %>
+            if sma.present? && sma.avatar_image_path.present? %>
+                <img aria-hidden="true" class="favicon"
+                    src="<%= sma.avatar_image_path %>" />
+            <% elsif Setting.get_value_of_key('enable_favicons') == true %>
+              <% if bookmark.domain.present? %>
+                <img aria-hidden="true" class="favicon"
+                    src="<%= favicon_path(domain_name: bookmark.domain) %>" />
+              <% else %>
+                <%= inline_icon("missing_image", icon_class: "favicon", aria_hidden: true) %>
+              <% end %>
             <% end %>
-          <% end %>
-          <%= link_to(bookmark.title, bookmark.url) %>
+            <%= link_to(bookmark.title, bookmark.url) %>
+          </div>
+        </div>
+
+        <%# description %>
+        <div class="row">
+          <div class="col<%= sensitive_class %>">
+            <% if bookmark.description.present? %>
+              <%== render_markdown(bookmark.description) %>
+            <% else %>
+              &nbsp;
+            <% end %>
+          </div>
         </div>
       </div>
-
-      <%# description %>
-      <div class="row">
-        <div class="col<%= sensitive_class %>">
-          <% if bookmark.description.present? %>
-            <%== render_markdown(bookmark.description) %>
-          <% else %>
-            &nbsp;
-          <% end %>
-        </div>
-      </div>
-
-
-    </div> <%# end col-8 main bookmark section %>
+    </div>
+    <%# -- END  title and description rows%>
 
 
 
     <%#--- action icons -- %>
-    <div class="col">
-      <div class="action-icons">
+    <div class="col-3 col-md-3 col-sm-12 action-items">
         <!-- archive action -->
         <% if bookmark.has_archive? %>
           <div class="action-icon">
@@ -193,18 +192,18 @@
 
           </div>
       <% end %> <!-- end requires login -->
-      </div> <!-- end action-icons -->
     </div>
+  </div> <%# end row with title+dec | action items %>
       <%# tags %>
-      <div class="row bookmark-tags-and-date-row">
-        <div class="col-9<%= sensitive_class %>">
-          <%= render partial: 'shared/inline_tag_list',
-                     locals: {tags: bookmark.tags} %>
-        </div>
-        <div class="col bookmark-date-col metadata">
-          <%== bookmark.created_at.strftime(t('date.formats.default')) %>
-        </div>
-      </div>
 
+  <div class="row bookmark-tags-and-date-row">
+    <div class="col<%= sensitive_class %>">
+      <%= render partial: 'shared/inline_tag_list',
+                  locals: {tags: bookmark.tags} %>
+      <span class="bookmark-date-col metadata inline-block" style="float: right">
+        <%== bookmark.created_at.strftime(t('date.formats.default')) %>
+      </span>
+    </div>
   </div>
+
 </div>

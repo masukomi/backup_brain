@@ -25,11 +25,7 @@
       </div>
     <% end %>
     <% @bookmarks.each do |bookmark| %>
-      <div class="row">
-        <div class="col">
           <%= render bookmark %>
-        </div>
-      </div>
     <% end %>
     <% if ! @pagy.nil? && @pagy.count > (@pagy.items * @pagy.page) %>
       <div class="row">
