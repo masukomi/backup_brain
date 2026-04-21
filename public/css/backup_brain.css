@@ -253,6 +253,7 @@ heading > .inline-icon{
 }
 .setting-list-item,
 .note-list-item,
+.person-list_item,
 .bookmark-list-item {
 	border: 1px dashed #aaaaaa;
 	border-radius: 0.5rem;
@@ -526,6 +527,9 @@ debugging::before{
 	z-index: 1000;
 }
 /* people */
+.person-list-item .favicon {
+	border-radius: 25%;
+}
 .heading-person-avatar,
 .person-avatar {
 	max-width: 4em;
