@@ -19,11 +19,22 @@ class DashboardsController < ApplicationController
       :created_at.lte => @until_date
     }
 
-    @grouped_bookmarks = Bookmark.where(query_params).to_a.group_by_day { |b| b.created_at }
+    if cookies[:hide_private].present?
+      query_params.merge!({private: false})
+      @grouped_people = {}
+    else
+      @grouped_people = Person.where(query_params).to_a.group_by_day { |b| b.created_at }
+    end
 
-    @grouped_notes = Note.where(query_params).to_a.group_by_day { |b| b.created_at }
+    @grouped_bookmarks = Bookmark
+      .where(query_params)
+      .to_a
+      .group_by_day { |b| b.created_at }
 
-    @grouped_people = Person.where(query_params).to_a.group_by_day { |b| b.created_at }
+    @grouped_notes = Note
+      .where(query_params)
+      .to_a
+      .group_by_day { |b| b.created_at }
 
     @grouped_dailies = merge_groupings(
       [@grouped_bookmarks, @grouped_notes, @grouped_people],
