@@ -6,8 +6,27 @@
   --bb-page-bg: #e6dac4;
   --bb-text-primary: #282418;
 
+  /* Pagination */
+  --bb-pagination-active-color: #1c1b19;
+  --bb-pagination-active-bg: #e08060;
+  --bb-pagination-disabled-color: #1c1b19;
+  --bb-pagination-disabled-bg: #7890a0;
+  --bb-pagination-color: #1c1b19;
+  --bb-pagination-bg: #c8b468;
+  --bb-pagination-border-color: #988090;
+
+  /* buttons */
+  --bb-button-primary-color:  #1c1b19;
+  --bb-button-primary-bg: #e08060;
+  --bb-button-primary-border: #e08060;
+
+  --bb-button-secondary-color:  #fff;
+  --bb-button-secondary-bg: #7890a0;
+  --bb-button-secondary-border: #7890a0;
+
   /* Surfaces */
   --bb-surface-bg: #d8ccb4;       /* slightly darker than page bg */
+  /* --bb-surface-bg: #c09058; */
 
   /* Borders */
   --bb-border-muted: #b8ac98;
@@ -47,7 +66,7 @@
 
   /* SVG icon filters */
   --bb-filter-icon-muted: invert(30%) sepia(5%) saturate(200%) hue-rotate(340deg) brightness(85%) contrast(85%);
-  --bb-filter-icon-accent: invert(30%) sepia(30%) saturate(600%) hue-rotate(180deg) brightness(70%) contrast(95%);
+  --bb-filter-icon-accent: invert(53%) sepia(30%) saturate(320%) hue-rotate(168deg) brightness(68%) contrast(95%);
   --bb-filter-icon-remove: invert(30%) sepia(30%) saturate(600%) hue-rotate(180deg) brightness(70%) contrast(95%);
   --bb-filter-icon-delete: invert(25%) sepia(20%) saturate(700%) hue-rotate(330deg) brightness(80%) contrast(95%);
   --bb-filter-icon-to-read: invert(30%) sepia(30%) saturate(600%) hue-rotate(180deg) brightness(70%) contrast(95%);
