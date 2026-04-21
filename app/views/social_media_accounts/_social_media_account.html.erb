@@ -8,7 +8,7 @@
   <% end %>
 
   <div class="row">
-    <div class="col-8">
+    <div class="col-8 col-md-12 col-sm-12">
       <div class="row">
         <div class="col">
           <% if sma.avatar_image_path.present? %>
@@ -23,9 +23,9 @@
         </div>
       </div>
       <div class="row">
-        <div class="col">
+        <div class="col-8 col-md-12 col-sm-12">
           <% if sma.description.present? %>
-            <%= render_markdown(sma.description).html_safe %>
+            <%== render_markdown(sma.description) %>
           <% elsif sma.has_supported_service?() && (sma.created_at > 3.minutes.ago) %>
             <%= t("social_media_accounts.gathering_info") %>
           <% elsif sma.has_supported_service? %>
@@ -35,7 +35,7 @@
       </div>
     </div>
 
-    <div class="col">
+    <div class="col-4 col-md-12 col-sm-12">
       <div class="action-icons">
         <div class="action-icon delete-action-icon">
           <%== link_to image_tag("/images/icons/delete.svg",
