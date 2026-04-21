@@ -46,7 +46,7 @@ module Rendering
     end
 
     def handle_spoilers(html)
-      html.gsub(/>!(?<spoiler>.*?)!</m, "<span class=\"blurred\">\\k<spoiler></span>")
+      html.gsub(/(?:>|&gt;)!(?<spoiler>.*?)!(?:<|&lt;)/m, "<span class=\"blurred\">\\k<spoiler></span>")
     end
   end
 end
