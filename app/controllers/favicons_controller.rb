@@ -8,15 +8,9 @@ class FaviconsController < ApplicationController
     domain = sanitize_domain(params[:domain_name])
     return redirect_to(BackupBrain::Favicons::MISSING_FAVICON_PATH) if domain.blank?
 
-    cached = find_cached_favicon(domain)
+    cached = cached_or_fetched_path(domain)
 
-    if cached
-      send_file cached, disposition: "inline"
-    elsif (new_cached = fetch_and_cache_favicon(domain))
-      send_file new_cached.to_s, disposition: "inline"
-    else
-      redirect_to BackupBrain::Favicons::MISSING_FAVICON_PATH
-    end
+    redirect_to cached || BackupBrain::Favicons::MISSING_FAVICON_PATH
   end
 
   private

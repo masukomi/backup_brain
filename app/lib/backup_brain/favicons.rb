@@ -8,6 +8,9 @@ module BackupBrain
     FAVICON_CACHE_DIR  = Rails.public_path.join("images/favicons")
     MISSING_IMAGE_PATH = "/images/icons/missing_image_image.svg"
 
+    # @param [String] domain like example.com
+    # @returns [String|NillClass] servable path to image
+    #                             E.g. /images/favicons/foo_com.png
     def cached_or_fetched_path(domain)
       path = find_cached_favicon(domain)
       return path if path
@@ -15,13 +18,21 @@ module BackupBrain
     end
     module_function :cached_or_fetched_path
 
+    # @param [String] domain like example.com
+    # @return [String|NillClass] servable path to image
+    #                             E.g. /images/favicons/foo_com.png
     def find_cached_favicon(domain)
-      Dir.glob(FAVICON_CACHE_DIR.join("#{domain_to_stem(domain)}.*")).first
+      absolute_path = Dir.glob(FAVICON_CACHE_DIR.join("#{domain_to_stem(domain)}.*")).first
+      return nil unless absolute_path
+      strip_rails_root_public(absolute_path)
     end
     module_function :find_cached_favicon
 
+    # @param [String] domain like example.com
+    # @return [String] downcased & periods replaced with underscores
+    #                  E.g. Foo.com → foo_com
     def domain_to_stem(domain)
-      domain.gsub(".", "_")
+      domain.downcase.gsub(".", "_")
     end
     module_function :domain_to_stem
 
@@ -39,12 +50,17 @@ module BackupBrain
       dest_path    = FAVICON_CACHE_DIR.join("#{domain_to_stem(domain)}#{ext}")
 
       File.binwrite(dest_path, response.body)
-      dest_path
+      strip_rails_root_public(dest_path)
     rescue => e
       Rails.logger.error "[FaviconsController] Failed to fetch favicon for '#{domain}': #{e.message}"
       nil
     end
 
     module_function :fetch_and_cache_favicon
+
+    def strip_rails_root_public(absolute_path)
+      chop_length = Rails.root.to_s.length + 7 # 7 for "/public"
+      absolute_path[chop_length..]
+    end
   end
 end

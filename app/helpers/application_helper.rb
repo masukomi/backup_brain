@@ -104,6 +104,23 @@ module ApplicationHelper
     @@html_entities.decode(text)
   end
 
+  def maybe_favicon(domain)
+    return nil if Setting.get_value_of_key("enable_favicons")
+    favicon_url = BackupBrain::Favicons.cached_or_fetched_path(domain)
+    return nil unless favicon_url
+    # NOTE: Shouldn't we be able to use that url?
+    # FIXME ??
+    img_tag(favicon_path(domain_name: domain), class: "favicon", "aria-hidden": true)
+  end
+
+  def maybe_favicon_link(domain, link)
+    img_tag = maybe_favicon(domain)
+    display_text = img_tag.present? ? "#{img_tag} #{domain}" : domain
+    url = "https://#{domain}"
+    link_to(display_text, url)
+    + "</span>".html_safe
+  end
+
   def render_markdown(text)
     ::Rendering::Markdown.instance.render(text)
   end
