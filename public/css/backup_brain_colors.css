@@ -1,0 +1,53 @@
+/* Default color theme — current BackupBrain palette as CSS custom properties.
+   Swap this file for a theme variant to change the site's color scheme. */
+:root {
+  /* Page */
+  --bb-page-bg: #ffffff;
+  --bb-text-primary: #484337;
+
+  /* Surfaces (header, footer, private items, toggle) */
+  --bb-surface-bg: #f0f8ff;
+
+  /* Borders */
+  --bb-border-muted: #aaaaaa;
+  --bb-border-light: #cccccc;
+
+  /* Muted / secondary text */
+  --bb-text-muted: #aaaaaa;
+  --bb-text-secondary: slategray;
+  --bb-admin-text: #4c4b4b;
+
+  /* Accents */
+  --bb-accent-primary: #64b2fd;   /* to-read, support links */
+  --bb-code: #0d6efd;             /* inline <code> */
+  --bb-code-meta: #182777;        /* code inside .metadata */
+
+  /* Errors / debugging */
+  --bb-error: #ff6e67;
+
+  /* Tag chip input */
+  --bb-tag-input-bg: #ffffff;
+  --bb-tag-input-border: #8f8f9d;
+  --bb-tag-focus-border: #86b7fe;
+  --bb-tag-focus-shadow: rgba(13, 110, 253, 0.25);
+  --bb-tag-chip-bg: #86b7fe;
+  --bb-tag-chip-remove: #6c757d;
+  --bb-tag-chip-remove-hover: #000000;
+
+  /* Blockquote */
+  --bb-blockquote-bg: #f9f9f9;
+  --bb-blockquote-border: #cccccc;
+
+  /* Timestamps */
+  --bb-timestamp: lightblue;
+
+  /* Timeline */
+  --bb-timeline-breaker-bg: #2d4747;
+
+  /* SVG icon filters */
+  --bb-filter-icon-muted: invert(76%) sepia(7%) saturate(8%) hue-rotate(346deg) brightness(91%) contrast(83%);
+  --bb-filter-icon-accent: invert(66%) sepia(5%) saturate(7087%) hue-rotate(183deg) brightness(100%) contrast(108%);
+  --bb-filter-icon-remove: invert(90%) sepia(21%) saturate(2312%) hue-rotate(229deg) brightness(106%) contrast(106%);
+  --bb-filter-icon-delete: invert(30%) sepia(13%) saturate(1706%) hue-rotate(314deg) brightness(108%) contrast(95%);
+  --bb-filter-icon-to-read: invert(60%) sepia(86%) saturate(693%) hue-rotate(181deg) brightness(99%) contrast(102%);
+}
