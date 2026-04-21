@@ -28,7 +28,7 @@
                     src="<%= sma.avatar_image_path %>" />
             <% elsif Setting.get_value_of_key('enable_favicons') == true %>
               <% if bookmark.domain.present? %>
-                <%= maybe_favicon(domain) %>
+                <%= maybe_favicon(bookmark.domain) %>
               <% else %>
                 <%= inline_icon("missing_image", icon_class: "favicon", aria_hidden: true) %>
               <% end %>
