@@ -78,6 +78,9 @@ Rails.application.routes.draw do
   get    "access/api_keys/:id/rename",        controller: :access, action: :rename_api_key_form,    as: :rename_api_key_form
   patch  "access/api_keys/:id/rename",        controller: :access, action: :rename_api_key,         as: :rename_api_key
 
+  post   "privacy/hide", controller: :privacy, action: :hide_private, as: :hide_private
+  delete "privacy/hide", controller: :privacy, action: :show_private, as: :show_private
+
   # Tell those script kiddes to fuck off.
   # Is this needed? no.
   # Does it work? Depends on how you define "work"

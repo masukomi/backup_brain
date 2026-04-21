@@ -92,7 +92,7 @@ class BookmarksController < ApplicationController
       sort: sort_params,
       offset: (@limit * (@page - 1)) # number of resources skipped
     }
-    unless user_signed_in?
+    unless user_signed_in? && cookies[:hide_private].blank?
       options[:filter] = "private = false"
     end
 
@@ -389,7 +389,11 @@ class BookmarksController < ApplicationController
   end
 
   def privatize(query)
-    user_signed_in? ? query : query.where(private: false)
+    if user_signed_in? && cookies[:hide_private].blank?
+      query
+    else
+      query.where(private: false)
+    end
   end
 
   def set_to_read(to_read)

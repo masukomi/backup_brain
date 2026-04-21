@@ -25,6 +25,13 @@
 
         <%# WITH LOGGED IN USER %>
         <% if current_user %>
+          <li>
+            <% if cookies[:hide_private].present? %>
+              <%= button_to t('navigation.show_private'), show_private_path, method: :delete, class: "btn btn-small btn-secondary mx-2 compact-button safe-space" %>
+            <% else %>
+              <%= button_to t('navigation.hide_private'), hide_private_path, method: :post, class: "btn btn-small btn-secondary mx-2 compact-button safe-space" %>
+            <% end %>
+          </li>
           <li><%= button_to t('accounts.links.sign_out'), destroy_user_session_path, method: :delete, class: "btn btn-small btn-primary mx-2 compact-button safe-space" %></li>
         <%# WITHOUT LOGIN BUT WITH A USER EXISITNG %>
         <% elsif @user_count > 0 %>

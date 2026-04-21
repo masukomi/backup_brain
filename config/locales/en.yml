@@ -76,6 +76,8 @@ en:
     source_link: "Source Code & Issues"
     to_read_link: "To Read"
     unarchived_link: "Unarchived"
+    hide_private: "Hide Private"
+    show_private: "Show Private"
   search:
     missing_query: "You gotta give me something to work with here. 🤦‍♀️"
     placeholder: "Search…"

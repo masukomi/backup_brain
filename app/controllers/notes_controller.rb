@@ -75,7 +75,11 @@ class NotesController < ApplicationController
   end
 
   def privatize(query)
-    user_signed_in? ? query : query.where(private: false)
+    if user_signed_in? && cookies[:hide_private].blank?
+      query
+    else
+      query.where(private: false)
+    end
   end
 
   def apply_tag_filter(tags, query)
