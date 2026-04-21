@@ -422,8 +422,8 @@ en:
       heading: "Dailies"
       default_date_prefix: "Week of"
       sidebar_link: "Dailies"
-      previous_month: "〈 Previous Month"
-      next_month: "Next Month 〉"
+      previous_month: "〈 Previous Week"
+      next_month: "Next Week 〉"
       no_records_strftime: "%B %d, %Y"
       no_records_in_range: "No records created from %{since} → %{until}"
       # TODO deal with this not working for rtl languages
