@@ -238,3 +238,19 @@ attempting to archive a bookmarked page.",
     }
   )
 end
+
+# archival_requests_timeout setting ─────────────────────────────
+if Setting.where(lookup_key: "theme_names").count == 0
+  warn("creating theme_names setting")
+
+  Setting.create!(
+    {
+      lookup_key: "theme_names",
+      summary: "A list of available themes to choose from",
+      description: "These correspond to CSS file names of different themes available to choose from.",
+      visible: true,
+      value_type: "array",
+      value: {value: %w[default ember]}
+    }
+  )
+end

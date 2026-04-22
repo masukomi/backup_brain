@@ -1,0 +1,23 @@
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <heading><%= t("administration.themes.heading") %></heading>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <%= form_with url: set_administration_theme_path, method: :post do |f| %>
+        <div class="form-row">
+          <%= f.label :theme, t("administration.themes.label"), class: "form-label" %>
+          <%= f.select :theme,
+                @theme_names.map { |n| [n.capitalize, n] },
+                { selected: @current_theme },
+                { class: "form-select", onchange: "this.form.submit()" } %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

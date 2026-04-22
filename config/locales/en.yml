@@ -118,6 +118,10 @@ en:
   administration:
     heading: "Administration"
     nav_link: "Administration"
+    themes:
+      heading: "Themes"
+      label: "Color Themes"
+      nav_link: "Themes"
   settings:
     nav_link: "Settings"
     icon_alt: "Gear icon with central heart"
@@ -247,6 +251,9 @@ en:
           as database schemas change over time.
 
           **⚠️ DO NOT ALTER THIS.**
+      theme_names:
+        summary: "A list of available themes to choose from"
+        description: "These correspond to CSS file names of different themes available to choose from. See documentation for details."
       whisper_model_path:
         summary: "File path to a downloaded Whisper model."
         decription: >-

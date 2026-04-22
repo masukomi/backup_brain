@@ -22,9 +22,8 @@
     <%= stylesheet_link_tag "/css/timeline.css" %>
     <%= stylesheet_link_tag "/css/bootstrap_docs.css" %>
     <%= stylesheet_link_tag "/css/backup_brain.css?cache_buster=#{SecureRandom.uuid}" %>
-    <%#= stylesheet_link_tag "/css/backup_brain_colors_default.css?cache_buster=#{SecureRandom.uuid}" %>
-    <%= stylesheet_link_tag "/css/backup_brain_colors_ember.css?cache_buster=#{SecureRandom.uuid}" %>
-    <%#= stylesheet_link_tag "/css/backup_brain_ember_dark.css?cache_buster=#{SecureRandom.uuid}" %>
+    <% bb_theme = cookies[:bb_theme].presence || "default" %>
+    <%= stylesheet_link_tag "/css/backup_brain_colors_#{bb_theme}.css?cache_buster=#{SecureRandom.uuid}", id: "color-theme-css" %>
     <%= javascript_include_tag "/js/popper.min.js" %>
     <%= javascript_include_tag "/js/jquery-3.0.0.slim.min.js" %>
     <%= javascript_include_tag "/js/bootstrap.js" %>

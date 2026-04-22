@@ -43,6 +43,8 @@ Rails.application.routes.draw do
   get "archives/:object_type/:id/:grouping/:filename", controller: :archives, action: :show
   get "archives/:object_type/:id/:filename", controller: :archives, action: :show
 
+  get  "administration/themes", controller: :administration, action: :themes,    as: :administration_themes
+  post "administration/themes", controller: :administration, action: :set_theme, as: :set_administration_theme
   get "administration", controller: :administration, action: :index, as: :administration
 
   get "importer", controller: :importer, action: :index, as: :importer_form
