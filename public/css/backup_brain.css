@@ -160,6 +160,9 @@ heading > .inline-icon{
 	max-width: 1rem;
 	filter: var(--bb-filter-icon-accent);
 }
+img.delete-icon {
+	filter: var(--bb-filter-icon-delete);
+}
 .icon-link-text {
 	display: inline;
 	margin-left: 0.25rem;
@@ -169,6 +172,7 @@ heading > .inline-icon{
 	color: var(--bb-button-primary-color);
 	background-color: var(--bb-button-primary-bg);
 	border-color: var(--bb-button-primary-border);
+	font-weight: bold;
 }
 .btn-secondary {
 	color: var(--bb-button-secondary-color);
