@@ -51,10 +51,9 @@ class BookmarksController < ApplicationController
   end
 
   def tagged_with
-    @query_tags = params[:tags].split(",")
+    @query_tags = params[:tags]&.split(",") || []
     if @query_tags.blank?
-      flash_message(:notice, t("tags.errors.no_tags_provided"))
-      redirect_to :index
+      redirect_to bookmarks_path
       return
     end
 

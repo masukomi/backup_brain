@@ -4,27 +4,27 @@
             pagy: pagy,
             query: @query,
             limit: @limit,
-            tags: @tags
+            tags: @query_tags
     )
 
   elsif action_name == 'unarchived'
     links_hash=get_pagination_links_for_unarchived(
             pagy: pagy,
             limit: @limit,
-            tags: @tags
+            tags: @query_tags
     )
 
   elsif action_name == 'to_read'
     links_hash=get_pagination_links_for_unread(
             pagy: pagy,
             limit: @limit,
-            tags: @tags
+            tags: @query_tags
     )
   else
     links_hash=get_pagination_links_for_default(
             pagy: pagy,
             limit: @limit,
-            tags: @tags
+            tags: @query_tags
     )
 
 

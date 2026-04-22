@@ -2,6 +2,7 @@ Rails.application.routes.draw do
   devise_for :users
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
   get "bookmarks/search", controller: :bookmarks, action: :search, as: :bookmarks_search
+  get "bookmarks/tagged_with",       controller: :bookmarks, action: :tagged_with, as: :bookmarks_tagged_with_nothing
   get "bookmarks/tagged_with/:tags", controller: :bookmarks, action: :tagged_with, as: :bookmarks_tagged_with
   get "bookmarks/unarchived", controller: :bookmarks, action: :unarchived, as: :bookmarks_unarchived
   get "bookmarks/to_read", controller: :bookmarks, action: :to_read, as: :bookmarks_to_read
