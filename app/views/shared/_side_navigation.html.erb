@@ -2,6 +2,14 @@
   <div class="row">
     <div class="col">
       <ul id="side-nav-items">
+        <li data-controller="color-scheme"
+            data-color-scheme-dark-label-value="<%= t('navigation.enable_dark_mode') %>"
+            data-color-scheme-light-label-value="<%= t('navigation.enable_light_mode') %>">
+          <a href="#" data-action="click->color-scheme#toggle">
+            <img src="/images/icons/moon.svg" data-color-scheme-target="icon" class="inline-icon">
+            <span data-color-scheme-target="label"><%= t('navigation.enable_dark_mode') %></span>
+          </a>
+        </li>
         <% if ! current_user %>
           <li><span class="learn-more"><a href="https://BackupBrain.app" title="<%= t('misc.learn_more_title')%>"><%==t('misc.learn_more_link')%></a></span></li>
         <% else %>

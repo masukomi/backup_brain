@@ -1,91 +1,91 @@
 /* Ember theme — https://github.com/ember-theme/ember
-   Automatically switches between light and dark variants based on OS preference.
+   Light is the default. Switches to dark via OS preference or [data-color-scheme="dark"]
+   on <html>. Swap this file for a single-variant file to pin to one scheme.
    Light: bg #e6dac4  fg #282418  hero accent coral #b84c30
    Dark:  bg #1c1b19  fg #d8d0c0  hero accent coral #e08060 */
 
-@media (prefers-color-scheme: light) {
-  :root {
-    /* Page */
-    --bb-page-bg: #e6dac4;
-    --bb-text-primary: #282418;
-    --bb-text-input-bg: #e6dac4;
+/* ── Light (default) ──────────────────────────────────────────────────────── */
+:root {
+  /* Page */
+  --bb-page-bg: #e6dac4;
+  --bb-text-primary: #282418;
+  --bb-text-input-bg: #e6dac4;
 
-    /* Pagination */
-    --bb-pagination-active-color: #1c1b19;
-    --bb-pagination-active-bg: #e08060;
-    --bb-pagination-disabled-color: #1c1b19;
-    --bb-pagination-disabled-bg: #7890a0;
-    --bb-pagination-color: #1c1b19;
-    --bb-pagination-bg: #c8b468;
-    --bb-pagination-border-color: #988090;
+  /* Pagination */
+  --bb-pagination-active-color: #1c1b19;
+  --bb-pagination-active-bg: #e08060;
+  --bb-pagination-disabled-color: #1c1b19;
+  --bb-pagination-disabled-bg: #7890a0;
+  --bb-pagination-color: #1c1b19;
+  --bb-pagination-bg: #c8b468;
+  --bb-pagination-border-color: #988090;
 
-    /* Buttons */
-    --bb-button-primary-color: #1c1b19;
-    --bb-button-primary-bg: #e08060;
-    --bb-button-primary-border: #e08060;
-    --bb-button-secondary-color: #fff;
-    --bb-button-secondary-bg: #7890a0;
-    --bb-button-secondary-border: #7890a0;
+  /* Buttons */
+  --bb-button-primary-color: #1c1b19;
+  --bb-button-primary-bg: #e08060;
+  --bb-button-primary-border: #e08060;
+  --bb-button-secondary-color: #fff;
+  --bb-button-secondary-bg: #7890a0;
+  --bb-button-secondary-border: #7890a0;
 
-    /* Toggles */
-    --bb-toggle-on-bg: #e08060;
+  /* Toggles */
+  --bb-toggle-on-bg: #e08060;
 
-    /* Surfaces */
-    --bb-surface-bg: #d8ccb4;
+  /* Surfaces */
+  --bb-surface-bg: #d8ccb4;
 
-    /* Borders */
-    --bb-border-muted: #b8ac98;
-    --bb-border-light: #c8bc9a;
+  /* Borders */
+  --bb-border-muted: #b8ac98;
+  --bb-border-light: #c8bc9a;
 
-    /* Muted / secondary text */
-    --bb-text-muted: #706070;       /* mauve light */
-    --bb-text-secondary: #706070;   /* mauve light */
-    --bb-admin-text: #4a4040;
+  /* Muted / secondary text */
+  --bb-text-muted: #706070;       /* mauve light */
+  --bb-text-secondary: #706070;   /* mauve light */
+  --bb-admin-text: #4a4040;
 
-    /* Accents */
-    --bb-accent-primary: #3a6080;   /* steel light */
-    --bb-code: #7a6820;             /* gold light */
-    --bb-code-meta: #3a6080;        /* steel light */
+  /* Accents */
+  --bb-accent-primary: #3a6080;   /* steel light */
+  --bb-code: #7a6820;             /* gold light */
+  --bb-code-meta: #3a6080;        /* steel light */
 
-    /* Errors */
-    --bb-error: #905050;            /* rose light */
+  /* Errors */
+  --bb-error: #905050;            /* rose light */
 
-    /* Tag chip input */
-    --bb-tag-input-border: #b8ac98;
-    --bb-tag-focus-border: #b84c30; /* coral light */
-    --bb-tag-focus-shadow: rgba(184, 76, 48, 0.25);
-    --bb-tag-chip-bg: #386858;      /* sage light */
-    --bb-tag-chip-remove: #706070;  /* mauve light */
-    --bb-tag-chip-remove-hover: #282418;
+  /* Tag chip input */
+  --bb-tag-input-border: #b8ac98;
+  --bb-tag-focus-border: #b84c30; /* coral light */
+  --bb-tag-focus-shadow: rgba(184, 76, 48, 0.25);
+  --bb-tag-chip-bg: #386858;      /* sage light */
+  --bb-tag-chip-remove: #706070;  /* mauve light */
+  --bb-tag-chip-remove-hover: #282418;
 
-    /* Blockquote */
-    --bb-blockquote-bg: #ddd0b8;
-    --bb-blockquote-border: #b8ac98;
+  /* Blockquote */
+  --bb-blockquote-bg: #ddd0b8;
+  --bb-blockquote-border: #b8ac98;
 
-    /* Timestamps */
-    --bb-timestamp: #3a6080;        /* steel light */
+  /* Timestamps */
+  --bb-timestamp: #3a6080;        /* steel light */
 
-    /* Timeline */
-    --bb-timeline-breaker-bg: #c8b890;
+  /* Timeline */
+  --bb-timeline-breaker-bg: #c8b890;
 
-    /* SVG icon filters */
-    --bb-filter-icon-muted: invert(30%) sepia(5%) saturate(200%) hue-rotate(340deg) brightness(85%) contrast(85%);
-    --bb-filter-icon-accent: invert(53%) sepia(30%) saturate(320%) hue-rotate(168deg) brightness(68%) contrast(95%);
-    --bb-filter-icon-remove: invert(30%) sepia(31%) saturate(600%) hue-rotate(-61deg) brightness(144%) contrast(95%);
-    --bb-filter-icon-delete: invert(17%) sepia(20%) saturate(8) hue-rotate(292deg) brightness(234%) contrast(95%);
-    --bb-filter-icon-to-read: invert(30%) sepia(30%) saturate(600%) hue-rotate(180deg) brightness(70%) contrast(95%);
-  }
+  /* SVG icon filters */
+  --bb-filter-icon-muted: invert(30%) sepia(5%) saturate(200%) hue-rotate(340deg) brightness(85%) contrast(85%);
+  --bb-filter-icon-accent: invert(53%) sepia(30%) saturate(320%) hue-rotate(168deg) brightness(68%) contrast(95%);
+  --bb-filter-icon-remove: invert(30%) sepia(31%) saturate(600%) hue-rotate(-61deg) brightness(144%) contrast(95%);
+  --bb-filter-icon-delete: invert(17%) sepia(20%) saturate(8) hue-rotate(292deg) brightness(234%) contrast(95%);
+  --bb-filter-icon-to-read: invert(30%) sepia(30%) saturate(600%) hue-rotate(180deg) brightness(70%) contrast(95%);
 }
 
+/* ── Dark ─────────────────────────────────────────────────────────────────── */
+/* Applied when: OS prefers dark (and user hasn't explicitly chosen light),
+   OR when the user has explicitly chosen dark via the in-page toggle. */
 @media (prefers-color-scheme: dark) {
-  :root {
-    /* Page */
+  :root:not([data-color-scheme="light"]) {
     --bb-page-bg: #1c1b19;
     --bb-text-primary: #d8d0c0;
     --bb-link-primary: #d8d0c0;
     --bb-text-input-bg: #d8d0c0;
-
-    /* Pagination */
     --bb-pagination-active-color: #1c1b19;
     --bb-pagination-active-bg: #e08060;
     --bb-pagination-disabled-color: #1c1b19;
@@ -93,61 +93,83 @@
     --bb-pagination-color: #1c1b19;
     --bb-pagination-bg: #c8b468;
     --bb-pagination-border-color: #1c1b19;
-
-    /* Buttons */
     --bb-button-primary-color: #1c1b19;
     --bb-button-primary-bg: #e08060;
     --bb-button-primary-border: #e08060;
     --bb-button-secondary-color: #1c1b19;
     --bb-button-secondary-bg: #e08060;
     --bb-button-secondary-border: #e08060;
-
-    /* Toggles */
     --bb-toggle-on-bg: #e08060;
-
-    /* Surfaces */
     --bb-surface-bg: #242320;
-
-    /* Borders */
     --bb-border-muted: #3e3c39;
     --bb-border-light: #3e3c39;
-
-    /* Muted / secondary text */
-    --bb-text-muted: #988090;       /* mauve */
-    --bb-text-secondary: #988090;   /* mauve */
-    --bb-admin-text: #988090;       /* mauve */
-
-    /* Accents */
-    --bb-accent-primary: #7890a0;   /* steel */
-    --bb-code: #c8b468;             /* gold */
-    --bb-code-meta: #7890a0;        /* steel */
-
-    /* Errors */
-    --bb-error: #b07878;            /* rose */
-
-    /* Tag chip input */
+    --bb-text-muted: #988090;
+    --bb-text-secondary: #988090;
+    --bb-admin-text: #988090;
+    --bb-accent-primary: #7890a0;
+    --bb-code: #c8b468;
+    --bb-code-meta: #7890a0;
+    --bb-error: #b07878;
     --bb-tag-input-border: #3e3c39;
-    --bb-tag-focus-border: #e08060; /* coral */
+    --bb-tag-focus-border: #e08060;
     --bb-tag-focus-shadow: rgba(224, 128, 96, 0.25);
-    --bb-tag-chip-bg: #80a090;      /* sage */
-    --bb-tag-chip-remove: #988090;  /* mauve */
+    --bb-tag-chip-bg: #80a090;
+    --bb-tag-chip-remove: #988090;
     --bb-tag-chip-remove-hover: #d8d0c0;
-
-    /* Blockquote */
     --bb-blockquote-bg: #242320;
     --bb-blockquote-border: #3e3c39;
-
-    /* Timestamps */
-    --bb-timestamp: #7890a0;        /* steel */
-
-    /* Timeline */
+    --bb-timestamp: #7890a0;
     --bb-timeline-breaker-bg: #2a2825;
-
-    /* SVG icon filters */
     --bb-filter-icon-muted: invert(85%) sepia(5%) saturate(300%) hue-rotate(10deg) brightness(85%) contrast(85%);
     --bb-filter-icon-accent: invert(55%) sepia(20%) saturate(400%) hue-rotate(170deg) brightness(95%) contrast(90%);
     --bb-filter-icon-remove: invert(78%) sepia(10%) saturate(400%) hue-rotate(289deg) brightness(95%) contrast(90%);
     --bb-filter-icon-delete: invert(55%) sepia(10%) saturate(600%) hue-rotate(330deg) brightness(90%) contrast(90%);
     --bb-filter-icon-to-read: invert(55%) sepia(20%) saturate(400%) hue-rotate(170deg) brightness(95%) contrast(90%);
   }
+}
+
+:root[data-color-scheme="dark"] {
+  --bb-page-bg: #1c1b19;
+  --bb-text-primary: #d8d0c0;
+  --bb-link-primary: #d8d0c0;
+  --bb-text-input-bg: #d8d0c0;
+  --bb-pagination-active-color: #1c1b19;
+  --bb-pagination-active-bg: #e08060;
+  --bb-pagination-disabled-color: #1c1b19;
+  --bb-pagination-disabled-bg: #7890a0;
+  --bb-pagination-color: #1c1b19;
+  --bb-pagination-bg: #c8b468;
+  --bb-pagination-border-color: #1c1b19;
+  --bb-button-primary-color: #1c1b19;
+  --bb-button-primary-bg: #e08060;
+  --bb-button-primary-border: #e08060;
+  --bb-button-secondary-color: #1c1b19;
+  --bb-button-secondary-bg: #e08060;
+  --bb-button-secondary-border: #e08060;
+  --bb-toggle-on-bg: #e08060;
+  --bb-surface-bg: #242320;
+  --bb-border-muted: #3e3c39;
+  --bb-border-light: #3e3c39;
+  --bb-text-muted: #988090;
+  --bb-text-secondary: #988090;
+  --bb-admin-text: #988090;
+  --bb-accent-primary: #7890a0;
+  --bb-code: #c8b468;
+  --bb-code-meta: #7890a0;
+  --bb-error: #b07878;
+  --bb-tag-input-border: #3e3c39;
+  --bb-tag-focus-border: #e08060;
+  --bb-tag-focus-shadow: rgba(224, 128, 96, 0.25);
+  --bb-tag-chip-bg: #80a090;
+  --bb-tag-chip-remove: #988090;
+  --bb-tag-chip-remove-hover: #d8d0c0;
+  --bb-blockquote-bg: #242320;
+  --bb-blockquote-border: #3e3c39;
+  --bb-timestamp: #7890a0;
+  --bb-timeline-breaker-bg: #2a2825;
+  --bb-filter-icon-muted: invert(85%) sepia(5%) saturate(300%) hue-rotate(10deg) brightness(85%) contrast(85%);
+  --bb-filter-icon-accent: invert(55%) sepia(20%) saturate(400%) hue-rotate(170deg) brightness(95%) contrast(90%);
+  --bb-filter-icon-remove: invert(78%) sepia(10%) saturate(400%) hue-rotate(289deg) brightness(95%) contrast(90%);
+  --bb-filter-icon-delete: invert(55%) sepia(10%) saturate(600%) hue-rotate(330deg) brightness(90%) contrast(90%);
+  --bb-filter-icon-to-read: invert(55%) sepia(20%) saturate(400%) hue-rotate(170deg) brightness(95%) contrast(90%);
 }

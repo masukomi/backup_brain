@@ -78,6 +78,8 @@ en:
     unarchived_link: "Unarchived"
     hide_private: "Shhh…"
     show_private: "Show Private"
+    enable_dark_mode: "Enable Dark Mode"
+    enable_light_mode: "Enable Light Mode"
   search:
     missing_query: "You gotta give me something to work with here. 🤦‍♀️"
     placeholder: "Search…"
