@@ -2,12 +2,14 @@
     class definition exists in custom.css %>
 <div class="search-form" >
   <%= form_with url: bookmarks_search_path, data: {turbo: false}, method: :get do |form| %>
+    <span class="no-wrap">
     <%= form.label :query, I18n.t("search.form_label"), class: "screen-readers-only" %>
     <input type="text" name="query" value="<%= @query %>" placeholder="<%= t("search.placeholder") %>" >
     <%= form.submit I18n.t("search.search_button"),
         type: :image,
         src: "/images/icons/search_white.svg",
         class: "btn btn-primary compact-button search-go-button" %>
+    </span>
     <div class="search_form_options">
       <input type="radio" name="sort" value="match"
         <% if ! @sort || @sort == "match" %>checked<% end %>
