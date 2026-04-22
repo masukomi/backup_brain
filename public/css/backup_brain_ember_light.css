@@ -5,6 +5,7 @@
   /* Page */
   --bb-page-bg: #e6dac4;
   --bb-text-primary: #282418;
+  --bb-text-input-bg: #e6dac4;
 
   /* Pagination */
   --bb-pagination-active-color: #1c1b19;
@@ -23,6 +24,9 @@
   --bb-button-secondary-color:  #fff;
   --bb-button-secondary-bg: #7890a0;
   --bb-button-secondary-border: #7890a0;
+
+  /* toggles */
+  --bb-toggle-on-bg: #e08060;
 
   /* Surfaces */
   --bb-surface-bg: #d8ccb4;       /* slightly darker than page bg */
@@ -46,7 +50,6 @@
   --bb-error: #905050;            /* rose light */
 
   /* Tag chip input */
-  --bb-tag-input-bg: #e6dac4;
   --bb-tag-input-border: #b8ac98;
   --bb-tag-focus-border: #b84c30; /* coral light */
   --bb-tag-focus-shadow: rgba(184, 76, 48, 0.25);

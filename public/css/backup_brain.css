@@ -403,10 +403,23 @@ note {
 }
 
 /* form elements */
-.toggle {
-	background-color: var(--bb-surface-bg);
-    border: solid slategray;
+.toggle,
+.form-switch .form-check-input:checked {
+    border: solid var(--bb-border-light);
 }
+
+input,
+input:checked,
+textarea,
+input.form-control,
+.tag-input-wrapper,
+.toggle {
+	background-color: var(--bb-text-input-bg)
+}
+.form-switch .form-check-input:checked {
+	background-color: var(--bb-toggle-on-bg)
+}
+
 
 .inline-button-to {
 	display: inline-block;
@@ -515,7 +528,7 @@ debugging::before{
 	align-items: center;
 	gap: 0.25rem;
 	padding: 0.375rem 0.75rem;
-	background-color: var(--bb-tag-input-bg);
+	background-color: var(--bb-text-input-bg);
 	border: 1px solid var(--bb-tag-input-border);
 	border-radius: 0.1rem;
 	min-height: 2.5rem;
@@ -555,7 +568,6 @@ debugging::before{
 	outline: none;
 	flex: 1;
 	min-width: 5rem;
-	background: transparent;
 	padding: 0;
 	font-size: 1rem;
 }
