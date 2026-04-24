@@ -8,6 +8,15 @@
       <% if @person.pronouns.present? %>
         <span class="metadata"><%= @person.pronouns %></span>
       <% end %>
+      <% if @person.email.present? %>
+        <div class="email">
+          <%= icon_link('mail',
+            "mailto:#{@person.email}",
+            text: @person.email,
+            alt: nil,
+            link_css: 'inline-link-icon') %></li>
+        </div>
+      <% end %>
       <% if @person.description.present? %>
           <%== render_markdown(@person.description) %>
       <% end %>

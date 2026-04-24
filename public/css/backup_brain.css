@@ -347,6 +347,10 @@ code {
 note {
 	display: block;
 }
+.email a {
+	font-style: italic;
+	color: var(--bb-button-secondary-bg);
+}
 
 #bottom-side-nav-items {
 	list-style-type: none;
