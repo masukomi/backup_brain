@@ -42,14 +42,15 @@ class Bookmark
   validates :title, :url, presence: true
   validates :url, uniqueness: true
 
-  before_save    :emojify_default_fields
-  before_save    :clean_tags!
-  before_save    :set_domain
-  before_save    :maybe_generate_archive
-  before_save    :clean_orphaned_tags
-  before_save    :apply_domain_trigger
-  before_save    :apply_content_triggers
-  before_save    :check_social_media_accounts
+  before_validation :purge_invalid_archives
+  before_save :emojify_default_fields
+  before_save :clean_tags!
+  before_save :set_domain
+  before_save :maybe_generate_archive
+  before_save :clean_orphaned_tags
+  before_save :apply_domain_trigger
+  before_save :apply_content_triggers
+  before_save :check_social_media_accounts
 
   before_create  :find_associated_people
   after_create   :generate_archive
@@ -184,6 +185,16 @@ class Bookmark
     return if social_media_accounts.present?
     sma = SocialMediaAccount.where(profile_url: url).first
     social_media_accounts << sma if sma
+  end
+
+  # destroys any invalid archives before save.
+  #
+  # I'm not entirely sure how they managed
+  # to get saved in the first place, but I've had
+  # this happen twice now, so now I'm adding this check
+  # before_save
+  def purge_invalid_archives
+    archives.reject(&:valid?).each(&:destroy)
   end
 
   # END HOOKS
