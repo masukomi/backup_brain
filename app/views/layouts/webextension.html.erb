@@ -15,7 +15,9 @@
     <%= stylesheet_link_tag "/css/bootstrap.rtl.css" %>
     <%= stylesheet_link_tag "/css/timeline.css" %>
     <%= stylesheet_link_tag "/css/bootstrap_docs.css" %>
-    <%= stylesheet_link_tag "/css/backup_brain.css" %>
+    <%= stylesheet_link_tag "/css/backup_brain.css?cache_buster=#{SecureRandom.uuid}" %>
+    <% bb_theme = cookies[:bb_theme].presence || "default" %>
+    <%= stylesheet_link_tag "/css/backup_brain_colors_#{bb_theme}.css?cache_buster=#{SecureRandom.uuid}", id: "color-theme-css" %>
     <%= stylesheet_link_tag "/css/backup_brain_colors.css" %>
     <%= stylesheet_link_tag "/css/backup_brain_webextension.css" %>
     <%= javascript_include_tag "/js/popper.min.js" %>
