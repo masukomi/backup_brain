@@ -35,6 +35,8 @@ class ArchiveUrlJob < ApplicationJob
       return false
     end
 
+    prior_failure_count = bookmark.failed_archive_attempts.count
+
     begin
       dispatcher = BackupBrain::ToolDispatcher.instance
       tempfile, hero_image_url = dispatcher.handles_download?(bookmark.url) ? [nil, nil] : download(bookmark)
@@ -67,6 +69,13 @@ class ArchiveUrlJob < ApplicationJob
         tempfile&.close
       rescue
         nil
+      end
+      # Only record a new failure if nothing inside the begin block already did.
+      # (record_failed_attempt raises UnarchivableUrl after saving, so a duplicate
+      # would occur if we recorded unconditionally here.)
+      # 601 = archiving tool exited non-zero (distinct from HTTP codes and 599/600)
+      if bookmark.failed_archive_attempts.count == prior_failure_count
+        record_failed_attempt(bookmark, 601, should_raise: false)
       end
       nil
     end
