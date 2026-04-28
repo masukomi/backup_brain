@@ -27,9 +27,9 @@ def collect_audio(attrs)
   post_file = attrs["post_file"]
   if post_file.is_a?(Hash)
     pf_url = post_file["url"].to_s
-    pf_name = post_file["name"].to_s
+    post_file["name"].to_s
     unless pf_url.empty?
-      ext = File.extname(pf_name).downcase
+      ext = File.extname(URI.parse(pf_url).path).downcase
       mime = case ext
       when ".mp3"         then "audio/mpeg"
       when ".m4a"         then "audio/mp4"
@@ -38,7 +38,7 @@ def collect_audio(attrs)
       when ".flac"        then "audio/flac"
       when ".opus"        then "audio/ogg; codecs=opus"
       when ".aac"         then "audio/aac"
-      else                "audio/*"
+      else                "audio/#{ext.sub(".", "")}"
       end
       url_to_hash[pf_url] = {url: pf_url, type: mime} if mime
     end
