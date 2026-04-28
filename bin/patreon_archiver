@@ -1,0 +1,209 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Fetches a Patreon post via the internal JSON API and writes markdown to stdout.
+#
+# Uses the Patreon Android app User-Agent, which bypasses Cloudflare bot
+# detection on the API endpoints the official app itself uses. Discovered via
+# analysis of yt-dlp's Patreon extractor.
+#
+# Attaches any audio media as HTML5 <audio> elements at the end of the output.
+# Exits 1 with a message on stderr if the post is paywalled.
+#
+# Usage: bin/patreon_archiver <url>
+#   URL: https://www.patreon.com/posts/<post-title-postid>
+
+require "uri"
+require "json"
+require "reverse_markdown"
+require "httparty"
+
+abort "Usage: #{$0} <url>" unless ARGV.size == 1
+
+url = ARGV[0]
+
+path_segment = url.match(%r{patreon\.com/posts/([^/?#]+)})&.[](1)
+post_id = path_segment&.match(/(\d+)$/)&.[](1)
+unless post_id
+  warn "patreon_archiver: could not extract post ID from URL: #{url}"
+  exit 1
+end
+
+# The Patreon Android app User-Agent bypasses Cloudflare on the internal API.
+# Browser-like UAs get challenged; this string is whitelisted by Patreon's own infra.
+API_HEADERS = {
+  "User-Agent" => "Patreon/126.9.0.15 (Android; Android 14; Scale/2.10)",
+  "Accept" => "application/json, text/plain, */*",
+  "Accept-Language" => "en-US,en;q=0.9",
+  "Referer" => "https://www.patreon.com/",
+  "Origin" => "https://www.patreon.com"
+}.freeze
+
+api_url =
+  "https://www.patreon.com/api/posts/#{post_id}" \
+  "?json-api-version=1.0" \
+  "&include=audio,campaign,attachments_media,user" \
+  "&fields[post]=title,content,content_json_string,embed,post_file,published_at,current_user_can_view" \
+  "&fields[media]=download_url,mimetype,file_name" \
+  "&fields[user]=full_name,url" \
+  "&fields[campaign]=vanity,name"
+
+begin
+  response = HTTParty.get(api_url, verify: false, headers: API_HEADERS)
+rescue => e
+  warn "patreon_archiver: API request failed: #{e.message}"
+  exit 1
+end
+
+unless response.code.between?(200, 299)
+  warn "patreon_archiver: API returned #{response.code} for post #{post_id}"
+  exit 1
+end
+
+begin
+  envelope = JSON.parse(response.body)
+rescue JSON::ParserError => e
+  warn "patreon_archiver: could not parse API response: #{e.message}"
+  exit 1
+end
+
+post = envelope["data"]
+unless post
+  warn "patreon_archiver: no post data in API response"
+  exit 1
+end
+
+attrs = post["attributes"] || {}
+
+if attrs["current_user_can_view"] == false
+  warn "patreon_archiver: post #{post_id} requires a paid membership to view"
+  exit 1
+end
+
+title = attrs["title"]&.strip || "Patreon Post ##{post_id}"
+
+# Build a lookup map from the JSON:API included array: [type, id] => resource
+included_by = Array(envelope["included"]).index_by do |r|
+  [r["type"], r["id"]]
+end
+
+# ── Collect audio ─────────────────────────────────────────────────────────────
+
+audio_items = []
+
+# 1. post_file attribute — used on dedicated audio-type posts
+post_file = attrs["post_file"]
+if post_file.is_a?(Hash)
+  pf_url = post_file["url"].to_s
+  pf_name = post_file["name"].to_s
+  unless pf_url.empty?
+    ext = File.extname(pf_name).downcase
+    mime = case ext
+    when ".mp3" then "audio/mpeg"
+    when ".m4a" then "audio/mp4"
+    when ".ogg", ".oga" then "audio/ogg"
+    when ".wav" then "audio/wav"
+    when ".flac" then "audio/flac"
+    when ".opus" then "audio/ogg; codecs=opus"
+    when ".aac" then "audio/aac"
+    end
+    audio_items << {url: pf_url, type: mime} if mime
+  end
+end
+
+# 2. Resolve all relationship refs from included and collect audio MIME types.
+# JSON:API allows `data` to be a single Hash (to-one) or an Array (to-many);
+# Array(hash) would explode it into key-value pairs, so we normalise manually.
+def collect_audio_from_refs(refs, included_by)
+  refs = case refs
+  when Hash  then [refs]
+  when Array then refs
+  else            []
+  end
+  refs.filter_map do |ref|
+    media = included_by[[ref["type"], ref["id"]]]
+    next unless media
+    mime = media.dig("attributes", "mimetype").to_s
+    dl_url = media.dig("attributes", "download_url").to_s
+    dl_url = media.dig("attributes", "url").to_s if dl_url.empty?
+    next if dl_url.empty?
+    {url: dl_url, type: mime.empty? ? nil : mime}
+  end
+end
+
+audio_refs = post.dig("relationships", "audio", "data")
+audio_items.concat(collect_audio_from_refs(audio_refs, included_by))
+
+attachment_refs = post.dig("relationships", "attachments_media", "data")
+collect_audio_from_refs(attachment_refs, included_by).each do |item|
+  audio_items << item if item[:type]&.start_with?("audio/")
+end
+
+audio_items.uniq!
+
+# ── Convert body to markdown ──────────────────────────────────────────────────
+
+# Recursively converts a ProseMirror/TipTap content node tree to plain markdown.
+# Patreon stores post bodies as TipTap JSON in content_json_string when the
+# HTML content field is empty (common on audio/media posts).
+def prosemirror_to_text(node)
+  return "" unless node.is_a?(Hash)
+  return node["text"] || "" if node["type"] == "text"
+  return "\n" if node["type"] == "hard_break"
+
+  children = Array(node["content"]).map { |c| prosemirror_to_text(c) }.join("")
+
+  case node["type"]
+  when "paragraph", "heading", "blockquote"
+    stripped = children.strip
+    stripped.empty? ? "" : "#{stripped}\n\n"
+  when "bullet_list", "ordered_list"
+    children
+  when "list_item"
+    "- #{children.strip}\n"
+  else
+    children
+  end
+end
+
+markdown_body = nil
+
+raw_html = attrs["content"].to_s.strip
+if !raw_html.empty?
+  converted = ReverseMarkdown.convert(raw_html, unknown_tags: :bypass).strip
+  markdown_body = converted unless converted.empty?
+end
+
+if markdown_body.nil?
+  json_string = attrs["content_json_string"].to_s.strip
+  unless json_string.empty?
+    begin
+      doc = JSON.parse(json_string)
+      raw = prosemirror_to_text(doc).strip
+      markdown_body = raw unless raw.empty?
+    rescue JSON::ParserError
+      nil
+    end
+  end
+end
+
+# ── Output ────────────────────────────────────────────────────────────────────
+
+puts "# #{title}"
+
+if markdown_body
+  puts
+  puts markdown_body
+end
+
+if audio_items.any?
+  puts
+  audio_items.each do |a|
+    type_attr = a[:type] ? %( type="#{a[:type]}") : ""
+    puts <<~HTML
+      <audio controls>
+        <source src="#{a[:url]}"#{type_attr} />
+      </audio>
+    HTML
+  end
+end
