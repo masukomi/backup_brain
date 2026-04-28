@@ -22,8 +22,7 @@ include ArchiverJsonHelper # rubocop:disable Style/MixinUsage
 # error_json_and_exit + success_json_and_exit
 
 def collect_audio(attrs)
-  audio_items = []
-
+  url_to_hash = {}
   # 1. post_file attribute — used on dedicated audio-type posts
   post_file = attrs["post_file"]
   if post_file.is_a?(Hash)
@@ -41,10 +40,10 @@ def collect_audio(attrs)
       when ".aac"         then "audio/aac"
       else                "audio/*"
       end
-      audio_items << {url: pf_url, type: mime} if mime
+      url_to_hash[pf_url] = {url: pf_url, type: mime} if mime
     end
   end
-  audio_items
+  url_to_hash
 end
 
 # JSON:API allows `data` to be a single Hash (to-one) or an Array (to-many);
@@ -55,6 +54,7 @@ def collect_audio_from_refs(refs, included_by)
   when Array then refs
   else            []
   end
+  deduped = {}
   refs.filter_map do |ref|
     media = included_by[[ref["type"], ref["id"]]]
     next unless media
@@ -62,8 +62,9 @@ def collect_audio_from_refs(refs, included_by)
     dl_url = media.dig("attributes", "download_url").to_s
     dl_url = media.dig("attributes", "url").to_s if dl_url.empty?
     next if dl_url.empty?
-    {url: dl_url, type: mime.empty? ? nil : mime}
+    deduped[dl_url] = {url: dl_url, type: mime.empty? ? nil : mime}
   end
+  deduped.values
 end
 
 # Recursively converts a ProseMirror/TipTap content node tree to plain markdown.
@@ -182,20 +183,17 @@ begin
 
   # ── Collect audio ─────────────────────────────────────────────────────────────
 
-  audio_items = collect_audio(attrs)
+  urls_to_hashes = collect_audio(attrs)
 
   # 2. Resolve all relationship refs from included and collect audio MIME types.
 
-  audio_refs = post.dig("relationships", "audio", "data")
-  audio_items.concat(collect_audio_from_refs(audio_refs, included_by))
+  post.dig("relationships", "audio", "data")
 
   attachment_refs = post.dig("relationships", "attachments_media", "data")
   collect_audio_from_refs(attachment_refs, included_by).each do |item|
-    next if audio_items.any?([:url, item[:url]]) # no dupes please
-    audio_items << item if item[:type]&.start_with?("audio/")
+    next if urls_to_hashes.has_key?(item[:url])
+    urls_to_hashes[item[:url]] = item if item[:type]&.start_with?("audio/")
   end
-
-  audio_items.uniq!
 
   # ── Convert body to markdown ──────────────────────────────────────────────────
 
@@ -228,6 +226,7 @@ begin
     output += "\n\n#{markdown_body}"
   end
 
+  audio_items = urls_to_hashes.values
   if audio_items.any?
     audio_items.each do |a|
       type_attr = a[:type] ? %( type="#{a[:type]}") : ""
