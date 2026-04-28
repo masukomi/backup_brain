@@ -9,12 +9,17 @@
 # <link rel="stylesheet" href="/css/bb_tree.css">
 
 require "reddit_post_to_markdown"
+require_relative "archiver_json_helper"
+include ArchiverJsonHelper # rubocop:disable Style/MixinUsage
+# error_json_and_exit + success_json_and_exit
 
-abort "Usage: #{$0} <url>" unless ARGV.size == 1
-
-url = ARGV[0]
+if ARGV.size != 1
+  error_json_and_exit(note: "Invalid usage. Takes a single url as its argument", exception: nil)
+  exit 1 # can't happen
+end
 
 begin
+  url = ARGV[0]
   markdown = RedditPostToMarkdown.convert(
     url,
     include_comments: true,
@@ -24,15 +29,17 @@ begin
     }
   )
 
-  css_link = '<link rel="stylesheet" href="/css/bb_tree.css">'
-  puts "#{css_link}\n\n#{markdown}"
+  success_json_and_exit(markdown: "#{css_link}\n\n#{markdown}")
 rescue RedditPostToMarkdown::NotAPostError => e
-  warn "Not a post URL: #{e.message}"
-  exit 65 # EXT_DATAERR
+  error_json_and_exit(note: "Not a post URL", exception: e)
+  exit 65; # EXT_DATAERR - Belt and suspenders. Theoretically can't be hit.
 rescue RedditPostToMarkdown::FetchError => e
-  warn "Could not reach Reddit: #{e.message}"
-  exit 69 # EX_UNAVAILABLE
+  error_json_and_exit(note: "Could not reach Reddit", exception: e)
+  exit 69 # EX_UNAVAILABLE - also can't happen
 rescue RedditPostToMarkdown::InvalidResponseError => e
-  warn "Unexpected response: #{e.message}"
-  exit 75 # EX_TEMPFAIL (I hope)
+  error_json_and_exit(note: "Unexpected Response", exception: e)
+  exit 75 # EX_TEMPFAIL (I hope) - also can't happen
+rescue => e
+  error_json_and_exit(note: "Unexpected Exception", exception: e)
+  exit 75 # EX_TEMPFAIL (I hope) - also can't happen
 end

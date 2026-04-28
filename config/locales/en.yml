@@ -67,7 +67,8 @@ en:
       no_archive_found: "No archive was found for this bookmark."
       cant_archive_without_url: "Can't create an archive without an url."
     archives:
-      custom_code_600: "BB: No content remained after processing"
+      custom_code_600: "BB: No content remained after processing."
+      custom_code_601: "BB: Unexpected crash of external archiver."
       custom_code_unknown: "BB: Unknown error"
   navigation:
     home: "Home"

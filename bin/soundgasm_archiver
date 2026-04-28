@@ -6,43 +6,56 @@
 #
 # Usage: bin/soundgasm <html_file>
 
-abort "Usage: #{$0} <html_file>" unless ARGV.size == 1
+require_relative "archiver_json_helper"
+include ArchiverJsonHelper # rubocop:disable Style/MixinUsage
+# error_json_and_exit + success_json_and_exit
 
-html = File.read(ARGV[0], encoding: "UTF-8")
-
-# Title: <div ... aria-label="title" ...>text</div>
-title_match = html.match(/<[^>]+aria-label="title"[^>]*>\s*([^<]+?)\s*<\//)
-unless title_match
-  warn "soundgasm: could not find aria-label=\"title\" element"
-  exit 1
-end
-title = title_match[1].strip
-
-# Audio URL: m4a: "https://..." in the inline jPlayer script
-m4a_match = html.match(/m4a:\s*"(https?:[^"]+\.m4a)"/)
-unless m4a_match
-  warn "soundgasm: could not find m4a URL in page"
-  exit 1
-end
-audio_url = m4a_match[1]
-
-# Description: text content of .jp-description (may be absent)
-desc_match = html.match(/<div class="jp-description">(.*?)<\/div>/m)
-description = nil
-if desc_match
-  # Strip all tags and collapse whitespace
-  description = desc_match[1].gsub(/<[^>]+>/, " ").gsub(/\s+/, " ").strip
-  description = nil if description.empty?
+if ARGV.size != 1
+  error_json_and_exit(note: "Invalid usage. Takes the path to an HTML file as its only argument", exception: nil)
+  exit 1 # can't happen
 end
 
-puts "# #{title}"
-puts
-puts <<~HTML
-  <audio id="player" controls>
-    <source src="#{audio_url}" type="audio/mp4" />
-  </audio>
-HTML
-if description
-  puts
-  puts description
+begin
+  html = File.read(ARGV[0], encoding: "UTF-8")
+
+  # Title: <div ... aria-label="title" ...>text</div>
+  title_match = html.match(/<[^>]+aria-label="title"[^>]*>\s*([^<]+?)\s*<\//)
+  unless title_match
+    error_json_and_exit(note: "soundgasm: could not find aria-label=\"title\" element",
+      exception: nil)
+  end
+  title = title_match[1].strip
+
+  # Audio URL: m4a: "https://..." in the inline jPlayer script
+  m4a_match = html.match(/m4a:\s*"(https?:[^"]+\.m4a)"/)
+  unless m4a_match
+    error_json_and_exit(note: "soundgasm: could not find m4a URL in page",
+      exception: nil)
+    warn
+    exit 1
+  end
+  audio_url = m4a_match[1]
+
+  # Description: text content of .jp-description (may be absent)
+  desc_match = html.match(/<div class="jp-description">(.*?)<\/div>/m)
+  description = nil
+  if desc_match
+    # Strip all tags and collapse whitespace
+    description = desc_match[1].gsub(/<[^>]+>/, " ").gsub(/\s+/, " ").strip
+    description = nil if description.empty?
+  end
+
+  markdown = <<~END
+    # #{title}
+    <audio id="player" controls>
+      <source src="#{audio_url}" type="audio/mp4" />
+    </audio>
+
+    #{description || ""}
+  END
+
+  success_json_and_exit(markdown: markdown)
+rescue => e
+  error_json_and_exit(note: "Unexpected & unhandled exception",
+    exception: e)
 end

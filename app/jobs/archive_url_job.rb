@@ -1,6 +1,7 @@
 require "uri"
 require "tempfile"
 require "digest"
+require "json"
 
 class ArchiveUrlJob < ApplicationJob
   include BackupBrain::ArchiveTools
@@ -40,7 +41,8 @@ class ArchiveUrlJob < ApplicationJob
     begin
       dispatcher = BackupBrain::ToolDispatcher.instance
       tempfile, hero_image_url = dispatcher.handles_download?(bookmark.url) ? [nil, nil] : download(bookmark)
-      markdown_string = dispatcher.run(bookmark.url, tempfile) # potentially raises
+      raw_output = dispatcher.run(bookmark.url, tempfile) # raises on non-zero exit
+      markdown_string = interpret_tool_output(raw_output, bookmark)
       record_failed_attempt(bookmark, 600) if markdown_string.blank?
       if hero_image_url.present?
         markdown_string = "![Hero Image](#{hero_image_url})\n\n#{markdown_string}"
@@ -84,6 +86,25 @@ class ArchiveUrlJob < ApplicationJob
   rescue => e
     Rails.logger.warn("couldn't archive #{bookmark.url} - #{e.message}")
     nil
+  end
+
+  def interpret_tool_output(raw_output, bookmark)
+    result = JSON.parse(raw_output.to_s)
+    case result["status"]
+    when "SUCCESS"
+      result["markdown"]
+    when "ERROR"
+      record_failed_attempt(
+        bookmark, 601,
+        error_message: result["error_message"],
+        backtrace: result["backtrace"],
+        additional_info: result["additional_info"]
+      ) # raises UnarchivableUrl, caught by existing rescue in perform
+    else
+      raw_output
+    end
+  rescue JSON::ParserError
+    raw_output # old-style tool (e.g. bin/reader) returning raw markdown
   end
 
   def download(bookmark)

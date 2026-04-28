@@ -317,11 +317,17 @@ module BackupBrain
       "/audio/missing_audio_audio.mp3"
     end
 
-    def record_failed_attempt(bookmark, error_code, message: nil, should_raise: true)
-      failed_attempt = FailedArchiveAttempt.new(status_code: error_code)
+    def record_failed_attempt(bookmark, error_code, message: nil, should_raise: true,
+      error_message: nil, backtrace: nil, additional_info: nil)
+      failed_attempt = FailedArchiveAttempt.new(
+        status_code: error_code,
+        error_message: error_message,
+        backtrace: backtrace,
+        additional_info: additional_info
+      )
       bookmark.failed_archive_attempts << failed_attempt
       bookmark.save!
-      message ||= "Failed to download #{bookmark.url} - #{error_code}"
+      message ||= error_message || "Failed to download #{bookmark.url} - #{error_code}"
       Rails.logger.info(message)
       raise BackupBrain::Errors::UnarchivableUrl.new(message) if should_raise
     end

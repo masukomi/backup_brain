@@ -1,7 +1,12 @@
 class FailedArchiveAttempt
   include Mongoid::Document
   include Mongoid::Timestamps
-  field :status_code, type: Integer
+  field :status_code,     type: Integer
+  field :error_message,   type: String
+  field :backtrace,       type: String
+  field :additional_info, type: String
+
+  validates :status_code, presence: true
   embedded_in :bookmark
 
   def link_details
