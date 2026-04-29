@@ -57,6 +57,7 @@ code-sections:
   - settings
   - triggers
   - search
+  - background_jobs
   modifiable: true
   record-as: joined-string
 ticket-number:
