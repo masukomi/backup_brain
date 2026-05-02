@@ -15,7 +15,7 @@ services:
     ports:
       - '7700:7700'
     healthcheck:
-      test: wget --no-verbose --spider http://localhost:7700/health
+      test: curl --fail http://localhost:7700/health
       interval: 10s
       retries: 5
       start_period: 30s
