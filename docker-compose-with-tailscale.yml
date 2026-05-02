@@ -69,6 +69,7 @@ services:
 
   bb_rails:
     image: ruby:3.3.4
+    env_file: .env
     environment:
       - BUNDLE_PATH=/app/gems
     network_mode: service:bb_tailscale
