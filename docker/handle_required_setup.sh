@@ -61,10 +61,12 @@ if [ ! -e "bin/reader" ]; then
         echo "Cloning reader repo"
         git clone https://github.com/mrusme/reader.git /app/reader-clone
     fi
+    (
     cd reader-clone
 
     echo "Building reader"
     go mod download && go build -v -o /app/bin/reader
+    )
 
     grep "I_INSTALLED_READER=true" /app/.env > /dev/null
     if [ $? -ne 0 ]; then
