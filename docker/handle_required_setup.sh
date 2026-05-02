@@ -43,7 +43,7 @@ else
         echo "✅ MEILISEARCH_SEARCH_KEY found in .env Good for you!"
     fi
 
-    meiliadmin_admin_key=$(get_env_key 'MEILIADMIN_ADMIN_KEY')
+    meilisearch_admin_key=$(get_env_key 'MEILISEARCH_ADMIN_KEY')
     if [ -z "$meilisearch_admin_key" ]; then
         echo "⚠️ MEILISEARCH_ADMIN_KEY not found in .env"
         echo "⚠️ PLEASE ADD MEILISEARCH_ADMIN_KEY to .env to improve security"
@@ -62,10 +62,10 @@ if [ ! -e "bin/reader" ]; then
         git clone https://github.com/mrusme/reader.git /app/reader-clone
     fi
     (
-    cd reader-clone
+        cd reader-clone
 
-    echo "Building reader"
-    go mod download && go build -v -o /app/bin/reader
+        echo "Building reader"
+        go mod download && go build -v -o /app/bin/reader
     )
 
     set +e
