@@ -41,7 +41,7 @@ services:
       timeout: 10s
 
   bb_setup:
-    image: golang:1.22.5
+    image: golang:1.24.13
     volumes:
         - ./:/app
     command: ["/app/docker/handle_required_setup.sh"]
