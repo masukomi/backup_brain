@@ -68,6 +68,7 @@ if [ ! -e "bin/reader" ]; then
     go mod download && go build -v -o /app/bin/reader
     )
 
+    set +e
     grep "I_INSTALLED_READER=true" /app/.env > /dev/null
     if [ $? -ne 0 ]; then
         echo "editing .env"
@@ -75,6 +76,7 @@ if [ ! -e "bin/reader" ]; then
         cat $ENV_FILE | sed -E "s/.*I_INSTALLED_READER.*/I_INSTALLED_READER=true/" > .env.temp
         mv .env.temp .env
     fi
+    set -e
     rm -rf reader-clone
     echo "✅ reader executable compiled to bin/reader"
 else
