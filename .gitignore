@@ -27,6 +27,7 @@ tmp/*
 !/tmp/pids/.keep
 # don't need to track temp cache stuff either
 /tmp/cache/*
+/meilisearch/*
 
 /lib/.precomp/*
 

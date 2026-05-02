@@ -3,6 +3,8 @@ version: '3.8'
 services:
   bb_meilisearch:
     image: getmeili/meilisearch:v1.9
+    volumes:
+      - meilisearch:/meili_data
     env_file: .env
     # networks:
     #   - bb-network
@@ -84,4 +86,4 @@ services:
 
 volumes:
   mongodata:
-
+  meilisearch:
