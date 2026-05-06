@@ -1,6 +1,48 @@
 require "rails_helper"
 
 RSpec.describe Tag do
+  describe ".extract_tags_from_string" do
+    it "returns the original string and empty array when there are no hashtags" do
+      expect(described_class.extract_tags_from_string("hello world")).to(eq(["hello world", []]))
+    end
+
+    it "returns the original string and empty array for an empty string" do
+      expect(described_class.extract_tags_from_string("")).to(eq(["", []]))
+    end
+
+    it "does not treat a # in the middle of a word as a hashtag" do
+      expect(described_class.extract_tags_from_string("abc#notag")).to(eq(["abc#notag", []]))
+    end
+
+    it "extracts a single tag at the end of the string" do
+      expect(described_class.extract_tags_from_string("my friend #foo")).to(eq(["my friend", ["foo"]]))
+    end
+
+    it "extracts a single tag in the middle of the string" do
+      expect(described_class.extract_tags_from_string("my #foo friend")).to(eq(["my friend", ["foo"]]))
+    end
+
+    it "extracts a tag at the start of the string" do
+      expect(described_class.extract_tags_from_string("#foo bar")).to(eq(["bar", ["foo"]]))
+    end
+
+    it "extracts multiple tags and returns them in order" do
+      expect(described_class.extract_tags_from_string("my friend #foo bar #baz")).to(eq(["my friend bar", ["foo", "baz"]]))
+    end
+
+    it "returns an empty string when the input is only a hashtag" do
+      expect(described_class.extract_tags_from_string("#foo")).to(eq(["", ["foo"]]))
+    end
+
+    it "returns an empty string when the input is only hashtags" do
+      expect(described_class.extract_tags_from_string("#c #a #b")).to(eq(["", ["c", "a", "b"]]))
+    end
+
+    it "handles tags containing underscores and digits" do
+      expect(described_class.extract_tags_from_string("see #foo_bar2")).to(eq(["see", ["foo_bar2"]]))
+    end
+  end
+
   describe ".split_tags" do
     it "returns empty array for blank string" do
       expect(described_class.split_tags(" ")).to(eq([]))
@@ -70,12 +112,12 @@ RSpec.describe Tag do
 
   describe ".orphaned_tag_names" do
     before do
-      Tag.collection.delete_many({})
+      described_class.collection.delete_many({})
       Bookmark.collection.delete_many({})
     end
 
     after do
-      Tag.collection.delete_many({})
+      described_class.collection.delete_many({})
       Bookmark.collection.delete_many({})
     end
 
@@ -84,24 +126,24 @@ RSpec.describe Tag do
     end
 
     it "returns all tag names when no bookmarks exist" do
-      Tag.collection.insert_many([{name: "orphan1"}, {name: "orphan2"}])
+      described_class.collection.insert_many([{name: "orphan1"}, {name: "orphan2"}])
       expect(described_class.orphaned_tag_names).to(match_array(%w[orphan1 orphan2]))
     end
 
     it "does not return tag names that are used in a bookmark" do
-      Tag.collection.insert_one({name: "used"})
+      described_class.collection.insert_one({name: "used"})
       Bookmark.collection.insert_one({tags: ["used"]})
       expect(described_class.orphaned_tag_names).to(be_empty)
     end
 
     it "returns only unused tags when some tags are used and some are not" do
-      Tag.collection.insert_many([{name: "used"}, {name: "orphan"}])
+      described_class.collection.insert_many([{name: "used"}, {name: "orphan"}])
       Bookmark.collection.insert_one({tags: ["used"]})
       expect(described_class.orphaned_tag_names).to(eq(["orphan"]))
     end
 
     it "handles tags spread across multiple bookmarks" do
-      Tag.collection.insert_many([{name: "foo"}, {name: "bar"}, {name: "orphan"}])
+      described_class.collection.insert_many([{name: "foo"}, {name: "bar"}, {name: "orphan"}])
       Bookmark.collection.insert_one({tags: ["foo"]})
       Bookmark.collection.insert_one({tags: ["bar"]})
       expect(described_class.orphaned_tag_names).to(eq(["orphan"]))
@@ -111,27 +153,27 @@ RSpec.describe Tag do
   describe ".regenerate_all!" do
     before do
       Bookmark.collection.delete_many({})
-      Tag.collection.delete_many({})
+      described_class.collection.delete_many({})
     end
 
     after do
       Bookmark.collection.delete_many({})
-      Tag.collection.delete_many({})
+      described_class.collection.delete_many({})
     end
 
-    it "creates tags for all tags used in bookmarks" do
+    it "creates tags for all tags used in bookmarks", :aggregate_failures do
       Bookmark.collection.insert_one({tags: %w[foo bar]})
       expect { described_class.regenerate_all! }.to change(described_class, :count).by(2)
       expect(described_class.pluck(:name)).to(match_array(%w[foo bar]))
     end
 
     it "removes tags that are no longer used in any bookmark" do
-      Tag.collection.insert_one({name: "stale"})
+      described_class.collection.insert_one({name: "stale"})
       expect { described_class.regenerate_all! }.to change(described_class, :count).by(-1)
     end
 
     it "keeps tags that are still used and creates missing ones" do
-      Tag.collection.insert_one({name: "existing"})
+      described_class.collection.insert_one({name: "existing"})
       Bookmark.collection.insert_one({tags: %w[existing new_tag]})
       described_class.regenerate_all!
       expect(described_class.pluck(:name)).to(match_array(%w[existing new_tag]))

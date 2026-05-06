@@ -72,7 +72,15 @@ class BookmarksController < ApplicationController
 
   def search
     @query = params[:query]
-    if @query.blank?
+    @query, @query_tags = Tag.extract_tags_from_string(@query)
+
+    if params[:tags].present?
+      @query_tags += params[:tags].split(",")
+    end
+
+    if @query.blank? && @query_tags.present?
+      redirect_to action: "tagged_with", tags: @query_tags.join(",")
+    elsif @query.blank?
       flash_message(:notice, t("search.missing_query"))
       redirect_to action: "index"
       return
@@ -95,14 +103,13 @@ class BookmarksController < ApplicationController
       options[:filter] = "private = false"
     end
 
+    if @query_tags.present?
+      options = add_tags_to_search_options(@query_tags, options)
+    end
+
     @search_archives = params[:search_archives] == "true"
     unless @search_archives
       options[:attributes_to_search_on] = %w[title description tags url]
-    end
-
-    if params[:tags].present?
-      @query_tags = params[:tags].split(",")
-      options = add_tags_to_search_options(@query_tags, options)
     end
 
     # Separate options for fetching ALL matching IDs across all pages (for tags sidebar)

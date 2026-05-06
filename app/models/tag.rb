@@ -3,6 +3,8 @@ class Tag
   include Mongoid::Timestamps
   include BackupBrain::HtmlEntityEncoding
 
+  HASHTAG_REGEXP = /(?:^|\s)(#\w+)/
+
   field :name, type: String
 
   validates :name, presence:   true
@@ -14,6 +16,24 @@ class Tag
 
   # BEGIN CLASS METHODS
   class << self
+    # @return [Array] the string without the tags,
+    # and the list of extracted tags without their octothorpes
+    # @example
+    # extract_from_string("my friend #foo bar #baz")
+    # => ["my friend bar", ["foo", "baz"]]
+    #
+    def extract_tags_from_string(string)
+      return [string, []] unless string.match(HASHTAG_REGEXP)
+      str = string.dup
+      matches = string.to_enum(:scan, HASHTAG_REGEXP).map { Regexp.last_match }
+      raw_tags = []
+      matches.reverse_each do |m|
+        raw_tags.unshift(m[1].delete_prefix("#"))
+        str[m.begin(0)..m.end(1) - 1] = ""
+      end
+      [str.strip, raw_tags]
+    end
+
     # splits a string of tags, downcases them,
     # replaces spaces with underscores, and returns an array
     def split_tags(tags)
