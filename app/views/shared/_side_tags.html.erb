@@ -31,7 +31,7 @@
               )
               %>
             <% end %>
-            <%= link_to(tag, bookmarks_tagged_with_path(tags: tag)) %>
+            <%= link_to("##{tag}", bookmarks_tagged_with_path(tags: tag)) %>
           <% elsif action_name == 'unarchived' %>
             <% if can_add_tag?(tag, @query_tags) %>
               <%= icon_link("add", bookmarks_unarchived_path(tags: tags_query_param),
@@ -53,7 +53,7 @@
               )
               %>
             <% end %>
-            <%= link_to(tag, bookmarks_unarchived_path(tags: tag)) %>
+            <%= link_to("##{tag}", bookmarks_unarchived_path(tags: tag)) %>
           <% elsif action_name == 'to_read' %>
             <% if can_add_tag?(tag, @query_tags) %>
               <%= icon_link("add", bookmarks_to_read_path(tags: tags_query_param),
@@ -74,7 +74,7 @@
               )
               %>
             <% end %>
-            <%= link_to(tag, bookmarks_to_read_path(tags: tag)) %>
+            <%= link_to("##{tag}", bookmarks_to_read_path(tags: tag)) %>
           <% else
             #index action
           %>
@@ -99,7 +99,7 @@
                 )
                 %>
               <% end %>
-              <%= link_to(tag, bookmarks_tagged_with_path(tags: tag)) %>
+              <%= link_to("##{tag}", bookmarks_tagged_with_path(tags: tag)) %>
             <% end %>
         </span>
       <% end %>
