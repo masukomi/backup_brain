@@ -58,6 +58,7 @@ code-sections:
   - triggers
   - search
   - background_jobs
+  - reviews
   modifiable: true
   record-as: joined-string
 ticket-number:
