@@ -35,7 +35,9 @@
   </div>
 </div>
 
-<%= form_with url: begin_remote_auth_path, method: :post, data: { turbo: false } do |f| %>
+<% slug_map = @site_types.each_with_object({}) { |st, h| h[st.id.to_s] = st.slug }.to_json %>
+
+<%= form_with url: begin_remote_auth_path, method: :post, data: { turbo: false, controller: "site-type-fields" } do |f| %>
   <div class="row form-row">
     <div class="col-3">
       <%= f.label :site_type_id, t('oauth2.remote_credentials.site_type_label') %>
@@ -44,7 +46,12 @@
       <%= f.select :site_type_id,
             @site_types.map { |st| [st.name, st.id.to_s] },
             { include_blank: false },
-            class: "form-select" %>
+            class: "form-select",
+            data: {
+              site_type_fields_target: "select",
+              slug_map: slug_map,
+              action: "change->site-type-fields#update"
+            } %>
     </div>
   </div>
   <div class="row form-row">
@@ -60,6 +67,39 @@
   <div class="row form-row">
     <div class="col-9 metadata">
       <%==  t('oauth2.remote_credentials.base_url_hint') %>
+    </div>
+  </div>
+  <div data-site-type-fields-target="conditional" data-for-slug="bookwyrm">
+    <div class="row form-row">
+      <div class="col-9 metadata">
+        <%== t('oauth2.remote_credentials.bookwyrm_instructions', callback_url: @callback_url) %>
+      </div>
+    </div>
+    <div class="row form-row">
+      <div class="col-3">
+        <%= f.label :username, t('oauth2.remote_credentials.username_label') %>
+      </div>
+      <div class="col-6">
+        <%= f.text_field :username,
+              class: "form-control",
+              placeholder: "yourusername" %>
+      </div>
+    </div>
+    <div class="row form-row">
+      <div class="col-3">
+        <%= f.label :client_id, t('oauth2.remote_credentials.client_id_label') %>
+      </div>
+      <div class="col-6">
+        <%= f.text_field :client_id, class: "form-control" %>
+      </div>
+    </div>
+    <div class="row form-row">
+      <div class="col-3">
+        <%= f.label :client_secret, t('oauth2.remote_credentials.client_secret_label') %>
+      </div>
+      <div class="col-6">
+        <%= f.text_field :client_secret, class: "form-control" %>
+      </div>
     </div>
   </div>
   <div class="row form-row">

@@ -17,7 +17,7 @@ class ContentTrigger
   validates :name, presence: true, uniqueness: true
   after_save :bust_cache
 
-  SUPPORTED_OBJECT_TYPES = [Bookmark, Archive, Note].freeze
+  SUPPORTED_OBJECT_TYPES = [Bookmark, Archive, Note, Review].freeze
 
   # applies all applicable ContentTrigger triggers
   def self.apply_triggers(test_string:, apply_to:)

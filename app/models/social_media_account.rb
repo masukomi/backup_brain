@@ -75,9 +75,9 @@ class SocialMediaAccount
 
   def standardize_service
     if service.present?
-      service&.downcase # shouldn't be needed unless we make this user editable
+      self.service = service.downcase
     elsif profile_url.present? # damn well better be
-      SocialMediaAccount.query_service_type(profile_url)
+      self.service = SocialMediaAccount.query_service_type(profile_url)
     end
   end
 
@@ -171,7 +171,7 @@ class SocialMediaAccount
     response = HTTParty.get(
       "#{base_url}/.well-known/nodeinfo",
       verify: false,
-      timeout: 10,
+      timeout: 30,
       follow_redirects: true
     )
     return nil unless response.code == 200
@@ -186,7 +186,7 @@ class SocialMediaAccount
     info_response = HTTParty.get(
       link["href"],
       verify: false,
-      timeout: 10,
+      timeout: 30,
       follow_redirects: true
     )
     return nil unless info_response.code == 200

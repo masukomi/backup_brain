@@ -9,7 +9,7 @@
   /* Page */
   --bb-page-bg: #e6dac4;
   --bb-text-primary: #282418;
-  --bb-text-input-bg: #e6dac4;
+  --bb-text-input-bg: #fff;
 
   /* Pagination */
   --bb-pagination-active-color: #1c1b19;
@@ -84,6 +84,8 @@
   :root:not([data-color-scheme="light"]) {
     --bb-page-bg: #1c1b19;
     --bb-text-primary: #d8d0c0;
+    --bs-body-color: #d8d0c0; /* override bootstrap */
+    --bs-table-color: #d8d0c0; /* override bootstrap */
     --bb-link-primary: #d8d0c0;
     --bb-text-input-bg: #d8d0c0;
     --bb-pagination-active-color: #1c1b19;

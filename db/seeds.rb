@@ -7,7 +7,7 @@ OauthSiteType.find_or_create_by!(slug: "bookwyrm") do |t|
   t.authorization_path = "/o/authorize/"
   t.token_path = "/o/token/"
   t.default_scopes = ["read"]
-  t.requires_pkce = false
+  t.requires_pkce = true
 end
 
 OauthSiteType.find_or_create_by!(slug: "misskey") do |t|

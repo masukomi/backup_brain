@@ -4,6 +4,7 @@ class RemoteCredentialsController < ApplicationController
   def index
     @site_types = OauthSiteType.all.order_by(name: :asc)
     @sites_by_type = OauthSite.all.group_by(&:oauth_site_type)
+    @callback_url = callback_url
   end
 
   def destroy
@@ -60,7 +61,7 @@ class RemoteCredentialsController < ApplicationController
       oauth_site.update!(username: params[:username])
     end
 
-    raise OAuth2::Error.new(nil, I18n.t("oauth2.errors.registration_failed")) unless oauth_site
+    raise I18n.t("oauth2.errors.registration_failed") unless oauth_site
 
     client = OAuth2::Client.new(
       oauth_site.client_id,
@@ -74,13 +75,13 @@ class RemoteCredentialsController < ApplicationController
     if site_type.requires_pkce
       code_verifier = SecureRandom.urlsafe_base64(96)
       code_challenge = Base64.urlsafe_encode64(Digest::SHA256.digest(code_verifier), padding: false)
-      session["pkce_#{oauth_site._id}"] = code_verifier
+      oauth_site.update!(pkce_code_verifier: code_verifier)
       pkce_params = {code_challenge: code_challenge, code_challenge_method: "S256"}
     end
 
-    effective_redirect_uri = site_type.requires_pkce ?
-      OauthRegistration::IndieAuthStrategy.relay_url : callback_url
-    effective_state = if site_type.requires_pkce
+    uses_relay = site_type.registration_strategy == "indie_auth"
+    effective_redirect_uri = uses_relay ? OauthRegistration::IndieAuthStrategy.relay_url : callback_url
+    effective_state = if uses_relay
       Base64.strict_encode64(JSON.generate(id: oauth_site._id.to_s, u: local_url))
     else
       oauth_site._id.to_s
@@ -98,9 +99,9 @@ class RemoteCredentialsController < ApplicationController
   # We exchange the authorization code for an access token.
   def callback
     unless params[:code].present? && params[:state].present?
-      raise OAuth2::Error.new(nil, I18n.t("oauth2.errors.unexpected_response",
+      raise I18n.t("oauth2.errors.unexpected_response",
         response: params.to_json,
-        expected: "code & state parameters"))
+        expected: "code & state parameters")
     end
 
     site_id = begin
@@ -110,7 +111,7 @@ class RemoteCredentialsController < ApplicationController
       params[:state]
     end
     oauth_site = OauthSite.where(_id: site_id).first
-    raise OAuth2::Error.new(nil, I18n.t("oauth2.errors.state_failure")) unless oauth_site
+    raise I18n.t("oauth2.errors.state_failure") unless oauth_site
 
     site_type = oauth_site.oauth_site_type
 
@@ -123,13 +124,14 @@ class RemoteCredentialsController < ApplicationController
     )
 
     begin
+      uses_relay = site_type.registration_strategy == "indie_auth"
       token_params = {
-        redirect_uri: site_type.requires_pkce ?
-          OauthRegistration::IndieAuthStrategy.relay_url : callback_url
+        redirect_uri: uses_relay ? OauthRegistration::IndieAuthStrategy.relay_url : callback_url
       }
       if site_type.requires_pkce
-        code_verifier = session.delete("pkce_#{oauth_site._id}")
+        code_verifier = oauth_site.pkce_code_verifier
         token_params[:code_verifier] = code_verifier if code_verifier.present?
+        oauth_site.update!(pkce_code_verifier: nil)
       end
 
       oauth2_access_token = client.auth_code.get_token(params[:code], **token_params)

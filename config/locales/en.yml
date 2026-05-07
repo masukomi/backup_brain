@@ -490,7 +490,25 @@ en:
       delete: "Disconnect"
       site_type_label: "Server type"
       base_url_label: "Server domain"
-      base_url_hint: "This will work with all Fediverse servers that implement the Mastodon API or Misskey API: Mastodon, Pleroma, Akkoma, GoToSocial, Hometown, Takahe, Misskey, Sharkey"
+      base_url_hint: "<dl><dt>Mastodon API</dt><dd>Mastodon, Pleroma, Akkoma, GoToSocial, Hometown, Takahe</dd>
+      <dt>Misskey API</dt><dd>Misskey, Sharkey, BookWyrm</dd>
+      <dt>BookWyrm API</dt><dd>BookWyrm</dd>
+      </dl>"
+      username_label: "Username (BookWyrm only)"
+      username_hint: "Your username on the BookWyrm server. Required when connecting to BookWyrm."
+      bookwyrm_instructions: To connect a BookWyrm account you must first manually register an OAuth application on your BookWyrm server.
+        <ol><li>Go to <code>https://your-bookwyrm-server/o/applications/register/</code></li>
+        <li>Set the Name to BackupBrain (or anything else you'd prefer)</li>
+        <li>Before saving, copy the "Client id" and "Client Secret" and paste them into the fields below. They change after saving.</li>
+        <li>Uncheck the "Hash Client Secret" checkbox.
+        <li>Choose "Confidential" from the "Client type" pull-down.</li>
+        <li>Choose "Authorization code" from the "Authorization grant type" pull-down</li>
+        <li>Set the redirect URI to <code>%{callback_url}</code></li>
+        <li>Make sure the "Algorithm" pull-down is set to "No OIDC support"</li>
+        <li>Save the new Appliaction</li>
+        </ol>
+      client_id_label: "Client ID (BookWyrm only)"
+      client_secret_label: "Client Secret (BookWyrm only, optional)"
       submit: "Connect"
   importer:
       instructions: "

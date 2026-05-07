@@ -44,7 +44,7 @@ module OauthRegistration
           client_secret_expires_at: json[:client_secret_expires_at] || 0
         }
       else
-        raise OAuth2::Error.new(response, I18n.t("oauth2.errors.registration_failed"))
+        raise I18n.t("oauth2.errors.registration_failed")
       end
     end
 

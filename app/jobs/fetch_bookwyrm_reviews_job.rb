@@ -1,7 +1,7 @@
 class FetchBookwyrmReviewsJob < ApplicationJob
   queue_as :low_priority
 
-  REVIEW_TYPES = %w[Review].freeze
+  REVIEW_TYPES = %w[Review Article].freeze
   REQUEST_TIMEOUT = 30
   PUBLIC_AUDIENCE = "https://www.w3.org/ns/activitystreams#Public"
 
@@ -46,8 +46,10 @@ class FetchBookwyrmReviewsJob < ApplicationJob
 
       found_existing = false
       items.each do |item|
-        object = item.is_a?(Hash) ? item["object"] : nil
-        next unless object.is_a?(Hash) && REVIEW_TYPES.include?(object["type"])
+        next unless item.is_a?(Hash)
+        # BookWyrm outbox returns review objects directly (not wrapped in Create activities)
+        object = item["object"].is_a?(Hash) ? item["object"] : item
+        next unless REVIEW_TYPES.include?(object["type"])
 
         source_url = object["id"]
         next if source_url.blank?

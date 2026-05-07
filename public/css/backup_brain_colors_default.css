@@ -83,6 +83,8 @@
   :root:not([data-color-scheme="light"]) {
     --bb-page-bg: #1a1e2e;
     --bb-text-primary: #d4cfc7;
+    --bs-body-color: #d8d0c0; /* override bootstrap */
+    --bs-table-color: #d8d0c0; /* override bootstrap */
     --bb-text-input-bg: #252a3a;
     --bb-pagination-active-color: #ffffff;
     --bb-pagination-active-bg: #2d5080;

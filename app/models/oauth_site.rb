@@ -20,6 +20,10 @@ class OauthSite
   # Optional: username on the remote service (used e.g. for BookWyrm outbox URL construction)
   field :username,                  type: String
 
+  # Temporary storage for PKCE code verifier during the OAuth2 authorization flow.
+  # Cleared after the token exchange completes.
+  field :pkce_code_verifier,        type: String
+
   belongs_to :oauth_site_type, optional: true
 
   # validations

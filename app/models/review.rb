@@ -37,7 +37,8 @@ class Review
   before_destroy :clean_orphaned_tags
   after_save     :update_central_tags_list
 
-  validates :string_data, :private, presence: true
+  validates :string_data, presence: true
+  validates :private, inclusion: {in: [true, false]}
   validates :title, presence: true, if: :sensitive?
 
   # enabled?() is controlled by the SEARCH_ENABLED environment variable
