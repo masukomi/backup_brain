@@ -36,8 +36,13 @@ class DashboardsController < ApplicationController
       .to_a
       .group_by_day { |b| b.created_at }
 
+    @grouped_reviews = Review
+      .where(query_params)
+      .to_a
+      .group_by_day { |b| b.created_at }
+
     @grouped_dailies = merge_groupings(
-      [@grouped_bookmarks, @grouped_notes, @grouped_people],
+      [@grouped_bookmarks, @grouped_notes, @grouped_reviews, @grouped_people],
       custom_sort: ->(a, b) {
         a.send(:created_at) <=> b.send(:created_at)
       }
