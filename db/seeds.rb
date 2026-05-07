@@ -1,3 +1,15 @@
+OauthSiteType.find_or_create_by!(slug: "bookwyrm") do |t|
+  t.name = "BookWyrm"
+  t.slug = "bookwyrm"
+  t.description = "Connect to any BookWyrm instance"
+  t.registration_strategy = "bookwyrm"
+  t.registration_path = nil
+  t.authorization_path = "/o/authorize/"
+  t.token_path = "/o/token/"
+  t.default_scopes = ["read"]
+  t.requires_pkce = false
+end
+
 OauthSiteType.find_or_create_by!(slug: "misskey") do |t|
   t.name = "Misskey"
   t.slug = "misskey"

@@ -2,7 +2,7 @@ require "oauth2"
 
 module OauthRegistration
   class Rfc7591Strategy
-    def initialize(base_url:, callback_url:, local_url:, site_type:)
+    def initialize(base_url:, callback_url:, local_url:, site_type:, **)
       @base_url = base_url
       @callback_url = callback_url
       @local_url = local_url

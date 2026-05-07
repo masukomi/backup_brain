@@ -6,6 +6,7 @@ class JobsController < ApplicationController
   MANAGEABLE_JOBS = {
     "FetchMastodonBookmarksJob" => -> { FetchMastodonBookmarksJob.schedule_unless_pending },
     "FetchMisskeyBookmarksJob" => -> { FetchMisskeyBookmarksJob.schedule_unless_pending },
+    "FetchBookwyrmReviewsJob" => -> { FetchBookwyrmReviewsJob.schedule_unless_pending },
     "ArchiveImagesJob" => -> { ArchiveImagesJob.perform_later(bookmarks: nil) },
     "DeleteOrphanedTagsJob" => -> { DeleteOrphanedTagsJob.schedule_unless_pending }
   }.freeze

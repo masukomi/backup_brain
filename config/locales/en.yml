@@ -466,6 +466,9 @@ en:
       bookmark_title: "@%{author} - %{timestamp}"
     misskey:
       bookmark_title: "@%{author} - %{timestamp}"
+    bookwyrm:
+      review_title: "@%{author}'s Review of %{book_title}"
+      unknown_book: "Unknown Book"
   oauth2:
     errors:
       registration_failed: "Client Registration Failed"
@@ -473,6 +476,7 @@ en:
       state_failure: "Something went wrong. Couldn't match their response to site we've previously registered with."
       unexpected_response: "Unexpected Response. \nExpected: %{expected} \nGot: %{response}"
       unknown_site_type: "Unknown site type"
+      bookwyrm_client_id_required: "A client ID is required to connect to BookWyrm. Create an OAuth application on your BookWyrm server first."
     successes:
       account_link: "Account Successfully Linked"
       account_linked: "Account Successfully Linked"

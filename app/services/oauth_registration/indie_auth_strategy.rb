@@ -29,7 +29,7 @@ module OauthRegistration
       "#{client_id}/indieauth-callback"
     end
 
-    def initialize(base_url:, callback_url:, local_url:, site_type:)
+    def initialize(base_url:, callback_url:, local_url:, site_type:, **)
     end
 
     def register!

@@ -17,6 +17,9 @@ class OauthSite
   field :access_token,              type: String
   field :access_token_expires_at,   type: Integer
 
+  # Optional: username on the remote service (used e.g. for BookWyrm outbox URL construction)
+  field :username,                  type: String
+
   belongs_to :oauth_site_type, optional: true
 
   # validations

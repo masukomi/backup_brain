@@ -5,7 +5,8 @@ class OauthSiteType
   STRATEGIES = {
     "mastodon_v1_apps" => "OauthRegistration::MastodonStrategy",
     "rfc7591" => "OauthRegistration::Rfc7591Strategy",
-    "indie_auth" => "OauthRegistration::IndieAuthStrategy"
+    "indie_auth" => "OauthRegistration::IndieAuthStrategy",
+    "bookwyrm" => "OauthRegistration::BookwyrmStrategy"
   }.freeze
 
   field :name, type: String  # "Mastodon"

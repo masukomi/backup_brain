@@ -30,6 +30,7 @@ class SocialMediaAccount
     "sharkey" => "misskey",
     "foundkey" => "misskey",
     "cherrypick" => "misskey",
+    "bookwyrm" => "bookwyrm", # https://joinbookwyrm.com/
     "bski.app" => "bluesky",
     "twitter.com" => "fascist_transphobe",
     "x.com" => "fascist_transphobe",
@@ -37,12 +38,13 @@ class SocialMediaAccount
 
   }.freeze
   SUPPORTED_SERVICES = CONSOLIDATED_SERVICE_MAP.select { |k, v|
-    ["mastodon", "misskey"].include?(v)
+    ["mastodon", "misskey", "bookwyrm"].include?(v)
   }.keys.freeze
 
   field :service,           type: String
   field :profile_url,       type: String
   field :username,          type: String
+  field :display_name,      type: String
   field :avatar_image_path, type: String # path to avatar image
   # typically /archives/social_media_accounts/<id>/avatar.<extension>
   field :header_image_path, type: String # path to header image
@@ -89,6 +91,8 @@ class SocialMediaAccount
       extract_mastodon_avatar_image_url(remote_account_data)
     when "misskey"
       extract_misskey_avatar_image_url(remote_account_data)
+    when "bookwyrm"
+      extract_bookwyrm_avatar_image_url(remote_account_data)
     end
   end
 
@@ -102,6 +106,8 @@ class SocialMediaAccount
       extract_mastodon_header_image_url(remote_account_data)
     when "misskey"
       extract_misskey_header_image_url(remote_account_data)
+    when "bookwyrm"
+      nil # BookWyrm profiles have no header/banner image
     end
   end
 
@@ -114,6 +120,8 @@ class SocialMediaAccount
       extract_mastodon_user_description(data)
     when "misskey"
       extract_misskey_user_description(data)
+    when "bookwyrm"
+      extract_bookwyrm_user_description(data)
     end
   end
 
@@ -126,6 +134,8 @@ class SocialMediaAccount
       extract_mastodon_full_username(data)
     when "misskey"
       extract_misskey_full_username(data)
+    when "bookwyrm"
+      extract_bookwyrm_full_username(data)
     end
   end
 
@@ -215,6 +225,8 @@ class SocialMediaAccount
       default_mastodon_image_path(avatar_or_header)
     when "misskey"
       default_misskey_image_path(avatar_or_header)
+    when "bookwyrm"
+      default_bookwyrm_image_path(avatar_or_header)
     end
   end
 
@@ -273,6 +285,8 @@ class SocialMediaAccount
       @remote_account_data ||= fetch_mastodon_account_data
     when "misskey"
       @remote_account_data ||= fetch_misskey_account_data
+    when "bookwyrm"
+      @remote_account_data ||= fetch_bookwyrm_account_data
     else
       @remote_account_data = {}
     end
@@ -395,5 +409,50 @@ class SocialMediaAccount
     else
       note
     end
+  end
+
+  ######## BOOKWYRM METHODS
+  def fetch_bookwyrm_account_data
+    response = HTTParty.get(
+      profile_url,
+      headers: {"Accept" => "application/activity+json"},
+      verify: false,
+      timeout: 10,
+      follow_redirects: true
+    )
+    return nil unless response.code == 200
+    JSON.parse(response.body)
+  rescue => e
+    Rails.logger.error("SocialMediaAccount: failed to fetch BookWyrm account data for #{profile_url}: #{e.message}")
+    nil
+  end
+
+  def default_bookwyrm_image_path(avatar_or_header)
+    return nil unless avatar_or_header == "avatar"
+    archive_folder_path = archive_folder_path_for_doc(self)
+    future_image_path_or_nil(remote_account_data&.dig("icon", "url"), "avatar", archive_folder_path)
+  end
+
+  def extract_bookwyrm_avatar_image_url(data)
+    validated_image_url(data&.dig("icon", "url"))
+  end
+
+  def extract_bookwyrm_header_image_url(_data)
+    nil
+  end
+
+  def extract_bookwyrm_full_username(data)
+    username = data&.dig("preferredUsername")
+    return nil if username.blank?
+    host = begin
+      URI.parse(profile_url).host.downcase
+    rescue
+      nil
+    end
+    host.present? ? "@#{username}@#{host}" : "@#{username}"
+  end
+
+  def extract_bookwyrm_user_description(data)
+    ReverseMarkdown.convert(data["summary"].to_s).strip
   end
 end

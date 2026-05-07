@@ -22,10 +22,16 @@ class RemoteCredentialsController < ApplicationController
     # remaining stable. The user may have changed it since the last time they connected.
     current_local_url = local_url
 
+    extra_params = if site_type.registration_strategy == "bookwyrm"
+      {client_id: params[:client_id], client_secret: params[:client_secret].presence}
+    else
+      {}
+    end
+
     oauth_site = OauthSite.where(base_url: base_url, registered_url: current_local_url).first
 
     if oauth_site&.expired_secret?
-      result = strategy_for(base_url, site_type).register!
+      result = strategy_for(base_url, site_type, extra_params: extra_params).register!
       oauth_site.update!(
         client_id: result[:client_id],
         client_secret: result[:client_secret],
@@ -39,7 +45,7 @@ class RemoteCredentialsController < ApplicationController
       if OauthSite.where(base_url: base_url).count > 0
         OauthSite.where(base_url: base_url).delete_all
       end
-      result = strategy_for(base_url, site_type).register!
+      result = strategy_for(base_url, site_type, extra_params: extra_params).register!
       oauth_site = OauthSite.create!(
         base_url: base_url,
         registered_url: current_local_url,
@@ -48,6 +54,10 @@ class RemoteCredentialsController < ApplicationController
         client_secret: result[:client_secret],
         client_secret_expires_at: result[:client_secret_expires_at]
       )
+    end
+
+    if params[:username].present?
+      oauth_site.update!(username: params[:username])
     end
 
     raise OAuth2::Error.new(nil, I18n.t("oauth2.errors.registration_failed")) unless oauth_site
@@ -149,13 +159,14 @@ class RemoteCredentialsController < ApplicationController
     "#{local_url}/remote_authorizations/callback"
   end
 
-  def strategy_for(base_url, site_type)
+  def strategy_for(base_url, site_type, extra_params: {})
     klass = OauthSiteType.strategy_class_for(site_type.registration_strategy)
     klass.new(
       base_url: base_url,
       callback_url: callback_url,
       local_url: local_url,
-      site_type: site_type
+      site_type: site_type,
+      **extra_params
     )
   end
 end
