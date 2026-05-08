@@ -76,16 +76,21 @@
                           class: "btn btn-primary compact-button" %>
         </div>
       </div>
-      <div class="row">
-        <div class="col">
-          <div class="safe-space">
-            <%= button_to t("people.delete_link"), @person,
-                          method: :delete,
-                          class: "btn btn-danger compact-button",
-                          form: {data: {turbo_confirm: t("misc.are_you_sure")}} %>
+      <% if current_user
+        # shouldn't be possible to view unless logged in BUT
+        # just in case…
+      %>
+        <div class="row">
+          <div class="col">
+            <div class="safe-space">
+              <%= button_to t("people.delete_link"), @person,
+                            method: :delete,
+                            class: "btn btn-danger compact-button",
+                            form: {data: {turbo_confirm: t("misc.are_you_sure")}} %>
+            </div>
           </div>
         </div>
-      </div>
+      <% end %>
     </div>
   </div>
 <% end %>
