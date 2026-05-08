@@ -85,7 +85,7 @@
     --bb-text-primary: #d4cfc7;
     --bs-body-color: #d8d0c0; /* override bootstrap */
     --bs-table-color: #d8d0c0; /* override bootstrap */
-    --bb-text-input-bg: #252a3a;
+    --bb-text-input-bg: #d8d0c0;
     --bb-pagination-active-color: #ffffff;
     --bb-pagination-active-bg: #2d5080;
     --bb-pagination-disabled-color: #555566;
@@ -132,7 +132,7 @@
 :root[data-color-scheme="dark"] {
   --bb-page-bg: #1a1e2e;
   --bb-text-primary: #d4cfc7;
-  --bb-text-input-bg: #252a3a;
+  --bb-text-input-bg: #d8d0c0;
   --bb-pagination-active-color: #ffffff;
   --bb-pagination-active-bg: #2d5080;
   --bb-pagination-disabled-color: #555566;
