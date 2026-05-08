@@ -25,6 +25,7 @@ class Review
   field :string_data, type: String  # Markdown content of the review
   field :rating,      type: Integer
   field :source_url,  type: String  # URL of the original remote review (for deduplication)
+  field :domain,      type: String  # Domain name of source_url (if present)
   field :private,     type: Boolean, default: true
   field :sensitive,   type: Boolean, default: false
   field :tags,        type: Array,   default: []
@@ -32,7 +33,7 @@ class Review
   # path to image representing thing being reviewed
   # typically /archives/social_media_accounts/<id>/avatar.<extension>
 
-  before_save    :apply_content_triggers, :clean_tags!, :clean_orphaned_tags
+  before_save    :maybe_set_domain, :apply_content_triggers, :clean_tags!, :clean_orphaned_tags
 
   before_destroy :clean_orphaned_tags
   after_save     :update_central_tags_list
@@ -46,6 +47,15 @@ class Review
     after_create  :add_to_search
     after_update  :update_in_search
     after_destroy :remove_from_search
+  end
+
+  def maybe_set_domain
+    return (self.domain = nil) if source_url.blank?
+    self.domain = begin
+      URI.parse(source_url).host.downcase
+    rescue
+      nil
+    end
   end
 
   def apply_content_triggers
