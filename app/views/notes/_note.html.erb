@@ -19,17 +19,17 @@ sensitive_class = (note.sensitive ? " blurred" : "")
   <%# content row %>
   <div class="row">
     <%# everything but action items %>
-    <div class="col-8">
+    <div class="col-12 col-sm-8">
       <%# description %>
       <% if note.title.present? %>
-        <div class="row"><div class="col">
+        <div class="row"><div class="col-12 col-sm-12">
           <%= link_to note_path(note) do %>
             <%== render_markdown(note.title) %>
           <% end %>
         </div></div>
       <% end %>
       <div class="row">
-        <div class="col<%= sensitive_class %>" id="<%= dom_id note %>-content">
+        <div class="col-12 col-sm-12 <%= sensitive_class %>" id="<%= dom_id note %>-content">
           <% if ! note.title.present? %>
             <%= link_to note_path(note) do %>
               <%== render_markdown(preview) %>
@@ -39,10 +39,10 @@ sensitive_class = (note.sensitive ? " blurred" : "")
           <% end %>
         </div>
       </div>
-    </div> <%# end col-8 main note section%>
+    </div>
 
     <%#--- action icons -- %>
-    <div class="col">
+    <div class="col-12 col-sm-4">
       <div class="action-icons">
         <% if current_user %>
           <div class="action-icon">
@@ -85,10 +85,10 @@ sensitive_class = (note.sensitive ? " blurred" : "")
     <%# tags %>
 
     <div class="row note-tags-and-date-row">
-      <div class="col-9<%= sensitive_class %>">
+      <div class="col-12 col-sm-9<%= sensitive_class %>">
         <%= render partial: 'notes/inline_tag_list', locals: {tags: note.tags} %>
       </div>
-      <div class="col note-date-col metadata">
+      <div class="col-12 col-sm-3 note-date-col metadata">
         <%== note.updated_at.strftime(t('date.formats.default')) %>
       </div>
     </div>
