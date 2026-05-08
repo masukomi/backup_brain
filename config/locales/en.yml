@@ -92,9 +92,9 @@ en:
     placeholder: "Search…"
     # for screen readers vvv
     form_label: "Search for:"
-    match_sort_label: "Best Match"
+    match_sort_label: "Best<span class=\"hide-when-tiny\"> Match</span>"
     newest_sort_label: "Newest"
-    search_archives_label: "Search Archives Too"
+    search_archives_label: "<span class=\"hide-when-tiny\">Search </span>Archives Too"
     search_button: "Begin Search"
     missing_index: "See https://BackupBrain.app/troubleshooting for suggestions."
     no_bookmarks: "Search will start working once you add some bookmarks."
@@ -567,7 +567,8 @@ en:
 
   misc:
     missing_alt_text: 'missing alt text. please file a bug'
-    app_name: "Backup Brain"
+    app_name: "BackupBrain"
+    header_app_name: "<span class=\"hide-when-tiny\">BackupBrain</span>"
     dont_click: "No clicky!"
     are_you_sure: "Are you sure?"
     file_a_ticket: "File a ticket."

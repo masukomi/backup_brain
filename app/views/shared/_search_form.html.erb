@@ -11,16 +11,22 @@
         class: "btn btn-primary compact-button search-go-button" %>
     </span>
     <div class="search_form_options">
-      <input type="radio" name="sort" value="match"
-        <% if ! @sort || @sort == "match" %>checked<% end %>
-        id="sort_radio_match" >
-      <label for="sort_radio_match" ><%=I18n.t("search.match_sort_label")%></label>
-      <input type="radio" name="sort" value="newest"
-      <% if @sort == "newest" %>checked<% end %>
-        id="sort_radio_newest" >
-      <label for="sort_radio_newest" ><%=I18n.t("search.newest_sort_label")%></label>
-      <%= form.check_box :search_archives, {id: "search_archives_checkbox", checked: @search_archives}, "true", "false"  %>
-      <label for="search_archives_checkbox" ><%=I18n.t("search.search_archives_label")%></label>
+      <span class="nobr">
+        <input type="radio" name="sort" value="match"
+          <% if ! @sort || @sort == "match" %>checked<% end %>
+          id="sort_radio_match" >
+        <label for="sort_radio_match" ><%== I18n.t("search.match_sort_label")%></label>
+      </span>
+      <span class="nobr">
+        <input type="radio" name="sort" value="newest"
+        <% if @sort == "newest" %>checked<% end %>
+          id="sort_radio_newest" >
+        <label for="sort_radio_newest" ><%== I18n.t("search.newest_sort_label")%></label>
+      </span>
+      <span class="nobr">
+        <%= form.check_box :search_archives, {id: "search_archives_checkbox", checked: @search_archives}, "true", "false"  %>
+        <label for="search_archives_checkbox" ><%== I18n.t("search.search_archives_label")%></label>
+      </span>
     </div>
   <% end %>
 </div>

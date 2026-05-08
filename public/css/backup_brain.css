@@ -651,3 +651,8 @@ blockquote:before {
   margin-right: 0.25em;
   vertical-align: -0.4em;
 }
+.hide-when-tiny{
+	@media (width <= 900px) {
+        display: none !important;
+    }
+}
