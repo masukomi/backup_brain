@@ -1,0 +1,96 @@
+<%
+non_blank = review.string_data.to_s.lines.reject { |l| l.strip.empty? }
+preview   = non_blank.first(3).join.strip + "…"
+privacy_class = (review.private? ? 'private-note' : '')
+sensitive_class = (review.sensitive ? " blurred" : "")
+%>
+<div tabindex="0" id="<%= dom_id review %>"
+     class="container note-list-item <%= privacy_class %>">
+  <%# inline flash row %>
+  <div class="row">
+    <div class="col">
+      <% if defined?(inline_flash) %>
+        <%= render partial: 'shared/inline_flash',
+            locals: {inline_flash: inline_flash} %>
+      <% end %>
+    </div>
+  </div>
+  <%# content row %>
+  <div class="row">
+    <%# everything but action items %>
+    <div class="col-8">
+      <% if review.title.present? %>
+        <div class="row"><div class="col">
+          <%= link_to review_path(review) do %>
+            <%== render_markdown(review.title) %>
+          <% end %>
+        </div></div>
+      <% end %>
+      <% if review.rating.present? %>
+        <div class="row"><div class="col metadata">
+          <%= t('reviews.rating_label', rating: review.rating) %>
+        </div></div>
+      <% end %>
+      <div class="row">
+        <div class="col<%= sensitive_class %>" id="<%= dom_id review %>-content">
+          <% if !review.title.present? %>
+            <%= link_to review_path(review) do %>
+              <%== render_markdown(preview) %>
+            <% end %>
+          <% else %>
+            <%== render_markdown(preview) %>
+          <% end %>
+        </div>
+      </div>
+    </div> <%# end col-8 main review section %>
+
+    <%#--- action icons --%>
+    <div class="col">
+      <div class="action-icons">
+        <% if current_user %>
+          <div class="action-icon">
+            <%== link_to image_tag(
+                  '/images/icons/edit.svg',
+                  class: 'inline-link-icon edit-link-icon',
+                  :"aria-hidden" => true
+                ) + t('reviews.edit_link'),
+                edit_review_path(review),
+                class: 'inline-link-icon edit-link-icon'
+            %>
+          </div>
+          <% if review.private? %>
+            <div class="action-icon">
+              <%= inline_icon("private", icon_class: "inline-body-icon") %>
+              <span class="private-hint"><%= t('reviews.private_hint') %></span>
+            </div>
+          <% end %>
+          <div class="action-icon">
+            <%== link_to image_tag(
+              '/images/icons/delete.svg',
+              class: 'inline-link-icon delete-icon',
+              :"aria-hidden" => true) + t('reviews.delete_link'),
+            review_path(review, method: :delete),
+            class: "inline-link-icon delete-link-icon",
+            method: :delete,
+            data: {
+              confirm: t('misc.are_your_sure'),
+              turbo_method: :delete,
+              turbo_confirm: t('misc.are_you_sure')
+            }
+            %>
+          </div>
+        <% end %>
+      </div><%# end action-icons %>
+    </div> <%# end col %>
+
+    <div class="row note-tags-and-date-row">
+      <div class="col-9<%= sensitive_class %>">
+        <%= render partial: 'reviews/inline_tag_list', locals: {tags: review.tags} %>
+      </div>
+      <div class="col note-date-col metadata">
+        <%== review.updated_at.strftime(t('date.formats.default')) %>
+      </div>
+    </div>
+
+  </div>
+</div>

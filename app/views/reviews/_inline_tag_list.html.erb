@@ -1,0 +1,15 @@
+<% if tags.present? %>
+  <% tags.each do |tag| %>
+    <span class="no-wrap">
+      <%= icon_link(
+          "tag",
+          reviews_tagged_with_path(tags: tag),
+          link_css: "inline-link-icon",
+          aria_hidden: true,
+      ) %>
+      <%= link_to(tag.html_safe, reviews_tagged_with_path(tags: tag)) %>
+    </span>
+  <% end %>
+<% else %>
+  <span class="quiet-notice"><%= t('reviews.no_tags_message') %></span>
+<% end %>

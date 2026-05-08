@@ -93,11 +93,13 @@ class FetchBookwyrmReviewsJob < ApplicationJob
   def create_review_from_activity(object, oauth_site)
     source_url = object["id"]
     html_content = object["content"].to_s
-    rating = object["rating"]
+    rating = object["rating"].to_i # only whole stars here baby!
+    rating = 1 if rating == 0
     book_url = object["inReplyToBook"]
 
-    markdown = build_markdown(html_content, rating, book_url, object["name"].presence)
-    title = build_title(object, oauth_site)
+    book_title = fetch_book_title(object)
+    markdown = build_markdown(html_content, rating, book_url, object["name"].presence, book_title)
+    title = build_title(oauth_site, book_title)
     private_review = !public_activity?(object)
 
     Review.create!(
@@ -112,22 +114,27 @@ class FetchBookwyrmReviewsJob < ApplicationJob
     Rails.logger.error("FetchBookwyrmReviewsJob: failed to save review for #{source_url}: #{e.message}\n#{e.backtrace.first(10).join("\n")}")
   end
 
-  def build_markdown(html_content, rating, book_url, review_name)
+  def build_markdown(html_content, rating, book_url, review_name, book_title)
     lines = []
-    lines << "## #{review_name}" if review_name.present?
-    lines << "**Rating:** #{rating}/5" if rating.present?
-    lines << "**Book:** #{book_url}" if book_url.present?
+    lines << "### #{review_name}" if review_name.present?
+    lines << "**Book:** [#{book_title}](#{book_url})" if book_url.present?
     body = ReverseMarkdown.convert(html_content, unknown_tags: :bypass).strip
     lines << body if body.present?
     lines.join("\n\n")
   end
 
-  def build_title(object, oauth_site)
-    book_title = fetch_book_title(object["inReplyToBook"])
-    I18n.t("jobs.bookwyrm.review_title", author: "@#{oauth_site.username}", book_title: book_title)
+  def build_title(oauth_site, book_title)
+    I18n.t("jobs.bookwyrm.review_title", author: oauth_site.username.to_s, book_title: book_title)
   end
 
-  def fetch_book_title(book_url)
+  def fetch_book_title(object)
+    if (m = object["name"].match(/Review of "(.+)" \(\d+.*/))
+      return m[1]
+    end
+    maybe_title = object["attachment"]&.[](0)&.[]("name")&.match(/.+?: (.*)\s+\(.*?/)&.[](1)
+    return maybe_title if maybe_title.present?
+
+    book_url = object["inReplyToBook"]
     return I18n.t("jobs.bookwyrm.unknown_book") if book_url.blank?
     response = HTTParty.get(
       book_url,

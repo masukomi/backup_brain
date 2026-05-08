@@ -1,0 +1,9 @@
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <heading><%= t('reviews.new_heading') %></heading>
+    </div>
+  </div>
+</div>
+
+<%= render partial: 'form', locals: {review: @review} %>

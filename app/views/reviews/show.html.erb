@@ -1,0 +1,48 @@
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <% if current_user %>
+        <%= link_to t('reviews.edit_link'), edit_review_path(@review) %>
+        <%= link_to t('reviews.delete_link'), review_path(@review),
+            data: { turbo_method: :delete, turbo_confirm: t('misc.are_you_sure') } %>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <% if @review.title.present? %>
+    <div class="row">
+      <div class="col">
+        <div class="archive-text" id="<%= dom_id @review %>-title">
+          <%== render_markdown(@review.title) %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+  <% if @review.rating.present? %>
+    <div class="row">
+      <div class="col metadata">
+        <%= t('reviews.rating_label', rating: @review.rating) %>
+      </div>
+    </div>
+  <% end %>
+  <span class="<%= @review.sensitive ? "blurred" : "" %>">
+    <div class="row">
+      <div class="col">
+        <div class="archive-text" id="<%= dom_id @review %>-content">
+          <%== render_markdown(@review.string_data.to_s) %>
+        </div>
+      </div>
+    </div>
+
+    <div class="row bookmark-tags-and-date-row">
+      <div class="col-9">
+        <%= render partial: 'reviews/inline_tag_list', locals: {tags: @review.tags} %>
+      </div>
+      <div class="col bookmark-date-col metadata">
+        <%== @review.updated_at.strftime(t('date.formats.default')) %>
+      </div>
+    </div>
+  </span>
+</div>

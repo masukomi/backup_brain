@@ -1,0 +1,139 @@
+<%= form_with(model: review, class: "form") do |form| %>
+  <% if review.errors.any? %>
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <div id="error_explanation">
+            <p><%= t('misc.errors.num_errors_prevented_save',
+                     number: review.errors.count,
+                     thing_type: Review.model_name.human) %></p>
+            <ul>
+              <% review.errors.each do |error| %>
+                <li><%= error.full_message %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="container">
+    <div class="row">
+      <div class="col-2">
+        <%= form.label :title, style: "display: block" %>
+      </div>
+      <div class="col">
+        <%= form.text_field :title, class: 'bookmark-input-field' %>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <div class="metadata"><%= t('reviews.title_form_hint') %></div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-2">
+        <%= form.label :rating, style: "display: block" %>
+      </div>
+      <div class="col-2">
+        <%= form.number_field :rating,
+            min: 1, max: 5, step: 1,
+            class: 'bookmark-input-field' %>
+      </div>
+      <div class="col metadata">
+        <%= t('reviews.rating_form_hint') %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <div class="label">
+          <%= form.label :string_data, t('reviews.attributes.labels.string_data') %>
+        </div>
+        <div class="big-text">
+          <%= form.text_area :string_data,
+              size: "80x10",
+              rows: text_area_rows(review.string_data),
+              class: 'object-input-field' %>
+        </div>
+        <%== t('misc.markdown_supported_here') %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-9">
+        <div class="tag-input-wrapper bookmark-input-field"
+             data-controller="tag-input"
+             data-tag-input-autocomplete-url-value="<%= autocomplete_tags_path %>"
+             data-action="click->tag-input#focusInput">
+          <input type="hidden"
+                 name="review[tags]"
+                 value="<%= review.tags.join(' ') %>"
+                 data-tag-input-target="hidden">
+          <div class="tag-chips-area" data-tag-input-target="chipsArea">
+            <input type="text"
+                   class="tag-text-input"
+                   data-tag-input-target="textInput"
+                   data-action="keydown->tag-input#handleKeydown input->tag-input#handleInput"
+                   autocomplete="off"
+                   placeholder="add tags...">
+          </div>
+          <ul class="dropdown-menu tag-autocomplete-dropdown"
+              data-tag-input-target="dropdown"></ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-2">
+        <%= form.label :private,
+            style: "display: block",
+            class: "form-check-label",
+            for: "privateSwitch" %>
+      </div>
+      <div class="col-1 form-check form-switch">
+        <%= inline_icon("private") %>
+        <%= form.check_box :private,
+            class: 'bookmark-checkbox-field form-check-input toggle',
+            role: "switch",
+            id: "privateSwitch",
+            checked: review.private %>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-9 metadata">
+        <%= t('reviews.private_form_hint') %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-2">
+        <%= form.label :sensitive,
+            style: "display: block",
+            class: "form-check-label",
+            for: "sensitiveSwitch" %>
+      </div>
+      <div class="col-1 form-check form-switch">
+        <%= inline_icon("sensitive") %>
+        <%= form.check_box :sensitive,
+            class: 'bookmark-checkbox-field form-check-input toggle',
+            role: "switch",
+            id: "sensitiveSwitch",
+            checked: review.sensitive %>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-9 metadata">
+        <%= t('reviews.sensitive_form_hint') %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <%= form.submit class: "btn btn-primary" %>
+      </div>
+    </div>
+  </div>
+<% end %>

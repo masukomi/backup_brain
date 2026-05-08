@@ -1,0 +1,26 @@
+<% links_hash = get_pagination_links_for_reviews(pagy: pagy, limit: @limit, tags: @query_tags) %>
+<nav class="pagy-bootstrap-nav" role="navigation">
+  <ul class="pagination">
+    <% if pagy.prev %>
+      <%== links_hash[:previous_link] %>
+    <% else %>
+      <li class="page-item prev disabled"><a class="page-link"><%== t('pagination.previous') %></a></li>
+    <% end %>
+
+    <% pagy.series.each do |item| %>
+      <% if item.is_a?(Integer) %>
+        <li class="page-item"><%= links_hash[:link_proc].call(item, nil) %></li>
+      <% elsif item.is_a?(String) %>
+        <li class="page-item active"><%= links_hash[:link_proc].call(item, nil) %></li>
+      <% elsif item == :gap %>
+        <li class="page-item disabled gap"><a class="page-link"><%== t('pagination.page_gap') %></a></li>
+      <% end %>
+    <% end %>
+
+    <% if pagy.next %>
+      <li class="page-item next"><%== links_hash[:next_link] %></li>
+    <% else %>
+      <li class="page-item next disabled"><a class="page-link"><%== t('pagination.next') %></a></li>
+    <% end %>
+  </ul>
+</nav>

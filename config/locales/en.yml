@@ -61,6 +61,12 @@ en:
       note:
         private: "Private"
         sensitive: "Sensitive"
+      review:
+        private: "Private"
+        sensitive: "Sensitive"
+        rating: "Rating"
+        string_data: "Review"
+        title: "Title"
       person:
         email: "Email"
     bookmarks:
@@ -305,6 +311,29 @@ en:
     delete_link: "delete"
     edit_link: "edit"
     add: "Add a Content Trigger"
+  reviews:
+    list_heading: "Reviews"
+    list_link: "Reviews"
+    add: "Add a Review"
+    new_heading: "New Review"
+    edit_heading: "Edit Review"
+    creation_success: "Review saved."
+    update_success: "Review updated."
+    deletion_success: "Review deleted."
+    edit_link: "Edit"
+    delete_link: "delete"
+    no_reviews_message: "No reviews yet."
+    no_tags_message: "(no tags)"
+    private_hint: "Shhh…"
+    rating_label: "%{rating}/5"
+    sensitive_form_hint: "Sensitive contents will be blurred by default."
+    private_form_hint: "Private reviews won't be visible unless logged in."
+    title_form_hint: "You only need a title if the review is marked sensitive."
+    rating_form_hint: "1 to 5 ⭐"
+    attributes:
+      labels:
+        string_data: "Your review…"
+        public: "Public"
   notes:
     list_heading: "Notes"
     list_link: "Notes"
