@@ -116,6 +116,7 @@ class FetchBookwyrmReviewsJob < ApplicationJob
 
   def build_markdown(html_content, rating, book_url, review_name, book_title)
     lines = []
+    review_name.sub!(/Review of .*\(.*?\): (.*)/, '\\1')
     lines << "### #{review_name}" if review_name.present?
     lines << "**Book:** [#{book_title}](#{book_url})" if book_url.present?
     body = ReverseMarkdown.convert(html_content, unknown_tags: :bypass).strip

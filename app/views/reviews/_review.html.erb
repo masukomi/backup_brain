@@ -27,9 +27,11 @@ sensitive_class = (review.sensitive ? " blurred" : "")
         </div></div>
       <% end %>
       <% if review.rating.present? %>
-        <div class="row"><div class="col metadata">
-          <%= t('reviews.rating_label', rating: review.rating) %>
-        </div></div>
+        <div class="row">
+          <div class="col">
+            <%= "⭐" * review.rating %>
+          </div>
+        </div>
       <% end %>
       <div class="row">
         <div class="col<%= sensitive_class %>" id="<%= dom_id review %>-content">

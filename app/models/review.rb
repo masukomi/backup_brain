@@ -23,7 +23,7 @@ class Review
   # We need something un-fuzzed to display
   field :title,       type: String
   field :string_data, type: String  # Markdown content of the review
-  field :rating,      type: Float
+  field :rating,      type: Integer
   field :source_url,  type: String  # URL of the original remote review (for deduplication)
   field :private,     type: Boolean, default: true
   field :sensitive,   type: Boolean, default: false
