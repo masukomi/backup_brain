@@ -1,0 +1,47 @@
+<div class="list-group" id="hamburger-nav-items">
+  <div class="list-group-item list-group-item-action"
+       data-controller="color-scheme"
+       data-color-scheme-dark-label-value="<%= t('navigation.enable_dark_mode') %>"
+       data-color-scheme-light-label-value="<%= t('navigation.enable_light_mode') %>">
+    <a href="#" data-action="click->color-scheme#toggle" data-bs-dismiss="modal">
+      <img src="/images/icons/moon.svg" data-color-scheme-target="icon" class="inline-icon">
+      <span data-color-scheme-target="label"><%= t('navigation.enable_dark_mode') %></span>
+    </a>
+  </div>
+  <% if !current_user %>
+    <div class="list-group-item list-group-item-action">
+      <span class="learn-more"><a href="https://BackupBrain.app" title="<%= t('misc.learn_more_title') %>" data-bs-dismiss="modal"><%== t('misc.learn_more_link') %></a></span>
+    </div>
+  <% else %>
+    <%= link_to t('dashboards.dailies.sidebar_link'), dailies_path, class: "list-group-item list-group-item-action" %>
+  <% end %>
+  <%= link_to t('bookmarks.all_link'), bookmarks_path, class: "list-group-item list-group-item-action" %>
+  <% if current_user %>
+    <%= link_to t('bookmarks.add'), new_bookmark_path, class: "list-group-item list-group-item-action" %>
+  <% end %>
+  <%= link_to t('navigation.to_read_link'), bookmarks_to_read_path, class: "list-group-item list-group-item-action" %>
+  <%= link_to t('notes.list_link'), notes_path, class: "list-group-item list-group-item-action" %>
+  <%= link_to t('reviews.list_link'), reviews_path, class: "list-group-item list-group-item-action" %>
+  <% if current_user %>
+    <%= link_to t('people.list_link'), people_path, class: "list-group-item list-group-item-action" %>
+    <%= link_to t('tags.link'), tags_path, class: "list-group-item list-group-item-action" %>
+    <%= link_to t('navigation.unarchived_link'), bookmarks_unarchived_path, class: "list-group-item list-group-item-action" %>
+    <%= link_to t('administration.nav_link'), administration_path, class: "list-group-item list-group-item-action" %>
+  <% end %>
+  <% if current_user %>
+    <div class="list-group-item">
+      <% if cookies[:hide_private].present? %>
+        <%= button_to t('navigation.show_private'), show_private_path, method: :delete, class: "btn btn-sm btn-secondary w-100" %>
+      <% else %>
+        <%= button_to t('navigation.hide_private'), hide_private_path, method: :post, class: "btn btn-sm btn-secondary w-100" %>
+      <% end %>
+    </div>
+    <div class="list-group-item">
+      <%= button_to t('accounts.links.sign_out'), destroy_user_session_path, method: :delete, class: "btn btn-sm btn-primary w-100" %>
+    </div>
+  <% elsif @user_count > 0 %>
+    <%= link_to t('accounts.links.sign_in'), new_user_session_path, class: "list-group-item list-group-item-action" %>
+  <% else %>
+    <%= link_to t('accounts.links.sign_up'), new_user_registration_path, class: "list-group-item list-group-item-action" %>
+  <% end %>
+</div>

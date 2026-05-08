@@ -87,6 +87,9 @@ en:
     show_private: "Show Private"
     enable_dark_mode: "Enable Dark Mode"
     enable_light_mode: "Enable Light Mode"
+    hamburger_menu_open: "Open navigation menu"
+    hamburger_menu_label: "Navigation"
+    hamburger_menu_close: "Close navigation menu"
   search:
     missing_query: "You gotta give me something to work with here. 🤦‍♀️"
     placeholder: "Search…"

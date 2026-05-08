@@ -89,6 +89,45 @@ heading > .inline-icon{
 	max-width: 3rem;
 	display: inline-block;
 }
+.hamburger-menu-btn {
+	background: transparent;
+	border: none;
+	padding: 0;
+	cursor: pointer;
+	margin-right: 0.5rem;
+	vertical-align: middle;
+}
+.hamburger-menu-icon {
+	width: 1.5em;
+	height: 1.5em;
+}
+[data-color-scheme="dark"] .hamburger-menu-icon {
+	filter: invert(1);
+}
+#hamburger-nav-items .list-group-item {
+	--bs-list-group-border-width: 0px;
+	--bs-modal-border-width: 0px;
+}
+#hamburger-nav-items .list-group-item a {
+	color: inherit;
+	text-decoration: none;
+}
+#hamburger-nav-items .list-group-item-action:hover a,
+#hamburger-nav-items .list-group-item-action:focus a {
+	color: inherit;
+}
+.modal-dialog{
+	background: transparent;
+}
+.modal-content, .modal-header, .modal-body {
+    background: var(--bb-surface-bg);
+}
+#hamburger-nav-modal .modal-body {
+	padding: 0;
+}
+#hamburger-nav-modal {
+	background-color: transparent;
+}
 #header{
     background: var(--bb-surface-bg);
     min-height: 2rem;
