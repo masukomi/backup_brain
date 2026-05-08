@@ -104,9 +104,13 @@ heading > .inline-icon{
 [data-color-scheme="dark"] .hamburger-menu-icon {
 	filter: invert(1);
 }
+#hamburger-nav-modal .btn-close{
+	background-color: var(--bb-text-input-bg);
+}
 #hamburger-nav-items .list-group-item {
 	--bs-list-group-border-width: 0px;
 	--bs-modal-border-width: 0px;
+	background-color: var(--bb-surface-bg);
 }
 #hamburger-nav-items .list-group-item a {
 	color: inherit;
@@ -457,10 +461,10 @@ textarea,
 input.form-control,
 .tag-input-wrapper,
 .toggle {
-	background-color: var(--bb-text-input-bg)
+	background-color: var(--bb-text-input-bg);
 }
 .form-switch .form-check-input:checked {
-	background-color: var(--bb-toggle-on-bg)
+	background-color: var(--bb-toggle-on-bg);
 }
 
 
