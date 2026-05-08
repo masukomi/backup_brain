@@ -15,7 +15,12 @@
     <div class="row">
       <div class="col">
         <div class="archive-text" id="<%= dom_id @review %>-title">
-          <%== render_markdown(@review.title) %>
+          <% if @review.source_url.present? %>
+            <%= maybe_favicon(@review.domain)%>
+              <%= link_to( render_markdown(@review.title).html_safe, @review.source_url) %>
+            <% else %>
+              <%== render_markdown(@review.title) %>
+            <% end %>
         </div>
       </div>
     </div>

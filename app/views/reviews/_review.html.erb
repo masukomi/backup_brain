@@ -21,8 +21,14 @@ sensitive_class = (review.sensitive ? " blurred" : "")
     <div class="col-8">
       <% if review.title.present? %>
         <div class="row"><div class="col">
-          <%= link_to review_path(review) do %>
-            <%== render_markdown(review.title) %>
+          <% if review.source_url.present? %>
+            <%= maybe_favicon(review.domain)%>
+            <%= link_to( render_markdown(review.title).html_safe, review.source_url) %>
+          <% else %>
+            <%= icon_link("archive", review_path(review),
+                          link_css: "inline-link-icon archive-link-icon",
+                          alt: t('bookmarks.view_archive_alt_text'),
+                          text:  render_markdown(review.title).html_safe ) %>
           <% end %>
         </div></div>
       <% end %>
@@ -49,6 +55,13 @@ sensitive_class = (review.sensitive ? " blurred" : "")
     <%#--- action icons --%>
     <div class="col">
       <div class="action-icons">
+        <%= icon_link("archive", review_path(review),
+                      link_css: "inline-link-icon archive-link-icon",
+                      alt: t('reviews.view_archive_alt_text'),
+                      text:  t('reviews.view_archive_link_text')
+        )
+        %>
+
         <% if current_user %>
           <div class="action-icon">
             <%== link_to image_tag(

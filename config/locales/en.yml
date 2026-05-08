@@ -320,6 +320,8 @@ en:
     creation_success: "Review saved."
     update_success: "Review updated."
     deletion_success: "Review deleted."
+    view_archive_link_text: "Archived"
+    view_archive_alt_text: "Archived"
     edit_link: "Edit"
     delete_link: "delete"
     no_reviews_message: "No reviews yet."
