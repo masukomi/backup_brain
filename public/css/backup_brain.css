@@ -257,6 +257,13 @@ img.delete-icon {
 	padding: 0px;
 }
 
+.form-select,
+.dropdown-menu .dropdown-item,
+.dropdown-menu .dropdown-item:hover,
+.dropdown-menu .dropdown-item:focus{
+	color: var(--bb-page-bg);
+}
+
 /* BOOKMARKS */
 
 .favicon {
