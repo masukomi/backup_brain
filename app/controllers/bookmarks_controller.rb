@@ -80,6 +80,7 @@ class BookmarksController < ApplicationController
 
     if @query.blank? && @query_tags.present?
       redirect_to action: "tagged_with", tags: @query_tags.join(",")
+      return
     elsif @query.blank?
       flash_message(:notice, t("search.missing_query"))
       redirect_to action: "index"
