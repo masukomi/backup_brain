@@ -55,9 +55,10 @@ export default class extends Controller {
 
       case "Tab": {
         const word = this.textInputTarget.value.trim()
-        if (this._dropdownVisible() && this._activeIndex >= 0 && items[this._activeIndex]) {
+        if (this._dropdownVisible() && items.length > 0) {
           e.preventDefault()
-          this._selectItem(items[this._activeIndex].dataset.tag)
+          const target = this._activeIndex >= 0 ? items[this._activeIndex] : items[0]
+          this._selectItem(target.dataset.tag)
         } else if (word.length > 0) {
           // Add chip but don't preventDefault — let Tab move focus
           this._selectItem(word)
