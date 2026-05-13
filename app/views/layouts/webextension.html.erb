@@ -6,6 +6,12 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+    <script>
+      (function() {
+        var s = localStorage.getItem("bb-color-scheme");
+        if (s) document.documentElement.dataset.colorScheme = s;
+      })();
+    </script>
 
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "/css/bootstrap.css" %>
