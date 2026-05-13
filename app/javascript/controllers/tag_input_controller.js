@@ -7,6 +7,7 @@ export default class extends Controller {
   connect() {
     this._debounceTimer = null
     this._activeIndex = -1
+    this._suppressDropdown = false
     const existing = this.hiddenTarget.value.trim()
     if (existing) {
       existing.split(/\s+/).filter(t => t.length > 0).forEach(t => this._addChip(t))
@@ -60,8 +61,15 @@ export default class extends Controller {
           const target = this._activeIndex >= 0 ? items[this._activeIndex] : items[0]
           this._selectItem(target.dataset.tag)
         } else if (word.length > 0) {
-          // Add chip but don't preventDefault — let Tab move focus
+          // User typed something — add chip and keep focus here
+          e.preventDefault()
+          clearTimeout(this._debounceTimer)
+          this._suppressDropdown = true
           this._selectItem(word)
+        } else {
+          // Nothing typed — let Tab move focus to the next element
+          clearTimeout(this._debounceTimer)
+          this._suppressDropdown = true
         }
         break
       }
@@ -89,6 +97,7 @@ export default class extends Controller {
   handleInput() {
     clearTimeout(this._debounceTimer)
     this._activeIndex = -1
+    this._suppressDropdown = false
 
     // Handle paste: split on spaces/commas into chips, keep last partial word
     const value = this.textInputTarget.value
@@ -116,6 +125,7 @@ export default class extends Controller {
   }
 
   _showDropdown(tags) {
+    if (this._suppressDropdown) return
     const dropdown = this.dropdownTarget
     dropdown.innerHTML = ""
     if (tags.length === 0) {
