@@ -1,6 +1,6 @@
 <div class="container">
   <div class="row">
-    <div class="col sidebar-tags">
+    <div class="col sidebar-tags<%= ' sidebar-tags-scrollable' if @tags_list.length > 40 %>">
       <% if defined?(@tags) or action_name== 'search' %>
         <div id="tags-list-heading"><%= t('tags.overlapping_tags') %></div>
       <% end %>

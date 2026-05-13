@@ -230,6 +230,11 @@ img.delete-icon {
 	}
 }
 
+.sidebar-tags-scrollable {
+	max-height: 40em;
+	overflow-y: auto;
+}
+
 .tags-page-link {
 	padding: 0.1rem 0.2rem;
 	/* top & bottom, left & right */
