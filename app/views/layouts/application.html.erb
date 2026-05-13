@@ -95,13 +95,26 @@
           <%= yield %>
         </div>
         <div class="col-12 col-sm-12 col-md-12 col-lg-3" id="side-navigation">
-          <%= render partial: 'shared/side_navigation' %>
-          <%= yield :sidebar %>
+          <span class="d-none">
+            d-none
+          </span>
+          <span class="d-sm-none">
+            d-sm-none
+          </span>
 
-          <% if defined?(@tags_list) && !%w[notes reviews].include?(controller_name) %>
-            <%= render partial: 'shared/side_tags' %>
-          <% end %>
-          <%= render partial: 'shared/side_administration' %>
+          <%# future me: the d-none and d-{size}-block are a pair that must
+          both be present for display / hiding with the display property
+          to work https://getbootstrap.com/docs/5.0/utilities/display/
+          %>
+          <span class="d-none d-sm-block">
+            <%= render partial: 'shared/side_navigation' %>
+            <%= yield :sidebar %>
+
+            <% if defined?(@tags_list) && !%w[notes reviews].include?(controller_name) %>
+              <%= render partial: 'shared/side_tags' %>
+            <% end %>
+            <%= render partial: 'shared/side_administration' %>
+          </span>
         </div>
       </div>
     </div>
