@@ -95,14 +95,7 @@
           <%= yield %>
         </div>
         <div class="col-12 col-sm-12 col-md-12 col-lg-3" id="side-navigation">
-          <span class="d-none">
-            d-none
-          </span>
-          <span class="d-sm-none">
-            d-sm-none
-          </span>
-
-          <%# future me: the d-none and d-{size}-block are a pair that must
+          <%# future me: the d-{size or nothing}none and d-{next size}-block are a pair that must
           both be present for display / hiding with the display property
           to work https://getbootstrap.com/docs/5.0/utilities/display/
           %>
@@ -122,15 +115,40 @@
     <div class="container non-essential" id="footer">
       <% if current_user %>
         <div class="row">
-            <div class="col bookmarklet">
-                <a href="javascript:url=location.href; if(document.getSelection){selection=document.getSelection();}else{selection='';}; title=document.title; void(open('<%= request.base_url %>/bookmarks/new?url='+encodeURIComponent(url)+'&description='+encodeURIComponent(selection)+'&title='+encodeURIComponent(title)+'&closeable=true&layout=webextension','Backup Brain','toolbar=no,width=800,height=650'));"><%= t('misc.bookmarklet.link_text') %></a> <%== t('misc.bookmarklet.inline_instructions') %>
+            <div class="col-12 bookmarklet">
+              <a class="nobr" href="javascript:url=location.href; if(document.getSelection){selection=document.getSelection();}else{selection='';}; title=document.title; void(open('<%= request.base_url %>/bookmarks/new?url='+encodeURIComponent(url)+'&description='+encodeURIComponent(selection)+'&title='+encodeURIComponent(title)+'&closeable=true&layout=webextension','Backup Brain','toolbar=no,width=800,height=650'));"><%= t('misc.bookmarklet.link_text') %></a>
+              <%== t('misc.bookmarklet.inline_drag_this') %>
+              <%== t('misc.bookmarklet.bookmarklet_description') %>
+
             </div>
         </div>
       <% end %>
 
         <div class="row">
-            <div class="col version-info">
+            <div class="col-12 version-info">
             <%= t('misc.launched_with_version', version: Rails.configuration.x.git_version) %>
+              <% if params[:show_size] == "true" %>
+              <div id="bs-size-indicator">
+                <span class="d-block d-sm-none">
+                  xs →
+                </span>
+                <span class="d-none d-sm-block d-md-none">
+                  sm →
+                </span>
+                <span class="d-none d-md-block d-lg-none">
+                  md →
+                </span>
+                <span class="d-none d-lg-block d-xl-none">
+                  lg →
+                </span>
+                <span class="d-none d-xl-block d-xxl-none">
+                  xl →
+                </span>
+                <span class="d-none d-xxl-block">
+                  xxl
+                </span>
+              </div>
+              <% end %>
             </div>
         </div>
     </div>

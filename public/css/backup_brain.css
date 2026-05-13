@@ -439,6 +439,13 @@ note {
 	background: var(--bb-surface-bg);
 	justify-content: center;
 	display: flex;
+	flex-wrap: wrap;
+}
+
+#bookmarklet-instructions,
+#bs-size-indicator{
+	flex-basis: 100%;
+	text-align: center;
 }
 
 #extension-links{
