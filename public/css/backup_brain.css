@@ -266,7 +266,10 @@ img.delete-icon {
 .dropdown-menu .dropdown-item,
 .dropdown-menu .dropdown-item:hover,
 .dropdown-menu .dropdown-item:focus{
-	color: var(--bb-page-bg);
+	color: var(--bb-dropdown-text-input);
+}
+.dropdown-menu .dropdown-item.active {
+	background-color: var(--bb-dropdown-text-input-active-bg)
 }
 
 /* BOOKMARKS */
