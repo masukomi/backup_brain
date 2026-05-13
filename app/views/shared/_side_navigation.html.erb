@@ -10,9 +10,12 @@
             <span data-color-scheme-target="label"><%= t('navigation.enable_dark_mode') %></span>
           </a>
         </li>
+
         <% if ! current_user %>
           <li><span class="learn-more"><a href="https://BackupBrain.app" title="<%= t('misc.learn_more_title')%>"><%==t('misc.learn_more_link')%></a></span></li>
-        <% else %>
+        <% end  %>
+
+        <% if current_user %>
           <li><%= link_to t('dashboards.dailies.sidebar_link'), dailies_path %>
         <% end  %>
 
