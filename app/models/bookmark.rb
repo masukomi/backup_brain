@@ -150,7 +150,9 @@ class Bookmark
   # currently:
   #  - if the url has changed
   def maybe_generate_archive
-    generate_archive(false) if url_changed?
+    # new_record? guard: Mongoid treats nil→value as a change, so url_changed? is
+    # true on every new record. after_create :generate_archive handles that case.
+    generate_archive(false) if !new_record? && url_changed?
   end
 
   # Deletes the entire folder
