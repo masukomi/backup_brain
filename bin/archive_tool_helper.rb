@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require "json"
-module ArchiverJsonHelper
+module ArchiveToolHelper
   def error_json_and_exit(note:, exception:, additional_info: nil)
     warn "#{note}: #{exception.message}"
     json = {

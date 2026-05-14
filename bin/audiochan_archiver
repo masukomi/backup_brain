@@ -12,7 +12,7 @@ require "json"
 require "yaml"
 require "httparty"
 require_relative "../app/lib/backup_brain/request_headers"
-require_relative "archiver_json_helper"
+require_relative "archive_tool_helper"
 include ArchiverJsonHelper # rubocop:disable Style/MixinUsage
 # error_json_and_exit + success_json_and_exit
 

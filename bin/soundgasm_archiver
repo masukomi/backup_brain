@@ -6,7 +6,7 @@
 #
 # Usage: bin/soundgasm <html_file>
 
-require_relative "archiver_json_helper"
+require_relative "archive_tool_helper"
 include ArchiverJsonHelper # rubocop:disable Style/MixinUsage
 # error_json_and_exit + success_json_and_exit
 
