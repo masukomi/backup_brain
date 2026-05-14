@@ -7,7 +7,7 @@
 # Usage: bin/soundgasm <html_file>
 
 require_relative "archive_tool_helper"
-include ArchiverJsonHelper # rubocop:disable Style/MixinUsage
+include ArchiveToolHelper # rubocop:disable Style/MixinUsage
 # error_json_and_exit + success_json_and_exit
 
 if ARGV.size != 1
@@ -15,6 +15,7 @@ if ARGV.size != 1
   exit 1 # can't happen
 end
 
+archiver_logger.info("[#{File.basename($0)}] start file=#{ARGV[0]}")
 begin
   html = File.read(ARGV[0], encoding: "UTF-8")
 
