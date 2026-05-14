@@ -30,7 +30,7 @@ begin
     }
   )
 
-  success_json_and_exit(markdown: "#{css_link}\n\n#{markdown}")
+  success_json_and_exit(markdown: markdown)
 rescue RedditPostToMarkdown::NotAPostError => e
   error_json_and_exit(note: "Not a post URL", exception: e)
   exit 65; # EXT_DATAERR - Belt and suspenders. Theoretically can't be hit.
