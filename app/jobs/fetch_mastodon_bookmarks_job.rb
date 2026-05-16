@@ -120,9 +120,9 @@ class FetchMastodonBookmarksJob < ApplicationJob
       user: user,
       tags: [MASTODON_TAG]
     )
+    # Social Media Account that created the post
     sma    = find_or_create_sma_for(account_data)
-    person = sma&.person || Person.find_by(social_media_profile_url: account_data["url"])
-    bookmark.people << person if person.present?
+    bookmark.people << sma.person if sma.person.present?
     bookmark.social_media_accounts << sma
 
     # We already have the content — build an Archive from the status HTML
