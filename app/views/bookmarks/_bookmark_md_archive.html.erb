@@ -1,14 +1,22 @@
 <%# Note: this exists within a bootstrap 'col' %>
 <% archive.media_objects.select(&:is_youtube?).each do |mo| %>
-  <% embed_src = BackupBrain::YouTube.embed_url(mo.url) %>
+  <% embed_src = BackupBrain::YouTube.embed_url(mo.url)
+    blur = mo.sensitive && ! bookmark.sensitive
+  %>
   <% if embed_src %>
     <% embed_src += (embed_src.include?("?") ? "&" : "?") + "enablejsapi=1" %>
-    <iframe id="yt-player-<%= mo._id %>"
-            class="youtube-player-embed"
-            width="560" height="315"
-            src="<%= embed_src %>"
-            frameborder="0"
-            allowfullscreen></iframe>
+    <% if blur %>
+      <sensitive>
+    <% end %>
+      <iframe id="yt-player-<%= mo._id %>"
+              class="youtube-player-embed"
+              width="560" height="315"
+              src="<%= embed_src %>"
+              frameborder="0"
+              allowfullscreen></iframe>
+    <% if blur %>
+      </sensitive>
+    <% end %>
   <% end %>
 <% end %>
 <archive>
@@ -22,7 +30,10 @@
       <heading><%= t('transcriptions.headings.inline', name: idx + 1) %></heading>
       <span class="transcription-source-subheading"><%= t("transcriptions.source.#{transcription.source}") %></span>
     </div>
-    <div class="transcription-div">
+    <%# blur the Media Object IF it's sensitive
+    Don't bother if the surrounding bookmark is already sensitive.
+    %>
+    <div class="transcription-div <%= (mo.sensitive && ! bookmark.sensitive) ? "blurred" : ""%>">
       <% if transcription.source == "youtube" %>
         <%= transcription.text.split(/\r?\n/).map do |line|
           if (m = line.match(/\A(\d+\.?\d*)\s+(.*)\z/m))
