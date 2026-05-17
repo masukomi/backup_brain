@@ -118,10 +118,13 @@ class FetchMastodonBookmarksJob < ApplicationJob
       title: title,
       description: description,
       user: user,
+      sensitive: status["sensitive"] || false,
       tags: [MASTODON_TAG]
     )
     # Social Media Account that created the post
     sma    = find_or_create_sma_for(account_data)
+    # If it was a SMA previously created by the user there'll be a Person attached.
+    # If it was created by this process, or something similar, there won't be.
     bookmark.people << sma.person if sma.person.present?
     bookmark.social_media_accounts << sma
 
@@ -140,8 +143,8 @@ class FetchMastodonBookmarksJob < ApplicationJob
 
     append_media_attachments(status["media_attachments"], archive, bookmark, oauth_site.access_token)
 
-    archive_saved = archive.string_data.present?
-    if archive_saved
+    archive_has_content = archive.string_data.present?
+    if archive_has_content
       archive.video_urls.each { |url| archive.add_media_object(url, simple_type: "video") }
       # dunno why I have to do this created_at & updated_at manually
       archive.created_at = DateTime.now
@@ -295,6 +298,8 @@ class FetchMastodonBookmarksJob < ApplicationJob
 
   # TODO: make this username (@foo@bar.com) + status.created_at.strftime("???")
   def build_title(html_content, status)
+    return status["spoiler_text"] if status["spoiler_text"].present?
+
     timestamp = DateTime.parse(status["created_at"]).strftime(TITLE_TIMESTAMP_FORMAT)
     author = status.dig("account", "display_name")
     author = "@#{status.dig("account", "acct")}" if author.blank?
