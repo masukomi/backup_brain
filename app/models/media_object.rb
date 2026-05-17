@@ -2,11 +2,12 @@ class MediaObject
   include Mongoid::Document
   include Mongoid::Timestamps
 
-  field :mime_type, type: String   # nil, or a valid "type/subtype" MIME string
-  field :simple_type, type: String   # "audio" or "video"
-  field :url, type: String   # relative archive path or http(s) URL
+  field :mime_type,       type: String   # nil, or a valid "type/subtype" MIME string
+  field :simple_type,     type: String   # "audio" or "video"
+  field :url,             type: String   # relative archive path or http(s) URL
   field :hero_image_path, type: String
-  field :alt_text, type: String
+  field :alt_text,        type: String
+  field :sensitive,       type: Boolean, default: false
 
   embedded_in :archive
   embeds_one :transcription

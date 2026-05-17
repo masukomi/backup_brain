@@ -119,6 +119,7 @@ class FetchMastodonBookmarksJob < ApplicationJob
       description: description,
       user: user,
       sensitive: status["sensitive"] || false,
+
       tags: [MASTODON_TAG]
     )
     # Social Media Account that created the post
@@ -145,7 +146,13 @@ class FetchMastodonBookmarksJob < ApplicationJob
 
     archive_has_content = archive.string_data.present?
     if archive_has_content
-      archive.video_urls.each { |url| archive.add_media_object(url, simple_type: "video") }
+      archive.video_urls.each { |url|
+        archive.add_media_object(
+          url,
+          simple_type: "video",
+          sensitive: bookmark.sensitive
+        )
+      }
       # dunno why I have to do this created_at & updated_at manually
       archive.created_at = DateTime.now
       archive.updated_at = archive.created_at

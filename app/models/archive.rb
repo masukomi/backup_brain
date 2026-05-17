@@ -269,13 +269,14 @@ class Archive
   # @param url [String] local archive path or remote URL
   # @param simple_type [String] "audio" or "video"
   # @return [MediaObject]
-  def add_media_object(url, simple_type:)
+  def add_media_object(url, simple_type:, sensitive: false)
     mime = (simple_type == "audio") ? Rack::Mime.mime_type(File.extname(url).downcase, nil) : nil
     # NOTE: the after_create on the MediaObject will schedule a transcription job
     media_objects.build(
       url: url,
       simple_type: simple_type,
       mime_type: mime,
+      sensitive: sensitive,
       hero_image_path: (simple_type == "video") ? hero_image_path : nil
     )
   end
