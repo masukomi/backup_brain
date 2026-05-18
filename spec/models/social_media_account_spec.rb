@@ -95,7 +95,7 @@ RSpec.describe SocialMediaAccount do
         end
 
         it "returns @username without a host" do
-          expect(sma.remote_username).to(eq("@alice"))
+          expect(sma.remote_username).to(eq("@alice@misskey.io"))
         end
       end
 

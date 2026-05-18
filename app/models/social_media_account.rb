@@ -349,7 +349,8 @@ class SocialMediaAccount
         nil
       end
     end
-    host.present? ? "@#{data["username"]}@#{host}" : "@#{data["username"]}"
+    return "@#{username}@#{host}" if host.present? && username.exclude?(host)
+    "@#{username}"
   end
 
   def extract_misskey_user_description(data)
@@ -406,7 +407,8 @@ class SocialMediaAccount
     rescue
       nil
     end
-    host.present? ? "@#{partial_username}@#{host}" : "@#{partial_username}"
+    return "@#{partial_username}@#{host}" if host.present? && partial_username.exclude?(host)
+    "@#{partial_username}"
   end
 
   def extract_mastodon_user_description(data)
