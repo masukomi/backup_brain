@@ -423,40 +423,105 @@ class SocialMediaAccount
     end
   end
 
-  ######## GOTOSOCIAL METHODS
-  def fetch_gotosocial_account_data
+  def proxy_account_lookup_via_oauthed_mastodon(profile_url)
+    mastodon_type = OauthSiteType.find_by(slug: "mastodon")
+    # no point in continuing if we don't know about MastodonSiteTypes
+    # That being said, this is in the seed data and should *never*
+    # be nil
+    return nil unless mastodon_type
+
     uri = URI.parse(profile_url)
-    base_url = "#{uri.scheme}://#{uri.host}"
     host = uri.host
     username = uri.path.split("/").last.delete_prefix("@")
+    account = "#{username}@#{host}"
 
-    wf_response = HTTParty.get(
-      "#{base_url}/.well-known/webfinger",
-      query: {resource: "acct:#{username}@#{host}"},
-      headers: {"Accept" => "application/jrd+json, application/json"},
-      verify: false,
-      timeout: 10,
-      follow_redirects: true
-    )
-    return nil unless wf_response.code == 200
+    # It's possible that one of the accounts you've authenticated with
+    # isn't federated with the host of this profile url, so we'll
+    # try multiple if present, and the 1st one doesn't work.
+    sites = OauthSite.where(
+      :oauth_site_type => mastodon_type,
+      :base_url.nin => ["https://#{host}", "http://#{host}"]
+    ).to_a
 
-    actor_url = JSON.parse(wf_response.body)["links"]
-      &.find { |l| l["rel"] == "self" && l["type"] == "application/activity+json" }
-      &.dig("href")
-    return nil if actor_url.blank?
+    return nil if sites.blank?
 
-    actor_response = HTTParty.get(
-      actor_url,
-      headers: {"Accept" => "application/activity+json"},
-      verify: false,
-      timeout: 10,
-      follow_redirects: true
-    )
-    return nil unless actor_response.code == 200
-    JSON.parse(actor_response.body)
+    # First pass: public lookup on each connected instance (no auth needed)
+    sites.each do |site|
+      data = lookup_via_oauthed_mastodon(site, account)
+      return data if data.present?
+    end
+
+    # Second pass: authenticated resolve=true search to force federation
+    sites.select { |s| s.access_token.present? }.each do |site|
+      data = search_account_via_oauthed_mastodon(site, account)
+      return data if data.present?
+    end
   rescue => e
-    Rails.logger.error("SocialMediaAccount: failed to fetch GoToSocial account data for #{profile_url}: #{e.message}")
+    Rails.logger.error("SocialMediaAccount: Mastodon proxy lookup failed for #{acct}: #{e.message}")
     nil
+  end
+
+  def lookup_account_via_oauthed_mastodon(oauth_site, account)
+    response = HTTParty.get(
+      "#{site.base_url}/api/v1/accounts/lookup",
+      query: {acct: acct},
+      verify: false,
+      timeout: 10,
+      follow_redirects: true
+    )
+    return normalize_mastodon_to_activitypub(JSON.parse(response.body)) if response.code == 200
+    nil
+  end
+
+  def search_account_via_oauthed_mastodon(oauth_site, account)
+    response = HTTParty.get(
+      "#{site.base_url}/api/v2/search",
+      query: {q: "@#{acct}", resolve: "true", limit: 1, type: "accounts"},
+      headers: {"Authorization" => "Bearer #{site.access_token}"},
+      verify: false,
+      timeout: 15,
+      follow_redirects: true
+    )
+    return nil unless response.code == 200
+    account_data = JSON.parse(response.body)["accounts"]&.first
+    return normalize_mastodon_to_activitypub(account_data) if account_data
+    nil
+  end
+
+  ######## GOTOSOCIAL METHODS
+  # GoToSocial implements HTTP Signatures (sometimes called Linked Data
+  # Signatures in the ActivityPub context, though that's a
+  # slightly different spec). The specific RFC is RFC 9421 (HTTP
+  # Message Signatures), though the fediverse largely
+  # implemented an earlier draft spec before 9421 was finalized,
+  # so you'll also see references to the older Cavage
+  # draft (draft-cavage-http-signatures).
+  #
+  # Because of this, we can only get the info via an ActivityPub server
+  # that can be reached by their host and implements HTTP Signatures.
+  # For now, we're just supporting doing that via a Mastodon host that
+  # you're authenticated with.
+
+  def fetch_gotosocial_account_data
+    # TODO: Add support for doing this via an OauthSite associated with an
+    # OauthSiteType with the slug of `gotosocial`
+    # only use proxy_account_lookup_via_oauthed_mastodon
+    # if that fails.
+    proxy_account_lookup_via_oauthed_mastodon(profile_url)
+  end
+
+  def normalize_mastodon_to_activitypub(data)
+    avatar = data["avatar"]
+    header = data["header"]
+    {
+      "preferredUsername" => data["acct"]&.split("@")&.first,
+      "icon" => avatar.present? ? {"url" => avatar} : nil,
+      "image" => header.present? ? {"url" => header} : nil,
+      "summary" => data["note"],
+      "attachment" => (data["fields"] || []).map { |f|
+        {"type" => "PropertyValue", "name" => f["name"], "value" => f["value"]}
+      }
+    }
   end
 
   def default_gotosocial_image_path(avatar_or_header)
