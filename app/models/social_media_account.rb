@@ -9,33 +9,39 @@ class SocialMediaAccount
 
   VALID_TYPES = %w[personal professional unknown].freeze
   CONSOLIDATED_SERVICE_MAP = {
-    "mastodon" => "mastodon", # https://joinmastodon.org/
-    "pleroma" => "mastodon", # https://pleroma.social/
-    "akkoma" => "mastodon", # https://akkoma.social/
-    "gotosocial" => "gotosocial", # https://gotosocial.org/
-    "hometown" => "mastodon", # https://github.com/hometown-fork/hometown
-    "snac" => "mastodon", # https://codeberg.org/grunfink/snac2/
-    "takahe" => "mastodon", # https://jointakahe.org/
+    # rubocop:disable Layout/HashAlignment
+    "mastodon"     => "mastodon", # https://joinmastodon.org/
+    "pleroma"      => "mastodon", # https://pleroma.social/
+    "akkoma"       => "mastodon", # https://akkoma.social/
+    "hometown"     => "mastodon", # https://github.com/hometown-fork/hometown
+    "snac"         => "mastodon", # https://codeberg.org/grunfink/snac2/
+    "takahe"       => "mastodon", # https://jointakahe.org/
     # should work for this, but won't work for bookmark importing
     # --
     # "glitch-soc" => "mastodon", # https://glitch-soc.github.io/docs/
     # glitch-soc reports itself as "mastodon"
     # --
-    # "rebased" => "mastodon"
+    # "rebased"    => "mastodon"
     # rebased reports itself as "pleroma"
-    "misskey" => "misskey", # https://misskey-hub.net/
-    "calckey" => "misskey", # A.K.A. Firefish (discontinued)
-    "firefish" => "misskey",
-    "iceshrimp" => "misskey",
-    "sharkey" => "misskey",
-    "foundkey" => "misskey",
-    "cherrypick" => "misskey",
-    "bookwyrm" => "bookwyrm", # https://joinbookwyrm.com/
-    "bski.app" => "bluesky",
-    "twitter.com" => "fascist_transphobe",
-    "x.com" => "fascist_transphobe",
-    "threads.net" => "fascist_mysoginist"
 
+    "gotosocial"   => "gotosocial", # https://gotosocial.org/
+    # it implements the Mastodon API BUT some of its endpoints
+    # require authentication while the corresponding Mastodon ones
+    # do not.
+
+    "misskey"      => "misskey", # https://misskey-hub.net/
+    "calckey"      => "misskey", # A.K.A. Firefish (discontinued)
+    "firefish"     => "misskey",
+    "iceshrimp"    => "misskey",
+    "sharkey"      => "misskey",
+    "foundkey"     => "misskey",
+    "cherrypick"   => "misskey",
+    "bookwyrm"     => "bookwyrm", # https://joinbookwyrm.com/
+    "bski.app"     => "bluesky",
+    "twitter.com"  => "fascist_transphobe",
+    "x.com"        => "fascist_transphobe",
+    "threads.net"  => "fascist_mysoginist"
+    # rubocop:enable Layout/HashAlignment
   }.freeze
   SUPPORTED_SERVICES = CONSOLIDATED_SERVICE_MAP.select { |k, v|
     ["mastodon", "gotosocial", "misskey", "bookwyrm"].include?(v)
@@ -449,7 +455,7 @@ class SocialMediaAccount
 
     # First pass: public lookup on each connected instance (no auth needed)
     sites.each do |site|
-      data = lookup_via_oauthed_mastodon(site, account)
+      data = lookup_account_via_oauthed_mastodon(site, account)
       return data if data.present?
     end
 
@@ -459,14 +465,14 @@ class SocialMediaAccount
       return data if data.present?
     end
   rescue => e
-    Rails.logger.error("SocialMediaAccount: Mastodon proxy lookup failed for #{acct}: #{e.message}")
+    Rails.logger.error("SocialMediaAccount: Mastodon proxy lookup failed for #{profile_url}: #{e.message}")
     nil
   end
 
   def lookup_account_via_oauthed_mastodon(oauth_site, account)
     response = HTTParty.get(
-      "#{site.base_url}/api/v1/accounts/lookup",
-      query: {acct: acct},
+      "#{oauth_site.base_url}/api/v1/accounts/lookup",
+      query: {acct: account},
       verify: false,
       timeout: 10,
       follow_redirects: true
@@ -477,9 +483,9 @@ class SocialMediaAccount
 
   def search_account_via_oauthed_mastodon(oauth_site, account)
     response = HTTParty.get(
-      "#{site.base_url}/api/v2/search",
-      query: {q: "@#{acct}", resolve: "true", limit: 1, type: "accounts"},
-      headers: {"Authorization" => "Bearer #{site.access_token}"},
+      "#{oauth_site.base_url}/api/v2/search",
+      query: {q: "@#{account}", resolve: "true", limit: 1, type: "accounts"},
+      headers: {"Authorization" => "Bearer #{oauth_site.access_token}"},
       verify: false,
       timeout: 15,
       follow_redirects: true
@@ -505,11 +511,36 @@ class SocialMediaAccount
   # you're authenticated with.
 
   def fetch_gotosocial_account_data
-    # TODO: Add support for doing this via an OauthSite associated with an
-    # OauthSiteType with the slug of `gotosocial`
-    # only use proxy_account_lookup_via_oauthed_mastodon
-    # if that fails.
-    proxy_account_lookup_via_oauthed_mastodon(profile_url)
+    proxy_account_lookup_via_oauthed_gotosocial(profile_url) ||
+      proxy_account_lookup_via_oauthed_mastodon(profile_url)
+  end
+
+  def proxy_account_lookup_via_oauthed_gotosocial(profile_url)
+    gotosocial_type = OauthSiteType.find_by(slug: "gotosocial")
+    return nil unless gotosocial_type
+
+    uri = URI.parse(profile_url)
+    host = uri.host
+    username = uri.path.split("/").last.delete_prefix("@")
+    account = "#{username}@#{host}"
+
+    sites = OauthSite.where(
+      :oauth_site_type => gotosocial_type,
+      :base_url.nin => ["https://#{host}", "http://#{host}"]
+    ).to_a
+
+    return nil if sites.blank?
+
+    # GoToSocial requires auth for all API endpoints — no public lookup pass.
+    sites.select { |s| s.access_token.present? }.each do |site|
+      data = lookup_account_via_oauthed_mastodon(site, account) ||
+        search_account_via_oauthed_mastodon(site, account)
+      return data if data.present?
+    end
+    nil
+  rescue => e
+    Rails.logger.error("SocialMediaAccount: GoToSocial proxy lookup failed for #{profile_url}: #{e.message}")
+    nil
   end
 
   def normalize_mastodon_to_activitypub(data)
