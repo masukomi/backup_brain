@@ -481,9 +481,11 @@ input,
 input:checked,
 textarea,
 input.form-control,
+input.form-control:focus,
 .tag-input-wrapper,
 .toggle {
 	background-color: var(--bb-text-input-bg);
+	color: var(--bb-text-input-color);
 }
 .form-switch .form-check-input:checked {
 	background-color: var(--bb-toggle-on-bg);

@@ -89,6 +89,7 @@
     --bs-body-color: #d8d0c0; /* override bootstrap */
     --bs-table-color: #d8d0c0; /* override bootstrap */
     --bb-link-primary: #d8d0c0;
+    --bb-text-input-color: #282418;
     --bb-text-input-bg: #d8d0c0;
     --bb-dropdown-text-input: #282418;
     --bb-dropdown-text-input-active-bg: #7890a0;
@@ -138,6 +139,7 @@
   --bb-page-bg: #1c1b19;
   --bb-text-primary: #d8d0c0;
   --bb-link-primary: #d8d0c0;
+  --bb-text-input-color: #282418;
   --bb-text-input-bg: #d8d0c0;
   --bb-pagination-active-color: #1c1b19;
   --bb-pagination-active-bg: #e08060;
