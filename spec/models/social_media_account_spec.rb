@@ -424,7 +424,7 @@ RSpec.describe SocialMediaAccount do
       # rubocop:enable RSpec/ContextWording
     end
 
-    context "when the service maps to mastodon (e.g. gotosocial)" do
+    context "when the service is gotosocial" do
       let(:sma) do
         described_class.new(
           profile_url: "https://gotosocial.example/@alice",
@@ -436,7 +436,7 @@ RSpec.describe SocialMediaAccount do
       before do
         allow(sma).to(receive(:archive_folder_path_for_doc).with(sma).and_return(archive_folder))
         allow(sma).to(receive(:remote_account_data).and_return(
-          {"avatar" => "https://gotosocial.example/media/alice.webp", "header" => nil}
+          {"icon" => {"url" => "https://gotosocial.example/media/alice.webp"}, "image" => nil}
         ))
       end
 

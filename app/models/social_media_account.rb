@@ -12,7 +12,7 @@ class SocialMediaAccount
     "mastodon" => "mastodon", # https://joinmastodon.org/
     "pleroma" => "mastodon", # https://pleroma.social/
     "akkoma" => "mastodon", # https://akkoma.social/
-    "gotosocial" => "mastodon", # https://gotosocial.org/
+    "gotosocial" => "gotosocial", # https://gotosocial.org/
     "hometown" => "mastodon", # https://github.com/hometown-fork/hometown
     "snac" => "mastodon", # https://codeberg.org/grunfink/snac2/
     "takahe" => "mastodon", # https://jointakahe.org/
@@ -38,7 +38,7 @@ class SocialMediaAccount
 
   }.freeze
   SUPPORTED_SERVICES = CONSOLIDATED_SERVICE_MAP.select { |k, v|
-    ["mastodon", "misskey", "bookwyrm"].include?(v)
+    ["mastodon", "gotosocial", "misskey", "bookwyrm"].include?(v)
   }.keys.freeze
 
   field :service,           type: String
@@ -89,6 +89,8 @@ class SocialMediaAccount
     case CONSOLIDATED_SERVICE_MAP[service]
     when "mastodon"
       extract_mastodon_avatar_image_url(remote_account_data)
+    when "gotosocial"
+      extract_gotosocial_avatar_image_url(remote_account_data)
     when "misskey"
       extract_misskey_avatar_image_url(remote_account_data)
     when "bookwyrm"
@@ -104,6 +106,8 @@ class SocialMediaAccount
     case CONSOLIDATED_SERVICE_MAP[service]
     when "mastodon"
       extract_mastodon_header_image_url(remote_account_data)
+    when "gotosocial"
+      extract_gotosocial_header_image_url(remote_account_data)
     when "misskey"
       extract_misskey_header_image_url(remote_account_data)
     when "bookwyrm"
@@ -118,6 +122,8 @@ class SocialMediaAccount
     case CONSOLIDATED_SERVICE_MAP[service]
     when "mastodon"
       extract_mastodon_user_description(data)
+    when "gotosocial"
+      extract_gotosocial_user_description(data)
     when "misskey"
       extract_misskey_user_description(data)
     when "bookwyrm"
@@ -132,6 +138,8 @@ class SocialMediaAccount
     case CONSOLIDATED_SERVICE_MAP[service]
     when "mastodon"
       extract_mastodon_full_username(data)
+    when "gotosocial"
+      extract_gotosocial_full_username(data)
     when "misskey"
       extract_misskey_full_username(data)
     when "bookwyrm"
@@ -223,6 +231,8 @@ class SocialMediaAccount
     case CONSOLIDATED_SERVICE_MAP[service]
     when "mastodon"
       default_mastodon_image_path(avatar_or_header)
+    when "gotosocial"
+      default_gotosocial_image_path(avatar_or_header)
     when "misskey"
       default_misskey_image_path(avatar_or_header)
     when "bookwyrm"
@@ -283,6 +293,8 @@ class SocialMediaAccount
     case CONSOLIDATED_SERVICE_MAP[service]
     when "mastodon"
       @remote_account_data ||= fetch_mastodon_account_data
+    when "gotosocial"
+      @remote_account_data ||= fetch_gotosocial_account_data
     when "misskey"
       @remote_account_data ||= fetch_misskey_account_data
     when "bookwyrm"
@@ -409,6 +421,80 @@ class SocialMediaAccount
     else
       note
     end
+  end
+
+  ######## GOTOSOCIAL METHODS
+  def fetch_gotosocial_account_data
+    uri = URI.parse(profile_url)
+    base_url = "#{uri.scheme}://#{uri.host}"
+    host = uri.host
+    username = uri.path.split("/").last.delete_prefix("@")
+
+    wf_response = HTTParty.get(
+      "#{base_url}/.well-known/webfinger",
+      query: {resource: "acct:#{username}@#{host}"},
+      headers: {"Accept" => "application/jrd+json, application/json"},
+      verify: false,
+      timeout: 10,
+      follow_redirects: true
+    )
+    return nil unless wf_response.code == 200
+
+    actor_url = JSON.parse(wf_response.body)["links"]
+      &.find { |l| l["rel"] == "self" && l["type"] == "application/activity+json" }
+      &.dig("href")
+    return nil if actor_url.blank?
+
+    actor_response = HTTParty.get(
+      actor_url,
+      headers: {"Accept" => "application/activity+json"},
+      verify: false,
+      timeout: 10,
+      follow_redirects: true
+    )
+    return nil unless actor_response.code == 200
+    JSON.parse(actor_response.body)
+  rescue => e
+    Rails.logger.error("SocialMediaAccount: failed to fetch GoToSocial account data for #{profile_url}: #{e.message}")
+    nil
+  end
+
+  def default_gotosocial_image_path(avatar_or_header)
+    archive_folder_path = archive_folder_path_for_doc(self)
+    image_url = if avatar_or_header == "avatar"
+      remote_account_data&.dig("icon", "url")
+    else
+      remote_account_data&.dig("image", "url")
+    end
+    future_image_path_or_nil(image_url, avatar_or_header, archive_folder_path)
+  end
+
+  def extract_gotosocial_avatar_image_url(data)
+    validated_image_url(data&.dig("icon", "url"))
+  end
+
+  def extract_gotosocial_header_image_url(data)
+    validated_image_url(data&.dig("image", "url"))
+  end
+
+  def extract_gotosocial_full_username(data)
+    username = data&.dig("preferredUsername")
+    return nil if username.blank?
+    host = begin
+      URI.parse(profile_url).host.downcase
+    rescue
+      nil
+    end
+    host.present? ? "@#{username}@#{host}" : "@#{username}"
+  end
+
+  def extract_gotosocial_user_description(data)
+    note = ReverseMarkdown.convert(data["summary"].to_s).strip
+    fields = Array(data["attachment"])
+      .select { |a| a["type"] == "PropertyValue" }
+      .map { |a| "**#{a["name"]}**: #{ReverseMarkdown.convert(a["value"].to_s).strip}" }
+      .reject(&:empty?)
+    fields.present? ? (note + "\n\n-" + fields.join("  \n-")) : note
   end
 
   ######## BOOKWYRM METHODS
