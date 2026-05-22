@@ -22,6 +22,17 @@ OauthSiteType.find_or_create_by!(slug: "misskey") do |t|
   t.requires_pkce = true
 end
 
+OauthSiteType.find_or_create_by!(slug: "gotosocial") do |t|
+  t.name = "GoToSocial"
+  t.slug = "gotosocial"
+  t.description = "Connect to any GoToSocial instance"
+  t.registration_strategy = "mastodon_v1_apps"
+  t.registration_path = "/api/v1/apps"
+  t.authorization_path = "/oauth/authorize"
+  t.token_path = "/oauth/token"
+  t.default_scopes = ["read"]
+end
+
 OauthSiteType.find_or_create_by!(slug: "mastodon") do |t|
   t.name = "Mastodon"
   t.slug = "mastodon"
