@@ -524,9 +524,10 @@ en:
       delete: "Disconnect"
       site_type_label: "Server type"
       base_url_label: "Server domain"
-      base_url_hint: "<dl><dt>Mastodon API</dt><dd>Mastodon, Pleroma, Akkoma, GoToSocial, Hometown, Takahe</dd>
-      <dt>Misskey API</dt><dd>Misskey, Sharkey, BookWyrm</dd>
-      <dt>BookWyrm API</dt><dd>BookWyrm</dd>
+      base_url_hint: "<dl><dt>Mastodon API Servers</dt><dd>Mastodon, Pleroma, Akkoma, Hometown, Takahe</dd>
+      <dt>GoToSocial API Servers</dt><dd>GoToSocial</dt>
+      <dt>Misskey API Servers</dt><dd>Misskey, Sharkey</dd>
+      <dt>BookWyrm API Servers</dt><dd>BookWyrm</dd>
       </dl>"
       username_label: "Username (BookWyrm only)"
       username_hint: "Your username on the BookWyrm server. Required when connecting to BookWyrm."
