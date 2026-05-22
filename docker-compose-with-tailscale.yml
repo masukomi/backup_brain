@@ -3,6 +3,8 @@ version: '3.8'
 services:
   bb_meilisearch:
     image: getmeili/meilisearch:v1.9
+    volumes:
+      - meilisearch:/meili_data
     env_file: .env
     # networks:
     #   - bb-network
@@ -13,7 +15,7 @@ services:
     ports:
       - '7700:7700'
     healthcheck:
-      test: wget --no-verbose --spider http://localhost:7700/health
+      test: curl --fail http://localhost:7700/health
       interval: 10s
       retries: 5
       start_period: 30s
@@ -60,13 +62,14 @@ services:
     restart: unless-stopped
 
   bb_setup:
-    image: golang:1.22.5
+    image: golang:1.24.13
     volumes:
         - ./:/app
     command: ["/app/docker/handle_required_setup.sh"]
 
   bb_rails:
     image: ruby:3.3.4
+    env_file: .env
     environment:
       - BUNDLE_PATH=/app/gems
     network_mode: service:bb_tailscale
@@ -84,4 +87,4 @@ services:
 
 volumes:
   mongodata:
-
+  meilisearch:
