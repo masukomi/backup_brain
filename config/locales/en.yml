@@ -125,6 +125,9 @@ en:
       invalid_tag_names: "These tags are invalid: %{names}"
       invalid_tag_name: "Tag names must contain no spaces or commas"
       invalid_tag: "%{name} is not a valid tag"
+    default_tags:
+      oauth_site_type_bookmark: "%{slug}_bookmark"
+      fediverse_bookmark: "fediverse_bookmark"
   administration:
     heading: "Administration"
     nav_link: "Administration"

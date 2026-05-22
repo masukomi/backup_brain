@@ -4,7 +4,7 @@ class FetchMastodonBookmarksJob < ApplicationJob
 
   queue_as :low_priority
 
-  MASTODON_TAG = "mastodon_bookmark"
+  FEDIVERSE_BOOKMARK_TAG = I18n.t("tags.default_tags.fediverse_bookmark")
   TITLE_TIMESTAMP_FORMAT = "%Y/%m/%d %H:%M"
   DESCRIPTION_CHAR_LIMIT = 500
   TITLE_CHAR_LIMIT = 80
@@ -45,7 +45,7 @@ class FetchMastodonBookmarksJob < ApplicationJob
       end
     end
 
-    oauth_sites = OauthSite.in(oauth_site_type_id: mastodon_types.pluck(:_id))
+    oauth_sites = OauthSite.includes(:oauth_site_type).in(oauth_site_type_id: mastodon_types.pluck(:_id))
     oauth_sites.each do |oauth_site|
       next if oauth_site.access_token.blank?
       sync_bookmarks_from(oauth_site, user, limit)
@@ -124,8 +124,11 @@ class FetchMastodonBookmarksJob < ApplicationJob
       description: description,
       user: user,
       sensitive: status["sensitive"] || false,
-
-      tags: [MASTODON_TAG]
+      tags: [
+        I18n.t("tags.default_tags.oauth_site_type_bookmark",
+          slug: oauth_site.oauth_site_type.slug),
+        FEDIVERSE_BOOKMARK_TAG
+      ]
     )
     # Social Media Account that created the post
     sma    = find_or_create_sma_for(account_data)

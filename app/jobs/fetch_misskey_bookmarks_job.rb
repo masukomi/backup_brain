@@ -4,7 +4,7 @@ class FetchMisskeyBookmarksJob < ApplicationJob
 
   queue_as :low_priority
 
-  MISSKEY_TAG = "misskey_bookmark"
+  DEFAULT_TAGS = ["misskey_bookmark", I18n.t("tags.default_tags.fediverse_bookmark_tag")]
   TITLE_TIMESTAMP_FORMAT = "%Y/%m/%d %H:%M"
   DESCRIPTION_CHAR_LIMIT = 500
   REQUEST_TIMEOUT = 30
@@ -120,7 +120,7 @@ class FetchMisskeyBookmarksJob < ApplicationJob
       title: title,
       description: description,
       user: user,
-      tags: [MISSKEY_TAG]
+      tags: DEFAULT_TAGS
     )
 
     sma = find_or_create_sma_for(user_data, oauth_site.base_url)
