@@ -135,6 +135,7 @@ class FetchMisskeyBookmarksJob < ApplicationJob
     embed_youtube_videos(archive)
 
     if archive.string_data.present?
+      archive.metadata = generate_metadata_for_oauth_site(oauth_site)
       archive.video_urls.each { |vurl| archive.add_media_object(vurl, simple_type: "video") }
       archive.created_at = DateTime.now
       archive.updated_at = archive.created_at

@@ -90,5 +90,20 @@ module BackupBrain
     rescue
       false
     end
+
+    # MISC
+
+    # Generates a markdown string containing
+    # metadata about where an archive
+    # came from when generated via oAuth import
+    #
+    # @param [OauthSite] oauth_site the site
+    #   some archive data is being imported via.
+    # @return [String]
+    def generate_metadata_for_oauth_site(oauth_site)
+      <<~END
+        Imported via #{oauth_site.username || "unknown username"} account on <#{oauth_site.base_url}>
+      END
+    end
   end
 end

@@ -147,10 +147,16 @@ class FetchMastodonBookmarksJob < ApplicationJob
     archive = html_to_archive(bookmark, html_content) ||
       Archive.new(mime_type: "text/markdown", string_data: "")
 
-    append_media_attachments(status["media_attachments"], archive, bookmark, oauth_site.access_token)
+    append_media_attachments(
+      status["media_attachments"],
+      archive,
+      bookmark,
+      oauth_site.access_token
+    )
 
     archive_has_content = archive.string_data.present?
     if archive_has_content
+      archive.metadata = generate_metadata_for_oauth_site(oauth_site)
       archive.video_urls.each { |url|
         archive.add_media_object(
           url,

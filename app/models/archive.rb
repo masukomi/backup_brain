@@ -42,11 +42,19 @@ class Archive
 
   include Mongoid::Document
   include Mongoid::Timestamps
-  field :mime_type, type: String, default: "text/markdown"
-  field :string_data, type: String
-  field :manually_edited, type: Boolean, default: false
+  field :mime_type,         type: String, default: "text/markdown"
+  field :string_data,       type: String
+  field :manually_edited,   type: Boolean, default: false
   field :transcription_ids, type: Array, default: []
-  field :hero_image_path, type: String
+  field :hero_image_path,   type: String
+  field :metadata,          type: String
+  # The metadatata field is not expected to be shown to
+  # users most of the time, and is initially going to be
+  # used to store info about the archive itself.
+  # For example: when a "Bookmark" is imported via
+  # the Fediverse, this will contain a information
+  # about what account it came from.
+  # It is assumed to use markdown formatting.
 
   validates :string_data, presence: true
 
