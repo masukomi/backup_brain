@@ -59,6 +59,7 @@ RSpec.describe RemoteCredentialsController, type: :controller do
         allow(OauthSite).to receive_messages(where: double(first: nil, count: 0, delete_all: nil), create!: oauth_site)
         # rubocop:enable RSpec/VerifiedDoubles
         allow(oauth_site).to receive(:_id).and_return(oauth_site._id)
+        allow(oauth_site).to receive(:update!)
       end
 
       it "includes code_challenge in the redirect URL" do
@@ -72,10 +73,9 @@ RSpec.describe RemoteCredentialsController, type: :controller do
         expect(response.location).to include("code_challenge_method=S256")
       end
 
-      it "stores a code_verifier in the session" do
+      it "stores the code_verifier on the oauth_site record" do
+        expect(oauth_site).to receive(:update!).with(hash_including(pkce_code_verifier: be_present))
         post :begin_auth, params: {base_url: base_url, site_type_id: site_type.id.to_s}
-        session_key = "pkce_#{oauth_site._id}"
-        expect(session[session_key]).to be_present
       end
 
       it "uses the IndieAuth relay URL as redirect_uri" do
@@ -152,6 +152,7 @@ RSpec.describe RemoteCredentialsController, type: :controller do
 
     context "when site_type requires PKCE" do
       let(:site_type) { build_site_type(requires_pkce: true) }
+      let(:verifier) { "stored_code_verifier" }
       let(:oauth_site) do
         instance_double(
           OauthSite,
@@ -162,17 +163,17 @@ RSpec.describe RemoteCredentialsController, type: :controller do
           :base_url => "https://misskey.example.com",
           "access_token=" => nil,
           "access_token_expires_at=" => nil,
-          :save! => true
+          :save! => true,
+          :pkce_code_verifier => verifier,
+          :update! => true
         )
       end
-      let(:verifier) { "stored_code_verifier" }
       let(:pkce_state) { Base64.strict_encode64(JSON.generate(id: site_id.to_s, u: "http://brain.test:3334")) }
 
       before do
         # rubocop:disable RSpec/VerifiedDoubles
         allow(OauthSite).to receive(:where).and_return(double(first: oauth_site))
         # rubocop:enable RSpec/VerifiedDoubles
-        session["pkce_#{site_id}"] = verifier
         allow(auth_code_strategy).to receive(:get_token).and_return(oauth2_token)
       end
 
@@ -189,9 +190,9 @@ RSpec.describe RemoteCredentialsController, type: :controller do
         get :callback, params: {code: code, state: pkce_state}
       end
 
-      it "clears the verifier from the session after use" do
+      it "clears the code_verifier from the oauth_site record after use" do
+        expect(oauth_site).to receive(:update!).with(pkce_code_verifier: nil)
         get :callback, params: {code: code, state: pkce_state}
-        expect(session["pkce_#{site_id}"]).to be_nil
       end
     end
 
