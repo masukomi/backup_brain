@@ -558,6 +558,116 @@ RSpec.describe FetchMastodonBookmarksJob do
     end
   end
 
+  describe "#manual_perform" do
+    # rubocop:disable RSpec/VerifiedDoubles
+    let(:mastodon_type_id)  { BSON::ObjectId.new }
+    let(:gotosocial_type_id) { BSON::ObjectId.new }
+    let(:no_types)          { double("Criteria", count: 0) }
+    let(:mastodon_only)     { double("Criteria", count: 1) }
+    let(:gotosocial_only)   { double("Criteria", count: 1) }
+    let(:both_types)        { double("Criteria", count: 2) }
+    let(:user)              { double("User") }
+    let(:mastodon_site)     { double("OauthSite", access_token: "masto_token", base_url: "https://mastodon.social") }
+    let(:gotosocial_site)   { double("OauthSite", access_token: "gts_token",   base_url: "https://gts.example.com") }
+    let(:site_no_token)     { double("OauthSite", access_token: nil,           base_url: "https://no-token.example.com") }
+    # rubocop:enable RSpec/VerifiedDoubles
+
+    before do
+      allow(Rails.logger).to receive(:warn)
+      allow(Rails.logger).to receive(:error)
+      allow(job).to receive(:reschedule).and_return(true)
+      allow(job).to receive(:sync_bookmarks_from)
+      allow(User).to receive(:first).and_return(user)
+      allow(mastodon_only).to receive(:pluck).with(:_id).and_return([mastodon_type_id])
+      allow(gotosocial_only).to receive(:pluck).with(:_id).and_return([gotosocial_type_id])
+      allow(both_types).to receive(:pluck).with(:_id).and_return([mastodon_type_id, gotosocial_type_id])
+    end
+
+    context "when no mastodon or gotosocial OauthSiteType is seeded" do
+      before do
+        allow(OauthSiteType).to(receive(:in).with(slug: %w[mastodon gotosocial]).and_return(no_types))
+      end
+
+      it "logs a warning mentioning both types" do
+        expect(Rails.logger).to(receive(:warn).with(/no mastodon or gotosocial/))
+        job.manual_perform
+      end
+
+      it "reschedules when reschedulable" do
+        expect(job).to(receive(:reschedule))
+        job.manual_perform(true)
+      end
+
+      it "returns true when not reschedulable" do
+        expect(job.manual_perform(false)).to(be(true))
+      end
+    end
+
+    context "when OauthSiteTypes exist but no User is present" do
+      before do
+        allow(OauthSiteType).to(receive(:in).with(slug: %w[mastodon gotosocial]).and_return(both_types))
+        allow(User).to(receive(:first).and_return(nil))
+      end
+
+      it "logs a warning and does not sync", :aggregate_failures do
+        expect(Rails.logger).to(receive(:warn).with(/no user found/))
+        expect(job).not_to(receive(:sync_bookmarks_from))
+        job.manual_perform(false)
+      end
+    end
+
+    context "when types and a user exist" do
+      context "with only a mastodon OauthSite" do
+        before do
+          allow(OauthSiteType).to(receive(:in).with(slug: %w[mastodon gotosocial]).and_return(mastodon_only))
+          allow(OauthSite).to(receive(:in).and_return([mastodon_site]))
+        end
+
+        it "syncs bookmarks from the mastodon site" do
+          expect(job).to(receive(:sync_bookmarks_from).with(mastodon_site, user, anything))
+          job.manual_perform(false)
+        end
+      end
+
+      context "with only a gotosocial OauthSite" do
+        before do
+          allow(OauthSiteType).to(receive(:in).with(slug: %w[mastodon gotosocial]).and_return(gotosocial_only))
+          allow(OauthSite).to(receive(:in).and_return([gotosocial_site]))
+        end
+
+        it "syncs bookmarks from the gotosocial site" do
+          expect(job).to(receive(:sync_bookmarks_from).with(gotosocial_site, user, anything))
+          job.manual_perform(false)
+        end
+      end
+
+      context "with both mastodon and gotosocial OauthSites" do
+        before do
+          allow(OauthSiteType).to(receive(:in).with(slug: %w[mastodon gotosocial]).and_return(both_types))
+          allow(OauthSite).to(receive(:in).and_return([mastodon_site, gotosocial_site]))
+        end
+
+        it "syncs bookmarks from both sites", :aggregate_failures do
+          expect(job).to(receive(:sync_bookmarks_from).with(mastodon_site, user, anything))
+          expect(job).to(receive(:sync_bookmarks_from).with(gotosocial_site, user, anything))
+          job.manual_perform(false)
+        end
+      end
+
+      context "when an OauthSite has a blank access_token" do
+        before do
+          allow(OauthSiteType).to(receive(:in).with(slug: %w[mastodon gotosocial]).and_return(both_types))
+          allow(OauthSite).to(receive(:in).and_return([site_no_token]))
+        end
+
+        it "skips that site without syncing" do
+          expect(job).not_to(receive(:sync_bookmarks_from))
+          job.manual_perform(false)
+        end
+      end
+    end
+  end
+
   describe "#truncate_markdown" do
     it "returns text unchanged when at or under the limit" do
       text = "short text"

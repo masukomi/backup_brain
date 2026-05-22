@@ -21,9 +21,13 @@ class FetchMastodonBookmarksJob < ApplicationJob
   end
 
   def manual_perform(rescheduleable = false, limit: 1000)
-    mastodon_type = OauthSiteType.where(slug: "mastodon").first
-    unless mastodon_type
-      Rails.logger.warn("FetchMastodonBookmarksJob: no mastodon OauthSiteType found — run rails db:seed")
+    # gotosocial has mastodon APIs BUT
+    # it requires authentication on some that mastodon doesn't.
+    # That, of course, isn't relevant here since we're only
+    # doing things via authenticated accounts
+    mastodon_types = OauthSiteType.in(slug: %w[mastodon gotosocial])
+    unless mastodon_types.count > 0
+      Rails.logger.warn("FetchMastodonBookmarksJob: no mastodon or gotosocial OauthSiteType found — run rails db:seed")
       if rescheduleable
         reschedule && return
       else
@@ -41,7 +45,8 @@ class FetchMastodonBookmarksJob < ApplicationJob
       end
     end
 
-    mastodon_type.oauth_sites.each do |oauth_site|
+    oauth_sites = OauthSite.in(oauth_site_type_id: mastodon_types.pluck(:_id))
+    oauth_sites.each do |oauth_site|
       next if oauth_site.access_token.blank?
       sync_bookmarks_from(oauth_site, user, limit)
     rescue => e
