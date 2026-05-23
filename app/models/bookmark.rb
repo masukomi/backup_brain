@@ -99,6 +99,10 @@ class Bookmark
     Bookmark.or({:archives.exists => false}, {archives: {"$size": 0}})
   end
 
+  def self.containing_audio
+    where("archives.media_objects.simple_type" => "audio")
+  end
+
   def is_fresh?
     created_at > 2.minutes.ago
   end
