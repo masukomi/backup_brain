@@ -31,7 +31,19 @@ class GenerateHeroImageJob < ApplicationJob
     guidance = begin
       Setting.get_value_of_key("gemini_image_prompt_guidance").to_s.strip
     rescue
-      ""
+      <<~PROMPT.strip
+        You are helping generate prompts for an AI image generator.  The prompt you generate
+        must be two paragraphs at most and it must begin with stylization instructions.
+        You do not need to use complete sentences.
+
+        Given the following text from a web page archive or audio transcript,
+        identify the key subjects, themes, people, objects, and setting described.
+        Then write a concise image generation prompt suitable for
+        producing a anime or illustration-style hero image that visually
+        represents the content. Focus on the most important concrete visual elements
+        and tonal words. Use descriptive but simple language. Do not include
+        meta-commentary or explanation — output only the image prompt itself.
+      PROMPT
     end
     if guidance.empty?
       Rails.logger.warn("GenerateHeroImageJob: gemini_image_prompt_guidance is not set, skipping")
