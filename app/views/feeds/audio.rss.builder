@@ -12,9 +12,11 @@ xml.rss "version" => "2.0" do
       next if audio_objects.empty?
 
       audio_url = archive_url_with_secret_key(audio_objects.first.url, @secret_key)
-      description = @valid_secret_key ?
-        add_secret_key_to_archive_urls(archive.string_data, @secret_key) :
-        archive.string_data
+      description = if @valid_secret_key
+        add_secret_key_to_archive_urls(archive.string_data.to_s, @secret_key)
+      else
+        archive.string_data.to_s
+      end
 
       xml.item do
         xml.title   bookmark.title

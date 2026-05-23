@@ -13,6 +13,7 @@ class FeedsController < ApplicationController
 
     respond_to do |format|
       format.rss { render layout: false }
+      format.any { render "audio", layout: false, formats: [:rss], content_type: "application/rss+xml" }
     end
   end
 
@@ -27,6 +28,7 @@ class FeedsController < ApplicationController
 
     respond_to do |format|
       format.rss { render layout: false }
+      format.any { render "to_read", layout: false, formats: [:rss], content_type: "application/rss+xml" }
     end
   end
 end

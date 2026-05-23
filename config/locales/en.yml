@@ -461,6 +461,9 @@ en:
     notes:
       new_copy: "Note: editing an archive will create a new version with your changes."
       manual_creation: "We suggest using a 'Copy As Markdown' browser extension to grab the page's content & paste it here."
+      no_archive: "⚠️ BackupBrain was unable to archive [this page](%{url}). It received a %{error} error when trying."
+    errors:
+      unknown_error_code: "Unknown"
     attributes:
       labels:
         string_data: "Contents"
