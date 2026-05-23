@@ -482,7 +482,9 @@ RSpec.describe FetchMastodonBookmarksJob do
       let(:existing_sma) { instance_double(SocialMediaAccount) }
 
       before do
-        allow(SocialMediaAccount).to(receive(:find_by).with(profile_url: profile_url).and_return(existing_sma))
+        # rubocop:disable RSpec/VerifiedDoubles
+        allow(SocialMediaAccount).to(receive(:where).with(profile_url: profile_url).and_return(double(first: existing_sma)))
+        # rubocop:enable RSpec/VerifiedDoubles
       end
 
       it "returns the existing SMA" do
@@ -620,7 +622,9 @@ RSpec.describe FetchMastodonBookmarksJob do
       context "with only a mastodon OauthSite" do
         before do
           allow(OauthSiteType).to(receive(:in).with(slug: %w[mastodon gotosocial]).and_return(mastodon_only))
-          allow(OauthSite).to(receive(:in).and_return([mastodon_site]))
+          # rubocop:disable RSpec/VerifiedDoubles
+          allow(OauthSite).to(receive(:includes).with(:oauth_site_type).and_return(double(in: [mastodon_site])))
+          # rubocop:enable RSpec/VerifiedDoubles
         end
 
         it "syncs bookmarks from the mastodon site" do
@@ -632,7 +636,9 @@ RSpec.describe FetchMastodonBookmarksJob do
       context "with only a gotosocial OauthSite" do
         before do
           allow(OauthSiteType).to(receive(:in).with(slug: %w[mastodon gotosocial]).and_return(gotosocial_only))
-          allow(OauthSite).to(receive(:in).and_return([gotosocial_site]))
+          # rubocop:disable RSpec/VerifiedDoubles
+          allow(OauthSite).to(receive(:includes).with(:oauth_site_type).and_return(double(in: [gotosocial_site])))
+          # rubocop:enable RSpec/VerifiedDoubles
         end
 
         it "syncs bookmarks from the gotosocial site" do
@@ -644,7 +650,9 @@ RSpec.describe FetchMastodonBookmarksJob do
       context "with both mastodon and gotosocial OauthSites" do
         before do
           allow(OauthSiteType).to(receive(:in).with(slug: %w[mastodon gotosocial]).and_return(both_types))
-          allow(OauthSite).to(receive(:in).and_return([mastodon_site, gotosocial_site]))
+          # rubocop:disable RSpec/VerifiedDoubles
+          allow(OauthSite).to(receive(:includes).with(:oauth_site_type).and_return(double(in: [mastodon_site, gotosocial_site])))
+          # rubocop:enable RSpec/VerifiedDoubles
         end
 
         it "syncs bookmarks from both sites", :aggregate_failures do
@@ -657,7 +665,9 @@ RSpec.describe FetchMastodonBookmarksJob do
       context "when an OauthSite has a blank access_token" do
         before do
           allow(OauthSiteType).to(receive(:in).with(slug: %w[mastodon gotosocial]).and_return(both_types))
-          allow(OauthSite).to(receive(:in).and_return([site_no_token]))
+          # rubocop:disable RSpec/VerifiedDoubles
+          allow(OauthSite).to(receive(:includes).with(:oauth_site_type).and_return(double(in: [site_no_token])))
+          # rubocop:enable RSpec/VerifiedDoubles
         end
 
         it "skips that site without syncing" do

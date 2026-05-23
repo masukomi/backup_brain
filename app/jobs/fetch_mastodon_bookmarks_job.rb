@@ -134,8 +134,10 @@ class FetchMastodonBookmarksJob < ApplicationJob
     sma    = find_or_create_sma_for(account_data)
     # If it was a SMA previously created by the user there'll be a Person attached.
     # If it was created by this process, or something similar, there won't be.
-    bookmark.people << sma.person if sma.person.present?
-    bookmark.social_media_accounts << sma
+    if sma
+      bookmark.people << sma.person if sma.person.present?
+      bookmark.social_media_accounts << sma
+    end
 
     # We already have the content — build an Archive from the status HTML
     # and skip the normal ArchiveUrlJob queue (which would 404 on private statuses).
@@ -289,7 +291,7 @@ class FetchMastodonBookmarksJob < ApplicationJob
     profile_url = account_data["url"]
     return nil if profile_url.blank?
 
-    existing = SocialMediaAccount.find_by(profile_url: profile_url)
+    existing = SocialMediaAccount.where(profile_url: profile_url).first
     return existing if existing
 
     sma = SocialMediaAccount.new(
