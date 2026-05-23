@@ -12,10 +12,17 @@ xml.rss "version" => "2.0" do
       next if audio_objects.empty?
 
       audio_url = archive_url_with_secret_key(audio_objects.first.url, @secret_key)
-      description = if @valid_secret_key
-        add_secret_key_to_archive_urls(archive.string_data.to_s, @secret_key)
+      description = if archive&.string_data.present?
+        @valid_secret_key ?
+          add_secret_key_to_archive_urls(archive.string_data, @secret_key) :
+          archive.string_data
       else
-        archive.string_data.to_s
+        I18n.t("archives.notes.no_archive", url: bookmark.url,
+          error: if bookmark.last_archive_attempt_failed?
+                   bookmark.failed_archive_attempts.last.status_code
+                 else
+                   I18n.t("archives.errors.unknown_error_code")
+                 end)
       end
 
       xml.item do
