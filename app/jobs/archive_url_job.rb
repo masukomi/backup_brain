@@ -45,6 +45,7 @@ class ArchiveUrlJob < ApplicationJob
       markdown_string = interpret_tool_output(raw_output, bookmark)
       record_failed_attempt(bookmark, 600) if markdown_string.blank?
       if hero_image_url.present?
+        # prepend the hero image
         markdown_string = "![Hero Image](#{hero_image_url})\n\n#{markdown_string}"
       end
       markdown_string = fully_qualify_urls(markdown_string, bookmark)
