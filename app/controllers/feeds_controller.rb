@@ -3,7 +3,7 @@ class FeedsController < ApplicationController
     @secret_key = params[:secret_key]
     @valid_secret_key = @secret_key.present? && SecretKey.is_valid?(@secret_key)
 
-    bookmarks = Bookmark.archived.order_by(created_at: :desc)
+    bookmarks = Bookmark.containing_audio.order_by(created_at: :desc)
     bookmarks = bookmarks.where(private: false) unless @valid_secret_key
 
     @bookmarks = bookmarks.to_a.select do |b|
