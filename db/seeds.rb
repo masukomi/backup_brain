@@ -262,6 +262,82 @@ attempting to archive a bookmarked page.",
   )
 end
 
+# gemini_api_key setting ─────────────────────────────
+if Setting.where(lookup_key: "gemini_api_key").count == 0
+  warn("creating gemini_api_key setting")
+
+  Setting.create!(
+    {
+      lookup_key: "gemini_api_key",
+      summary: "API key for Google Gemini",
+      description: "Your Google Gemini API key. Required for AI-powered features such as
+audio archive hero image generation.
+
+Obtain a key from Google AI Studio (aistudio.google.com).",
+      visible: true,
+      value_type: "string",
+      value: {value: ""}
+    }
+  )
+end
+
+# gemini_image_prompt_guidance setting ─────────────────────────────
+if Setting.where(lookup_key: "gemini_image_prompt_guidance").count == 0
+  warn("creating gemini_image_prompt_guidance setting")
+
+  Setting.create!(
+    {
+      lookup_key: "gemini_image_prompt_guidance",
+      summary: "Prompt guidance sent to Gemini when generating hero image prompts for archives",
+      description: "Instructions sent to Gemini along with an archive's text and transcript
+in order to generate a prompt suitable for Gemini image generation.",
+      visible: true,
+      value_type: "string",
+      value: {value: <<~PROMPT.strip}
+        You are helping generate prompts for an AI image generator.  The prompt you generate
+        must be two paragraphs at most and it must begin with stylization instructions.
+        You do not need to use complete sentences.
+
+        Given the following text from a web page archive or audio transcript,
+        identify the key subjects, themes, people, objects, and setting described.
+        Then write a concise image generation prompt suitable for
+        producing a anime or illustration-style hero image that visually
+        represents the content. Focus on the most important concrete visual elements
+        and tonal words. Use descriptive but simple language. Do not include
+        meta-commentary or explanation — output only the image prompt itself.
+      PROMPT
+    }
+  )
+end
+
+# generate_audio_hero_images setting ─────────────────────────────
+if Setting.where(lookup_key: "generate_audio_hero_images").count == 0
+  warn("creating generate_audio_hero_images setting")
+
+  generate_hero_setting = Setting.create!(
+    {
+      lookup_key: "generate_audio_hero_images",
+      summary: "Generate hero images for audio archives using Gemini",
+      description: "When enabled, a background job will use Gemini to generate a square
+hero image for each newly archived page that contains audio. The image
+is stored locally and displayed alongside the archive and in OS media controls.
+
+Requires a valid gemini_api_key setting.",
+      visible: true,
+      value_type: "boolean",
+      value: {value: false}
+    }
+  )
+  sd = SettingDependency.new(
+    dependency_lookup_key: "gemini_api_key",
+    name: "Gemini API Key",
+    notes: "must be a non-empty Gemini API key",
+    test: "Setting.get_value_of_key('gemini_api_key').present? rescue false"
+  )
+  generate_hero_setting.setting_dependencies << sd
+  generate_hero_setting.save!
+end
+
 # archival_requests_timeout setting ─────────────────────────────
 if Setting.where(lookup_key: "theme_names").count == 0
   warn("creating theme_names setting")

@@ -65,6 +65,12 @@ class ArchiveUrlJob < ApplicationJob
       bookmark.failed_archive_attempts.clear
       ContentTrigger.apply_triggers(test_string: archive.string_data, apply_to: bookmark)
       bookmark.save!
+      if archive.media_objects.any? { |mo| mo.simple_type == "audio" }
+        GenerateHeroImageJob.perform_later(
+          bookmark_id: bookmark._id.to_s,
+          archive_id: archive._id.to_s
+        )
+      end
       bookmark
     rescue BackupBrain::Errors::UnarchivableUrl => e
       Rails.logger.error(e.message)

@@ -19,7 +19,7 @@
     <% end %>
   <% end %>
 <% end %>
-<archive>
+<archive data-hero-image-url="<%= archive.hero_image_path %>">
 <%= render_markdown(archive.string_data).html_safe %>
 </archive>
 <% transcribed_media = archive.media_objects.select { |mo| mo.transcription&.status == "completed" } %>
