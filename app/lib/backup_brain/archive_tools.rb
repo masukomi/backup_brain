@@ -24,6 +24,12 @@ module BackupBrain
       File.join(ARCHIVES_FOLDER, doc_type, mongoid_doc._id.to_s)
     end
 
+    def guaranteed_archive_folder_path_for_doc(mongoid_doc)
+      path = archive_folder_path_for_doc(mongoid_doc)
+      FileUtils.mkdir_p(path)
+      path
+    end
+
     def archive_web_path_for_doc(mongoid_doc)
       doc_type = class_to_path_string(mongoid_doc.class)
       ["", "archives", doc_type, mongoid_doc._id.to_s].join("/")

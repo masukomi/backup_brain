@@ -6,11 +6,26 @@ require "digest"
 
 class GenerateHeroImageJob < ApplicationJob
   include BackupBrain::ArchiveTools
+  include BackupBrain::ImageGenerationHelpers
 
   GEMINI_TEXT_URL  = "https://generativelanguage.googleapis.com/v1beta/models/" \
                      "gemini-2.5-flash:generateContent"
   GEMINI_IMAGE_URL = "https://generativelanguage.googleapis.com/v1beta/models/" \
                      "gemini-2.5-flash-image:generateContent"
+
+  DEFAULT_PROMPT = <<~PROMPT.strip
+    You are helping generate prompts for an AI image generator. The prompt you generate
+    must be two paragraphs at most and it must begin with stylization instructions.
+    You do not need to use complete sentences.
+
+    Given the following text from a web page archive or audio transcript,
+    identify the key subjects, themes, people, objects, and setting described.
+    Then write a concise image generation prompt suitable for
+    producing a anime or illustration-style hero image that visually
+    represents the content. Focus on the most important concrete visual elements
+    and tonal words. Use descriptive but simple language. Do not include
+    meta-commentary or explanation — output only the image prompt itself.
+  PROMPT
 
   queue_as :low_priority
 
@@ -22,40 +37,25 @@ class GenerateHeroImageJob < ApplicationJob
       return false
     end
 
-    api_key = gemini_api_key
+    api_key = begin
+      Setting.get_value_of_key("gemini_api_key").to_s.strip
+    rescue
+      nil
+    end
     if api_key.blank?
       Rails.logger.warn("GenerateHeroImageJob: gemini_api_key setting is not set, skipping")
       return false
     end
 
     guidance = begin
-      Setting.get_value_of_key("gemini_image_prompt_guidance").to_s.strip
+      Setting.get_value_of_key("image_prompt_guidance").to_s
     rescue
-      <<~PROMPT.strip
-        You are helping generate prompts for an AI image generator.  The prompt you generate
-        must be two paragraphs at most and it must begin with stylization instructions.
-        You do not need to use complete sentences.
-
-        Given the following text from a web page archive or audio transcript,
-        identify the key subjects, themes, people, objects, and setting described.
-        Then write a concise image generation prompt suitable for
-        producing a anime or illustration-style hero image that visually
-        represents the content. Focus on the most important concrete visual elements
-        and tonal words. Use descriptive but simple language. Do not include
-        meta-commentary or explanation — output only the image prompt itself.
-      PROMPT
-    end
-    if guidance.empty?
-      Rails.logger.warn("GenerateHeroImageJob: gemini_image_prompt_guidance is not set, skipping")
-      return false
+      DEFAULT_PROMPT
     end
 
     bookmark = begin
       Bookmark.find(bookmark_id)
     rescue
-      nil
-    end
-    unless bookmark
       Rails.logger.warn("GenerateHeroImageJob: bookmark #{bookmark_id} not found")
       return false
     end
@@ -66,8 +66,8 @@ class GenerateHeroImageJob < ApplicationJob
       return false
     end
 
-    content = build_content(archive)
-    if content.strip.empty?
+    content = get_content_for_archive(archive)
+    if content.blank?
       Rails.logger.warn("GenerateHeroImageJob: archive #{archive_id} has no usable text content")
       return false
     end
@@ -93,22 +93,6 @@ class GenerateHeroImageJob < ApplicationJob
     Setting.get_value_of_key("generate_audio_hero_images") == true
   rescue
     false
-  end
-
-  def gemini_api_key
-    Setting.get_value_of_key("gemini_api_key").to_s.strip
-  rescue
-    ""
-  end
-
-  def build_content(archive)
-    parts = [archive.string_data.to_s]
-    transcript_texts = archive.media_objects
-      .filter_map(&:transcription)
-      .select { |t| t.status == "completed" }
-      .map(&:text)
-    parts.concat(transcript_texts.map { |t| "--- Transcript ---\n\n#{t}" }) if transcript_texts.any?
-    parts.join("\n\n")
   end
 
   def generate_image_prompt(api_key, guidance, content)
@@ -190,13 +174,5 @@ class GenerateHeroImageJob < ApplicationJob
     details = body.dig("error", "details") || []
     delay_str = details.filter_map { |d| d["retryDelay"] }.first.to_s
     delay_str.match(/(\d+)/) ? $1.to_i : 60
-  end
-
-  def store_image(bookmark, archive, image_data)
-    filename = "#{Digest::SHA2.hexdigest(image_data)}.png"
-    folder = archive_folder_path_for_doc(bookmark)
-    FileUtils.mkdir_p(folder)
-    File.binwrite(File.join(folder, filename), image_data)
-    archive.hero_image_path = "#{archive_web_path_for_doc(bookmark)}/#{filename}"
   end
 end

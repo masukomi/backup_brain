@@ -282,15 +282,15 @@ Obtain a key from Google AI Studio (aistudio.google.com).",
 end
 
 # gemini_image_prompt_guidance setting ─────────────────────────────
-if Setting.where(lookup_key: "gemini_image_prompt_guidance").count == 0
-  warn("creating gemini_image_prompt_guidance setting")
+if Setting.where(lookup_key: "image_prompt_guidance").count == 0
+  warn("creating image_prompt_guidance setting")
 
   Setting.create!(
     {
       lookup_key: "gemini_image_prompt_guidance",
-      summary: "Prompt guidance sent to Gemini when generating hero image prompts for archives",
-      description: "Instructions sent to Gemini along with an archive's text and transcript
-in order to generate a prompt suitable for Gemini image generation.",
+      summary: "Prompt guidance sent to an image generation AI when generating hero image prompts for archives",
+      description: "Instructions sent to Image generation AI along with an archive's text and transcript
+in order to generate a prompt suitable for image generation.",
       visible: true,
       value_type: "string",
       value: {value: <<~PROMPT.strip}
