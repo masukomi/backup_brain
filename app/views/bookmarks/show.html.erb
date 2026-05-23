@@ -4,6 +4,9 @@
   <% if @archive&.hero_image_path.present? %>
     <meta property="og:image" content="<%= @archive.hero_image_path %>">
   <% end %>
+  <% if @archive&.media_objects&.any? { |mo| mo.simple_type == "audio" } %>
+    <%= javascript_include_tag "/js/media_sessions_api.js" %>
+  <% end %>
   <% if @archive&.media_objects&.any? { |mo| mo.is_youtube? } %>
     <script src="https://www.youtube.com/iframe_api"></script>
     <script>

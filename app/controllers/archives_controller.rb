@@ -14,7 +14,7 @@ class ArchivesController < ApplicationController
     else
       "archives/#{@object_type}/#{@object._id}/#{params[:grouping]}/#{filename}.#{format}"
     end
-    raise ActionController::MissingFile.new("File Not Found") unless File.exist?(path)
+    return head :not_found unless File.exist?(path)
     send_file path, disposition: "inline"
   end
 
@@ -93,7 +93,7 @@ class ArchivesController < ApplicationController
     @object = @parent.archives.select { |a| a.id.to_s == params[:id] }.first
     if @object.nil? || (@parent.private? && !user_signed_in?)
       @object = nil
-      raise ActionController::MissingFile "File Not Found"
+      head :not_found
     end
   end
 
@@ -104,12 +104,12 @@ class ArchivesController < ApplicationController
       @object = Bookmark.find(sanitize_path_component(params[:id]))
       if @object.private? && !user_signed_in? && !SecretKey.is_valid?(params[:secret_key])
         @object = nil
-        raise ActionController::MissingFile "File Not Found"
+        head :not_found and return
       end
     elsif @object_type == "people"
       if !user_signed_in?
         @object = nil
-        raise ActionController::MissingFile "File Not Found"
+        head :not_found and return
       end
       # this may also raise a 404? I think
       @object = Person.find(sanitize_path_component(params[:id]))
