@@ -8,19 +8,19 @@ class Archive
   # Used by extension_for_mime_type instead of Rack::Mime::MIME_TYPES.key so
   # that non-audio types (e.g. application/octet-stream → ".a") don't leak in.
   AUDIO_MIME_EXTENSION_MAP = {
-    "audio/aac" => ".aac",
-    "audio/flac" => ".flac",
+    "audio/aac"    => ".aac",
+    "audio/flac"   => ".flac",
     "audio/x-flac" => ".flac",
-    "audio/mp4" => ".m4a",
-    "audio/x-m4a" => ".m4a",
-    "audio/mpeg" => ".mp3",
+    "audio/mp4"    => ".m4a",
+    "audio/x-m4a"  => ".m4a",
+    "audio/mpeg"   => ".mp3",
     "audio/x-mpeg" => ".mp3",
-    "audio/ogg" => ".ogg",
-    "audio/oga" => ".oga",
-    "audio/opus" => ".opus",
-    "audio/wav" => ".wav",
-    "audio/x-wav" => ".wav",
-    "audio/webm" => ".webm"
+    "audio/ogg"    => ".ogg",
+    "audio/oga"    => ".oga",
+    "audio/opus"   => ".opus",
+    "audio/wav"    => ".wav",
+    "audio/x-wav"  => ".wav",
+    "audio/webm"   => ".webm"
   }.freeze
   AUDIO_SRC_REGEXP = Regexp.new(
     'src=(["\'])((?:https?://|/|\.\./\./)?[^"\'\\s]+\\.(?:' +
@@ -28,7 +28,6 @@ class Archive
     '))\\1',
     Regexp::IGNORECASE
   )
-
   VIDEO_EXTENSIONS = %w[mp4 m4v mkv mov avi webm ogv].freeze
 
   VIDEO_SRC_REGEXP = Regexp.new(
@@ -38,10 +37,11 @@ class Archive
     Regexp::IGNORECASE
   )
 
-  YOUTUBE_URL_REGEXP = %r{https?://(?:www\.)?(?:youtube\.com/watch\?[^\s"'<>\)\[\]]+|youtu\.be/[^\s"'<>\)\[\]]+)}i
+  YOUTUBE_URL_REGEXP = %r{https?://(?:www\.)?(?:youtube\.com/watch\?[^\s"'<>)\[\]]+|youtu\.be/[^\s"'<>)\[\]]+)}i
 
   include Mongoid::Document
   include Mongoid::Timestamps
+
   field :mime_type,         type: String, default: "text/markdown"
   field :string_data,       type: String
   field :manually_edited,   type: Boolean, default: false

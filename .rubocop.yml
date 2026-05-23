@@ -22,6 +22,10 @@ RSpec:
 Layout/ExtraSpacing:
   Enabled: false
 
+Layout/HashAlignment:
+  Enabled: true
+  EnforcedHashRocketStyle: table
+
 # because there's no good suggested alternative
 RSpec/LetSetup:
   Enabled: false

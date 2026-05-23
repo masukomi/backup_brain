@@ -448,7 +448,7 @@ class SocialMediaAccount
     # try multiple if present, and the 1st one doesn't work.
     sites = OauthSite.where(
       :oauth_site_type => mastodon_type,
-      :base_url.nin => ["https://#{host}", "http://#{host}"]
+      :base_url.nin    => ["https://#{host}", "http://#{host}"]
     ).to_a
 
     return nil if sites.blank?
@@ -526,7 +526,7 @@ class SocialMediaAccount
 
     sites = OauthSite.where(
       :oauth_site_type => gotosocial_type,
-      :base_url.nin => ["https://#{host}", "http://#{host}"]
+      :base_url.nin    => ["https://#{host}", "http://#{host}"]
     ).to_a
 
     return nil if sites.blank?
@@ -548,10 +548,10 @@ class SocialMediaAccount
     header = data["header"]
     {
       "preferredUsername" => data["acct"]&.split("@")&.first,
-      "icon" => avatar.present? ? {"url" => avatar} : nil,
-      "image" => header.present? ? {"url" => header} : nil,
-      "summary" => data["note"],
-      "attachment" => (data["fields"] || []).map { |f|
+      "icon"              => avatar.present? ? {"url" => avatar} : nil,
+      "image"             => header.present? ? {"url" => header} : nil,
+      "summary"           => data["note"],
+      "attachment"        => (data["fields"] || []).map { |f|
         {"type" => "PropertyValue", "name" => f["name"], "value" => f["value"]}
       }
     }
