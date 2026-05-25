@@ -287,7 +287,7 @@ if Setting.where(lookup_key: "image_prompt_guidance").count == 0
 
   Setting.create!(
     {
-      lookup_key: "gemini_image_prompt_guidance",
+      lookup_key: "image_prompt_guidance",
       summary: "Prompt guidance sent to an image generation AI when generating hero image prompts for archives",
       description: "Instructions sent to Image generation AI along with an archive's text and transcript
 in order to generate a prompt suitable for image generation.",
@@ -335,6 +335,7 @@ Requires a valid gemini_api_key setting.",
     test: "Setting.get_value_of_key('gemini_api_key').present? rescue false"
   )
   generate_hero_setting.setting_dependencies << sd
+  generate_hero_setting.ignore_dependencies!
   generate_hero_setting.save!
 end
 
