@@ -37,21 +37,14 @@ class GenerateHeroImageJob < ApplicationJob
       return false
     end
 
-    api_key = begin
-      Setting.get_value_of_key("gemini_api_key").to_s.strip
-    rescue
-      nil
-    end
+    api_key = Setting.get_value_of_key("gemini_api_key").to_s.strip rescue nil
+
     if api_key.blank?
       Rails.logger.warn("GenerateHeroImageJob: gemini_api_key setting is not set, skipping")
       return false
     end
 
-    guidance = begin
-      Setting.get_value_of_key("image_prompt_guidance").to_s
-    rescue
-      DEFAULT_PROMPT
-    end
+    guidance = Setting.get_value_of_key("image_prompt_guidance").to_s rescue DEFAULT_PROMPT
 
     bookmark = begin
       Bookmark.find(bookmark_id)

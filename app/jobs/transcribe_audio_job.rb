@@ -25,12 +25,7 @@ class TranscribeAudioJob < ApplicationJob
       return false
     end
 
-    model_path = begin
-      Setting.get_value_of_key("whisper_model_path").to_s.strip
-    rescue
-      nil
-    end
-    # don't actually care WHY it failed
+    model_path = Setting.get_value_of_key("whisper_model_path").to_s.strip rescue nil
 
     if model_path.empty?
       Rails.logger.warn("TranscribeAudioJob: whisper_model_path setting is not set, skipping")
