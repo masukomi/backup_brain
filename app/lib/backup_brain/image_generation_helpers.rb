@@ -7,7 +7,7 @@ module BackupBrain
       transcript_texts = archive.media_objects
         .filter_map(&:transcription)
         .select { |t| t.status == "completed" }
-        .map(&:text)
+        .map(&:text_without_timestamps)
       parts.concat(transcript_texts) if transcript_texts.any?
       parts.join("\n\n")
     end
