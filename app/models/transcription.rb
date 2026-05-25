@@ -46,4 +46,8 @@ class Transcription
       }
     ])
   end
+
+  def text_without_timestamps
+    text.gsub(/^\s*\d+[.:]\d+\s+/m, "")
+  end
 end
