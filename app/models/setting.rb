@@ -117,6 +117,14 @@ class Setting
     end
   end
 
+  def ignore_dependencies!
+    @ignore_deps = true
+  end
+
+  def honor_dependencies!
+    @ignore_deps = false
+  end
+
   def valid_value
     if (value_type == "boolean") && !is_value_bool?
       errors.add(:value, "must be a boolean is a #{inner_value.class.name}")
@@ -134,6 +142,7 @@ class Setting
       errors.add(:value, "must be a hash is a #{inner_value.class.name}")
     end
 
+    return if defined?(@ignore_deps) && @ignore_deps == true
     # phew. Ok now let's test dependencies
     setting_dependencies.each do |dep|
       messages = []
