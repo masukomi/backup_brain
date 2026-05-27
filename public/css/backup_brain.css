@@ -442,6 +442,10 @@ note {
 	color: var(--bb-text-muted);
 }
 
+.text-muted {
+	color: var(--bb-text-muted) !important;
+}
+
 /* footer */
 #footer > div > div {
 	background: var(--bb-surface-bg);

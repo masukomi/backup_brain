@@ -138,6 +138,8 @@
 :root[data-color-scheme="dark"] {
   --bb-page-bg: #1c1b19;
   --bb-text-primary: #d8d0c0;
+  --bb-text-muted: #b1ada6;
+  --bb-text-secondary: #988090;
   --bb-link-primary: #d8d0c0;
   --bb-text-input-color: #282418;
   --bb-text-input-bg: #d8d0c0;

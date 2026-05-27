@@ -39,8 +39,8 @@
   --bb-border-light: #cccccc;
 
   /* Muted / secondary text */
-  --bb-text-muted: #aaaaaa;
-  --bb-text-secondary: slategray;
+  --bb-text-muted: #3f3a30;
+  --bb-text-secondary: #6a8090;
   --bb-admin-text: #4c4b4b;
 
   /* Accents */
@@ -108,7 +108,6 @@
     --bb-surface-bg: #1e2535;
     --bb-border-muted: #3a4050;
     --bb-border-light: #2e3545;
-    --bb-text-muted: #6a7080;
     --bb-text-secondary: #6a8090;
     --bb-admin-text: #8a8a9a;
     --bb-accent-primary: #64b2fd;
@@ -156,7 +155,7 @@
   --bb-surface-bg: #1e2535;
   --bb-border-muted: #3a4050;
   --bb-border-light: #2e3545;
-  --bb-text-muted: #6a7080;
+  --bb-text-muted: #3f3a30;
   --bb-text-secondary: #6a8090;
   --bb-admin-text: #8a8a9a;
   --bb-accent-primary: #64b2fd;
