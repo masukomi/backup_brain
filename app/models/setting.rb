@@ -14,6 +14,7 @@ class Setting
   field :value,       type:    Hash
   field :value_type,  type:    String, default: "boolean"
   field :visible,     type:    Boolean, default: false
+  field :group,       type:    String, default: "default"
 
   embeds_many :setting_dependencies, cascade_callbacks: true
 
