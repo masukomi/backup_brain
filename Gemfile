@@ -73,6 +73,7 @@ gem "htmlentities" # escape html entities https://github.com/threedaymonk/htmlen
 # which group elements by a datetime value extracted via a block.
 gem "groupdate"
 gem "httparty" # for importer to check if urls are serving.
+gem "gemini-ai", "~> 4.3" # Google Gemini API client
 gem "youtube-transcript-rb" # fetch transcripts from YouTube videos
 
 # convert a reddit post to markdown
