@@ -5,11 +5,12 @@ class SettingsController < ApplicationController
 
   # GET /settings or /settings.json
   def index
-    @settings = if !@setting_administration_enabled
-      Setting.where(visible: true).order([:lookup_key, :asc])
+    settings = if !@setting_administration_enabled
+      Setting.where(visible: true).order([:group, :asc], [:lookup_key, :asc])
     else
-      Setting.order([:lookup_key, :asc])
+      Setting.order([:group, :asc], [:lookup_key, :asc])
     end
+    @grouped_settings = settings.group_by(&:group)
   end
 
   # GET /settings/1 or /settings/1.json

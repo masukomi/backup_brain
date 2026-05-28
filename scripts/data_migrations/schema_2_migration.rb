@@ -24,6 +24,7 @@ if schema_version == 1
   guarantee_existing_tag_quality
   Tag.regenerate_all!
   schema_version_setting ||= Setting.new(
+    group: "internal",
     lookup_key: "schema_version",
     summary: "Database Schema Version",
     description: "Used by the upgrade scripts to perform data migrations as database schemas change over time",
@@ -36,6 +37,7 @@ if schema_version == 1
   if !favicon_setting
 
     favicon_setting = Setting.new(
+      group: "interface",
       lookup_key: "enable_favicons",
       summary: "Allow Backup Brain to pull favicons from Google",
       description: "When enabled Backup Brain will request favicons for the domain names you have bookmarked, and display them alongside the bookmark. ",

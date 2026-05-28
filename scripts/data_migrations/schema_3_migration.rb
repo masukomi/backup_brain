@@ -34,6 +34,7 @@ if schema_version == 2
 
     # there shouldn't be one
     client_secret = Setting.create!(
+      group: "authentication",
       lookup_key: "oauth2_client_secret",
       summary: "a unique oauth2 client secret for this Backup Brain installation",
       description: "Used when communicating with OAuth authenticated servers",

@@ -140,6 +140,7 @@ class Setting
   end
 
   def dependency_settings_presence
+    return if @ignore_deps
     missing_dependency_settings = []
     setting_dependencies.each do |sd|
       missing_dependency_settings << sd.dependency_lookup_key unless sd.dependable?

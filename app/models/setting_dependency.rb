@@ -22,7 +22,12 @@ class SettingDependency
   # rubocop:disable Security/Eval
   def dependable?
     return false unless dependent_setting_exists?
-    eval(test) == true
+    begin
+      eval(test) == true
+    rescue SyntaxError, StandardError => e
+      Rails.logger.error("SettingDependency #{id} for setting #{setting.lookup_key} has invalid test")
+      raise e
+    end
   end
   # rubocop:enable Security/Eval
 

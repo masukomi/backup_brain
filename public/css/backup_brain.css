@@ -222,6 +222,13 @@ img.delete-icon {
 	background-color: var(--bb-button-secondary-bg);
 	border-color: var(--bb-button-secondary-border);
 }
+.accordion-button,
+.accordion-item {
+	color: var(--bb-dropdown-text-input);
+}
+.accordion-button:not(.collapsed) {
+	background-color: var(--bb-pagination-active-bg);
+}
 
 /* TAGS */
 @media screen and (max-width: 600px) {

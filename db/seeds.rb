@@ -48,6 +48,7 @@ end
 if Setting.where(lookup_key: "indieauth_client_id_urls").count == 0
   warn("creating indieauth_client_id_url setting")
   Setting.create!(
+    group: "authentication",
     lookup_key: "indieauth_client_id_urls",
     summary: "Public URLs used for Indieauth Client identification",
     description: "<p><code>base_url</code> is a publicly reachable URL that IndieAuth servers
@@ -71,6 +72,7 @@ if Setting.where(lookup_key: "enable_audio_transcriptions").count == 0
   if Setting.where(lookup_key: whisper_model_path_lookup_key).count == 0
     Setting.create!(
       {
+        group: "transcription",
         lookup_key: whisper_model_path_lookup_key,
         summary: "File path to a downloaded Whisper Model",
         description: "A valid path to a downloaded whisper model
@@ -88,6 +90,7 @@ if Setting.where(lookup_key: "enable_audio_transcriptions").count == 0
   warn("creating enable_audio_transcriptions setting")
   setting = Setting.create!(
     {
+      group: "transcription",
       lookup_key: "enable_audio_transcriptions",
       summary: "Whisper transcriptions of audio files.",
       description: "Whisper must be installed and available on your path for this to work.
@@ -120,6 +123,7 @@ if Setting.where(lookup_key: "oauth2_client_secret").count == 0
   require "securerandom"
   secret = SecureRandom.hex(32)
   Setting.create!(
+    group: "authentication",
     lookup_key: "oauth2_client_secret",
     summary: "a unique oauth2 client secret for this Backup Brain installation",
     description: "Used when communicating with OAuth authenticated servers",
@@ -137,6 +141,7 @@ if !oauth2_client_id
 
   # there shouldn't be one
   Setting.create!(
+    group: "authentication",
     lookup_key: "oauth2_client_id",
     summary: "a unique oauth2 client id for this Backup Brain installation",
     description: "Used when communicating with OAuth authenticated servers",
@@ -150,6 +155,7 @@ if Setting.where(lookup_key: "enable_youtube_transcriptions").count == 0
   warn("creating enable_youtube_transcriptions setting")
   Setting.create!(
     {
+      group: "transcription",
       lookup_key: "enable_youtube_transcriptions",
       summary: "downloads transcripts for YouTube videos",
       description: "Uses the YouTube API to download the transcript from any public video.",
@@ -166,6 +172,7 @@ if Setting.where(lookup_key: "reader_path").count == 0
 
   Setting.create!(
     {
+      group: "archiving",
       lookup_key: "reader_path",
       summary: "path to reader executable",
       description: "The path to the reader executable.
@@ -184,6 +191,7 @@ if Setting.where(lookup_key: "enable_archiving").count == 0
 
   enable_archiving_setting = Setting.create!(
     {
+      group: "archiving",
       lookup_key: "enable_archiving",
       summary: "creates archives of each bookmark",
       description: "Uses various tools to extract the important content from
@@ -214,6 +222,7 @@ if Setting.where(lookup_key: "missing_audio_audio_url").count == 0
 
   Setting.create!(
     {
+      group: "archiving",
       lookup_key: "missing_audio_audio_url",
       summary: "url to use when audio file is missing",
       description: "An audio file url that is valid when referenced from within
@@ -232,6 +241,7 @@ if Setting.where(lookup_key: "missing_image_image_url").count == 0
 
   Setting.create!(
     {
+      group: "archiving",
       lookup_key: "missing_image_image_url",
       summary: "url to use when image file is missing",
       description: "An image url that is valid when referenced from within
@@ -250,6 +260,7 @@ if Setting.where(lookup_key: "archival_requests_timeout").count == 0
 
   Setting.create!(
     {
+      group: "archiving",
       lookup_key: "archival_requests_timeout",
       summary: "HTTP timeout in seconds",
       description: "The number of seconds an HTTP request should
@@ -268,6 +279,7 @@ if Setting.where(lookup_key: "gemini_api_key").count == 0
 
   Setting.create!(
     {
+      group: "generative_ai",
       lookup_key: "gemini_api_key",
       summary: "API key for Google Gemini",
       description: "Your Google Gemini API key. Required for AI-powered features such as
@@ -286,6 +298,7 @@ if Setting.where(lookup_key: "gemini_text_model").count == 0
 
   Setting.create!(
     {
+      group: "generative_ai",
       lookup_key: "gemini_text_model",
       summary: "Google Gemini to use for text generation",
       description: "The model Google Gemini should be instructed to use to generate text.",
@@ -301,6 +314,7 @@ if Setting.where(lookup_key: "gemini_image_model").count == 0
 
   Setting.create!(
     {
+      group: "generative_ai",
       lookup_key: "gemini_image_model",
       summary: "Google Gemini to use for image generation",
       description: "The model Google Gemini should be instructed to use to generate images.",
@@ -317,6 +331,7 @@ if Setting.where(lookup_key: "ollama_url").count == 0
 
   Setting.create!(
     {
+      group: "generative_ai",
       lookup_key: "ollama_url",
       summary: "Local Ollama Url",
       description: "What url to connect to to talk to Ollama",
@@ -332,6 +347,7 @@ if Setting.where(lookup_key: "ollama_model").count == 0
 
   Setting.create!(
     {
+      group: "generative_ai",
       lookup_key: "ollama_model",
       summary: "Local Ollama model",
       description: "What model to instruct Ollama to use. Must be pre-loaded locally.",
@@ -350,6 +366,7 @@ if Setting.where(lookup_key: "enable_local_ollama").count == 0
 
   enable_local_ollama_setting = Setting.create!(
     {
+      group: "generative_ai",
       lookup_key: "enable_local_ollama",
       summary: "creates use local ollama models to generate prompts",
       description: "A local ollama instance can process text containing adult content without invoking content filters.",
@@ -358,7 +375,7 @@ if Setting.where(lookup_key: "enable_local_ollama").count == 0
       value: {value: false}
     }
   )
-  SettingDependency.new(
+  sd1 = SettingDependency.new(
     dependency_lookup_key: "ollama_model",
     name: "Ollama Model",
     notes: "must be a valid & installed ollama model",
@@ -380,6 +397,7 @@ if Setting.where(lookup_key: "audio_transcript_image_prompt_guidance").count == 
 
   Setting.create!(
     {
+      group: "generative_ai",
       lookup_key: "audio_transcript_image_prompt_guidance",
       summary: "Prompt guidance sent to an image generation AI when generating hero image prompts for archives",
       description: "Instructions to be sent along with an archive's text and transcript
@@ -412,6 +430,7 @@ if Setting.where(lookup_key: "generate_audio_hero_images").count == 0
 
   generate_hero_setting = Setting.create!(
     {
+      group: "generative_ai",
       lookup_key: "generate_audio_hero_images",
       summary: "Generate hero images for audio archives using Gemini",
       description: "When enabled, a background job will use Gemini to generate a square
@@ -439,7 +458,7 @@ that contains or discusses sexual topics.",
     dependency_lookup_key: "gemini_text_model",
     name: "Gemini Text Model",
     notes: "must be a non-empty Gemini text model",
-    test: "Setting.any_truthy?(%w[gemini_text_model enable_local_ollama])? rescue false"
+    test: "Setting.any_truthy?(%w[gemini_text_model enable_local_ollama]) rescue false"
   )
   # must be present
   sd3 = SettingDependency.new(
@@ -461,6 +480,7 @@ if Setting.where(lookup_key: "theme_names").count == 0
 
   Setting.create!(
     {
+      group: "interface",
       lookup_key: "theme_names",
       summary: "A list of available themes to choose from",
       description: "These correspond to CSS file names of different themes available to choose from.",

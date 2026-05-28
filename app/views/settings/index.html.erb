@@ -12,33 +12,55 @@
 </div>
 <div id="settings" class="container tableish">
 
-  <% if @settings.count > 0 %>
-    <% @settings.each do |setting| %>
-      <div class="row setting-list-item">
-        <div class="col">
-          <div class="row">
-            <div class="col-1">
-              <%= icon_link("edit", edit_setting_path(setting),
-                  link_css: "inline-link-icon edit-link-icon",
-                  method: :put,
-                  text: nil) %>
-            </div>
-            <div class="col">
-              <code><%= setting.lookup_key %></code>
-              <br />
-              <%= setting.summary %>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-1">&nbsp;</div>
-            <div class="col">
-              <%= t("settings.value") %> »
-              <code><%=setting.inner_value %></code>
+  <% if @grouped_settings.any? %>
+    <div class="accordion" id="settingsAccordion">
+      <% @grouped_settings.each do |group_name, group_settings| %>
+        <% item_id = "group_#{group_name.parameterize(separator: '_')}" %>
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="heading_<%= item_id %>">
+            <button class="accordion-button collapsed" type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#collapse_<%= item_id %>"
+                    aria-expanded="false"
+                    aria-controls="collapse_<%= item_id %>">
+              <%= group_name.humanize %>
+            </button>
+          </h2>
+          <div id="collapse_<%= item_id %>"
+               class="accordion-collapse collapse"
+               aria-labelledby="heading_<%= item_id %>">
+            <div class="accordion-body p-0">
+              <% group_settings.each do |setting| %>
+                <div class="row setting-list-item">
+                  <div class="col">
+                    <div class="row">
+                      <div class="col-1">
+                        <%= icon_link("edit", edit_setting_path(setting),
+                            link_css: "inline-link-icon edit-link-icon",
+                            method: :put,
+                            text: nil) %>
+                      </div>
+                      <div class="col">
+                        <code><%= setting.lookup_key %></code>
+                        <br />
+                        <%= setting.summary %>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-1">&nbsp;</div>
+                      <div class="col">
+                        <%= t("settings.value") %> »
+                        <code><%=setting.inner_value %></code>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
             </div>
           </div>
         </div>
-      </div>
-    <% end %>
+      <% end %>
+    </div>
 
   <% else %>
     <div class="row">
