@@ -32,15 +32,38 @@ class Setting
     end
   end
 
-  def self.get_value_of_key(lookup_key)
+  def self.get_value_of_key(lookup_key, safe: false)
     cache = cached_values
-    unless cache.key?(lookup_key)
+    known_setting = cache.key?(lookup_key)
+    if !known_setting && safe == false
       raise BackupBrain::Errors::UnknownSetting.new(
         "No setting found with lookup_key: #{lookup_key}"
       )
+    elsif !known_setting ## && safe == true
+      return nil
     end
     value_hash = cache[lookup_key]
     value_hash.nil? ? nil : value_hash["value"]
+  end
+
+  # tests if all of the lookup_keys passed in have
+  # truthy values
+  def self.all_truthy?(keys)
+    # this seems backwards but it'll fail faster
+    # than testing if all are truthy
+    !keys.any? { |key|
+      val = Setting.get_value_of_key(key, safe: true)
+      val.blank? || val == false
+    }
+  end
+
+  # tests if any of the lookup_keys passed in
+  # have truthy values
+  def self.any_truthy?(keys)
+    keys.any? { |key|
+      val = Setting.get_value_of_key(key, safe: true)
+      val.present? && val != false
+    }
   end
 
   def value
@@ -96,6 +119,14 @@ class Setting
     end
   end
 
+  def ignore_dependencies!
+    @ignore_deps = true
+  end
+
+  def honor_dependencies!
+    @ignore_deps = false
+  end
+
   private
 
   def bust_cache
@@ -115,14 +146,6 @@ class Setting
     if missing_dependency_settings.present?
       errors.add(:setting_dependencies, "the following dependency settings are missing: #{missing_dependency_settings.join(", ")}")
     end
-  end
-
-  def ignore_dependencies!
-    @ignore_deps = true
-  end
-
-  def honor_dependencies!
-    @ignore_deps = false
   end
 
   def valid_value

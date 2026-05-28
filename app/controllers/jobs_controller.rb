@@ -5,10 +5,10 @@ class JobsController < ApplicationController
   # Jobs that require per-record parameters (e.g. ArchiveUrlJob) are excluded.
   MANAGEABLE_JOBS = {
     "FetchMastodonBookmarksJob" => -> { FetchMastodonBookmarksJob.schedule_unless_pending },
-    "FetchMisskeyBookmarksJob" => -> { FetchMisskeyBookmarksJob.schedule_unless_pending },
-    "FetchBookwyrmReviewsJob" => -> { FetchBookwyrmReviewsJob.schedule_unless_pending },
-    "ArchiveImagesJob" => -> { ArchiveImagesJob.perform_later(bookmarks: nil) },
-    "DeleteOrphanedTagsJob" => -> { DeleteOrphanedTagsJob.schedule_unless_pending }
+    "FetchMisskeyBookmarksJob"  => -> { FetchMisskeyBookmarksJob.schedule_unless_pending },
+    "FetchBookwyrmReviewsJob"   => -> { FetchBookwyrmReviewsJob.schedule_unless_pending },
+    "ArchiveImagesJob"          => -> { ArchiveImagesJob.perform_later(bookmarks: nil) },
+    "DeleteOrphanedTagsJob"     => -> { DeleteOrphanedTagsJob.schedule_unless_pending }
   }.freeze
 
   # Jobs visible on the page but not triggerable from the UI (require per-record parameters).
@@ -18,6 +18,7 @@ class JobsController < ApplicationController
     TranscribeAudioJob
     YouTubeTranscriptionJob
     ArchiveSocialMediaAccountJob
+    GenerateHeroImagJob
   ].freeze
 
   def index

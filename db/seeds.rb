@@ -280,31 +280,127 @@ Obtain a key from Google AI Studio (aistudio.google.com).",
     }
   )
 end
-
-# gemini_image_prompt_guidance setting ─────────────────────────────
-if Setting.where(lookup_key: "image_prompt_guidance").count == 0
-  warn("creating image_prompt_guidance setting")
+# gemini_text_model setting ─────────────────────────────
+if Setting.where(lookup_key: "gemini_text_model").count == 0
+  warn("creating gemini_text_model setting")
 
   Setting.create!(
     {
-      lookup_key: "image_prompt_guidance",
+      lookup_key: "gemini_text_model",
+      summary: "Google Gemini to use for text generation",
+      description: "The model Google Gemini should be instructed to use to generate text.",
+      visible: true,
+      value_type: "string",
+      value: {value: "gemini-2.5-flash"}
+    }
+  )
+end
+# gemini_image_model setting ─────────────────────────────
+if Setting.where(lookup_key: "gemini_image_model").count == 0
+  warn("creating gemini_image_model setting")
+
+  Setting.create!(
+    {
+      lookup_key: "gemini_image_model",
+      summary: "Google Gemini to use for image generation",
+      description: "The model Google Gemini should be instructed to use to generate images.",
+      visible: true,
+      value_type: "string",
+      value: {value: "gemini-2.5-flash-image"}
+    }
+  )
+end
+
+# ollama_url setting ─────────────────────────────
+if Setting.where(lookup_key: "ollama_url").count == 0
+  warn("creating ollama_url setting")
+
+  Setting.create!(
+    {
+      lookup_key: "ollama_url",
+      summary: "Local Ollama Url",
+      description: "What url to connect to to talk to Ollama",
+      visible: true,
+      value_type: "string",
+      value: {value: "http://localhost:11434"}
+    }
+  )
+end
+# ollama_model setting ─────────────────────────────
+if Setting.where(lookup_key: "ollama_model").count == 0
+  warn("creating ollama_model setting")
+
+  Setting.create!(
+    {
+      lookup_key: "ollama_model",
+      summary: "Local Ollama model",
+      description: "What model to instruct Ollama to use. Must be pre-loaded locally.",
+      visible: true,
+      value_type: "string",
+      value: {value: "qwen2.5:7b"}
+      # qwen2.5:7b is ~4.7GB, runs quickly
+      # and does a good job.
+    }
+  )
+end
+
+# enable_local_ollama setting ─────────────────────────────
+if Setting.where(lookup_key: "enable_local_ollama").count == 0
+  warn("creating enable_local_ollama setting")
+
+  enable_local_ollama_setting = Setting.create!(
+    {
+      lookup_key: "enable_local_ollama",
+      summary: "creates use local ollama models to generate prompts",
+      description: "A local ollama instance can process text containing adult content without invoking content filters.",
+      visible: true,
+      value_type: "boolean",
+      value: {value: false}
+    }
+  )
+  SettingDependency.new(
+    dependency_lookup_key: "ollama_model",
+    name: "Ollama Model",
+    notes: "must be a valid & installed ollama model",
+    test: "Setting.get_value_of_key('ollama_model').present? rescue false"
+  )
+  sd2 = SettingDependency.new(
+    dependency_lookup_key: "ollama_url",
+    name: "Ollama URL",
+    notes: "must be a valid Ollama Url",
+    test: "Setting.get_value_of_key('ollama_url').present? rescue false"
+  )
+  enable_local_ollama_setting.setting_dependencies << sd1
+  enable_local_ollama_setting.setting_dependencies << sd2
+  enable_local_ollama_setting.save!
+end
+# gemini_image_prompt_guidance setting ─────────────────────────────
+if Setting.where(lookup_key: "audio_transcript_image_prompt_guidance").count == 0
+  warn("creating audio_transcript_image_prompt_guidance setting")
+
+  Setting.create!(
+    {
+      lookup_key: "audio_transcript_image_prompt_guidance",
       summary: "Prompt guidance sent to an image generation AI when generating hero image prompts for archives",
-      description: "Instructions sent to Image generation AI along with an archive's text and transcript
+      description: "Instructions to be sent along with an archive's text and transcript
 in order to generate a prompt suitable for image generation.",
       visible: true,
       value_type: "string",
       value: {value: <<~PROMPT.strip}
-        You are helping generate prompts for an AI image generator.  The prompt you generate
-        must be two paragraphs at most and it must begin with stylization instructions.
-        You do not need to use complete sentences.
+        You are helping generate prompts for an AI image generator that must strictly comply with Google's Generative AI Prohibited Use Policy. The prompt you generate must be two paragraphs at most.
 
-        Given the following text from a web page archive or audio transcript,
-        identify the key subjects, themes, people, objects, and setting described.
-        Then write a concise image generation prompt suitable for
-        producing a anime or illustration-style hero image that visually
-        represents the content. Focus on the most important concrete visual elements
-        and tonal words. Use descriptive but simple language. Do not include
-        meta-commentary or explanation — output only the image prompt itself.
+        Read the following audio transcript. Determine the number of characters in the scene. Pay special attention to gender markers to determine the gender of the characters. If you are unsure about the gender of a character describe them as being androgynous.  Determine what activities they are describing or participating in, any physical or emotional dynamic between them, and any notable objects or setting details in the scene.
+
+        Before generating the image prompt, apply the following single content rule:
+        - If the content depicts or describes nudity or exposed body parts, represent the
+            people as clothed in contextually appropriate attire instead, preserving as much
+            of the scene's mood, physical closeness, and emotional dynamic as possible.
+
+        Then write a concise image generation prompt suitable for that visually represents the content.
+
+        Focus on the most important concrete visual elements and tonal words. Use descriptive but simple language. Do not include meta-commentary, explanation, or headings. Output only the image prompt itself.
+
+        Start the prompt with instructions to produce a square image with a modern manga style.
       PROMPT
     }
   )
@@ -322,19 +418,39 @@ if Setting.where(lookup_key: "generate_audio_hero_images").count == 0
 hero image for each newly archived page that contains audio. The image
 is stored locally and displayed alongside the archive and in OS media controls.
 
-Requires a valid gemini_api_key setting.",
+Requires a valid gemini_api_key setting.
+⚠️ Explicit content will be blocked by Google's content filters.
+Use local ollama to generate the prompt if you're archiving audio
+that contains or discusses sexual topics.",
       visible: true,
       value_type: "boolean",
       value: {value: false}
     }
   )
-  sd = SettingDependency.new(
+  # must be present
+  sd1 = SettingDependency.new(
     dependency_lookup_key: "gemini_api_key",
     name: "Gemini API Key",
     notes: "must be a non-empty Gemini API key",
-    test: "Setting.get_value_of_key('gemini_api_key').present? rescue false"
+    test: "Setting.all_truthy?(%w[gemini_api_key gemini_text_model]) || Setting.get_value_of_key('enable_local_ollama', safe: true) rescue false"
   )
-  generate_hero_setting.setting_dependencies << sd
+  # must be present unless enable_local_ollama
+  sd2 = SettingDependency.new(
+    dependency_lookup_key: "gemini_text_model",
+    name: "Gemini Text Model",
+    notes: "must be a non-empty Gemini text model",
+    test: "Setting.any_truthy?(%w[gemini_text_model enable_local_ollama])? rescue false"
+  )
+  # must be present
+  sd3 = SettingDependency.new(
+    dependency_lookup_key: "gemini_image_model",
+    name: "Gemini Text Model",
+    notes: "must be a non-empty Gemini text model",
+    test: "Setting.get_value_of_key('gemini_image_model').present? rescue false"
+  )
+  generate_hero_setting.setting_dependencies << sd1
+  generate_hero_setting.setting_dependencies << sd2
+  generate_hero_setting.setting_dependencies << sd3
   generate_hero_setting.ignore_dependencies!
   generate_hero_setting.save!
 end
