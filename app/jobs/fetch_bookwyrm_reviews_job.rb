@@ -73,7 +73,7 @@ class FetchBookwyrmReviewsJob < ApplicationJob
     response = HTTParty.get(
       url,
       headers: {
-        "Accept" => "application/json",
+        "Accept"        => "application/json",
         "Authorization" => "Bearer #{oauth_site.access_token}"
       },
       timeout: REQUEST_TIMEOUT
@@ -90,6 +90,11 @@ class FetchBookwyrmReviewsJob < ApplicationJob
     [[], nil]
   end
 
+  # Parses an ActivityPub Review activity object from the Bookwyrm outbox.
+  # No public spec exists; see the Bookwyrm source for the JSON shape:
+  #   bookwyrm/activitypub/note.py  — Review dataclass (fields: published, content, rating, name, inReplyToBook, attachment, to, cc, sensitive)
+  #   bookwyrm/views/outbox.py      — the /@username/outbox endpoint we call
+  #   bookwyrm/models/status.py     — Review model; published_date -> "published" in ActivityPub JSON
   def create_review_from_activity(object, oauth_site)
     source_url = object["id"]
     html_content = object["content"].to_s
@@ -108,7 +113,8 @@ class FetchBookwyrmReviewsJob < ApplicationJob
       rating: rating,
       source_url: source_url,
       private: private_review,
-      sensitive: object["sensitive"] == true
+      sensitive: object["sensitive"] == true,
+      created_at: (DateTime.parse(object["published"]) rescue nil)
     )
   rescue => e
     Rails.logger.error("FetchBookwyrmReviewsJob: failed to save review for #{source_url}: #{e.message}\n#{e.backtrace.first(10).join("\n")}")
