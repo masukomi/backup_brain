@@ -108,23 +108,21 @@ class GenerateHeroImageJob < ApplicationJob
     [nil, nil]
   end
 
-  def gemini_client(api_key, model)
-    Gemini.new(
-      credentials: {service: "generative-language-api", api_key: api_key, version: "v1beta"},
-      options: {
-        model: model,
-        server_sent_events: false,
-        connection: {
-          adapter: :net_http,
-          request: {timeout: 120, read_timeout: 120}
-        }
-      }
+  GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta/models"
+
+  def gemini_generate_content(api_key, model, payload)
+    response = HTTParty.post(
+      "#{GEMINI_API_BASE}/#{model}:generateContent",
+      query: {key: api_key},
+      body: payload.to_json,
+      headers: {"Content-Type" => "application/json"},
+      timeout: 120
     )
+    response.parsed_response
   end
 
   def generate_image_prompt_with_gemini(api_key, guidance, content)
-    client = gemini_client(api_key, GEMINI_TEXT_MODEL)
-    result = client.generate_content({
+    result = gemini_generate_content(api_key, GEMINI_TEXT_MODEL, {
       contents: [{parts: [{text: "#{guidance}\n\n--- Content ---\n\n#{content}"}]}]
     })
 
@@ -188,8 +186,7 @@ class GenerateHeroImageJob < ApplicationJob
   end
 
   def generate_image(api_key, image_prompt)
-    client = gemini_client(api_key, GEMINI_IMAGE_MODEL)
-    result = client.generate_content({
+    result = gemini_generate_content(api_key, GEMINI_IMAGE_MODEL, {
       contents: [{parts: [{text: image_prompt}]}],
       generationConfig: {responseModalities: ["IMAGE"]}
     })
