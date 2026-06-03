@@ -6,6 +6,15 @@
 </div>
 
 <div class="row">
+  <div class="col-auto metadata">
+    <label for="auto_refresh_interval" ><%= t("jobs.refresh_interval_label") %></label>
+    <input type="number" id="auto_refresh_interval" min="0"
+           data-auto-refresh-target="intervalInput"
+           data-action="change->auto-refresh#intervalChanged">
+  </div>
+</div>
+
+<div class="row">
   <div class="col">
     <h3><%= t("jobs.manageable_heading") %></h3>
     <table class="table">

@@ -490,6 +490,7 @@ en:
     aborted: "%{name} aborted"
     unschedule: "Unschedule"
     unscheduled: "%{name} unscheduled"
+    refresh_interval_label: "Refresh every (seconds, 0 to stop)"
     errors:
       abort_permission_denied: "Could not abort — permission denied sending signal to worker process"
     manageable_heading: "Manageable Jobs"
