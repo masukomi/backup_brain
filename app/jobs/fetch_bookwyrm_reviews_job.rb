@@ -163,7 +163,7 @@ class FetchBookwyrmReviewsJob < ApplicationJob
 
   def reschedule
     already_queued = Delayed::Backend::Mongoid::Job
-      .exists?(failed_at: nil, handler: /job_class: FetchBookwyrmReviewsJob\n/)
+      .exists?(failed_at: nil, locked_at: nil, handler: /job_class: FetchBookwyrmReviewsJob\n/)
     self.class.set(wait: 12.hours).perform_later(reschedulable: true) unless already_queued
   end
 end

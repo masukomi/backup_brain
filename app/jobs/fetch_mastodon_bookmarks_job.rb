@@ -398,7 +398,7 @@ class FetchMastodonBookmarksJob < ApplicationJob
 
   def reschedule
     already_queued = Delayed::Backend::Mongoid::Job
-      .exists?(failed_at: nil, handler: /job_class: FetchMastodonBookmarksJob\n/)
+      .exists?(failed_at: nil, locked_at: nil, handler: /job_class: FetchMastodonBookmarksJob\n/)
     self.class.set(wait: 10.minutes).perform_later(reschedulable: true) unless already_queued
   end
 end
