@@ -299,5 +299,139 @@ RSpec.describe ArchiveUrlJob do
     # to the temp file, so I added that funky .encode!(…) stuff
     it "doesn't break when encountering a badly encoded response body"
   end
+
+  describe "API re-archiving" do
+    let(:user) { User.first || create(:user) }
+    let(:mastodon_type) do
+      OauthSiteType.find_or_create_by!(slug: "mastodon") do |t|
+        t.name = "Mastodon"
+        t.registration_strategy = "mastodon_v1_apps"
+        t.authorization_path = "/oauth/authorize"
+        t.token_path = "/oauth/token"
+      end
+    end
+    let(:misskey_type) do
+      OauthSiteType.find_or_create_by!(slug: "misskey") do |t|
+        t.name = "Misskey"
+        t.registration_strategy = "rfc7591"
+        t.authorization_path = "/oauth/authorize"
+        t.token_path = "/oauth/token"
+      end
+    end
+    let(:masto_site) do
+      OauthSite.where(base_url: "https://mastodon.social").first || OauthSite.create!(
+        base_url: "https://mastodon.social",
+        registered_url: "https://localhost:3334",
+        oauth_site_type: mastodon_type,
+        access_token: "masto_token"
+      )
+    end
+    let(:misskey_site) do
+      OauthSite.where(base_url: "https://misskey.example.com").first || OauthSite.create!(
+        base_url: "https://misskey.example.com",
+        registered_url: "https://localhost:3334",
+        oauth_site_type: misskey_type,
+        access_token: "misskey_token"
+      )
+    end
+
+    context "when bookmark has Mastodon API archive source" do
+      let(:masto_bookmark) do
+        b = Bookmark.new(
+          url: "https://mastodon.social/@test/#{rand(10**6)}",
+          title: "Masto Post",
+          user: user
+        )
+        b.suppress_auto_archive!
+        b.build_api_archive_source(
+          remote_id: "masto123",
+          service: "mastodon",
+          oauth_site: masto_site
+        )
+        b.save!
+        b
+      end
+
+      # rubocop:disable RSpec/VerifiedDoubles
+      before do
+        allow(Setting).to(receive(:get_value_of_key).with("enable_archiving").and_return(true))
+        allow(Setting).to(receive(:get_value_of_key).with("archival_requests_timeout").and_return(10))
+
+        status_payload = {
+          "id"                => "masto123",
+          "content"           => "<p>Updated Mastodon Content</p>",
+          "media_attachments" => []
+        }
+        allow(HTTParty).to receive(:get).with(
+          "https://mastodon.social/api/v1/statuses/masto123",
+          hash_including(headers: {"Authorization" => "Bearer masto_token"})
+        ).and_return(double("Response", success?: true, code: 200, body: status_payload.to_json))
+      end
+      # rubocop:enable RSpec/VerifiedDoubles
+
+      it "successfully re-archives via Mastodon API", :aggregate_failures do
+        expect(job).to receive(:perform_api_archival).and_call_original
+        expect(job).not_to receive(:perform_standard_archival)
+
+        result = job.perform(bookmark_id: masto_bookmark.id.to_s)
+        expect(result).to be_present
+
+        masto_bookmark.reload
+        expect(masto_bookmark.archives).not_to be_empty
+        latest = masto_bookmark.latest_archive
+        expect(latest.string_data).to include("Updated Mastodon Content")
+        expect(latest.metadata).to include("Imported via")
+      end
+    end
+
+    context "when bookmark has Misskey API archive source" do
+      let(:misskey_bookmark) do
+        b = Bookmark.new(
+          url: "https://misskey.example.com/notes/#{rand(10**6)}",
+          title: "Misskey Post",
+          user: user
+        )
+        b.suppress_auto_archive!
+        b.build_api_archive_source(
+          remote_id: "misskey123",
+          service: "misskey",
+          oauth_site: misskey_site
+        )
+        b.save!
+        b
+      end
+
+      # rubocop:disable RSpec/VerifiedDoubles
+      before do
+        allow(Setting).to(receive(:get_value_of_key).with("enable_archiving").and_return(true))
+        allow(Setting).to(receive(:get_value_of_key).with("archival_requests_timeout").and_return(10))
+
+        note_payload = {
+          "id"    => "misskey123",
+          "text"  => "Updated Misskey Content",
+          "files" => []
+        }
+        allow(HTTParty).to receive(:post).with(
+          "https://misskey.example.com/api/notes/show",
+          anything
+        ).and_return(double("Response", success?: true, code: 200, body: note_payload.to_json))
+      end
+      # rubocop:enable RSpec/VerifiedDoubles
+
+      it "successfully re-archives via Misskey API", :aggregate_failures do
+        expect(job).to receive(:perform_api_archival).and_call_original
+        expect(job).not_to receive(:perform_standard_archival)
+
+        result = job.perform(bookmark_id: misskey_bookmark.id.to_s)
+        expect(result).to be_present
+
+        misskey_bookmark.reload
+        expect(misskey_bookmark.archives).not_to be_empty
+        latest = misskey_bookmark.latest_archive
+        expect(latest.string_data).to include("Updated Misskey Content")
+        expect(latest.metadata).to include("Imported via")
+      end
+    end
+  end
 end
 # rubocop:enable RSpec/MultipleMemoizedHelpers

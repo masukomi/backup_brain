@@ -389,7 +389,7 @@ RSpec.describe FetchMastodonBookmarksJob do
     let(:status) do
       {
         "created_at" => "2024-01-15T10:30:00.000Z",
-        "account" => {"display_name" => "Alice", "acct" => "alice@mastodon.social"}
+        "account"    => {"display_name" => "Alice", "acct" => "alice@mastodon.social"}
       }
     end
 
@@ -461,8 +461,8 @@ RSpec.describe FetchMastodonBookmarksJob do
     let(:profile_url) { "https://mastodon.social/@alice" }
     let(:account_data) do
       {
-        "url" => profile_url,
-        "acct" => "alice@mastodon.social",
+        "url"    => profile_url,
+        "acct"   => "alice@mastodon.social",
         "avatar" => "https://cdn.mastodon.social/avatar.jpg",
         "header" => "https://cdn.mastodon.social/header.jpg"
       }
@@ -706,6 +706,62 @@ RSpec.describe FetchMastodonBookmarksJob do
       text = link + filler
       result = job.send(:truncate_markdown, text, 5)
       expect(result).to(include("[hi]"))
+    end
+  end
+
+  describe "#create_bookmark_from_status" do
+    let(:user) { User.first || create(:user) }
+    let(:oauth_site_type) do
+      OauthSiteType.find_or_create_by!(slug: "mastodon") do |t|
+        t.name = "Mastodon"
+        t.registration_strategy = "mastodon_v1_apps"
+        t.authorization_path = "/oauth/authorize"
+        t.token_path = "/oauth/token"
+      end
+    end
+    let(:oauth_site) do
+      OauthSite.where(base_url: "https://mastodon.social").first || OauthSite.create!(
+        base_url: "https://mastodon.social",
+        registered_url: "https://localhost:3334",
+        oauth_site_type: oauth_site_type,
+        access_token: "token123"
+      )
+    end
+    let(:status_id) { "987#{rand(10**6)}" }
+    let(:status) do
+      {
+        "id"                => status_id,
+        "url"               => "https://mastodon.social/@test/#{status_id}",
+        "content"           => "<p>Hello world</p>",
+        "created_at"        => "2024-01-15T10:30:00.000Z",
+        "sensitive"         => false,
+        "account"           => {
+          "url"          => "https://mastodon.social/@test",
+          "acct"         => "test",
+          "display_name" => "Test User",
+          "avatar"       => "https://mastodon.social/avatar.png",
+          "header"       => "https://mastodon.social/header.png"
+        },
+        "media_attachments" => []
+      }
+    end
+
+    before do
+      allow(Setting).to(receive(:get_value_of_key).with("enable_archiving").and_return(true))
+      allow(Setting).to(receive(:get_value_of_key).with("archival_requests_timeout").and_return(10))
+    end
+
+    it "creates a bookmark with an api_archive_source", :aggregate_failures do
+      allow(job).to(receive(:find_or_create_sma_for).and_return(nil))
+      expect {
+        job.send(:create_bookmark_from_status, status, user, oauth_site)
+      }.to change(Bookmark, :count).by(1)
+
+      created_bookmark = Bookmark.last
+      expect(created_bookmark.api_archive_source).to be_present
+      expect(created_bookmark.api_archive_source.remote_id).to eq(status_id)
+      expect(created_bookmark.api_archive_source.service).to eq("mastodon")
+      expect(created_bookmark.api_archive_source.oauth_site).to eq(oauth_site)
     end
   end
 end

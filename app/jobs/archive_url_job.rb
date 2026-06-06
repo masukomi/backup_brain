@@ -23,6 +23,19 @@ class ArchiveUrlJob < ApplicationJob
       return false
     end
 
+    if bookmark.api_archive_source.present?
+      perform_api_archival(bookmark)
+    else
+      perform_standard_archival(bookmark)
+    end
+  rescue Net::ReadTimeout, Net::OpenTimeout, Errno::ETIMEDOUT
+    record_failed_attempt(bookmark, 599, should_raise: false)
+  rescue => e
+    Rails.logger.warn("couldn't archive #{bookmark.url} - #{e.message}")
+    nil
+  end
+
+  def perform_standard_archival(bookmark)
     unless begin
       Setting.get_value_of_key("enable_archiving") == true
     rescue
@@ -89,11 +102,98 @@ class ArchiveUrlJob < ApplicationJob
       end
       nil
     end
-  rescue Net::ReadTimeout, Net::OpenTimeout, Errno::ETIMEDOUT
-    record_failed_attempt(bookmark, 599, should_raise: false)
+  end
+
+  def perform_api_archival(bookmark)
+    source = bookmark.api_archive_source
+    oauth_site = source.oauth_site
+    if oauth_site.blank?
+      Rails.logger.warn("ArchiveUrlJob: OauthSite for bookmark #{bookmark.id} is missing. Falling back to standard URL archiving.")
+      return perform_standard_archival(bookmark)
+    end
+
+    case source.service
+    when "mastodon"
+      rearchive_mastodon(bookmark, oauth_site, source)
+    when "misskey"
+      rearchive_misskey(bookmark, oauth_site, source)
+    else
+      Rails.logger.warn("ArchiveUrlJob: Unknown API service #{source.service} for bookmark #{bookmark.id}. Falling back to standard URL archiving.")
+      perform_standard_archival(bookmark)
+    end
+  end
+
+  def rearchive_mastodon(bookmark, oauth_site, source)
+    url = "#{oauth_site.base_url}/api/v1/statuses/#{source.remote_id}"
+    res = HTTParty.get(url,
+      headers: {"Authorization" => "Bearer #{oauth_site.access_token}"},
+      timeout: 30)
+
+    unless res.success?
+      record_failed_attempt(bookmark, res.code, message: "Failed to fetch Mastodon status from API: #{res.code}", should_raise: false)
+      return nil
+    end
+
+    status = JSON.parse(res.body)
+    html_content = status["content"].to_s
+
+    archive = html_to_archive(bookmark, html_content) ||
+      Archive.new(mime_type: "text/markdown", string_data: "")
+
+    job = FetchMastodonBookmarksJob.new
+    job.send(:append_media_attachments, status["media_attachments"], archive, bookmark, oauth_site.access_token)
+
+    finalize_and_save_api_archive(bookmark, archive, oauth_site)
   rescue => e
-    Rails.logger.warn("couldn't archive #{bookmark.url} - #{e.message}")
+    Rails.logger.error("ArchiveUrlJob Mastodon API re-archiving failed for bookmark #{bookmark.id}: #{e.message}\n#{e.backtrace.first(10).join("\n")}")
+    record_failed_attempt(bookmark, 601, message: "Mastodon API error: #{e.message}", should_raise: false)
     nil
+  end
+
+  def rearchive_misskey(bookmark, oauth_site, source)
+    payload = {i: oauth_site.access_token, noteId: source.remote_id}
+    res = HTTParty.post(
+      "#{oauth_site.base_url}/api/notes/show",
+      headers: {"Content-Type" => "application/json"},
+      body: payload.to_json,
+      timeout: 30
+    )
+
+    unless res.success?
+      record_failed_attempt(bookmark, res.code, message: "Failed to fetch Misskey note from API: #{res.code}", should_raise: false)
+      return nil
+    end
+
+    note = JSON.parse(res.body)
+    text_content = note["text"].to_s
+
+    archive = Archive.new(mime_type: "text/markdown", string_data: text_content)
+
+    job = FetchMisskeyBookmarksJob.new
+    job.send(:append_media_files, note["files"], archive, bookmark)
+    job.send(:embed_youtube_videos, archive)
+
+    finalize_and_save_api_archive(bookmark, archive, oauth_site)
+  rescue => e
+    Rails.logger.error("ArchiveUrlJob Misskey API re-archiving failed for bookmark #{bookmark.id}: #{e.message}\n#{e.backtrace.first(10).join("\n")}")
+    record_failed_attempt(bookmark, 601, message: "Misskey API error: #{e.message}", should_raise: false)
+    nil
+  end
+
+  def finalize_and_save_api_archive(bookmark, archive, oauth_site)
+    return nil if archive.string_data.blank?
+
+    archive.metadata = generate_metadata_for_oauth_site(oauth_site)
+    archive.audio_urls.each { |url| archive.add_media_object(url, simple_type: "audio") }
+    archive.video_urls.each { |url| archive.add_media_object(url, simple_type: "video", sensitive: bookmark.sensitive) }
+    archive.created_at = DateTime.now
+    archive.updated_at = archive.created_at
+
+    bookmark.archives << archive
+    bookmark.failed_archive_attempts.clear
+    ContentTrigger.apply_triggers(test_string: archive.string_data, apply_to: bookmark)
+    bookmark.save!
+    bookmark
   end
 
   def interpret_tool_output(raw_output, bookmark)

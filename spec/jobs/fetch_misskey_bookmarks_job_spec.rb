@@ -34,19 +34,19 @@ RSpec.describe FetchMisskeyBookmarksJob do
 
   def build_note(id: "note1", text: "Hello from Misskey", url: nil, username: "alice", host: nil, created_at: "2024-01-15T10:30:00.000Z", files: [])
     {
-      "id" => id,
-      "text" => text,
-      "url" => url,
+      "id"        => id,
+      "text"      => text,
+      "url"       => url,
       "createdAt" => created_at,
-      "user" => {
-        "id" => "user1",
-        "username" => username,
-        "host" => host,
-        "name" => "Alice",
+      "user"      => {
+        "id"        => "user1",
+        "username"  => username,
+        "host"      => host,
+        "name"      => "Alice",
         "avatarUrl" => "https://misskey.example.com/avatar.jpg",
         "bannerUrl" => nil
       },
-      "files" => files
+      "files"     => files
     }
   end
 
@@ -96,6 +96,10 @@ RSpec.describe FetchMisskeyBookmarksJob do
 
   describe "#manual_perform" do
     context "when no Misskey OauthSiteType exists" do
+      before do
+        OauthSiteType.destroy_all
+      end
+
       it "logs a warning and returns without error" do
         expect(Rails.logger).to receive(:warn).with(/no misskey OauthSiteType/)
         job.manual_perform(false)
@@ -224,10 +228,10 @@ RSpec.describe FetchMisskeyBookmarksJob do
     context "with a note that has Image files" do
       let(:image_file) do
         {
-          "type" => "Image",
-          "url" => "https://misskey.example.com/files/photo.jpg",
+          "type"         => "Image",
+          "url"          => "https://misskey.example.com/files/photo.jpg",
           "thumbnailUrl" => "https://misskey.example.com/files/photo_thumb.jpg",
-          "comment" => "A photo"
+          "comment"      => "A photo"
         }
       end
 
@@ -255,10 +259,10 @@ RSpec.describe FetchMisskeyBookmarksJob do
     context "with a note that has no text but has image files" do
       let(:image_file) do
         {
-          "type" => "Image",
-          "url" => "https://misskey.example.com/files/photo.jpg",
+          "type"         => "Image",
+          "url"          => "https://misskey.example.com/files/photo.jpg",
           "thumbnailUrl" => nil,
-          "comment" => nil
+          "comment"      => nil
         }
       end
 
@@ -435,6 +439,60 @@ RSpec.describe FetchMisskeyBookmarksJob do
         job.send(:embed_youtube_videos, archive)
         expect(archive.string_data).to eq(content)
       end
+    end
+  end
+
+  describe "#create_bookmark_from_note" do
+    let(:oauth_site_type) do
+      OauthSiteType.find_or_create_by!(slug: "misskey") do |t|
+        t.name = "Misskey"
+        t.registration_strategy = "rfc7591"
+        t.authorization_path = "/oauth/authorize"
+        t.token_path = "/oauth/token"
+      end
+    end
+    let(:oauth_site) do
+      OauthSite.where(base_url: "https://misskey.example.com").first || OauthSite.create!(
+        base_url: "https://misskey.example.com",
+        registered_url: "https://localhost:3334",
+        oauth_site_type: oauth_site_type,
+        access_token: "token123"
+      )
+    end
+    let(:user) { User.first || create(:user) }
+    let(:note_id) { "note_#{rand(10**6)}" }
+    let(:note) do
+      {
+        "id"        => note_id,
+        "text"      => "Hello Misskey",
+        "createdAt" => "2024-01-15T10:30:00.000Z",
+        "user"      => {
+          "id"        => "user1",
+          "username"  => "alice",
+          "host"      => nil,
+          "name"      => "Alice",
+          "avatarUrl" => "https://misskey.example.com/avatar.jpg"
+        },
+        "files"     => []
+      }
+    end
+
+    before do
+      allow(Setting).to(receive(:get_value_of_key).with("enable_archiving").and_return(true))
+      allow(Setting).to(receive(:get_value_of_key).with("archival_requests_timeout").and_return(10))
+    end
+
+    it "creates a bookmark with an api_archive_source", :aggregate_failures do
+      allow(job).to(receive(:find_or_create_sma_for).and_return(nil))
+      expect {
+        job.send(:create_bookmark_from_note, note, user, oauth_site)
+      }.to change(Bookmark, :count).by(1)
+
+      created_bookmark = Bookmark.last
+      expect(created_bookmark.api_archive_source).to be_present
+      expect(created_bookmark.api_archive_source.remote_id).to eq(note_id)
+      expect(created_bookmark.api_archive_source.service).to eq("misskey")
+      expect(created_bookmark.api_archive_source.oauth_site).to eq(oauth_site)
     end
   end
 end

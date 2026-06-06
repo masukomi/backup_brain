@@ -130,6 +130,11 @@ class FetchMastodonBookmarksJob < ApplicationJob
         FEDIVERSE_BOOKMARK_TAG
       ]
     )
+    bookmark.build_api_archive_source(
+      remote_id: status["id"],
+      service: "mastodon",
+      oauth_site: oauth_site
+    )
     # Social Media Account that created the post
     sma    = find_or_create_sma_for(account_data)
     # If it was a SMA previously created by the user there'll be a Person attached.

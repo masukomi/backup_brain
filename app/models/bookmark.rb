@@ -28,6 +28,7 @@ class Bookmark
 
   embeds_many :archives, cascade_callbacks: true
   embeds_many :failed_archive_attempts
+  embeds_one :api_archive_source, class_name: "ApiArchiveSource", cascade_callbacks: true
 
   belongs_to :user
   has_and_belongs_to_many :people # NEVER DEPENDENT DESTROY

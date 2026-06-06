@@ -122,6 +122,11 @@ class FetchMisskeyBookmarksJob < ApplicationJob
       user: user,
       tags: DEFAULT_TAGS
     )
+    bookmark.build_api_archive_source(
+      remote_id: note["id"],
+      service: "misskey",
+      oauth_site: oauth_site
+    )
 
     sma = find_or_create_sma_for(user_data, oauth_site.base_url)
     person = sma&.person || Person.where(social_media_profile_url: profile_url_for(user_data, oauth_site.base_url)).first
