@@ -1,3 +1,6 @@
+# Load the reverse_markdown URL underscore escaping monkeypatch
+require Rails.root.join("app/lib/reverse_markdown/converters/base")
+
 if Rails.env.development?
   module ActionView
     class AbstractRenderer
