@@ -17,21 +17,23 @@ require "reverse_markdown"
 # or the gem's base.rb being skipped, we load the gem's file by its absolute path.
 gem_spec = Gem.loaded_specs["reverse_markdown"]
 if gem_spec
-  require File.join(gem_spec.full_gem_path, "lib/reverse_markdown/converters/base.rb")
+  require File.join(gem_spec.full_gem_path, "lib/reverse_markdown/converters/text.rb")
 end
 
 module ReverseMarkdown
   module Converters
-    class Base
-      # Only apply the alias and override if escape_keychars is defined and we haven't already aliased it
-      if method_defined?(:escape_keychars) && !method_defined?(:orig_escape_keychars)
-        alias_method :orig_escape_keychars, :escape_keychars
+    class Text < Base
+      private
 
-        def escape_keychars(string)
-          escaped = orig_escape_keychars(string)
-          # Match HTTP/HTTPS URLs and restore escaped underscores/asterisks within them
-          escaped.gsub(%r{https?://[^\s<>]+}) do |url|
-            url.gsub('\\_', "_").gsub('\\*', "*")
+      # Override to avoid escaping * and _ inside URLs
+      def escape_keychars(str)
+        str.gsub(/(https?:\/\/\S+)|(?<!\\)[*_]/) do |match|
+          if $1
+            $1          # It's a URL — return unchanged
+          elsif match == "_"
+            '\_'
+          else
+            '\*'
           end
         end
       end

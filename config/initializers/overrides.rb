@@ -1,5 +1,5 @@
 # Load the reverse_markdown URL underscore escaping monkeypatch
-require Rails.root.join("app/lib/reverse_markdown/converters/base")
+require Rails.root.join("app/lib/reverse_markdown/converters/text")
 
 if Rails.env.development?
   module ActionView
