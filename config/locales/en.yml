@@ -399,7 +399,7 @@ en:
       to_read: "Unread Bookmarks"
       simple_and_tagged_with: "Bookmarks tagged with: %{tags}"
       search: "Bookmarks matching `%{query}`"
-      search_and_tagged_with: "Bookmarks matching `%{query}` & tagged with: %{tags}"
+      search_and_tagged_with: "Bookmarks matching `%{query}` <br />& tagged with: %{tags}"
       unarchived: "Unarchived Bookmarks"
       unarchived_and_tagged_with: "Unarchived Bookmarks tagged with: %{tags}"
       to_read: "Unread Bookmarks"

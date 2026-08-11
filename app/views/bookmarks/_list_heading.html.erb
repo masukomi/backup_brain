@@ -14,7 +14,7 @@
   <% else %>
     <% tags_string = @query_tags.join(', ') %>
     <% if action_name == 'search' %>
-      <%= t('bookmarks.headings.search_and_tagged_with', query: @query, tags: tags_string)%>
+      <%== t('bookmarks.headings.search_and_tagged_with', query: @query, tags: tags_string)%>
     <% elsif action_name == 'tagged_with' %>
       <%= t('bookmarks.headings.simple_and_tagged_with', tags: tags_string)%>
     <% elsif action_name == 'unarchived' %>
