@@ -22,16 +22,20 @@ class Tag
     # extract_from_string("my friend #foo bar #baz")
     # => ["my friend bar", ["foo", "baz"]]
     #
-    def extract_tags_from_string(string)
+    def extract_tags_from_string(string, downcase: true)
       return [string, []] unless string.match(HASHTAG_REGEXP)
-      str = string.dup
+      str_dup = string.dup
       matches = string.to_enum(:scan, HASHTAG_REGEXP).map { Regexp.last_match }
       raw_tags = []
       matches.reverse_each do |m|
-        raw_tags.unshift(m[1].delete_prefix("#"))
-        str[m.begin(0)..m.end(1) - 1] = ""
+        clean_tag = m[1].delete_prefix("#")
+        clean_tag.downcase! if downcase
+        # add to raw_tags
+        raw_tags.unshift(clean_tag)
+        # remove this tag from str_dup vvv
+        str_dup[m.begin(0)..m.end(1) - 1] = ""
       end
-      [str.strip, raw_tags]
+      [str_dup.strip, raw_tags]
     end
 
     # splits a string of tags, downcases them,

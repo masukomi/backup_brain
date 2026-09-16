@@ -41,6 +41,18 @@ RSpec.describe Tag do
     it "handles tags containing underscores and digits" do
       expect(described_class.extract_tags_from_string("see #foo_bar2")).to(eq(["see", ["foo_bar2"]]))
     end
+
+    it "downcases extracted tags by default" do
+      expect(described_class.extract_tags_from_string("my friend #Foo bar #BAZ")).to(eq(["my friend bar", ["foo", "baz"]]))
+    end
+
+    it "preserves tag case when downcase: false is passed" do
+      expect(described_class.extract_tags_from_string("my friend #Foo bar #BAZ", downcase: false)).to(eq(["my friend bar", ["Foo", "BAZ"]]))
+    end
+
+    it "downcases when downcase: true is passed explicitly" do
+      expect(described_class.extract_tags_from_string("#MixedCase", downcase: true)).to(eq(["", ["mixedcase"]]))
+    end
   end
 
   describe ".split_tags" do
