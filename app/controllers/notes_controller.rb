@@ -3,6 +3,7 @@ class NotesController < ApplicationController
   before_action :set_note, only: %i[show edit update destroy]
   before_action :set_limit, only: %i[index tagged_with search]
   before_action :set_page, only: %i[index tagged_with search]
+  before_action :authenticate_search_api, only: %i[search]
 
   def index
     query = Note.all.order_by([[:updated_at, :desc]])
@@ -98,6 +99,13 @@ class NotesController < ApplicationController
     raw = params.require(:note).permit(:title, :string_data, :private, :sensitive, :tags)
     tags = Tag.split_tags(raw[:tags] || "")
     raw.merge(tags: tags)
+  end
+
+  # json & md responses are machine facing, so they need an API key.
+  # html keeps relying on the Devise session.
+  def authenticate_search_api
+    return true unless raw_format?
+    require_api_key!(for_model: Note)
   end
 
   def set_limit

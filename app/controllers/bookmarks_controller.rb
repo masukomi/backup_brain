@@ -13,6 +13,7 @@ class BookmarksController < ApplicationController
   before_action :set_archive, only: %i[show download]
   before_action :set_total_bookmarks, only: %i[index unarchived to_read tagged_with search]
   before_action :authenticate_user!, only: %i[new create update destroy archive mark_as_read mark_to_read]
+  before_action :authenticate_search_api, only: %i[search]
 
   # GET /bookmarks or /bookmarks.json
   def index
@@ -74,7 +75,10 @@ class BookmarksController < ApplicationController
     # The search form retargets itself with JavaScript when you pick "Notes",
     # but it posts here by default, so handle the no-JS case too.
     if params[:search_for] == "notes"
-      redirect_to notes_search_path(request.query_parameters.except("search_for"))
+      redirect_to notes_search_path(
+        request.query_parameters.except("search_for")
+          .merge(format: request.format.symbol)
+      )
       return
     end
     central_search(search_for: :bookmarks)
@@ -264,6 +268,13 @@ class BookmarksController < ApplicationController
     unsplit_tags = params.dig(:bookmark, :tags)
     tags = Tag.split_tags(unsplit_tags)
     bookmark_params.merge({tags: tags})
+  end
+
+  # json & md responses are machine facing, so they need an API key.
+  # html keeps relying on the Devise session.
+  def authenticate_search_api
+    return true unless raw_format?
+    require_api_key!(for_model: Bookmark)
   end
 
   def set_limit

@@ -54,4 +54,10 @@ Rails.application.configure do
 
   # Annotate rendered view with file names.
   # config.action_view.annotate_rendered_view_with_filenames = true
+
+  # application.rb adds 'backupbrain' to config.hosts, which turns host
+  # authorization on for every environment. Request specs come in as
+  # www.example.com and would get a 403, so turn it off here the same way
+  # development.rb does.
+  config.hosts.clear
 end

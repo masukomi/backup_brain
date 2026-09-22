@@ -1,0 +1,20 @@
+# <%= t("search.markdown.heading", query: @query) %>
+<% if @query_tags.present? -%>
+<%= t("search.markdown.tags_line", tags: @query_tags.map { |tag| "##{tag}" }.join(" ")) %>
+<% end -%>
+
+<%= t("search.markdown.result_count", count: @notes.count) %>
+<% @notes.each do |note| -%>
+
+---
+
+## [<%= note.title.presence || t("search.markdown.untitled_note") %>](<%= note_url(note) %>)
+<% if note.tags.present? -%>
+
+<%= note.tags.map { |tag| "##{tag}" }.join(" ") %>
+<% end -%>
+<% if note.string_data.present? -%>
+
+<%= note.string_data %>
+<% end -%>
+<% end -%>

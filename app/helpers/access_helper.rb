@@ -1,6 +1,6 @@
 module AccessHelper
   def model_path_string(klass)
-    klass.name.titlecase.pluralize.downcase.gsub(" ", "_")
+    BackupBrain::ModelPaths.path_string(klass)
   end
 
   def api_key_permissions_for(klass)

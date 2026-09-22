@@ -1,7 +1,12 @@
 class ApplicationController < ActionController::Base
   include Pagy::Backend
   include BackupBrain::Grouping
+  include ApiKeyAuthenticatable
   VALID_ALTERNATE_LAYOUTS = %w[application webextension]
+  # raw formats return every match rather than a page.
+  # 10k is Meilisearch's practical ceiling, and what the
+  # tags-sidebar query already uses.
+  RAW_RESULT_CAP = 10_000
   layout :get_layout
 
   before_action :set_layout
@@ -56,12 +61,17 @@ class ApplicationController < ActionController::Base
       @query_tags += params[:tags].split(",")
     end
 
-    if @query.blank? && @query_tags.present?
-      redirect_to action: "tagged_with", tags: @query_tags.join(",")
-      return
-    elsif @query.blank?
-      flash_message(:notice, t("search.missing_query"))
-      redirect_to action: "index"
+    if @query.blank?
+      # a script can't follow a flash message, so raw callers get
+      # a real error instead of a redirect
+      if raw_format?
+        render_api_error(:bad_request, t("search.missing_query"))
+      elsif @query_tags.present?
+        redirect_to action: "tagged_with", tags: @query_tags.join(",")
+      else
+        flash_message(:notice, t("search.missing_query"))
+        redirect_to action: "index"
+      end
       return
     end
 
@@ -73,12 +83,17 @@ class ApplicationController < ActionController::Base
     end
 
     # Meilisearch Options
-    options = {
-      limit: @limit,
-      sort: sort_params,
-      offset: (@limit * (@page - 1)) # number of resources skipped
-    }
-    unless user_signed_in? && cookies[:hide_private].blank?
+    # raw formats aren't paginated: they get everything, up to the cap
+    options = if raw_format?
+      {limit: RAW_RESULT_CAP, sort: sort_params, offset: 0}
+    else
+      {
+        limit: @limit,
+        sort: sort_params,
+        offset: (@limit * (@page - 1)) # number of resources skipped
+      }
+    end
+    unless include_private_records?
       options[:filter] = "private = false"
     end
 
@@ -97,8 +112,9 @@ class ApplicationController < ActionController::Base
       end
     end
 
-    # Separate options for fetching ALL matching IDs across all pages (for tags sidebar)
-    all_ids_options = options.except(:limit, :offset).merge(limit: 10_000)
+    # Separate options for fetching ALL matching IDs across all pages (for tags sidebar).
+    # In raw mode the main query already IS that query, so we skip the second search.
+    all_ids_options = options.except(:limit, :offset).merge(limit: RAW_RESULT_CAP)
 
     begin
       # if we were searching for _any_ record we'd use `filtered_by_class: false`
@@ -109,10 +125,14 @@ class ApplicationController < ActionController::Base
         options: options,
         ids_only: true,
         filtered_by_class: true)
-      all_ids_results = klass.search(@query,
-        options: all_ids_options,
-        ids_only: true,
-        filtered_by_class: true)
+      all_ids_results = if raw_format?
+        raw_results
+      else
+        klass.search(@query,
+          options: all_ids_options,
+          ids_only: true,
+          filtered_by_class: true)
+      end
 
       results = klass.where(:id.in => raw_results["matches"])
       if @query_tags&.present?
@@ -132,11 +152,18 @@ class ApplicationController < ActionController::Base
       if search_for == :notes
         @tags_list = @tags_list.map { |t| helpers.decode_entities(t) }
       end
-      @pagy = pagify_search(raw_results["search_result_metadata"]["nbHits"])
+      # raw formats aren't paginated, so there's nothing to page through
+      @pagy = pagify_search(raw_results["search_result_metadata"]["nbHits"]) unless raw_format?
 
-      render :index
+      respond_to do |format|
+        format.html { render :index }
+        format.json { render :search }
+        format.md   { render :search, formats: [:md], layout: false }
+      end
     rescue MeiliSearch::ApiError => e
-      if e.message.include?("Index `#{klass.search_index_name}` not found")
+      if raw_format?
+        render_api_error(:bad_gateway, t("api.errors.search_unavailable", error: e.message))
+      elsif e.message.include?("Index `#{klass.search_index_name}` not found")
         if klass.count > 0
           flash_message(:notice, t("search.missing_index"))
         else
@@ -154,8 +181,15 @@ class ApplicationController < ActionController::Base
       else
         flash_message(:error, t("search.unknown_error", error: e.message))
       end
-      redirect_to((search_for == :notes) ? notes_path : bookmarks_path)
+      redirect_to((search_for == :notes) ? notes_path : bookmarks_path) unless raw_format?
     end
+  end
+
+  # A valid API key belongs to the (single) owner of this instance,
+  # so it sees everything. Otherwise fall back to the session rules.
+  def include_private_records?
+    return true if current_api_key.present?
+    user_signed_in? && cookies[:hide_private].blank?
   end
 
   # adds tags to the search options being passed to Meilisearch

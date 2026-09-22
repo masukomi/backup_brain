@@ -1,0 +1,20 @@
+# <%= t("search.markdown.heading", query: @query) %>
+<% if @query_tags.present? -%>
+<%= t("search.markdown.tags_line", tags: @query_tags.map { |tag| "##{tag}" }.join(" ")) %>
+<% end -%>
+
+<%= t("search.markdown.result_count", count: @bookmarks.count) %>
+<% @bookmarks.each do |bookmark| -%>
+
+---
+
+## [<%= bookmark.title.presence || bookmark.url %>](<%= bookmark.url %>)
+<% if bookmark.tags.present? -%>
+
+<%= bookmark.tags.map { |tag| "##{tag}" }.join(" ") %>
+<% end -%>
+<% if bookmark.description.present? -%>
+
+<%= bookmark.description %>
+<% end -%>
+<% end -%>
