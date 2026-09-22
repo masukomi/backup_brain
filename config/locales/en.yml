@@ -685,6 +685,7 @@ en:
       invalid_key: "That API key is not valid, or it has expired."
       insufficient_permissions: "That API key lacks the '%{permission}' permission."
       search_unavailable: "Search is currently unavailable: %{error}"
+      not_found: "Not found."
   access:
     nav_link: "Access Keys"
     nav_icon_alt: "a key icon"

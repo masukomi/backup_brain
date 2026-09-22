@@ -93,7 +93,7 @@ class ApplicationController < ActionController::Base
         offset: (@limit * (@page - 1)) # number of resources skipped
       }
     end
-    unless include_private_records?
+    unless include_private_records?(klass)
       options[:filter] = "private = false"
     end
 
@@ -185,11 +185,27 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  # A valid API key belongs to the (single) owner of this instance,
-  # so it sees everything. Otherwise fall back to the session rules.
-  def include_private_records?
-    return true if current_api_key.present?
+  # A valid API key belongs to the (single) owner of this instance, so it
+  # sees everything it has read access to. Otherwise the session rules apply.
+  #
+  # @param [Class, nil] klass - the model being read. Required for the
+  #        permission check to mean anything.
+  def include_private_records?(klass = nil)
+    if current_api_key.present?
+      return klass.nil? || current_api_key.permits?("read", klass)
+    end
     user_signed_in? && cookies[:hide_private].blank?
+  end
+
+  # This is a single user instance, so an api key acts as that one user.
+  def acting_user
+    current_user || (current_api_key.present? ? User.first : nil)
+  end
+
+  # An api client can't follow a redirect to a flash message, so
+  # anything it isn't allowed to see is simply absent.
+  def render_api_not_found
+    render_api_error(:not_found, t("api.errors.not_found"))
   end
 
   # adds tags to the search options being passed to Meilisearch

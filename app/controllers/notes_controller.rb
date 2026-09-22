@@ -1,5 +1,7 @@
 class NotesController < ApplicationController
-  before_action :authenticate_user!, only: %i[new create edit update destroy]
+  before_action :authenticate_user!, only: %i[new edit destroy]
+  before_action :authenticate_write_api, only: %i[create update]
+  before_action :authenticate_api_key, only: %i[show]
   before_action :set_note, only: %i[show edit update destroy]
   before_action :set_limit, only: %i[index tagged_with search]
   before_action :set_page, only: %i[index tagged_with search]
@@ -32,6 +34,11 @@ class NotesController < ApplicationController
   end
 
   def show
+    respond_to do |format|
+      format.html { render :show }
+      format.json { render :show }
+      format.md   { render :show, formats: [:md], layout: false }
+    end
   end
 
   def search
@@ -47,18 +54,26 @@ class NotesController < ApplicationController
 
   def create
     @note = Note.new(note_params)
-    if @note.save
-      redirect_to @note, notice: t("notes.creation_success")
-    else
-      render :new, status: :unprocessable_entity
+    respond_to do |format|
+      if @note.save
+        format.html { redirect_to @note, notice: t("notes.creation_success") }
+        format.json { render :show, status: :created, location: note_url(@note) }
+      else
+        format.html { render :new, status: :unprocessable_entity }
+        format.json { render json: {errors: @note.errors}, status: :unprocessable_entity }
+      end
     end
   end
 
   def update
-    if @note.update(note_params)
-      redirect_to @note, notice: t("notes.update_success")
-    else
-      render :edit, status: :unprocessable_entity
+    respond_to do |format|
+      if @note.update(note_params)
+        format.html { redirect_to @note, notice: t("notes.update_success") }
+        format.json { render :show, status: :ok, location: note_url(@note) }
+      else
+        format.html { render :edit, status: :unprocessable_entity }
+        format.json { render json: {errors: @note.errors}, status: :unprocessable_entity }
+      end
     end
   end
 
@@ -71,12 +86,18 @@ class NotesController < ApplicationController
 
   def set_note
     @note = Note.find(params[:id])
-    if @note.private && !user_signed_in?
+    return if !@note.private || include_private_records?(Note)
+
+    @note = nil
+    # an api client can't follow a redirect to a flash message
+    if raw_format?
+      render_api_not_found
+    else
       flash_message(:error, t("accounts.access_denied"))
       redirect_to notes_url
     end
   rescue Mongoid::Errors::DocumentNotFound
-    redirect_to notes_url
+    raw_format? ? render_api_not_found : redirect_to(notes_url)
   end
 
   def privatize(query)
@@ -96,7 +117,9 @@ class NotesController < ApplicationController
   end
 
   def note_params
-    raw = params.require(:note).permit(:title, :string_data, :private, :sensitive, :tags)
+    # tags arrive as a string from the web form & as an array from json clients
+    raw = params.require(:note)
+      .permit(:title, :string_data, :private, :sensitive, :tags, tags: [])
     tags = Tag.split_tags(raw[:tags] || "")
     raw.merge(tags: tags)
   end
@@ -106,6 +129,11 @@ class NotesController < ApplicationController
   def authenticate_search_api
     return true unless raw_format?
     require_api_key!(for_model: Note)
+  end
+
+  # create & update serve both the web UI and api clients
+  def authenticate_write_api
+    authenticate_user_or_api_key!(for_model: Note)
   end
 
   def set_limit

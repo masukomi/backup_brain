@@ -40,8 +40,12 @@ class Tag
 
     # splits a string of tags, downcases them,
     # replaces spaces with underscores, and returns an array
+    #
+    # Accepts a string ("foo, bar") or an array (["foo", "bar"]),
+    # because json api clients send the latter.
     def split_tags(tags)
       return [] if tags.blank?
+      tags = tags.join(" ") if tags.is_a?(Array)
       tags.strip.split(/,?\s+|,/)
         .compact_blank
         .uniq

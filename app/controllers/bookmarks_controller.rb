@@ -6,13 +6,16 @@ class BookmarksController < ApplicationController
   # you allow multiple accounts to be created.
   # Don't do that. This is a single-user instance.
 
+  # must precede set_bookmark: it decides whether private records are visible
+  before_action :authenticate_api_key, only: %i[show]
   before_action :set_bookmark, only: %i[show download edit update archive destroy]
   before_action :set_limit, only: %i[index tagged_with search unarchived to_read]
   before_action :set_page, only: %i[index tagged_with search unarchived to_read]
   before_action :set_closeable, only: %i[new edit create update show]
   before_action :set_archive, only: %i[show download]
   before_action :set_total_bookmarks, only: %i[index unarchived to_read tagged_with search]
-  before_action :authenticate_user!, only: %i[new create update destroy archive mark_as_read mark_to_read]
+  before_action :authenticate_user!, only: %i[new destroy archive mark_as_read mark_to_read]
+  before_action :authenticate_write_api, only: %i[create update]
   before_action :authenticate_search_api, only: %i[search]
 
   # GET /bookmarks or /bookmarks.json
@@ -140,7 +143,7 @@ class BookmarksController < ApplicationController
   # POST /bookmarks or /bookmarks.json
   def create
     @bookmark = Bookmark.new(split_tag_params)
-    @bookmark.user = current_user
+    @bookmark.user = acting_user
 
     respond_to do |format|
       if @bookmark.save
@@ -155,7 +158,7 @@ class BookmarksController < ApplicationController
         format.json { render :show, status: :created, location: @bookmark }
       else
         format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @bookmark.errors, status: :unprocessable_entity }
+        format.json { render json: {errors: @bookmark.errors}, status: :unprocessable_entity }
       end
     end
   end
@@ -222,7 +225,7 @@ class BookmarksController < ApplicationController
         format.json { render :show, status: :ok, location: @bookmark }
       else
         format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @bookmark.errors, status: :unprocessable_entity }
+        format.json { render json: {errors: @bookmark.errors}, status: :unprocessable_entity }
       end
     end
   end
@@ -252,8 +255,13 @@ class BookmarksController < ApplicationController
   # Use callbacks to share common setup or constraints between actions.
   def set_bookmark
     @bookmark = Bookmark.find(params[:id])
-    if @bookmark.private? && !user_signed_in?
-      @bookmark = nil
+    return if !@bookmark.private? || include_private_records?(Bookmark)
+
+    @bookmark = nil
+    # an api client can't follow a redirect to a flash message
+    if raw_format?
+      render_api_not_found
+    else
       flash_message(:error, t("accounts.access_denied"))
       redirect_to bookmarks_url
     end
@@ -261,7 +269,9 @@ class BookmarksController < ApplicationController
 
   # Only allow a list of trusted parameters through.
   def bookmark_params
-    params.require(:bookmark).permit(:title, :url, :description, :tags, :private, :sensitive, :to_read)
+    # tags arrive as a string from the web form & as an array from json clients
+    params.require(:bookmark)
+      .permit(:title, :url, :description, :tags, :private, :sensitive, :to_read, tags: [])
   end
 
   def split_tag_params
@@ -275,6 +285,11 @@ class BookmarksController < ApplicationController
   def authenticate_search_api
     return true unless raw_format?
     require_api_key!(for_model: Bookmark)
+  end
+
+  # create & update serve both the web UI and api clients
+  def authenticate_write_api
+    authenticate_user_or_api_key!(for_model: Bookmark)
   end
 
   def set_limit

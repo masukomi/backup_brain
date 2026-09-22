@@ -1,0 +1,9 @@
+<% if @note.title.present? -%>
+# <%= @note.title %>
+<% end -%>
+<% if @note.tags.present? -%>
+
+<%= @note.tags.map { |tag| "##{tag}" }.join(" ") %>
+<% end -%>
+
+<%= @note.string_data %>
