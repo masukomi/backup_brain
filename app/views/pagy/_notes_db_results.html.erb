@@ -1,4 +1,10 @@
-<% links_hash = get_pagination_links_for_notes(pagy: pagy, limit: @limit, tags: @query_tags) %>
+<%
+  links_hash = if @query.present?
+    get_pagination_links_for_notes_query(pagy: pagy, query: @query, limit: @limit, tags: @query_tags)
+  else
+    get_pagination_links_for_notes(pagy: pagy, limit: @limit, tags: @query_tags)
+  end
+%>
 <nav class="pagy-bootstrap-nav" role="navigation">
   <ul class="pagination">
     <% if pagy.prev %>

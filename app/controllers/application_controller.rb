@@ -47,6 +47,8 @@ class ApplicationController < ActionController::Base
   end
 
   def central_search(search_for:)
+    @search_for = search_for
+    klass = (search_for == :bookmarks) ? Bookmark : Note
     @query = params[:query]
     @query, @query_tags = Tag.extract_tags_from_string(@query)
 
@@ -84,16 +86,21 @@ class ApplicationController < ActionController::Base
       options = add_tags_to_search_options(@query_tags, options)
     end
 
-    @search_archives = params[:search_archives] == "true"
-    unless @search_archives
-      options[:attributes_to_search_on] = %w[title description tags url]
+    if search_for == :notes
+      # notes have no archives, so there's nothing to opt in to searching
+      @search_archives = false
+      options[:attributes_to_search_on] = Note::QUERYABLE_ATTRIBUTES
+    else
+      @search_archives = params[:search_archives] == "true"
+      unless @search_archives
+        options[:attributes_to_search_on] = %w[title description tags url]
+      end
     end
 
     # Separate options for fetching ALL matching IDs across all pages (for tags sidebar)
     all_ids_options = options.except(:limit, :offset).merge(limit: 10_000)
 
     begin
-      klass = (search_for == :bookmarks) ? Bookmark : Note
       # if we were searching for _any_ record we'd use `filtered_by_class: false`
       # note: already privatized via filter
       # raw_results is a hash see the following for details
@@ -107,25 +114,34 @@ class ApplicationController < ActionController::Base
         ids_only: true,
         filtered_by_class: true)
 
-      @bookmarks = klass.where(:id.in => raw_results["matches"])
+      results = klass.where(:id.in => raw_results["matches"])
       if @query_tags&.present?
         # in theory, this is redundant because the search criteria
         # would have filtered on tags BUT I'd rather be sure
-        @bookmarks = @bookmarks.tagged_with_all(@query_tags)
+        results = results.tagged_with_all(@query_tags)
+      end
+      if search_for == :notes
+        @notes = results
+      else
+        @bookmarks = results
       end
 
       all_matching = klass.where(:id.in => all_ids_results["matches"])
       all_matching = all_matching.tagged_with_all(@query_tags) if @query_tags&.present?
       @tags_list = all_matching.pluck(:tags).flatten.sort.uniq
-      @pagy      = pagify_search(raw_results["search_result_metadata"]["nbHits"])
+      if search_for == :notes
+        @tags_list = @tags_list.map { |t| helpers.decode_entities(t) }
+      end
+      @pagy = pagify_search(raw_results["search_result_metadata"]["nbHits"])
 
       render :index
     rescue MeiliSearch::ApiError => e
-      if e.message.include?("Index `backup_brain_general` not found")
+      if e.message.include?("Index `#{klass.search_index_name}` not found")
         if klass.count > 0
           flash_message(:notice, t("search.missing_index"))
         else
-          flash_message(:notice, t("search.no_bookmarks"))
+          flash_message(:notice,
+            (search_for == :notes) ? t("search.no_notes") : t("search.no_bookmarks"))
         end
       elsif e.message.include?("The provided API key is invalid")
         search_key = ENV.fetch("MEILISEARCH_SEARCH_KEY", nil)
@@ -138,7 +154,36 @@ class ApplicationController < ActionController::Base
       else
         flash_message(:error, t("search.unknown_error", error: e.message))
       end
-      redirect_to bookmarks_path
+      redirect_to((search_for == :notes) ? notes_path : bookmarks_path)
     end
+  end
+
+  # adds tags to the search options being passed to Meilisearch
+  #
+  # Documentation on the query we're building
+  # can be found here:
+  # https://www.meilisearch.com/docs/learn/filtering_and_sorting/filter_expression_reference#in
+  #
+  def add_tags_to_search_options(tags, options)
+    options[:filter] ||= ""
+
+    if tags.size > 0
+      options[:filter] += " AND " if options[:filter].present?
+      options[:filter] += "tags IN [#{tags.join(", ")}]"
+    end
+
+    options
+  end
+
+  def pagify(query, page = @page, limit = @limit)
+    paginated_query = query.paginate(page: page, limit: limit)
+    [
+      Pagy.new(count: query.count, page: page, items: limit),
+      paginated_query
+    ]
+  end
+
+  def pagify_search(count, page = @page, limit = @limit)
+    Pagy.new(count: count, page: page, items: limit)
   end
 end

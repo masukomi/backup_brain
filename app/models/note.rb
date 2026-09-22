@@ -14,7 +14,12 @@ class Note
   include BackupBrain::Domains
 
   CLASS_PREFIXED_SEARCH_IDS = false
-  SEARCHABLE_ATTRIBUTES     = %w[title string_data tags]
+  # created_at, updated_at, & private are in here so that Meilisearch will
+  # make them filterable / sortable. The search controller restricts
+  # `attributes_to_search_on` to the fields people actually type words into.
+  SEARCHABLE_ATTRIBUTES     = %w[title string_data tags created_at updated_at private]
+  # the attributes a note search actually matches text against
+  QUERYABLE_ATTRIBUTES      = %w[title string_data tags]
   SEARCH_INDEX_NAME         = "backup_brain_notes"
   # Fields where it'll look for Slack-style emoji aliases
   EMOJIFIABLE_FIELDS = [:string_data]

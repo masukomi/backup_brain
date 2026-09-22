@@ -71,6 +71,12 @@ class BookmarksController < ApplicationController
   end
 
   def search
+    # The search form retargets itself with JavaScript when you pick "Notes",
+    # but it posts here by default, so handle the no-JS case too.
+    if params[:search_for] == "notes"
+      redirect_to notes_search_path(request.query_parameters.except("search_for"))
+      return
+    end
     central_search(search_for: :bookmarks)
   end
 
@@ -268,18 +274,6 @@ class BookmarksController < ApplicationController
     @page = params[:page].present? ? params[:page].to_i : 1
   end
 
-  def pagify(query, page = @page, limit = @limit)
-    paginated_query = query.paginate(page: page, limit: limit)
-    [
-      Pagy.new(count: query.count, page: page, items: limit),
-      paginated_query
-    ]
-  end
-
-  def pagify_search(count, page = @page, limit = @limit)
-    Pagy.new(count: count, page: page, items: limit)
-  end
-
   # Indicates if the resulting window should close itself.
   def set_closeable
     # closeable comes in via new & edit,
@@ -345,23 +339,5 @@ class BookmarksController < ApplicationController
         .map { |t| helpers.decode_entities(t) }
     end
     query
-  end
-
-  # adds tags to the search options being passed to Meilisearch
-  #
-  #
-  # Documentation on the query we're building
-  # can be found here:
-  # https://www.meilisearch.com/docs/learn/filtering_and_sorting/filter_expression_reference#in
-  #
-  def add_tags_to_search_options(tags, options)
-    options[:filter] ||= ""
-
-    if tags.size > 0
-      options[:filter] += " AND " if options[:filter].present?
-      options[:filter] += "tags IN [#{tags.join(", ")}]"
-    end
-
-    options
   end
 end

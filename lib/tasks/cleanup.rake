@@ -65,6 +65,17 @@ but it probably won't work."
     # it'll probably time out if you have lots of bookmarks.
   end
 
+  desc "Reindexes all notes (required after changing Note::SEARCHABLE_ATTRIBUTES)"
+  task reindex_notes: [:environment] do
+    puts "Updating the notes index's filterable & sortable attributes…"
+    Note.reset_cached_data!
+    Note.set_filterable_attributes!
+    Note.set_sortable_attributes!
+    puts "Reindexing has begun, and will continue in the background."
+    puts "Feel free to close this window."
+    Note.reindex # asynchronous
+  end
+
   desc "Retry unarchived bookmarks"
   task retry_unarchived: [:environment] do
     cleanup_task_rearchive(Bookmark.unarchived)

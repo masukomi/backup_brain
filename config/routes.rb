@@ -21,6 +21,7 @@ Rails.application.routes.draw do
     end
   end
 
+  get "notes/search", controller: :notes, action: :search, as: :notes_search
   get "notes/tagged_with/:tags", controller: :notes, action: :tagged_with, as: :notes_tagged_with
   resources :notes
 

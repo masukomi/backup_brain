@@ -182,6 +182,12 @@ heading > .inline-icon{
 	padding-left: 1rem;
 	border-left: solid 1px var(--bb-border-muted);
 }
+.search-for-select {
+	margin-left: 0.25rem;
+	font-size: 0.8em;
+	vertical-align: middle;
+	max-width: 7rem;
+}
 .search_form_options {
 	padding-left: 1.5rem;
 

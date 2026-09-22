@@ -5,7 +5,7 @@
 <div class="container">
   <div class="row small-top-margin">
     <div class="col">
-      <heading><%= t('notes.list_heading') %></heading>
+      <%= render partial: 'notes/list_heading' %>
     </div>
     <% if current_user %>
       <div class="col-auto">
@@ -21,7 +21,11 @@
   <div class="container">
     <div class="row">
       <div class="col">
-        <%= t('notes.no_notes_message') %>
+        <% if action_name == 'search' %>
+          <%= t('notes.no_search_results') %>
+        <% else %>
+          <%= t('notes.no_notes_message') %>
+        <% end %>
       </div>
     </div>
   </div>

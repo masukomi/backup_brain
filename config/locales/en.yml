@@ -99,8 +99,13 @@ en:
     newest_sort_label: "Newest"
     search_archives_label: "<span class=\"hide-when-tiny\">Search </span>Archives Too"
     search_button: "Begin Search"
+    # for screen readers vvv
+    search_for_label: "Search in:"
+    search_for_bookmarks: "Bookmarks"
+    search_for_notes: "Notes"
     missing_index: "See https://BackupBrain.app/troubleshooting for suggestions."
     no_bookmarks: "Search will start working once you add some bookmarks."
+    no_notes: "Search will start working once you add some notes."
     unknown_error: "Search encountered an unknown error: %{error}"
     invalid_api_key: "Your MEILISEARCH_SEARCH_KEY and/or MEILISEARCH_ADMIN_KEY are invalid"
     invalid_master_api_key: "Your MEILI_MASTER_KEY is invalid"
@@ -344,6 +349,13 @@ en:
         public: "Public"
   notes:
     list_heading: "Notes"
+    headings:
+      simple: "Notes"
+      simple_and_tagged_with: "Notes tagged with: %{tags}"
+      search: "Notes matching `%{query}`"
+      search_and_tagged_with: "Notes matching `%{query}` <br />& tagged with: %{tags}"
+    counter: "(%{formatted_count} and counting…)"
+    no_search_results: "No notes matched your search."
     list_link: "Notes"
     add: "Add a Note"
     new_heading: "New Note"

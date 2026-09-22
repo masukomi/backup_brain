@@ -1,0 +1,26 @@
+<heading>
+  <% if ! defined?(@query_tags) || @query_tags.blank? %>
+    <% if action_name == 'search' %>
+      <%= t('notes.headings.search', query: @query) %>
+    <% else %>
+      <%= t('notes.headings.simple') %>
+    <% end %>
+  <% else %>
+    <% tags_string = @query_tags.join(', ') %>
+    <% if action_name == 'search' %>
+      <%== t('notes.headings.search_and_tagged_with', query: @query, tags: tags_string) %>
+    <% else %>
+      <%= t('notes.headings.simple_and_tagged_with', tags: tags_string) %>
+    <% end %>
+  <% end %>
+</heading>
+<% if !@pagy.nil? && @pagy.count > 0 %>
+  <span class="bookmark-count">
+    <%= t('notes.counter',
+          formatted_count: number_with_delimiter(
+                            @pagy.count,
+                            delimiter: t('number.format.delimiter')
+          )
+        ) %>
+  </span>
+<% end %>

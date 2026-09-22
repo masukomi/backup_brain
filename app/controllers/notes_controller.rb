@@ -1,8 +1,8 @@
 class NotesController < ApplicationController
   before_action :authenticate_user!, only: %i[new create edit update destroy]
   before_action :set_note, only: %i[show edit update destroy]
-  before_action :set_limit, only: %i[index tagged_with]
-  before_action :set_page, only: %i[index tagged_with]
+  before_action :set_limit, only: %i[index tagged_with search]
+  before_action :set_page, only: %i[index tagged_with search]
 
   def index
     query = Note.all.order_by([[:updated_at, :desc]])
@@ -31,6 +31,10 @@ class NotesController < ApplicationController
   end
 
   def show
+  end
+
+  def search
+    central_search(search_for: :notes)
   end
 
   def new
@@ -102,13 +106,5 @@ class NotesController < ApplicationController
 
   def set_page
     @page = params[:page].present? ? params[:page].to_i : 1
-  end
-
-  def pagify(query, page = @page, limit = @limit)
-    paginated_query = query.paginate(page: page, limit: limit)
-    [
-      Pagy.new(count: query.count, page: page, items: limit),
-      paginated_query
-    ]
   end
 end

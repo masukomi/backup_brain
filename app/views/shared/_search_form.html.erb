@@ -1,10 +1,33 @@
 <%# using css style attribute because something's wrong and the browser is refusing to admit the
     class definition exists in custom.css %>
 <div class="search-form" >
-  <%= form_with url: bookmarks_search_path, data: {turbo: false}, method: :get do |form| %>
+  <%= form_with url: bookmarks_search_path,
+                data: {
+                  turbo: false,
+                  controller: "search-form",
+                  "search-form-bookmarks-url-value": bookmarks_search_path,
+                  "search-form-notes-url-value": notes_search_path
+                },
+                method: :get do |form| %>
     <span class="no-wrap">
     <%= form.label :query, I18n.t("search.form_label"), class: "screen-readers-only" %>
     <input type="text" name="query" value="<%= @query %>" placeholder="<%= t("search.placeholder") %>" >
+    <%= form.label :search_for, I18n.t("search.search_for_label"), class: "screen-readers-only" %>
+    <%= form.select :search_for,
+        options_for_select(
+          [
+            [I18n.t("search.search_for_bookmarks"), "bookmarks"],
+            [I18n.t("search.search_for_notes"), "notes"]
+          ],
+          (@search_for == :notes) ? "notes" : "bookmarks"
+        ),
+        {},
+        id: "search_for_select",
+        class: "search-for-select",
+        data: {
+          "search-form-target": "target",
+          action: "change->search-form#update"
+        } %>
     <%= form.submit I18n.t("search.search_button"),
         type: :image,
         src: "/images/icons/search_white.svg",
@@ -23,7 +46,7 @@
           id="sort_radio_newest" >
         <label for="sort_radio_newest" ><%== I18n.t("search.newest_sort_label")%></label>
       </span>
-      <span class="nobr">
+      <span class="nobr" data-search-form-target="archivesOption">
         <%= form.check_box :search_archives, {id: "search_archives_checkbox", checked: @search_archives}, "true", "false"  %>
         <label for="search_archives_checkbox" ><%== I18n.t("search.search_archives_label")%></label>
       </span>
