@@ -42,6 +42,18 @@ RSpec.describe Tag do
       expect(described_class.extract_tags_from_string("see #foo_bar2")).to(eq(["see", ["foo_bar2"]]))
     end
 
+    it "handles tags containing hyphens" do
+      expect(described_class.extract_tags_from_string("see #foo-bar and #-baz-")).to(eq(["see and", ["foo-bar", "-baz-"]]))
+    end
+
+    it "handles tags containing any non-whitespace characters" do
+      expect(described_class.extract_tags_from_string("#foo-bar #foo/bar #foo++ #foo_bar")).to(eq(["", ["foo-bar", "foo/bar", "foo++", "foo_bar"]]))
+    end
+
+    it "includes trailing punctuation in the tag" do
+      expect(described_class.extract_tags_from_string("see #foo.")).to(eq(["see", ["foo."]]))
+    end
+
     it "downcases extracted tags by default" do
       expect(described_class.extract_tags_from_string("my friend #Foo bar #BAZ")).to(eq(["my friend bar", ["foo", "baz"]]))
     end

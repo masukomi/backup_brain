@@ -3,7 +3,7 @@ class Tag
   include Mongoid::Timestamps
   include BackupBrain::HtmlEntityEncoding
 
-  HASHTAG_REGEXP = /(?:^|\s)(#\w+)/
+  HASHTAG_REGEXP = /(?:^|\s)(#\S+)/
 
   field :name, type: String
 
