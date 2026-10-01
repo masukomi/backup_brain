@@ -34,7 +34,22 @@ if [[ $IN_DOCKER -ne 0 ]] || [[ $IN_DOCKER -eq 0 && $DOCKER_BACKUPS == "true" ]]
 
   mkdir -p mongo_exports
 
-  declare -a collections=("bookmarks" "users" "tags" "settings", "people", "social_media_accounts", "notes", "domain_triggers", "oauth_site_types", "media_objects", "transcriptions")
+  declare -a collections=(
+    "api_keys"
+    "bookmarks"
+    "content_triggers"
+    "domain_triggers"
+    "notes"
+    "oauth_site_types"
+    "oauth_sites"
+    "people"
+    "reviews"
+    "secret_keys"
+    "settings"
+    "social_media_accounts"
+    "tags"
+    "users"
+  )
 
   for collection in "${collections[@]}"; do
     export_file=mongo_exports/$collection.json
