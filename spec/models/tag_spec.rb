@@ -213,6 +213,50 @@ RSpec.describe Tag do
     end
   end
 
+  describe "clean_name (before_validation)" do
+    after { described_class.where(name: {"$in" => %w[foo foo.bar]}).destroy_all }
+
+    it "downcases the name" do
+      tag = described_class.create(name: "FOO")
+      expect(tag.reload.name).to(eq("foo"))
+    end
+
+    it "strips a leading period" do
+      tag = described_class.create(name: ".foo")
+      expect(tag.reload.name).to(eq("foo"))
+    end
+
+    it "strips a trailing period" do
+      tag = described_class.create(name: "foo.")
+      expect(tag.reload.name).to(eq("foo"))
+    end
+
+    it "strips both leading and trailing periods at once" do
+      tag = described_class.create(name: ".foo.")
+      expect(tag.reload.name).to(eq("foo"))
+    end
+
+    it "strips repeated leading and trailing periods" do
+      tag = described_class.create(name: "...foo..")
+      expect(tag.reload.name).to(eq("foo"))
+    end
+
+    it "leaves interior periods alone" do
+      tag = described_class.create(name: ".foo.bar.")
+      expect(tag.reload.name).to(eq("foo.bar"))
+    end
+
+    it "cleans the name before validating it" do
+      tag = described_class.new(name: ".FOO.")
+      tag.valid?
+      expect(tag.name).to(eq("foo"))
+    end
+
+    it "marks a name made only of periods as invalid" do
+      expect(described_class.new(name: "...").valid?).to(be(false))
+    end
+  end
+
   describe "multi-insert" do
     let(:temp_names) { %w[ex1 ex2 ex3] }
 

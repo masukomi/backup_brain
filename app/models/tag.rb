@@ -11,7 +11,7 @@ class Tag
   validates :name, uniqueness: true
   validate  :single_tag_only
 
-  before_save :clean_name
+  before_validation :clean_name
   before_destroy { |tag| Bookmark.remove_tag!(tag.name) }
 
   # BEGIN CLASS METHODS
@@ -161,8 +161,10 @@ class Tag
 
   # THOU SHALT NOT USE UPPER CASE IN THINE TAGS!!! 😉
   # NOR SHALT THOU BEGIN OR END THY TAGS WITH PERIODS!
+  # (any number of leading / trailing periods are stripped)
   def clean_name
-    name&.downcase&.gsub(/\A\.|\.\z/, "")
+    return if name.nil?
+    self.name = name.downcase.gsub(/\A\.+|\.+\z/, "")
   end
 
   def single_tag_only
