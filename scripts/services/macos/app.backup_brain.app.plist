@@ -35,5 +35,11 @@
   <string>/path/to/backup_brain/log/launchd_app.log</string>
   <key>StandardErrorPath</key>
   <string>/path/to/backup_brain/log/launchd_app.log</string>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+      <key>MEILI_UPGRADE_DB</key>
+      <string>true</string>
+  </dict>
 </dict>
 </plist>

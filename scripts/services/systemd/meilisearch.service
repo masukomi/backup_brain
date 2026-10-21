@@ -5,6 +5,7 @@ After=systemd-user-sessions.service
 [Service]
 Type=simple
 WorkingDirectory=/var/lib/meilisearch
+Environment=MEILI_UPGRADE_DB=true
 ExecStart=/usr/local/bin/meilisearch --config-file-path /etc/meilisearch.toml
 Restart=on-failure
 
