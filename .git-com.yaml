@@ -31,36 +31,6 @@ commit-description:
   type: multiline-text
   instructions: Please describe your changes.
   allow-empty: true
-code-sections:
-  destination: body
-  type: multi-select
-  instructions: Which section(s) of the codebase?
-  before-string: "\n\nCode Sections: "
-  allow-empty: true
-  options:
-  - bookmarks
-  - archives
-  - ui
-  - ux
-  - css
-  - config
-  - meta
-  - tests
-  - migrations
-  - infrastructure
-  - tags
-  - oauth
-  - people
-  - notes
-  - social_media_accounts
-  - docs
-  - settings
-  - triggers
-  - search
-  - background_jobs
-  - reviews
-  modifiable: true
-  record-as: joined-string
 ticket-number:
   destination: body
   type: text
