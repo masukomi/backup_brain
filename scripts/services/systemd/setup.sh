@@ -59,7 +59,7 @@ while true; do
 done
 
 # ── Build substituted copies in a temp directory ──────────────────────────────
-WORK_DIR="$(mktemp -d -p "$SCRIPT_DIR" -t bb_systemd_services)"
+WORK_DIR="$(mktemp -d "$SCRIPT_DIR/bb_systemd_services.XXXXXX")"
 KEEP_WORK_DIR=false
 trap '[[ "$KEEP_WORK_DIR" == "false" ]] && rm -rf "$WORK_DIR"' EXIT
 

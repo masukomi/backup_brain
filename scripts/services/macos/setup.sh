@@ -57,7 +57,7 @@ esac
 echo "Setting RAILS_ENV=$RAILS_ENV"
 
 # ── Copy plists to temp dir with all substitutions applied in one pass ─────────
-WORK_DIR="$(mktemp -d -p "$SCRIPT_DIR" -t bb_launchd_services)"
+WORK_DIR="$(mktemp -d "$SCRIPT_DIR/bb_launchd_services.XXXXXX")"
 KEEP_WORK_DIR=false
 trap '[[ "$KEEP_WORK_DIR" == "false" ]] && rm -rf "$WORK_DIR"' EXIT
 
