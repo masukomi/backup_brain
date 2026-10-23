@@ -19,6 +19,9 @@ Environment=RAILS_SERVE_STATIC_FILES=true
 ExecStart=/bin/bash -lc /path/to/backup_brain/serve
 ExecReload=/bin/bash -lc /path/to/backup_brain/serve
 Restart=on-failure
+# serve exits 78 on a config problem (missing .env value, etc.). Without a pause
+# systemd would hit its start rate limit in seconds and give up.
+RestartSec=10
 
 [Install]
 WantedBy=multi-user.target

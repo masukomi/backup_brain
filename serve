@@ -17,14 +17,25 @@ ENV_FILE="$REPO_ROOT/.env"
 set -e
 
 function shutdown() {
+  # $? is the status of whatever ended the script: rails' exit code when it
+  # crashed (set -e), or the code from the INT/TERM handlers below.
+  local exit_code=$?
   trap - INT TERM EXIT
   echo "Shutting down"
   echo "Killing Rails Server (puma)…"
   kill $(cat ./tmp/pids/server.pid) 2>/dev/null || true
-  kill -- -$$
+  # Take the rest of the process group down with us, but ignore the TERM we
+  # send ourselves. Dying by signal would hide the exit code, and systemd
+  # treats a TERM death as a clean stop so Restart=on-failure never fires.
+  trap '' TERM
+  kill -- -$$ 2>/dev/null || true
+  exit "$exit_code"
 }
 
-trap shutdown INT TERM EXIT
+trap shutdown EXIT
+# A deliberate stop (systemctl stop, ctrl-c) is a clean exit.
+trap 'exit 0' TERM
+trap 'exit 130' INT
 
 source "$REPO_ROOT/scripts/bash_helpers/colors.sh"
 source "$REPO_ROOT/scripts/bash_helpers/get_env_key.sh"
