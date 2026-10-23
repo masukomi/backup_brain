@@ -63,8 +63,14 @@ DATABASE_NAME=backup_brain_production scripts/import.sh
 Things that happen automatically in production mode:
 
 - =HOST_NAME= from =.env= is added to Rails' allowed hosts, alongside
-  =localhost= and =127.0.0.1=. Visiting the app via any other hostname gets a
-  "Blocked host" error.
+  =localhost= and =127.0.0.1=. Visiting the app via any other hostname or IP
+  gets a 403. Development ignores this entirely, so a =.env= that worked in
+  development may still need =HOST_NAME= changed: set it to exactly the host
+  part of the URL remote browsers use (no port), e.g. =192.168.1.20= or
+  =bb.example.lan=.
+- Rails writes its log to =log/production.log= in the repo, not to the journal.
+  =journalctl -u backup_brain= only shows output from =serve= itself (the
+  startup checks, migrations, asset precompile and puma's own messages).
 - =serve= runs =rails assets:precompile= before starting puma, because
   production doesn't compile CSS and JavaScript on demand.
 - puma serves those precompiled files itself (there's no nginx in this setup).
@@ -175,6 +181,18 @@ repo on this machine.
 You're running in production mode without =SECRET_KEY_BASE= in =.env=.
 See "Running in production mode" above.
 
+** Works on the server but remote browsers get a 403 in production
+
+Host authorization is rejecting the hostname or IP the remote browser used.
+Confirm with:
+
+#+begin_src sh
+grep -i "blocked host" log/production.log | tail
+#+end_src
+
+Set =HOST_NAME= in =.env= to that exact host and restart =backup_brain=.
+(Nothing shows up in =journalctl= for this: see "Running in production mode".)
+
 ** CSS and JavaScript fail with assorted 4xx errors in production
 
 Requests for =/assets/...= are reaching the router instead of being served as
@@ -200,9 +218,13 @@ sudo systemctl restart backup_brain
 sudo systemctl status backup_brain
 sudo systemctl status "backup_brain_delayed_job@*"
 
-# View logs
+# View service output (startup checks, migrations, puma)
 journalctl -u backup_brain -f
 journalctl -u "backup_brain_delayed_job@1" -f
+
+# View Rails' own log (requests, errors, blocked hosts). RAILS_ENV=development
+# writes log/development.log instead.
+tail -f /path/to/backup_brain/log/production.log
 
 # Reload systemd after editing a service file
 sudo systemctl daemon-reload
