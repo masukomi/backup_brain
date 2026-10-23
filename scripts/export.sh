@@ -18,6 +18,9 @@ if [[ $IN_DOCKER -ne 0 ]] || [[ $IN_DOCKER -eq 0 && $DOCKER_BACKUPS == "true" ]]
 
   SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
   source $SCRIPT_DIR/bash_helpers/colors.sh
+  # Always <repo root>/mongo_exports, no matter where this is run from.
+  # import.sh reads from the same place.
+  EXPORTS_DIR="$(cd -- "$SCRIPT_DIR/.." && pwd)/mongo_exports"
 
   # Inside and outside of the bb_mongodb docker container
   # AND in the host OS
@@ -30,9 +33,10 @@ if [[ $IN_DOCKER -ne 0 ]] || [[ $IN_DOCKER -eq 0 && $DOCKER_BACKUPS == "true" ]]
 
   echo "Exporting the \"$DATABASE_NAME\" database found on"
   echo "$MONGODB_URL"
+  echo "to $EXPORTS_DIR"
   echo "----------------------------------------------"
 
-  mkdir -p mongo_exports
+  mkdir -p "$EXPORTS_DIR"
 
   declare -a collections=(
     "api_keys"
@@ -52,7 +56,7 @@ if [[ $IN_DOCKER -ne 0 ]] || [[ $IN_DOCKER -eq 0 && $DOCKER_BACKUPS == "true" ]]
   )
 
   for collection in "${collections[@]}"; do
-    export_file=mongo_exports/$collection.json
+    export_file="$EXPORTS_DIR/$collection.json"
     echo "exporting $collection …"
     mongoexport --uri="$MONGODB_URL" --jsonFormat=canonical --collection=$collection --db=$DATABASE_NAME --out=$export_file
 
