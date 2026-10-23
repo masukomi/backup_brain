@@ -72,6 +72,37 @@ mkdir -p "$MODELS_DIR"
 echo "✅ ${GREEN}Models directory ready: $MODELS_DIR${NOCOLOR}"
 echo ""
 
+# -------------------------------------------------------
+# Check for a previously downloaded model
+# -------------------------------------------------------
+
+existing_models=()
+for candidate in "$MODELS_DIR"/ggml-*; do
+  [ -f "$candidate" ] && existing_models+=("$(basename "$candidate")")
+done
+
+if [ ${#existing_models[@]} -gt 0 ]; then
+  echo "📦 Found a previous download of a potential whisper model:"
+  for model in "${existing_models[@]}"; do
+    echo "   ${YELLOW}$model${NOCOLOR}"
+  done
+  echo ""
+  printf "${YELLOW}Would you still like to download a model?${NOCOLOR} (y/N): "
+  read -r download_anyway
+  if [[ ! "${download_anyway:-N}" =~ ^[Yy]$ ]]; then
+    echo ""
+    echo "Skipping download. To use the existing model, add the following to your ${YELLOW}.env${NOCOLOR} file:"
+    echo ""
+    echo "  WHISPER_MODEL_PATH=$MODELS_DIR/${existing_models[0]}"
+    echo "  ENABLE_AUDIO_TRANSCRIPTIONS=true"
+    echo ""
+    echo "⚠️  ${YELLOW}These settings won't take effect until you add them to your"
+    echo "   .env file and restart Backup Brain.${NOCOLOR}"
+    exit 0
+  fi
+  echo ""
+fi
+
 echo "${YELLOW}Download the recommended model (ggml-${DEFAULT_MODEL}.bin)?${NOCOLOR} (Y/n)"
 read -r use_default
 use_default="${use_default:-Y}"
