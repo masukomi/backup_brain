@@ -36,6 +36,13 @@ module BackupBrain
 
     # let folks add backupbrain to their /etc/hosts file
     config.hosts << 'backupbrain'
+    # Adding anything to config.hosts turns host authorization on, which matters
+    # in production (development clears the list in development.rb). Without
+    # these, production answers "Blocked host" to localhost and to HOST_NAME.
+    config.hosts << 'localhost'
+    config.hosts << '127.0.0.1'
+    host_name = ENV.fetch('HOST_NAME', '').strip
+    config.hosts << host_name if host_name.present?
 
     # Use delayed_job for ActiveJob
     config.active_job.queue_adapter = :delayed_job

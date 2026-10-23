@@ -50,6 +50,21 @@ if [ -z "$ssh_host" ]; then
   ssh_host="false"
 fi
 
+# Production needs a secret_key_base or Rails refuses to boot (including the
+# `rails runner` data migrations below). Development generates one itself.
+if [ "${RAILS_ENV:-development}" == "production" ]; then
+  secret_key_base="${SECRET_KEY_BASE:-$(get_env_key 'SECRET_KEY_BASE')}"
+  if [ -z "$secret_key_base" ]; then
+    echo $RED"SECRET_KEY_BASE is not set and RAILS_ENV is production"$NOCOLOR
+    echo "Rails will not start in production without it."
+    echo "Generate one and add it to the .env file:"
+    echo "  echo \"SECRET_KEY_BASE=\$(bin/rails secret)\" >> .env"
+    exit 78 # EX_CONFIG (78)  Something was found in an unconfigured or misconfigured state.
+  else
+    echo $GREEN"SECRET_KEY_BASE is set"$NOCOLOR
+  fi
+fi
+
 # Make sure you've defined a port (defaults in .env.sample is 3334)
 port=$(get_env_key 'PORT')
 if [ -z "$port" ]; then
@@ -146,6 +161,13 @@ fi
 # to find the bundle path
 run_next_migration_file_if_present
 
+# Production doesn't compile assets on demand (config.assets.compile = false),
+# so public/assets has to exist before puma serves anything styled.
+# Sprockets caches, so this is quick when nothing changed.
+if [ "${RAILS_ENV:-development}" == "production" ]; then
+  echo $GREEN"Precompiling assets for production…"$NOCOLOR
+  $PATH_TO_BUNDLE exec rails assets:precompile
+fi
 
 
 

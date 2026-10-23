@@ -13,6 +13,9 @@ After=backup_brain_delayed_job@1.service backup_brain_delayed_job@2.service
 User=YOUR_USERNAME
 Group=USER_GROUP
 Environment=RAILS_ENV=development
+# In production Rails only serves public/ (precompiled CSS, JS, images) when this is set.
+# There is no reverse proxy in this setup to do it instead. Harmless in development.
+Environment=RAILS_SERVE_STATIC_FILES=true
 ExecStart=/bin/bash -lc /path/to/backup_brain/serve
 ExecReload=/bin/bash -lc /path/to/backup_brain/serve
 Restart=on-failure

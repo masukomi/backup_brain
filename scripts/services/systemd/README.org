@@ -38,6 +38,30 @@ After=backup_brain_delayed_job@1.service backup_brain_delayed_job@2.service
 
 Add or remove entries (=backup_brain_delayed_job@3.service=, etc.) to change the count.
 
+** Running in production mode
+
+Choosing =production= in =setup.sh= (or setting =RAILS_ENV=production= by hand)
+makes Rails stricter than development. The repo handles most of it, but one
+value must come from you:
+
+- =SECRET_KEY_BASE= must be set in =.env=. Rails refuses to boot without it, and
+  the =serve= script exits early with instructions if it's missing. Generate one
+  from the repo root with:
+
+  #+begin_src sh
+  echo "SECRET_KEY_BASE=$(bin/rails secret)" >> .env
+  #+end_src
+
+Things that happen automatically in production mode:
+
+- =HOST_NAME= from =.env= is added to Rails' allowed hosts, alongside
+  =localhost= and =127.0.0.1=. Visiting the app via any other hostname gets a
+  "Blocked host" error.
+- =serve= runs =rails assets:precompile= before starting puma, because
+  production doesn't compile CSS and JavaScript on demand.
+- =backup_brain.service= sets =RAILS_SERVE_STATIC_FILES=true= so puma serves
+  those precompiled files itself (there's no nginx in this setup).
+
 ** =meilisearch.toml=
 
 | Placeholder             | Replace with                                                              |
@@ -132,6 +156,16 @@ sudo systemctl restart "backup_brain_delayed_job@*"
 =WorkingDirectory= in =backup_brain_delayed_job@.service= still contains the
 =/path/to/backup_brain= placeholder. Update it to the absolute path of the
 repo on this machine.
+
+** =backup_brain.service= stops with =Missing `secret_key_base` for 'production' environment=
+
+You're running in production mode without =SECRET_KEY_BASE= in =.env=.
+See "Running in production mode" above.
+
+** =meilisearch.service= fails with =status=200/CHDIR=
+
+=/var/lib/meilisearch= doesn't exist. =setup.sh= creates it, but if you
+installed by hand run =sudo mkdir -p /var/lib/meilisearch=.
 
 * Managing the Services
 

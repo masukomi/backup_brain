@@ -19,6 +19,11 @@
   <dict>
     <key>RAILS_ENV</key>
     <string>development</string>
+    <!-- In production Rails only serves public/ (precompiled CSS, JS, images) when this is set. -->
+    <key>RAILS_SERVE_STATIC_FILES</key>
+    <string>true</string>
+    <key>MEILI_UPGRADE_DB</key>
+    <string>true</string>
   </dict>
 
   <key>RunAtLoad</key>
@@ -35,11 +40,5 @@
   <string>/path/to/backup_brain/log/launchd_app.log</string>
   <key>StandardErrorPath</key>
   <string>/path/to/backup_brain/log/launchd_app.log</string>
-
-  <key>EnvironmentVariables</key>
-  <dict>
-      <key>MEILI_UPGRADE_DB</key>
-      <string>true</string>
-  </dict>
 </dict>
 </plist>
