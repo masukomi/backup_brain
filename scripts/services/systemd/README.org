@@ -52,6 +52,14 @@ value must come from you:
   echo "SECRET_KEY_BASE=$(bin/rails secret)" >> .env
   #+end_src
 
+Production uses its own database, =backup_brain_production= (see
+=config/mongoid.yml=). =scripts/export.sh= and =scripts/import.sh= default to
+=backup_brain_development=, so when moving data to a production install run:
+
+#+begin_src sh
+DATABASE_NAME=backup_brain_production scripts/import.sh
+#+end_src
+
 Things that happen automatically in production mode:
 
 - =HOST_NAME= from =.env= is added to Rails' allowed hosts, alongside

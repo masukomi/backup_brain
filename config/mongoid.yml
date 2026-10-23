@@ -173,6 +173,21 @@ development:
     # indexes in the background by default. (default: false)
     # background_indexing: false
 
+production:
+  clients:
+    default:
+      # The service setup scripts offer production mode. Without this section
+      # Mongoid raises NoClientConfig for 'default' in that environment.
+      # Note the database name differs from development: data imported with
+      # scripts/import.sh goes to backup_brain_development unless you set
+      # DATABASE_NAME=backup_brain_production when running it.
+      database: backup_brain_production
+      hosts:
+        - <%= ENV['MONGODB_URL']&.sub(/^mongodb:\/\//, '') || 'localhost:27017' %>
+      options:
+        read:
+          mode: :primary
+
 test:
   clients:
     default:
