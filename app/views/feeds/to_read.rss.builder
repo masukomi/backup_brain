@@ -30,7 +30,7 @@ xml.rss "version" => "2.0" do
 
         if archive
           archive.media_objects.select { |mo| mo.simple_type == "audio" }.each do |mo|
-            enc_url = archive_url_with_secret_key(mo.url, @secret_key)
+            enc_url = archive_url_with_secret_key(mo.web_path, @secret_key)
             enc_url = "#{root_url.chomp("/")}#{enc_url}" if enc_url.start_with?("/")
             next unless enc_url.start_with?("http")
             xml.enclosure url: enc_url,

@@ -53,4 +53,35 @@ RSpec.describe MediaObject do
       end
     end
   end
+
+  describe "#web_path" do
+    before do
+      allow(Setting).to receive(:get_value_of_key) { |key, **| {"s3_bucket" => "bb-archives"}[key] }
+    end
+
+    it "returns local archive paths unchanged" do
+      mo = described_class.new(url: "/archives/bookmarks/abc/f.mp3", simple_type: "audio")
+      expect(mo.web_path).to eq("/archives/bookmarks/abc/f.mp3")
+    end
+
+    it "returns remote http urls unchanged" do
+      mo = described_class.new(url: "https://example.com/f.mp3", simple_type: "audio")
+      expect(mo.web_path).to eq("https://example.com/f.mp3")
+    end
+
+    it "maps s3 urls to the archive path ArchivesController serves" do
+      mo = described_class.new(url: "s3://bb-archives/bookmarks/abc/f.mp3", simple_type: "audio")
+      expect(mo.web_path).to eq("/archives/bookmarks/abc/f.mp3")
+    end
+  end
+
+  describe "#stored_in_s3?" do
+    it "is true for s3 urls" do
+      expect(described_class.new(url: "s3://bb-archives/x.mp3", simple_type: "audio").stored_in_s3?).to be(true)
+    end
+
+    it "is false for local paths" do
+      expect(described_class.new(url: "/archives/bookmarks/abc/f.mp3", simple_type: "audio").stored_in_s3?).to be(false)
+    end
+  end
 end

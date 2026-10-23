@@ -124,7 +124,7 @@ module BackupBrain
       local_name = archived_image_name(url, ext)
       file_path = File.join(archive_folder_path, local_name)
       new_url = archive_web_path_for_doc(bookmark) + "/#{local_name}"
-      return new_url if File.exist?(file_path)
+      return new_url if File.exist?(file_path) || remote_storage_has?(file_path)
 
       _stdout, stderr, status = Open3.capture3(
         "ffmpeg", "-i", url, "-acodec", "copy", "-vn", file_path
@@ -134,6 +134,7 @@ module BackupBrain
         return url
       end
 
+      offload_to_remote_storage(file_path)
       new_url
     rescue => e
       Rails.logger.warn("Error downloading audio stream from #{url}: #{e.message}")
@@ -190,9 +191,11 @@ module BackupBrain
       if needs_detection
         existing = Dir.glob("#{file_path}.*").first
         return "/#{File.join(File.dirname(file_path), File.basename(existing))}" if existing
+        remote_existing = remote_storage_web_path_with_prefix(file_path)
+        return remote_existing if remote_existing
       end
 
-      return new_url if File.exist?(file_path)
+      return new_url if File.exist?(file_path) || remote_storage_has?(file_path)
 
       # Use asset-appropriate Accept/Sec-Fetch headers so servers don't content-negotiate
       # and return the wrong type (e.g. Reddit's i.redd.it returns an HTML media page when
@@ -239,11 +242,16 @@ module BackupBrain
         detected = detect_file_extension(file_path) if detected.blank?
         if detected.present?
           new_name = "#{local_name}#{detected}"
-          File.rename(file_path, File.join(archive_folder_path, new_name))
-          return "/#{File.join(archive_folder_path, new_name)}"
+          renamed_path = File.join(archive_folder_path, new_name)
+          File.rename(file_path, renamed_path)
+          file_path = renamed_path
+          new_url = "/#{renamed_path}"
         end
       end
 
+      # When S3 storage is enabled the local copy is replaced by the remote one.
+      # new_url is unchanged: ArchivesController redirects to a presigned URL.
+      offload_to_remote_storage(file_path)
       new_url
     end
 

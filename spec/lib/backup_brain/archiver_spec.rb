@@ -106,6 +106,48 @@ RSpec.describe BackupBrain::Archiver do
       end
     end
 
+    context "when S3 storage is enabled" do
+      let(:storage) { BackupBrain::S3Storage.instance }
+
+      def local_path
+        File.join(tmpdir, instance.archived_image_name(url))
+      end
+
+      before do
+        allow(BackupBrain::S3Storage).to receive(:enabled?).and_return(true)
+        allow(storage).to receive_messages(upload: true, exists?: false)
+        allow(HTTParty).to receive(:get).and_yield("audio bytes")
+      end
+
+      it "uploads the downloaded file" do
+        expect(storage).to receive(:upload).with(local_path, storage.key_for_local_path(local_path))
+        instance.download_asset(bookmark, url, asset_label: "audio")
+      end
+
+      it "removes the local copy after uploading" do
+        instance.download_asset(bookmark, url, asset_label: "audio")
+        expect(File).not_to exist(local_path)
+      end
+
+      it "still returns the web path" do
+        result = instance.download_asset(bookmark, url, asset_label: "audio")
+        expect(result).to eq("/archives/bookmarks/test_id/#{File.basename(local_path)}")
+      end
+
+      it "keeps the local copy when the upload fails" do
+        allow(storage).to receive(:upload).and_raise(Aws::S3::Errors::ServiceError.new(nil, "boom"))
+        instance.download_asset(bookmark, url, asset_label: "audio")
+        expect(File).to exist(local_path)
+      end
+
+      it "skips the download when S3 already holds the object", :aggregate_failures do
+        allow(storage).to receive(:exists?).with(storage.key_for_local_path(local_path)).and_return(true)
+        expect(HTTParty).not_to receive(:get)
+        result = instance.download_asset(bookmark, url, asset_label: "audio")
+        expect(result).to eq("/archives/bookmarks/test_id/#{File.basename(local_path)}")
+      end
+    end
+
     context "when directory creation fails" do
       before { allow(FileUtils).to receive(:mkdir_p).and_raise(Errno::EACCES, "permission denied") }
 

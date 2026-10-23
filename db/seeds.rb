@@ -490,3 +490,135 @@ if Setting.where(lookup_key: "theme_names").count == 0
     }
   )
 end
+
+# S3 compatible remote storage settings ─────────────────────────────
+# Archived assets (images, audio, …) can optionally live on any
+# S3 compatible service instead of the local archives/ folder.
+# The bucket must be PRIVATE: BackupBrain hands out short-lived
+# presigned URLs, so assets are only reachable via requests it starts.
+s3_string_settings = {
+  "s3_endpoint" => [
+    "Endpoint URL of your S3 compatible service",
+    "The base URL of the S3 API, e.g. https://s3.us-west-004.backblazeb2.com,
+https://<account_id>.r2.cloudflarestorage.com or http://localhost:9000 for MinIO.
+
+Leave blank to use AWS S3 (the region setting is used instead).",
+    ""
+  ],
+  "s3_region" => [
+    "Region of your S3 bucket",
+    "AWS region name such as us-east-1. Many S3 compatible services accept
+any value here (Cloudflare R2 uses \"auto\"). Defaults to us-east-1 when blank.",
+    "us-east-1"
+  ],
+  "s3_bucket" => [
+    "Name of the PRIVATE bucket archived assets are stored in",
+    "The bucket must NOT allow public reads. BackupBrain generates
+presigned URLs for every download, so a public bucket would defeat
+the access restriction.",
+    ""
+  ],
+  "s3_access_key_id" => [
+    "Access key ID (token id) issued by your S3 compatible service",
+    "The identifier half of the credentials your service issued for BackupBrain.
+Backblaze calls this the \"keyID\", Cloudflare R2 the \"Access Key ID\",
+MinIO the \"Access Key\". Grant it read, write and list access to the bucket above.",
+    ""
+  ],
+  "s3_secret_access_key" => [
+    "Secret access key (token secret) issued by your S3 compatible service",
+    "The secret half of the credentials. Backblaze calls this the \"applicationKey\",
+Cloudflare R2 and MinIO the \"Secret Access Key\". Keep it private.",
+    ""
+  ],
+  "s3_key_prefix" => [
+    "Optional folder (key prefix) inside the bucket",
+    "Lets several apps share one bucket. For example \"backup_brain\" stores
+objects as backup_brain/bookmarks/<id>/<file>. Leave blank to store them
+at the root of the bucket. Don't change this after uploading.",
+    ""
+  ]
+}
+s3_string_settings.each do |lookup_key, (summary, description, default)|
+  next unless Setting.where(lookup_key: lookup_key).count == 0
+  warn("creating #{lookup_key} setting")
+  Setting.create!(
+    {
+      group: "remote_storage",
+      lookup_key: lookup_key,
+      summary: summary,
+      description: description,
+      visible: true,
+      value_type: "string",
+      value: {value: default}
+    }
+  )
+end
+
+if Setting.where(lookup_key: "s3_force_path_style").count == 0
+  warn("creating s3_force_path_style setting")
+  Setting.create!(
+    {
+      group: "remote_storage",
+      lookup_key: "s3_force_path_style",
+      summary: "Use path-style S3 URLs (https://endpoint/bucket/key)",
+      description: "Most S3 compatible services (MinIO, Garage, Backblaze, R2) want
+path-style addressing. Set to false for virtual-host style
+(https://bucket.endpoint/key), which AWS S3 prefers.",
+      visible: true,
+      value_type: "boolean",
+      value: {value: true}
+    }
+  )
+end
+
+if Setting.where(lookup_key: "s3_presigned_url_expiry").count == 0
+  warn("creating s3_presigned_url_expiry setting")
+  Setting.create!(
+    {
+      group: "remote_storage",
+      lookup_key: "s3_presigned_url_expiry",
+      summary: "Seconds a presigned download URL stays valid",
+      description: "When a browser asks BackupBrain for an archived asset that lives
+in S3, BackupBrain redirects it to a presigned URL that expires after
+this many seconds. One hour (3600) is plenty for a page load; S3 caps
+presigned URLs at 7 days (604800).",
+      visible: true,
+      value_type: "integer",
+      value: {value: 3600}
+    }
+  )
+end
+
+if Setting.where(lookup_key: "enable_s3_storage").count == 0
+  warn("creating enable_s3_storage setting")
+  s3_setting = Setting.create!(
+    {
+      group: "remote_storage",
+      lookup_key: "enable_s3_storage",
+      summary: "Store newly archived assets on your S3 compatible service",
+      description: "When enabled, images and audio downloaded while archiving are
+uploaded to the configured bucket and removed from the local
+archives/ folder. Downloads are served through short-lived presigned
+URLs so only requests started by BackupBrain can fetch them.
+
+Fill in s3_bucket, s3_access_key_id and s3_secret_access_key
+(and s3_endpoint unless you use AWS) before enabling this.
+
+To move EXISTING archives to the bucket run:
+  bundle exec rails runner scripts/upload_archives_to_s3.rb",
+      visible: true,
+      value_type: "boolean",
+      value: {value: false}
+    }
+  )
+  sd = SettingDependency.new(
+    dependency_lookup_key: "s3_bucket",
+    name: "S3 connection details",
+    notes: "s3_bucket, s3_access_key_id and s3_secret_access_key must all be filled in",
+    test: "BackupBrain::S3Storage.configured?"
+  )
+  s3_setting.setting_dependencies << sd
+  s3_setting.ignore_dependencies!
+  s3_setting.save!
+end

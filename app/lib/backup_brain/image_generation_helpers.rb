@@ -15,7 +15,9 @@ module BackupBrain
     def store_image(bookmark, archive, image_data)
       filename = "#{Digest::SHA2.hexdigest(image_data)}.png"
       folder = guaranteed_archive_folder_path_for_doc(bookmark) # from ArchiveTools
-      File.binwrite(File.join(folder, filename), image_data)
+      file_path = File.join(folder, filename)
+      File.binwrite(file_path, image_data)
+      offload_to_remote_storage(file_path) # no-op unless enable_s3_storage
       archive.hero_image_path = "#{archive_web_path_for_doc(bookmark)}/#{filename}"
     end
   end

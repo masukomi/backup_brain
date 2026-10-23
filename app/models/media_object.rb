@@ -23,6 +23,21 @@ class MediaObject
     simple_type == "video" && youtube_url?
   end
 
+  # @return true if the media file lives in S3 (url is "s3://bucket/key")
+  def stored_in_s3?
+    BackupBrain::S3Storage.s3_url?(url)
+  end
+
+  # The path to hand to browsers and feed readers. Media in S3 is exposed
+  # through its /archives/… path, which ArchivesController redirects to a
+  # presigned URL. Anything else (local path, remote http url) is returned as-is.
+  #
+  # @return [String]
+  def web_path
+    return url unless stored_in_s3?
+    BackupBrain::S3Storage.instance.web_path_for_s3_url(url) || url
+  end
+
   # Enqueues the appropriate transcription job for this media object.
   # Called automatically after_create. Safe to call manually to retry.
   def transcribe

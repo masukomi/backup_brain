@@ -120,7 +120,7 @@ Requires the `enable_archiving` setting, which depends on `reader_path`.
 1. `Bookmark#generate_archive` runs after create, or when the URL changes.
 2. It enqueues `ArchiveUrlJob` (async, `:low_priority`), or uses `ArchiveUrlWithoutRetriesJob` (sync).
 3. `BackupBrain::ToolDispatcher` picks a tool by domain from `config/archive_tools.yml`. If the tool has `handles_download: true` it gets `{URL}`. Otherwise the job pre-downloads the page with HTTParty and passes `{TEMPFILE}`. Tools write Markdown to stdout. A non-zero exit raises `BackupBrain::Errors::UnarchivableUrl`.
-4. Relative URLs are fully qualified. Images, audio and video are downloaded and cached locally under `archives/bookmarks/<id>/` (SHA256-named files). `MediaObject`s are created, which triggers transcription.
+4. Relative URLs are fully qualified. Images, audio and video are downloaded and cached locally under `archives/bookmarks/<id>/` (SHA256-named files), or offloaded to S3 when `enable_s3_storage` is on (see Remote storage below). `MediaObject`s are created, which triggers transcription.
 5. Failures are recorded as embedded `FailedArchiveAttempt`s.
 
 Tool entry fields: `name`, `domains` (subdomains match automatically), `command` (`{TEMPFILE}` / `{URL}` placeholders), `handles_download`, `default`. Current tools: `reader` (default), `soundgasm`, `audiochan`, `reddit_posts`, `patreon` (internal JSON API with the Android app UA; exits 1 on paywalled posts). The tool scripts live in `bin/` and share `bin/archive_tool_helper.rb`. Per-domain request headers come from `config/archive_request_headers.yml` via `BackupBrain::RequestHeaders`.
@@ -130,6 +130,16 @@ Archiving modules:
 - **`BackupBrain::Archiver`**: `html_to_archive`, `fully_qualify_urls`, `download_image` / `download_audio` / `download_audio_stream` (ffmpeg for HLS/DASH; falls back to the remote URL) / `download_asset` (detects the extension after download when `extension: nil`), `detect_file_extension`, `record_failed_attempt`.
 - `Archive.extract_image_links_from_line`, `extract_audio_urls_from_line` (three-pass: `src=` with an audio extension, `<source type="audio/...">`, and incomplete `<source` fragments with `extension: nil`) and `extract_video_urls_from_line` return `[modified_line, {sha256 => {url:, extension:}}]`. `Archive.extension_for_mime_type` maps MIME types to extensions.
 - `BackupBrain::Executables#executable_path` finds binaries. Ones in local `bin/` win over `$PATH`.
+
+### Remote storage of archived files (S3)
+
+Optional. Gated on the `enable_s3_storage` setting (group `remote_storage`), which depends on `s3_bucket`, `s3_access_key_id` and `s3_secret_access_key`. Also `s3_endpoint` (blank = AWS), `s3_region`, `s3_key_prefix`, `s3_force_path_style`, `s3_presigned_url_expiry`. Uses the `aws-sdk-s3` gem against any S3-compatible service.
+
+- **`BackupBrain::S3Storage`** (singleton, `instance`) wraps the client. Keys mirror the disk layout: `archives/bookmarks/<id>/<file>` → `<prefix>bookmarks/<id>/<file>`. It converts between local paths, web paths (`/archives/...`) and `s3://<bucket>/<key>` urls (`key_for`, `web_path_for_s3_url`, `s3_url_for_web_path`), and does `upload`, `head`/`exists?`, `download`, `delete` and `presigned_url`.
+- **The bucket must be private.** Nothing links to the bucket directly. `ArchivesController#show` serves the local file if present, otherwise redirects to a short-lived presigned URL when S3 is enabled and holds the object. Markdown, `hero_image_path`, avatar paths etc. keep their `/archives/...` paths and need no rewriting.
+- **New archives.** `ArchiveTools#offload_to_remote_storage(path)` uploads a freshly written file and deletes the local copy; `remote_storage_has?` / `remote_storage_web_path_with_prefix` make `download_asset` and `download_audio_stream` skip re-downloads. `ImageGenerationHelpers#store_image` offloads hero images. Call `offload_to_remote_storage` from any new code that writes under `archives/`.
+- **`MediaObject#url`** holds `s3://bucket/key` for media in S3 (`Archive#add_media_object` does this for offloaded files). Use `MediaObject#web_path` (not `url`) when building links or feed enclosures; it maps s3 urls back to the `/archives/...` path. `TranscribeAudioJob` downloads S3 audio to a temp file before running whisper.
+- **Migrating existing files:** `bundle exec rails runner scripts/upload_archives_to_s3.rb` (flags: `--dry-run`, `--yes`, `--no-backup`, `--delete-local`, `--keep-local`). It offers an `export.sh` backup, uploads `archives/**`, verifies each object (HEAD + size + 1-byte GET through a presigned URL), repoints verified `MediaObject` urls with `set` (no callbacks), then offers to delete the verified local files. Safe to re-run.
 
 ### Importing from the outside world
 

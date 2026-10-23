@@ -44,8 +44,8 @@ class TranscribeAudioJob < ApplicationJob
       return false
     end
 
-    fs_path = Rails.root.join(audio_local_path.delete_prefix("/")).to_s
-    unless File.exist?(fs_path)
+    fs_path, temporary_copy = local_audio_file(audio_local_path)
+    unless fs_path
       Rails.logger.warn("TranscribeAudioJob: file not found: #{audio_local_path}")
       return false
     end
@@ -73,6 +73,35 @@ class TranscribeAudioJob < ApplicationJob
       transcription.error = "#{e.message} (media_object_id: #{media_object_id})"
       bookmark.save!
       false
+    ensure
+      File.delete(fs_path) if temporary_copy && File.exist?(fs_path)
     end
+  end
+
+  private
+
+  # Finds the audio on disk, or fetches it from S3 into a temp file when the
+  # archive has been moved there (an s3:// url, or a web path whose file was
+  # offloaded).
+  #
+  # @return [Array(String, Boolean), Array(nil, false)] absolute path and
+  #   whether it is a temporary copy the caller must delete.
+  def local_audio_file(audio_local_path)
+    unless BackupBrain::S3Storage.s3_url?(audio_local_path)
+      fs_path = Rails.root.join(audio_local_path.delete_prefix("/")).to_s
+      return [fs_path, false] if File.exist?(fs_path)
+    end
+    return [nil, false] unless BackupBrain::S3Storage.enabled?
+
+    storage = BackupBrain::S3Storage.instance
+    key = storage.key_for(audio_local_path)
+    return [nil, false] unless key.present? && storage.exists?(key)
+
+    tmp_path = File.join(Dir.tmpdir, "bb_transcribe_#{SecureRandom.hex(8)}#{File.extname(key)}")
+    storage.download(key, tmp_path)
+    [tmp_path, true]
+  rescue => e
+    Rails.logger.warn("TranscribeAudioJob: could not fetch #{audio_local_path} from S3 - #{e.message}")
+    [nil, false]
   end
 end

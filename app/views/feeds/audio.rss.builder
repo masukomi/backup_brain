@@ -11,7 +11,7 @@ xml.rss "version" => "2.0" do
       audio_objects = archive.media_objects.select { |mo| mo.simple_type == "audio" }
       next if audio_objects.empty?
 
-      audio_url = archive_url_with_secret_key(audio_objects.first.url, @secret_key)
+      audio_url = archive_url_with_secret_key(audio_objects.first.web_path, @secret_key)
       description = if archive&.string_data.present?
         @valid_secret_key ?
           add_secret_key_to_archive_urls(archive.string_data, @secret_key) :

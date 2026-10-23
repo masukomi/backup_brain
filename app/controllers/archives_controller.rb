@@ -14,8 +14,17 @@ class ArchivesController < ApplicationController
     else
       "archives/#{@object_type}/#{@object._id}/#{params[:grouping]}/#{filename}.#{format}"
     end
-    return head :not_found unless File.exist?(path)
-    send_file path, disposition: "inline"
+    return send_file(path, disposition: "inline") if File.exist?(path)
+
+    # Assets moved to S3 are never served straight from the bucket.
+    # We hand the browser a short-lived presigned URL instead, so only
+    # requests that started here (and passed the checks above) get through.
+    if BackupBrain::S3Storage.enabled?
+      storage = BackupBrain::S3Storage.instance
+      key = storage.key_for_local_path(path)
+      return redirect_to(storage.presigned_url(key), allow_other_host: true) if storage.exists?(key)
+    end
+    head :not_found
   end
 
   def new

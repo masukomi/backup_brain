@@ -279,6 +279,13 @@ class Archive
   # @return [MediaObject]
   def add_media_object(url, simple_type:, sensitive: false)
     mime = (simple_type == "audio") ? Rack::Mime.mime_type(File.extname(url).downcase, nil) : nil
+    # Archived files that were offloaded to S3 are recorded by their s3:// url,
+    # matching what scripts/upload_archives_to_s3.rb does for older media.
+    if BackupBrain::S3Storage.enabled? &&
+        url.start_with?("/#{BackupBrain::ArchiveTools::ARCHIVES_FOLDER}/") &&
+        !Rails.root.join(url.delete_prefix("/")).exist?
+      url = BackupBrain::S3Storage.instance.s3_url_for_web_path(url)
+    end
     # NOTE: the after_create on the MediaObject will schedule a transcription job
     media_objects.build(
       url: url,

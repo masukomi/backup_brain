@@ -39,6 +39,53 @@ module BackupBrain
       klass.name.titlecase.pluralize.downcase.gsub(" ", "_")
     end
 
+    # REMOTE STORAGE HELPERS
+
+    # Moves a freshly written archive file into the S3 bucket (when
+    # enable_s3_storage is on) and removes the local copy. The file's web
+    # path keeps working: ArchivesController redirects to a presigned URL
+    # when the file isn't on disk.
+    #
+    # @param local_file_path [String] e.g. "archives/bookmarks/<id>/<sha>.mp3"
+    # @return [Boolean] true if the file now lives in S3 (and not on disk)
+    def offload_to_remote_storage(local_file_path)
+      return false unless BackupBrain::S3Storage.enabled?
+      return false unless File.exist?(local_file_path)
+      storage = BackupBrain::S3Storage.instance
+      storage.upload(local_file_path, storage.key_for_local_path(local_file_path))
+      File.delete(local_file_path)
+      true
+    rescue => e
+      Rails.logger.warn("Failed to offload #{local_file_path} to S3 (keeping local copy): #{e.message}")
+      false
+    end
+
+    # @param local_file_path [String] e.g. "archives/bookmarks/<id>/<sha>.mp3"
+    # @return [Boolean] true when S3 storage is enabled and already holds
+    #   an object for this path.
+    def remote_storage_has?(local_file_path)
+      return false unless BackupBrain::S3Storage.enabled?
+      storage = BackupBrain::S3Storage.instance
+      storage.exists?(storage.key_for_local_path(local_file_path))
+    rescue => e
+      Rails.logger.warn("Failed to check S3 for #{local_file_path}: #{e.message}")
+      false
+    end
+
+    # Like remote_storage_has? but for a path without an extension:
+    # returns the web path of the first object whose key starts with it.
+    #
+    # @return [String, nil]
+    def remote_storage_web_path_with_prefix(local_path_prefix)
+      return nil unless BackupBrain::S3Storage.enabled?
+      storage = BackupBrain::S3Storage.instance
+      key = storage.first_key_with_prefix(storage.key_for_local_path(local_path_prefix))
+      key ? storage.web_path_for_key(key) : nil
+    rescue => e
+      Rails.logger.warn("Failed to list S3 for #{local_path_prefix}: #{e.message}")
+      nil
+    end
+
     # DOWNLOAD HELPERS
 
     def url_downloadable?(url_string, include_code: false)
