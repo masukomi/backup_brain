@@ -67,8 +67,13 @@ Things that happen automatically in production mode:
   "Blocked host" error.
 - =serve= runs =rails assets:precompile= before starting puma, because
   production doesn't compile CSS and JavaScript on demand.
-- =backup_brain.service= sets =RAILS_SERVE_STATIC_FILES=true= so puma serves
-  those precompiled files itself (there's no nginx in this setup).
+- puma serves those precompiled files itself (there's no nginx in this setup).
+  Set =RAILS_SERVE_STATIC_FILES=false= in =backup_brain.service= if you add a
+  reverse proxy that handles =/assets=.
+
+After pulling changes that touch the =.service= files, re-run =setup.sh= (or copy
+them to =/etc/systemd/system/= and run =sudo systemctl daemon-reload=). A =git
+pull= alone doesn't update the installed units.
 
 ** =meilisearch.toml=
 
@@ -169,6 +174,14 @@ repo on this machine.
 
 You're running in production mode without =SECRET_KEY_BASE= in =.env=.
 See "Running in production mode" above.
+
+** CSS and JavaScript fail with assorted 4xx errors in production
+
+Requests for =/assets/...= are reaching the router instead of being served as
+files, and the catch-all =ScriptKiddiesController= answers with a random 4xx.
+Either =rails assets:precompile= hasn't produced =public/assets= (=serve= runs it
+on start in production; check the journal) or static file serving is off
+(=RAILS_SERVE_STATIC_FILES=false= somewhere in the environment).
 
 ** =meilisearch.service= fails with =status=200/CHDIR=
 
