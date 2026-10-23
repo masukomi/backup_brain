@@ -106,6 +106,11 @@ if [[ "${install_choice:-n}" =~ ^[Yy]$ ]]; then
   sudo cp "$WORK_DIR/meilisearch.toml" /etc/meilisearch.toml
   echo "Copied: meilisearch.toml → /etc/meilisearch.toml"
 
+  # meilisearch.service uses this as its WorkingDirectory (and stores data.ms there).
+  # systemd refuses to start the unit if it doesn't exist.
+  sudo mkdir -p /var/lib/meilisearch
+  echo "Ensured /var/lib/meilisearch exists."
+
   sudo systemctl daemon-reload
   echo "Reloaded systemd daemon."
   echo ""
@@ -178,6 +183,7 @@ else
   echo ""
   echo "  sudo cp \"$WORK_DIR\"/*.service /etc/systemd/system/"
   echo "  sudo cp \"$WORK_DIR/meilisearch.toml\" /etc/meilisearch.toml"
+  echo "  sudo mkdir -p /var/lib/meilisearch"
   echo "  sudo systemctl daemon-reload"
   echo "  sudo systemctl enable --now backup_brain meilisearch"
   if $USE_TAILSCALE; then
