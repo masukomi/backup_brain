@@ -160,9 +160,15 @@ class Bookmark
     generate_archive(false) if !new_record? && url_changed?
   end
 
-  # Deletes the entire folder
+  # Deletes the entire folder, locally and (when enabled) in S3.
   def remove_archived_images
-    FileUtils.rm_rf(Bookmark.archive_folder_path_for_doc(self))
+    folder = Bookmark.archive_folder_path_for_doc(self)
+    FileUtils.rm_rf(folder)
+    return unless BackupBrain::S3Storage.enabled?
+    storage = BackupBrain::S3Storage.instance
+    storage.delete_prefix("#{storage.key_for_local_path(folder)}/")
+  rescue => e
+    Rails.logger.warn("Bookmark #{_id}: couldn't delete archived files from S3 - #{e.message}")
   end
 
   def find_associated_people

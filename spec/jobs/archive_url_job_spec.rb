@@ -354,6 +354,7 @@ RSpec.describe ArchiveUrlJob do
 
       # rubocop:disable RSpec/VerifiedDoubles
       before do
+        allow(Setting).to(receive(:get_value_of_key).and_call_original) # default for other keys
         allow(Setting).to(receive(:get_value_of_key).with("enable_archiving").and_return(true))
         allow(Setting).to(receive(:get_value_of_key).with("archival_requests_timeout").and_return(10))
 
@@ -403,6 +404,7 @@ RSpec.describe ArchiveUrlJob do
 
       # rubocop:disable RSpec/VerifiedDoubles
       before do
+        allow(Setting).to(receive(:get_value_of_key).and_call_original) # default for other keys
         allow(Setting).to(receive(:get_value_of_key).with("enable_archiving").and_return(true))
         allow(Setting).to(receive(:get_value_of_key).with("archival_requests_timeout").and_return(10))
 

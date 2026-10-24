@@ -17,6 +17,7 @@ class MediaObject
   validates :mime_type, format: {with: /\A\w+\/[\w.+\-]+\z/}, allow_nil: true
 
   after_create :transcribe
+  after_destroy :remove_remote_file
 
   # @return true if this is a video MediaObject with a YouTube url
   def is_youtube?
@@ -92,7 +93,35 @@ class MediaObject
     build_transcription(**attrs)
   end
 
+  # Deletes this media's file from S3 once no other MediaObject on the same
+  # bookmark refers to it. ArchivesController#modify dups MediaObjects into
+  # each new Archive, so one file commonly backs several of them.
+  def remove_remote_file
+    return unless BackupBrain::S3Storage.enabled?
+    return unless archived_file?
+    return if other_media_objects_share_file?
+    storage = BackupBrain::S3Storage.instance
+    key = storage.key_for(url)
+    storage.delete(key) if key.present?
+  rescue => e
+    Rails.logger.warn("MediaObject #{_id}: couldn't delete #{url} from S3 - #{e.message}")
+  end
+
   private
+
+  # true for files BackupBrain archived itself (local web path or s3 url),
+  # false for remote media such as YouTube urls.
+  def archived_file?
+    stored_in_s3? || url.to_s.start_with?("/#{BackupBrain::ArchiveTools::ARCHIVES_FOLDER}/")
+  end
+
+  def other_media_objects_share_file?
+    bookmark = archive&.bookmark
+    return false unless bookmark
+    bookmark.archives.any? do |other_archive|
+      other_archive.media_objects.any? { |mo| mo._id != _id && mo.url == url }
+    end
+  end
 
   def youtube_url?
     url&.match?(Archive::YOUTUBE_URL_REGEXP)

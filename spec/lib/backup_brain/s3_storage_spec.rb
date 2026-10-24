@@ -115,6 +115,31 @@ RSpec.describe BackupBrain::S3Storage do
     end
   end
 
+  describe "#delete_prefix" do
+    before do
+      stub_client.stub_responses(:list_objects_v2, {
+        contents: [{key: "bookmarks/abc/a.mp3"}, {key: "bookmarks/abc/b.png"}],
+        is_truncated: false
+      })
+    end
+
+    it "deletes every object under the prefix" do
+      expect(stub_client).to receive(:delete_objects).with(
+        bucket: "bb-archives",
+        delete: {objects: [{key: "bookmarks/abc/a.mp3"}, {key: "bookmarks/abc/b.png"}], quiet: true}
+      ).and_call_original
+      storage.delete_prefix("bookmarks/abc/")
+    end
+
+    it "returns the number deleted" do
+      expect(storage.delete_prefix("bookmarks/abc/")).to eq(2)
+    end
+
+    it "refuses a prefix that isn't a folder" do
+      expect { storage.delete_prefix("bookmarks/abc") }.to raise_error(ArgumentError)
+    end
+  end
+
   describe "#presigned_url" do
     let(:url) { storage.presigned_url("bookmarks/abc/f.mp3") }
 

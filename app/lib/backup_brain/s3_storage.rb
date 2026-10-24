@@ -164,6 +164,27 @@ module BackupBrain
       true
     end
 
+    # Deletes every object under a "folder". +prefix+ must end with "/" so a
+    # bookmark id can't match a sibling that merely starts the same way.
+    #
+    # @return [Integer] number of objects deleted
+    def delete_prefix(prefix)
+      raise ArgumentError, "prefix must end with /" unless prefix.to_s.end_with?("/")
+      deleted = 0
+      continuation_token = nil
+      loop do
+        page = client.list_objects_v2(bucket: bucket, prefix: prefix, continuation_token: continuation_token)
+        keys = page.contents.map { |object| {key: object.key} }
+        unless keys.empty?
+          client.delete_objects(bucket: bucket, delete: {objects: keys, quiet: true})
+          deleted += keys.size
+        end
+        break unless page.is_truncated
+        continuation_token = page.next_continuation_token
+      end
+      deleted
+    end
+
     def presigned_url(key, expires_in: expiry)
       Aws::S3::Presigner.new(client: client)
         .presigned_url(:get_object, bucket: bucket, key: key, expires_in: expires_in)

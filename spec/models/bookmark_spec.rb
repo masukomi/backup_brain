@@ -242,4 +242,26 @@ RSpec.describe Bookmark do
     end
   end
   # rubocop:enable RSpec/VerifiedDoubles, RSpec/MultipleMemoizedHelpers
+
+  describe "#remove_archived_images" do
+    let(:storage) { BackupBrain::S3Storage.instance }
+    let(:bookmark) { described_class.new(title: "doomed", url: "https://example.com/doomed", user: User.first || create(:user)) }
+
+    before do
+      allow(FileUtils).to receive(:rm_rf)
+      allow(storage).to receive(:delete_prefix)
+    end
+
+    it "deletes the bookmark's S3 folder when storage is enabled" do
+      allow(BackupBrain::S3Storage).to receive(:enabled?).and_return(true)
+      bookmark.remove_archived_images
+      expect(storage).to have_received(:delete_prefix).with("bookmarks/#{bookmark._id}/")
+    end
+
+    it "touches nothing remote when storage is off" do
+      allow(BackupBrain::S3Storage).to receive(:enabled?).and_return(false)
+      bookmark.remove_archived_images
+      expect(storage).not_to have_received(:delete_prefix)
+    end
+  end
 end
