@@ -64,6 +64,7 @@ There are two layers of configuration.
 Every model uses `include Mongoid::Document`. There are no SQL migrations; schema changes are made by adding or removing fields in the model files. When existing data must be transformed, write a **data migration**:
 
 - `scripts/data_migrations/schema_N_migration.rb` is a `rails runner` script. It checks `Setting "schema_version" == N-1`, transforms the data, then bumps `schema_version`.
+- Migrations must keep running on old databases long after they're written. Hardcode literal values (tag names, field names) in them instead of referencing app constants, which may be renamed or removed later. `schema_7` broke this way when `FetchMastodonBookmarksJob::MASTODON_TAG` was removed.
 - `scripts/run_data_migrations.sh` (via `scripts/bash_helpers/migrations.sh`) runs the next migration file if one is present.
 - Mongoid indexes are declarative. Run `rake db:mongoid:create_indexes` after adding one.
 
@@ -145,7 +146,7 @@ Optional. Gated on the `enable_s3_storage` setting (group `remote_storage`), whi
 
 Inbound sources, all running on Delayed Job:
 
-- **Fediverse bookmarks.** `FetchMastodonBookmarksJob` (Mastodon API, also GoToSocial) and `FetchMisskeyBookmarksJob` iterate the connected `OauthSite`s. They create Bookmarks tagged `fediverse_bookmark` (`I18n` `tags.default_tags.fediverse_bookmark`) plus `<slug>_bookmark`, call `suppress_auto_archive!`, build the archive from the post content and downloaded media, append YouTube embeds (`embed_youtube_videos`), and create or link the poster's `SocialMediaAccount`. They handle 429s with backoff, fall back to remote URLs when media returns 403, stop paginating at the first known bookmark, and reschedule themselves (`schedule_unless_pending`).
+- **Fediverse bookmarks.** `FetchMastodonBookmarksJob` (Mastodon API, also GoToSocial) and `FetchMisskeyBookmarksJob` iterate the connected `OauthSite`s. They create Bookmarks tagged `fediverse_bookmark` (`FetchMastodonBookmarksJob::FEDIVERSE_BOOKMARK_TAG`, from `I18n` `tags.default_tags.fediverse_bookmark`) plus a per-service tag: `<slug>_bookmark` (`tags.default_tags.oauth_site_type_bookmark`) for Mastodon, hardcoded `misskey_bookmark` for Misskey. Bookmarks imported before `fediverse_bookmark` existed carry only the legacy `mastodon_bookmark` tag, so code that finds fediverse imports must match both. They call `suppress_auto_archive!`, build the archive from the post content and downloaded media, append YouTube embeds (`embed_youtube_videos`), and create or link the poster's `SocialMediaAccount`. They handle 429s with backoff, fall back to remote URLs when media returns 403, stop paginating at the first known bookmark, and reschedule themselves (`schedule_unless_pending`).
 - **BookWyrm reviews.** `FetchBookwyrmReviewsJob` creates `Review`s, deduplicated on `source_url`, and keeps the remote `created_at`.
 - **Files.** `HtmlImporter` (browser bookmark exports) and `PinboardImporter` (`UploadImporter` subclasses, at `/importer`), plus `rake importer:pinboard_import`.
 - **Browser extension.** Uses the `webextension` layout (`?layout=webextension`). `?closeable=true` makes the success page signal the extension to close the window.
