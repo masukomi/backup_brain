@@ -185,7 +185,9 @@ but it probably won't work."
     youtube_url_re = /https?:\/\/(?:www\.|m\.)?(?:youtube\.com\/watch\?|youtu\.be\/)/
 
     direct = Bookmark.where(url: youtube_url_re).to_a
-    mastodon = Bookmark.where(tags: FetchMastodonBookmarksJob::MASTODON_TAG).select do |b|
+    # mastodon_bookmark covers imports from before fediverse_bookmark existed
+    fediverse_tags = [FetchMastodonBookmarksJob::FEDIVERSE_BOOKMARK_TAG, "mastodon_bookmark"]
+    mastodon = Bookmark.in(tags: fediverse_tags).select do |b|
       b.latest_archive&.string_data&.match?(BackupBrain::YouTube::URL_REGEXP)
     end
 

@@ -4,7 +4,7 @@ class FetchMisskeyBookmarksJob < ApplicationJob
 
   queue_as :low_priority
 
-  DEFAULT_TAGS = ["misskey_bookmark", I18n.t("tags.default_tags.fediverse_bookmark_tag")]
+  DEFAULT_TAGS = ["misskey_bookmark", I18n.t("tags.default_tags.fediverse_bookmark")]
   TITLE_TIMESTAMP_FORMAT = "%Y/%m/%d %H:%M"
   DESCRIPTION_CHAR_LIMIT = 500
   REQUEST_TIMEOUT = 30
