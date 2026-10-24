@@ -175,6 +175,43 @@ RSpec.describe BackupBrain::Archiver do
           instance.download_asset(bookmark, url, asset_label: "audio")
         }.to raise_error(Net::ReadTimeout)
       end
+
+      it "does not leave an empty file behind" do
+        begin
+          instance.download_asset(bookmark, url, asset_label: "audio")
+        rescue Net::ReadTimeout
+          nil
+        end
+        expect(File).not_to exist(File.join(tmpdir, instance.archived_image_name(url)))
+      end
+    end
+
+    context "when the server returns an empty body" do
+      before { allow(HTTParty).to receive(:get) } # never yields, so the file stays at 0 bytes
+
+      it "raises EmptyDownload" do
+        expect {
+          instance.download_asset(bookmark, url, asset_label: "image")
+        }.to raise_error(BackupBrain::Errors::EmptyDownload)
+      end
+
+      it "deletes the zero-byte file" do
+        begin
+          instance.download_asset(bookmark, url, asset_label: "image")
+        rescue BackupBrain::Errors::EmptyDownload
+          nil
+        end
+        expect(File).not_to exist(File.join(tmpdir, instance.archived_image_name(url)))
+      end
+
+      it "logs an error" do
+        expect(Rails.logger).to receive(:error).with(/empty/)
+        begin
+          instance.download_asset(bookmark, url, asset_label: "image")
+        rescue BackupBrain::Errors::EmptyDownload
+          nil
+        end
+      end
     end
   end
 
@@ -194,6 +231,17 @@ RSpec.describe BackupBrain::Archiver do
         allow(instance).to receive(:download_audio_stream)
         expect(instance).not_to receive(:url_downloadable?)
         instance.download_audio(bookmark, hls_url)
+      end
+    end
+
+    context "when the download is empty" do
+      before do
+        allow(instance).to receive(:url_downloadable?).with(url, include_code: true).and_return([true, 200])
+        allow(instance).to receive(:download_asset).and_raise(BackupBrain::Errors::EmptyDownload, "0 bytes")
+      end
+
+      it "returns missing_audio_audio_url" do
+        expect(instance.download_audio(bookmark, url)).to eq("/audio/missing_audio_audio.mp3")
       end
     end
 
@@ -434,6 +482,19 @@ RSpec.describe BackupBrain::Archiver do
         hashes = {sha => {url: remote_url, extension: ".jpg"}}
         result = instance.qualify_and_apply_image_url_hashes(bookmark, hashes, sha.dup, domain, directory)
         expect(result).to eq("![](#{remote_url})")
+      end
+    end
+
+    context "when download_image raises EmptyDownload" do
+      let(:remote_url) { "https://example.com/image.jpg" }
+
+      before { allow(instance).to receive(:download_image).and_raise(BackupBrain::Errors::EmptyDownload, "0 bytes") }
+
+      it "uses the missing image placeholder" do
+        sha = Digest::SHA2.hexdigest(remote_url)
+        hashes = {sha => {url: remote_url, extension: ".jpg"}}
+        result = instance.qualify_and_apply_image_url_hashes(bookmark, hashes, sha.dup, domain, directory)
+        expect(result).to eq("![](/images/icons/missing_image_image.svg)")
       end
     end
     # rubocop:enable RSpec/MultipleMemoizedHelpers

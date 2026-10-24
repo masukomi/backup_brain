@@ -3,6 +3,11 @@ module BackupBrain
   module Errors
     class UnarchivableUrl < StandardError; end
 
+    # The remote server answered, but with an empty body. A zero-byte
+    # archive file is never useful, so callers substitute the
+    # missing-image / missing-audio placeholder instead of linking to it.
+    class EmptyDownload   < UnarchivableUrl; end
+
     class StorageError    < StandardError; end
 
     class InvalidTag      < StandardError; end

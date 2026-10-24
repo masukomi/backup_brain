@@ -222,8 +222,8 @@ RSpec.describe ArchiveUrlJob do
           .with(image_url, {include_code: true})
           .and_return(true)
       )
-      # don't actually download
-      allow(HTTParty).to(receive(:get).and_return(nil))
+      # don't actually download; a zero-byte result would be discarded
+      allow(HTTParty).to(receive(:get).and_yield("image bytes").and_return(nil))
       job.download_image(bookmark, image_url)
       expect(File.exist?(bookmark_image_path)).to(be(true))
     end
@@ -235,8 +235,8 @@ RSpec.describe ArchiveUrlJob do
           .with(image_url, {include_code: true})
           .and_return(true)
       )
-      # don't actually download
-      allow(HTTParty).to(receive(:get).and_return(nil))
+      # don't actually download; a zero-byte result would be discarded
+      allow(HTTParty).to(receive(:get).and_yield("image bytes").and_return(nil))
       job.download_image(bookmark, image_url)
       expect(File.exist?(bookmark_image_path)).to(be(true))
     end

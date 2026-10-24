@@ -62,6 +62,9 @@ module BackupBrain
           full_url = fully_qualify_path(url, domain, directory)
           begin
             url = download_image(bookmark, full_url, extension: extension)
+          rescue BackupBrain::Errors::EmptyDownload
+            # the remote gave us nothing; a zero-byte file would never render
+            url = missing_image_image_url
           rescue BackupBrain::Errors::UnarchivableUrl
             # better to point at the original than nothing
             url = full_url
@@ -103,6 +106,8 @@ module BackupBrain
       end
 
       download_asset(bookmark, url, asset_label: "audio", extension: extension)
+    rescue BackupBrain::Errors::EmptyDownload
+      missing_audio_audio_url
     rescue
       url
     end
@@ -131,6 +136,11 @@ module BackupBrain
       )
       unless status.success? && File.exist?(file_path)
         Rails.logger.warn("ffmpeg failed to download audio stream from #{url}: #{stderr.strip}")
+        return url
+      end
+      if File.zero?(file_path)
+        File.delete(file_path)
+        Rails.logger.error("ffmpeg produced an empty file for audio stream #{url}; discarded")
         return url
       end
 
@@ -223,8 +233,18 @@ module BackupBrain
           end
         end
       rescue => e
+        # "wx" created the file before the download started; don't leave an
+        # empty or partial file behind to be mistaken for a good archive.
+        File.delete(file_path) if File.exist?(file_path)
         Rails.logger.warn("problem downloading/writing #{asset_label} from \"#{url}\" to \"#{file_path}\" - #{e.message}")
         raise e
+      end
+
+      if File.zero?(file_path)
+        File.delete(file_path)
+        message = "Downloaded #{asset_label} from #{url} was empty (0 bytes); discarded"
+        Rails.logger.error(message)
+        raise BackupBrain::Errors::EmptyDownload.new(message)
       end
 
       response_content_type = http_response.respond_to?(:headers) ? http_response.headers["content-type"].to_s : ""

@@ -7,11 +7,15 @@
 #   1. Offers to back up the database with scripts/export.sh.
 #   2. Uploads every file under archives/ (skipping objects that are already
 #      present with the right size, so it's safe to re-run after a failure).
+#      Zero-byte files are never uploaded; they are reported as errors.
 #   3. Verifies every file: HEAD the object, compare sizes, then fetch its
 #      first byte through a presigned URL exactly as a browser would.
-#   4. Points the url of every MediaObject whose file was verified at
+#   4. Repairs bookmarks that reference a zero-byte file: the markdown gets
+#      the missing-image (or missing-audio) placeholder instead, matching
+#      MediaObjects are removed, and the empty file is deleted.
+#   5. Points the url of every MediaObject whose file was verified at
 #      its new s3://<bucket>/<key> location.
-#   5. Optionally deletes the local copies of verified files.
+#   6. Optionally deletes the local copies of verified files.
 #
 # Options:
 #   --yes           answer "yes" to the backup and "continue anyway" prompts
@@ -113,12 +117,19 @@ end
 # ── upload ─────────────────────────────────────────────────────────────
 uploaded = []
 already_present = []
+zero_byte_files = []
 upload_failures = {} # path => message
 
 bar = progress_bar("Uploading", local_files.size)
 local_files.each do |path|
   key = storage.key_for_local_path(path)
   begin
+    if File.zero?(path)
+      # Never useful, never uploaded. Repaired further down.
+      zero_byte_files << path
+      bar.log Paint["  ✗ #{key}: Zero byte file", :red]
+      next
+    end
     existing = storage.head(key)
     if existing && existing.content_length == File.size(path)
       already_present << path
@@ -131,11 +142,12 @@ local_files.each do |path|
   rescue => e
     upload_failures[path] = "#{e.class}: #{e.message}"
     bar.log Paint["  ✗ #{key}: #{upload_failures[path]}", :red]
+  ensure
+    bar.increment
   end
-  bar.increment
 end
 puts
-puts "Uploaded #{uploaded.size}, already present #{already_present.size}, failed #{upload_failures.size}"
+puts "Uploaded #{uploaded.size}, already present #{already_present.size}, failed #{upload_failures.size}, zero-byte #{zero_byte_files.size}"
 puts
 
 # ── verify ─────────────────────────────────────────────────────────────
@@ -176,8 +188,62 @@ puts
 puts "Verified #{verified_keys.size}, failed #{verify_failures.size}"
 puts
 
-# ── repoint MediaObject urls ───────────────────────────────────────────
+# ── repair references to zero-byte files ───────────────────────────────
+# A zero-byte archive file is always a failed download. Point the markdown
+# at the missing-asset placeholder, drop the MediaObject that referenced
+# it, and remove the file so nothing trips over it again.
 web_prefix = "/#{BackupBrain::ArchiveTools::ARCHIVES_FOLDER}/"
+missing_image_url = Setting.get_value_of_key("missing_image_image_url", safe: true).presence || "/images/icons/missing_image_image.svg"
+missing_audio_url = Setting.get_value_of_key("missing_audio_audio_url", safe: true).presence || "/audio/missing_audio_audio.mp3"
+repaired_archives = 0
+removed_media_objects = 0
+deleted_zero_byte = 0
+unrepaired_zero_byte = []
+
+zero_byte_files.each do |path|
+  relative = path.delete_prefix("#{Rails.root}/")
+  web_path = "/#{relative}"
+  object_type, object_id = relative.delete_prefix("#{BackupBrain::ArchiveTools::ARCHIVES_FOLDER}/").split("/")
+  unless object_type == "bookmarks"
+    unrepaired_zero_byte << "#{relative} (#{object_type} files aren't repaired automatically)"
+    next
+  end
+  bookmark = Bookmark.where(_id: object_id).first
+  unless bookmark
+    unrepaired_zero_byte << "#{relative} (no bookmark #{object_id})"
+    next
+  end
+
+  is_audio = Archive::AUDIO_EXTENSIONS.include?(File.extname(path).delete_prefix(".").downcase)
+  placeholder = is_audio ? missing_audio_url : missing_image_url
+  s3_url = storage.s3_url_for_web_path(web_path)
+
+  bookmark.archives.each do |archive|
+    changes = {}
+    if archive.string_data.to_s.include?(web_path)
+      changes[:string_data] = archive.string_data.gsub(web_path, placeholder)
+    end
+    changes[:hero_image_path] = nil if archive.hero_image_path == web_path
+    doomed = archive.media_objects.select { |mo| [web_path, s3_url].include?(mo.url) }
+
+    next if changes.empty? && doomed.empty?
+    unless options[:dry_run]
+      archive.set(changes) if changes.any? # no Bookmark callbacks
+      doomed.each(&:destroy)
+    end
+    repaired_archives += 1 if changes.any?
+    removed_media_objects += doomed.size
+  end
+  next if options[:dry_run]
+  File.delete(path)
+  deleted_zero_byte += 1
+end
+if zero_byte_files.any?
+  puts "Zero-byte files: #{zero_byte_files.size}; archives repaired #{repaired_archives}, media objects removed #{removed_media_objects}, empty files deleted #{deleted_zero_byte}"
+  puts
+end
+
+# ── repoint MediaObject urls ───────────────────────────────────────────
 updated = 0
 skipped_unverified = []
 already_s3 = 0
@@ -236,9 +302,16 @@ puts
 
 # ── summary ────────────────────────────────────────────────────────────
 puts Paint["Summary", :bold]
-puts "  files on S3 and verified:  #{verified_keys.size} / #{local_files.size}"
+puts "  files on S3 and verified:  #{verified_keys.size} / #{local_files.size - zero_byte_files.size}"
 puts "  media object urls updated: #{updated}"
 puts "  local files deleted:       #{deleted}"
+if zero_byte_files.any?
+  puts Paint["  #{zero_byte_files.size} zero-byte file(s) were not uploaded; their archives now use the missing-asset placeholder", :yellow]
+end
+if unrepaired_zero_byte.any?
+  puts Paint["  #{unrepaired_zero_byte.size} zero-byte file(s) could not be repaired:", :red]
+  unrepaired_zero_byte.each { |line| puts "    #{line}" }
+end
 failures = upload_failures.merge(verify_failures)
 if failures.any?
   puts Paint["  #{failures.size} file(s) failed; re-run this script to retry them:", :red]
