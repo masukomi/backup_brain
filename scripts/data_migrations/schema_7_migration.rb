@@ -18,7 +18,7 @@ if schema_version_setting&.value == 6
   Transcription.all.each do |transcription|
     bookmark = Bookmark.find(transcription.bookmark_id)
     is_youtube = BackupBrain::YouTube.video_id(bookmark.url).present? ||
-      bookmark.tags.include?(FetchMastodonBookmarksJob::MASTODON_TAG)
+      bookmark.tags.include?("mastodon_bookmark")
     transcription.update!(source: is_youtube ? "youtube" : "whisper")
     done += 1
   rescue => e
