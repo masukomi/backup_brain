@@ -1,7 +1,7 @@
 require "paint"
 
 schema_version_setting = Setting.where(lookup_key: "schema_version").first
-if schema_version_setting&.value == 6
+if schema_version_setting&.inner_value == 6
   puts "Beginning migration to schema_version 7"
 
   # Transcription gained a new field:
@@ -29,7 +29,7 @@ if schema_version_setting&.value == 6
   puts Paint["✅ Updated source on #{done} transcription(s)", :green]
   warn Paint["⚠️  Failed to update #{failed} transcription(s)", :red] if failed > 0
 
-  schema_version_setting.value = 7
+  schema_version_setting.set_value_and_type(7)
   if schema_version_setting.save
     puts Paint["✅ Updated schema_version setting to 7", :green]
   else
