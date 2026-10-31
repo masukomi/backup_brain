@@ -12,11 +12,6 @@ tools:
       - audiochan.com
     handles_download: true
     command: "bundle exec bin/audiochan_archiver {URL}"
-  - name: reddit_posts
-    domains:
-      - reddit.com
-    handles_download: true
-    command: "bundle exec bin/reddit_post_archiver {URL}"
   - name: patreon
     domains:
       - patreon.com
