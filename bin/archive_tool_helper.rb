@@ -27,7 +27,11 @@ module ArchiveToolHelper
     archiver_logger.error(log_msg)
     archiver_logger.error(exception.backtrace.join("\n")) if exception&.backtrace
 
-    warn "#{note}: #{exception.message}"
+    if exception
+      warn "#{note}: #{exception.message}"
+    else
+      warn "#{note}"
+    end
     json = {
       status: "ERROR",
       note: note,
