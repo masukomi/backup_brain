@@ -9,10 +9,11 @@ require "uri"
 # instance's API. Backfill the source by asking each connected instance to
 # look the post up by URL.
 #
-# Mastodon-family: GET /api/v2/search?q=<url>&type=statuses
-#   first without `resolve` (only finds posts the instance already knows,
-#   i.e. the instance the bookmark was fetched through), then with
-#   resolve=true as a fallback.
+# Mastodon-family: walk the account's own bookmark list
+#   (GET /api/v1/bookmarks, paginated) once per instance and match on url.
+#   Anything not in a list falls back to GET /api/v2/search?q=<url>
+#   &type=statuses, first without `resolve` then with resolve=true.
+#   Search by url has proven flaky, hence the list first.
 # Misskey: the note id is in the URL when the note is local to the
 #   instance, otherwise POST /api/ap/show {uri: <url>}.
 #
@@ -21,6 +22,10 @@ require "uri"
 #
 # DRY_RUN=1 resolves everything and prints what it would do, writes nothing,
 # and ignores the schema_version gate.
+
+# keep stdout and stderr interleaved in order when the output is redirected
+$stdout.sync = true
+$stderr.sync = true
 
 DRY_RUN = ENV["DRY_RUN"].present?
 REQUEST_TIMEOUT = 30
@@ -52,6 +57,36 @@ def migration_post_json(url, body)
     timeout: REQUEST_TIMEOUT)
 end
 
+# Walks the account's bookmark list on `site` once and maps each
+# bookmarked status url (and uri) to its id on that instance. These
+# bookmarks were imported from exactly this list, so it is the most
+# reliable source; search by url is only a fallback.
+# @return [Hash{String => String}]
+def mastodon_bookmarked_status_ids(site)
+  ids = {}
+  url = "#{site.base_url}/api/v1/bookmarks"
+  query = {limit: 40}
+  pages = 0
+  while url && pages < 500
+    res = migration_get(url, token: site.access_token, query: query)
+    unless res.success?
+      warn Paint["   #{site.base_url} bookmark list returned #{res.code} after #{pages} page(s)", :yellow]
+      break
+    end
+    JSON.parse(res.body).each do |status|
+      [status["url"], status["uri"]].compact.each { |u| ids[u] ||= status["id"].to_s }
+    end
+    pages += 1
+    query = {} # the next link carries its own params
+    url = res.headers["link"].to_s.match(/<([^>]+)>;\s*rel="next"/)&.[](1)
+  end
+  puts "   #{site.base_url}: #{ids.size} url(s) from #{pages} page(s) of bookmarks"
+  ids
+rescue JSON::ParserError, HTTParty::Error, SocketError, Timeout::Error, SystemCallError => e
+  warn Paint["   #{site.base_url} bookmark list failed: #{e.class}: #{e.message}", :yellow]
+  ids
+end
+
 # @return [String, nil] the status id as known by `site`
 def mastodon_status_id(site, bookmark_url, resolve:)
   query = {q: bookmark_url, type: "statuses", limit: 5}
@@ -62,9 +97,16 @@ def mastodon_status_id(site, bookmark_url, resolve:)
     return nil
   end
   statuses = JSON.parse(res.body)["statuses"] || []
+  # Only an exact url/uri match counts: a url search also returns posts
+  # that merely mention the url, and those are the wrong status entirely.
   exact = statuses.find { |s| [s["url"], s["uri"]].include?(bookmark_url) }
-  exact ||= statuses.first if statuses.size == 1
-  exact&.dig("id")&.to_s
+  id = exact&.dig("id")&.to_s
+  unless id
+    others = statuses.map { |s| s["url"] || s["uri"] }.compact
+    detail = others.empty? ? "no statuses returned" : "#{others.size} non-matching status(es): #{others.join(", ")}"
+    puts Paint["   #{site.base_url} (resolve=#{resolve}): #{detail}", :yellow]
+  end
+  id
 rescue JSON::ParserError, HTTParty::Error, SocketError, Timeout::Error, SystemCallError => e
   warn Paint["   #{site.base_url} search failed: #{e.class}: #{e.message}", :yellow]
   nil
@@ -81,8 +123,9 @@ def misskey_note_id(site, bookmark_url)
     return nil
   end
   parsed = JSON.parse(res.body)
-  return nil unless parsed["type"] == "Note"
-  parsed.dig("object", "id")&.to_s
+  id = (parsed.dig("object", "id")&.to_s if parsed["type"] == "Note")
+  puts Paint["   #{site.base_url} ap/show: no Note returned (type=#{parsed["type"].inspect})", :yellow] unless id
+  id
 rescue JSON::ParserError, HTTParty::Error, SocketError, Timeout::Error, SystemCallError => e
   warn Paint["   #{site.base_url} ap/show failed: #{e.class}: #{e.message}", :yellow]
   nil
@@ -94,7 +137,7 @@ def order_sites(sites, tags)
 end
 
 # @return [Array(String service, String remote_id, OauthSite), nil]
-def resolve_source(bookmark, mastodon_sites, misskey_sites)
+def resolve_source(bookmark, mastodon_sites, misskey_sites, bookmark_lists)
   tags = bookmark.tags || []
   if tags.include?("misskey_bookmark")
     order_sites(misskey_sites, tags).each do |site|
@@ -105,6 +148,11 @@ def resolve_source(bookmark, mastodon_sites, misskey_sites)
   end
 
   sites = order_sites(mastodon_sites, tags)
+  sites.each do |site|
+    id = bookmark_lists[site][bookmark.url]
+    return ["mastodon", id, site] if id
+  end
+  puts Paint["   not in any bookmark list; trying search", :yellow]
   [false, true].each do |resolve|
     sites.each do |site|
       id = mastodon_status_id(site, bookmark.url, resolve: resolve)
@@ -125,15 +173,25 @@ if DRY_RUN || schema_version_setting&.inner_value == 8
   tags = FEDIVERSE_TAGS + OauthSiteType.pluck(:slug).compact.map { |slug| "#{slug}_bookmark" }
   candidates = Bookmark.any_in(tags: tags.uniq).where(:api_archive_source.exists => false)
   puts "#{candidates.count} fediverse bookmark(s) without an api_archive_source"
-  if mastodon_sites.empty? && misskey_sites.empty? && candidates.count > 0
-    warn Paint["⚠️  No connected OauthSite with an access token. Nothing can be resolved.", :red]
+  if mastodon_sites.empty? && misskey_sites.empty?
+    warn Paint["⚠️  No connected OauthSite with an access token. Nothing can be resolved.", :red] if candidates.count > 0
+  else
+    described = (mastodon_sites + misskey_sites).map { |s| "#{s.base_url} (#{s.oauth_site_type&.slug})" }
+    puts "Searching via: #{described.join(", ")}"
+  end
+
+  bookmark_lists = {}
+  if candidates.count > 0 && mastodon_sites.any?
+    puts "Loading bookmark lists…"
+    mastodon_sites.each { |site| bookmark_lists[site] = mastodon_bookmarked_status_ids(site) }
   end
 
   done = 0
   unresolved = 0
   failed = 0
   candidates.each do |bookmark|
-    service, remote_id, site = resolve_source(bookmark, mastodon_sites, misskey_sites)
+    puts "🔎 #{bookmark.url}"
+    service, remote_id, site = resolve_source(bookmark, mastodon_sites, misskey_sites, bookmark_lists)
     unless remote_id
       unresolved += 1
       warn Paint["❓ Unresolved: #{bookmark.url}", :yellow]
@@ -141,7 +199,7 @@ if DRY_RUN || schema_version_setting&.inner_value == 8
     end
 
     if DRY_RUN
-      puts Paint["   would set #{service}:#{remote_id} via #{site.base_url} on #{bookmark.url}", :cyan]
+      puts Paint["   would set #{service}:#{remote_id} via #{site.base_url}",:cyan]
       done += 1
       next
     end
@@ -150,7 +208,7 @@ if DRY_RUN || schema_version_setting&.inner_value == 8
     bookmark.build_api_archive_source(remote_id: remote_id, service: service, oauth_site: site)
     bookmark.save!
     done += 1
-    puts Paint["✅ #{service}:#{remote_id} via #{site.base_url} on #{bookmark.url}", :green]
+    puts Paint["✅ #{service}:#{remote_id} via #{site.base_url}",:green]
   rescue => e
     failed += 1
     warn Paint["⚠️  Failed to update bookmark #{bookmark._id} (#{bookmark.url}): #{e.message}", :red]
