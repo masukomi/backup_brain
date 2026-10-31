@@ -44,6 +44,10 @@ class ArchiveUrlJob < ApplicationJob
       Rails.logger.warn("ArchiveUrlJob: enable_archiving setting is not true")
       return false
     end
+    unless BackupBrain::UnarchivableDomainsChecker.instance.maybe_archivable?(bookmark.url)
+      Rails.logger.warn("ArchiveUrlJob: URL on unarchivable domain: #{bookmark.url}")
+      return false
+    end
     unless BackupBrain::ToolDispatcher.instance.viable_install?
       Rails.logger.warn("ArchiveUrlJob: reader binary not found or not executable")
       return false

@@ -311,7 +311,11 @@ class Bookmark
 
     if url.blank?
       # only a warning because this shouldn't be a surprise.
-      Rails.logger.warning(t("errors.bookmarks.cant_archive_without_url"))
+      Rails.logger.warn(I18n.t("errors.bookmarks.cant_archive_without_url"))
+      return false
+    end
+    unless archivable_domain?
+      Rails.logger.info("Not archiving #{url}: domain is known to be unarchivable")
       return false
     end
     if now
@@ -320,6 +324,16 @@ class Bookmark
       ArchiveUrlJob.perform_later(bookmark_id: _id.to_s)
       true
     end
+  end
+
+  # API-sourced archives don't scrape the url, so they're exempt
+  # from the unarchivable domains list.
+  # unarchivable_domains.yml contains a list of known unarchivable domains
+  # @return [Boolean] false if archiving would scrape a url on a domain
+  #   known to be unarchivable
+  def archivable_domain?
+    api_archive_source.present? ||
+      BackupBrain::UnarchivableDomainsChecker.instance.maybe_archivable?(url)
   end
 
   def archives_text

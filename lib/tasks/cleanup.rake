@@ -8,6 +8,7 @@ namespace :cleanup do
   def cleanup_task_rearchive(mongoid_criteria)
     counter = 0
     skip_counter = 0
+    unarchivable_counter = 0
     fail_counter = 0
     Whirly.configure spinner: "dots"
     Whirly.start do
@@ -20,6 +21,10 @@ namespace :cleanup do
         # there's no point in wasting our time trying to download
         # pages from sites that no longer exist, or don't want
         # to let us download them
+        unless bookmark.archivable_domain?
+          unarchivable_counter += 1
+          next
+        end
         if bookmark.failed_archive_attempts.size >= 3
           skip_counter += 1
           puts Paint["Skipping: #{title} @ #{url}", :yellow]
@@ -53,6 +58,7 @@ namespace :cleanup do
 You can attempt a manual archiving of these if you want,
 but it probably won't work."
     end
+    puts "Skipped #{unarchivable_counter} bookmarks on domains known to be unarchivable." if unarchivable_counter > 0
     puts "⚠️ Failed to archive #{fail_counter} bookmarks." if fail_counter > 0
   end
   desc "Reindexes all bookmarks"
@@ -257,6 +263,8 @@ but it probably won't work."
       # try to archive it
       # if it fails, destroy it
       # Whirly.status = "checking: #{bookmark.title} @ #{bookmark.url}"
+      # failing to archive a known-unarchivable domain doesn't make it useless
+      next unless bookmark.archivable_domain?
       puts "checking: #{bookmark.title} @ #{bookmark.url}"
       success = begin
         bookmark.generate_archive(true)
