@@ -1,0 +1,154 @@
+<div class="container">
+  <%= render partial: "shared/errors_row", locals: {thing: s3_bucket} %>
+  <%= form_with(model: s3_bucket) do |form| %>
+
+    <div class="row">
+      <div class="col-3">
+        <%= form.label :nickname, t("s3_buckets.nickname_label"), style: "display: block" %>
+      </div>
+      <div class="col-8">
+        <%= form.text_field :nickname, class: "bookmark-input-field",
+                            placeholder: t("s3_buckets.nickname_placeholder") %>
+        <div class="metadata"><%= t("s3_buckets.nickname_hint") %></div>
+      </div>
+    </div>
+
+    <div class="row safe-space">
+      <div class="col-3">
+        <%= form.label :name, t("s3_buckets.name_label"), style: "display: block" %>
+      </div>
+      <div class="col-8">
+        <%= form.text_field :name, class: "bookmark-input-field",
+                            placeholder: t("s3_buckets.name_placeholder") %>
+        <div class="metadata"><%= t("s3_buckets.name_hint") %></div>
+      </div>
+    </div>
+
+    <div class="row safe-space">
+      <div class="col-3">
+        <%= form.label :endpoint, t("s3_buckets.endpoint_label"), style: "display: block" %>
+      </div>
+      <div class="col-8">
+        <%= form.text_field :endpoint, class: "bookmark-input-field",
+                            placeholder: t("s3_buckets.endpoint_placeholder") %>
+        <div class="metadata"><%= t("s3_buckets.endpoint_hint") %></div>
+      </div>
+    </div>
+
+    <div class="row safe-space">
+      <div class="col-3">
+        <%= form.label :region, t("s3_buckets.region_label"), style: "display: block" %>
+      </div>
+      <div class="col-8">
+        <%= form.text_field :region, class: "bookmark-input-field" %>
+        <div class="metadata"><%= t("s3_buckets.region_hint") %></div>
+      </div>
+    </div>
+
+    <div class="row safe-space">
+      <div class="col-3">
+        <%= form.label :access_key_id, t("s3_buckets.access_key_id_label"), style: "display: block" %>
+      </div>
+      <div class="col-8">
+        <%= form.text_field :access_key_id, class: "bookmark-input-field", autocomplete: "off" %>
+        <div class="metadata"><%= t("s3_buckets.access_key_id_hint") %></div>
+      </div>
+    </div>
+
+    <div class="row safe-space">
+      <div class="col-3">
+        <%= form.label :secret_access_key, t("s3_buckets.secret_access_key_label"), style: "display: block" %>
+      </div>
+      <div class="col-8">
+        <%# never echo the stored secret back into the page %>
+        <%= form.password_field :secret_access_key, class: "bookmark-input-field",
+                                value: "", autocomplete: "new-password",
+                                placeholder: (s3_bucket.persisted? ? t("s3_buckets.secret_access_key_keep_placeholder") : "") %>
+        <div class="metadata"><%= t("s3_buckets.secret_access_key_hint") %></div>
+      </div>
+    </div>
+
+    <div class="row safe-space">
+      <div class="col-3">
+        <%= form.label :key_prefix, t("s3_buckets.key_prefix_label"), style: "display: block" %>
+      </div>
+      <div class="col-8">
+        <%= form.text_field :key_prefix, class: "bookmark-input-field",
+                            placeholder: t("s3_buckets.key_prefix_placeholder") %>
+        <div class="metadata"><%= t("s3_buckets.key_prefix_hint") %></div>
+      </div>
+    </div>
+
+    <div class="row safe-space">
+      <div class="col-3">
+        <%= form.label :presigned_url_expiry, t("s3_buckets.presigned_url_expiry_label"), style: "display: block" %>
+      </div>
+      <div class="col-8">
+        <%= form.number_field :presigned_url_expiry, class: "bookmark-input-field",
+                              min: 1, max: S3Bucket::MAX_PRESIGNED_URL_EXPIRY %>
+        <div class="metadata"><%= t("s3_buckets.presigned_url_expiry_hint") %></div>
+      </div>
+    </div>
+
+    <div class="row safe-space">
+      <div class="col-3">
+        <%= form.label :path_style_urls,
+                       t("s3_buckets.path_style_urls_label"),
+                       style: "display: block",
+                       class: "form-check-label",
+                       for: "pathStyleUrlsSwitch" %>
+      </div>
+      <div class="col-1 form-check form-switch">
+        <%= form.check_box :path_style_urls,
+                           class: "bookmark-checkbox-field form-check-input toggle",
+                           role: "switch",
+                           id: "pathStyleUrlsSwitch",
+                           checked: s3_bucket.path_style_urls? %>
+      </div>
+      <div class="col-7 metadata"><%= t("s3_buckets.path_style_urls_hint") %></div>
+    </div>
+
+    <div class="row">
+      <div class="col-3">
+        <%= form.label :enabled,
+                       t("s3_buckets.enabled_label"),
+                       style: "display: block",
+                       class: "form-check-label",
+                       for: "enabledSwitch" %>
+      </div>
+      <div class="col-1 form-check form-switch">
+        <%= form.check_box :enabled,
+                           class: "bookmark-checkbox-field form-check-input toggle",
+                           role: "switch",
+                           id: "enabledSwitch",
+                           checked: s3_bucket.enabled? %>
+      </div>
+      <div class="col-7 metadata"><%= t("s3_buckets.enabled_hint") %></div>
+    </div>
+
+    <div class="row">
+      <div class="col-3">
+        <%= form.label :primary,
+                       t("s3_buckets.primary_label"),
+                       style: "display: block",
+                       class: "form-check-label",
+                       for: "primarySwitch" %>
+      </div>
+      <div class="col-1 form-check form-switch">
+        <%= form.check_box :primary,
+                           class: "bookmark-checkbox-field form-check-input toggle",
+                           role: "switch",
+                           id: "primarySwitch",
+                           checked: s3_bucket.primary? %>
+      </div>
+      <div class="col-7 metadata"><%= t("s3_buckets.primary_hint") %></div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <%= form.submit class: "btn btn-primary" %>
+      </div>
+    </div>
+
+  <% end %>
+</div>

@@ -1,0 +1,66 @@
+<div tabindex="0" id="<%= dom_id s3_bucket %>" class="container bookmark-list-item">
+  <div class="row">
+    <div class="col-8">
+
+      <div class="row">
+        <div class="col">
+          <strong><%= s3_bucket.nickname %></strong>
+          <% if s3_bucket.primary? %>
+            <span class="badge"><%= t("s3_buckets.primary_badge") %></span>
+          <% end %>
+          <% unless s3_bucket.enabled? %>
+            <span class="badge"><%= t("s3_buckets.disabled_badge") %></span>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          <%= t("s3_buckets.name_label") %>: <code><%= s3_bucket.name %></code>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <%= t("s3_buckets.endpoint_label") %>:
+          <code><%= s3_bucket.endpoint.presence || t("s3_buckets.aws_endpoint") %></code>
+          (<%= s3_bucket.region %>)
+        </div>
+      </div>
+      <% if s3_bucket.key_prefix.present? %>
+        <div class="row">
+          <div class="col">
+            <%= t("s3_buckets.key_prefix_label") %>: <code><%= s3_bucket.key_prefix %></code>
+          </div>
+        </div>
+      <% end %>
+      <div class="row">
+        <div class="col">
+          <%= t("s3_buckets.access_key_id_label") %>: <code><%= s3_bucket.access_key_id %></code>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="col">
+      <div class="action-icons">
+        <div class="action-icon">
+          <%= icon_link("edit", edit_s3_bucket_path(s3_bucket),
+                        link_css: "inline-link-icon edit-link-icon",
+                        text: t("s3_buckets.edit_link"),
+                        aria_hidden: true) %>
+        </div>
+        <div class="action-icon delete-action-icon">
+          <%== link_to image_tag("/images/icons/delete.svg",
+                                 class: "inline-link-icon delete-icon",
+                                 "aria-hidden": true) + t("s3_buckets.delete_link"),
+                       s3_bucket_path(s3_bucket),
+                       class: "inline-link-icon delete-link-icon",
+                       data: {
+                         turbo_method: :delete,
+                         turbo_confirm: t("s3_buckets.delete_confirmation")
+                       } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

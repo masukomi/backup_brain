@@ -34,6 +34,7 @@ Rails.application.routes.draw do
 
   resources :domain_triggers
   resources :content_triggers
+  resources :s3_buckets, except: [:show]
   resources :settings
   resources :tags do
     get :autocomplete, on: :collection

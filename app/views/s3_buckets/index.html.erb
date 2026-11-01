@@ -1,0 +1,57 @@
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <heading><%= t("s3_buckets.list_heading") %></heading>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col metadata">
+      <%= t("s3_buckets.list_explanation") %>
+    </div>
+  </div>
+</div>
+
+<% content_for :sidebar do %>
+  <%= render partial: "shared/sidebar_page_actions_top" %>
+  <div id="page-actions">
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <ul>
+            <li><%= link_to t("s3_buckets.add"), new_s3_bucket_path,
+                            class: "btn btn-primary compact-button" %></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<% if @s3_buckets.empty? %>
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <%= t("s3_buckets.no_buckets_message") %>
+      </div>
+    </div>
+  </div>
+<% else %>
+  <% unless S3Bucket.primary_bucket %>
+    <div class="container">
+      <div class="row">
+        <div class="col" style="color: red">
+          <%= t("s3_buckets.no_primary_warning") %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+  <div class="container" id="s3-buckets">
+    <% @s3_buckets.each do |s3_bucket| %>
+      <div class="row">
+        <div class="col">
+          <%= render s3_bucket %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>

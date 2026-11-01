@@ -1,0 +1,17 @@
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <heading><%= t("s3_buckets.new_heading") %></heading>
+    </div>
+  </div>
+</div>
+
+<%= render "form", s3_bucket: @s3_bucket %>
+
+<div class="container non-essential">
+  <div class="row">
+    <div class="col">
+      <%= link_to t("s3_buckets.list_link"), s3_buckets_path %>
+    </div>
+  </div>
+</div>
