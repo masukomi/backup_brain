@@ -1,0 +1,23 @@
+<div class="container"
+     data-controller="clipboard"
+     data-clipboard-redirect-url-value="<%= access_path %>">
+  <div class="row">
+    <div class="col">
+      <heading><%= t("access.api_keys.created_heading") %></heading>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <p><strong><%= t("access.api_keys.copy_key_warning") %></strong></p>
+      <pre><code data-clipboard-target="source"><%= @api_key.key %></code></pre>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <button type="button" class="btn btn-primary"
+              data-action="clipboard#copy"><%= t("access.api_keys.copy_button") %></button>
+      <%= link_to t("access.back_to_access"), access_path, class: "btn btn-secondary" %>
+      <span class="ms-2" data-clipboard-target="feedback" hidden><%= t("access.api_keys.copied_message") %></span>
+    </div>
+  </div>
+</div>

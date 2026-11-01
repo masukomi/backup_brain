@@ -812,6 +812,8 @@ en:
       new_heading: "New API Key"
       created_heading: "API Key Created"
       copy_key_warning: "Copy this key now. You will not be able to see it again."
+      copy_button: "Copy key"
+      copied_message: "Copied. Returning to the key list..."
       creation_success: "API key created."
       deletion_success: "API key deleted."
       rename_success: "API key renamed."

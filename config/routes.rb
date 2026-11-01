@@ -82,6 +82,7 @@ Rails.application.routes.draw do
 
   get    "access/api_keys/new",               controller: :access, action: :new_api_key,            as: :new_api_key
   post   "access/api_keys",                   controller: :access, action: :create_api_key,         as: :api_keys
+  get    "access/api_keys/:id",               controller: :access, action: :show_api_key,           as: :show_api_key
   delete "access/api_keys/:id",               controller: :access, action: :destroy_api_key,        as: :api_key
   get    "access/api_keys/:id/rename",        controller: :access, action: :rename_api_key_form,    as: :rename_api_key_form
   patch  "access/api_keys/:id/rename",        controller: :access, action: :rename_api_key,         as: :rename_api_key

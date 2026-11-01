@@ -1,7 +1,7 @@
 class AccessController < ApplicationController
   before_action :authenticate_user!
   before_action :set_secret_key, only: [:show_secret_key, :destroy_secret_key, :rename_secret_key, :rename_secret_key_form]
-  before_action :set_api_key,    only: [:destroy_api_key,    :rename_api_key,    :rename_api_key_form]
+  before_action :set_api_key,    only: [:show_api_key, :destroy_api_key, :rename_api_key, :rename_api_key_form]
 
   def index
     @secret_keys = SecretKey.all.order_by(name: :asc)
@@ -52,12 +52,16 @@ class AccessController < ApplicationController
   def create_api_key
     @api_key = ApiKey.new(api_key_params)
     if @api_key.save
-      @new_key_value = @api_key.key
       flash_message(:notice, t("access.api_keys.creation_success"))
-      render :create_api_key_success
+      # Turbo ignores a 200 response to a form post, so this must redirect.
+      redirect_to show_api_key_path(@api_key)
     else
       render :new_api_key, status: :unprocessable_entity
     end
+  end
+
+  def show_api_key
+    # @api_key set by before_action
   end
 
   def destroy_api_key
