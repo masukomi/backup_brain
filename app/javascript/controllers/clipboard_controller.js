@@ -8,10 +8,21 @@ export default class extends Controller {
 
   async copy() {
     const text = this.sourceTarget.textContent.trim()
-    try {
-      await navigator.clipboard.writeText(text)
-    } catch (e) {
-      // Older browsers / non-secure contexts: leave the key on screen.
+    let copied = false
+    // navigator.clipboard only exists in secure contexts (https or
+    // localhost). Plain http on another host falls through to execCommand.
+    if (navigator.clipboard && window.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(text)
+        copied = true
+      } catch (e) {
+        copied = false
+      }
+    }
+    if (!copied) copied = this._legacyCopy(text)
+
+    if (!copied) {
+      // Nothing worked: leave the key selected so the user can copy by hand.
       this._selectSource()
       return
     }
@@ -19,6 +30,24 @@ export default class extends Controller {
     if (this.redirectUrlValue) {
       setTimeout(() => Turbo.visit(this.redirectUrlValue), this.redirectDelayValue)
     }
+  }
+
+  _legacyCopy(text) {
+    const textarea = document.createElement("textarea")
+    textarea.value = text
+    textarea.setAttribute("readonly", "")
+    textarea.style.position = "fixed"
+    textarea.style.opacity = "0"
+    document.body.appendChild(textarea)
+    textarea.select()
+    let ok = false
+    try {
+      ok = document.execCommand("copy")
+    } catch (e) {
+      ok = false
+    }
+    document.body.removeChild(textarea)
+    return ok
   }
 
   _selectSource() {
