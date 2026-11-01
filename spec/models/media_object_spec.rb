@@ -18,6 +18,7 @@ RSpec.describe MediaObject do
   after do
     Bookmark.destroy_all
     Tag.destroy_all
+    S3Bucket.destroy_all
   end
 
   describe "cascade_callbacks" do
@@ -55,9 +56,7 @@ RSpec.describe MediaObject do
   end
 
   describe "#web_path" do
-    before do
-      allow(Setting).to receive(:get_value_of_key) { |key, **| {"s3_bucket" => "bb-archives"}[key] }
-    end
+    before { create(:s3_bucket, name: "bb-archives", primary: true) }
 
     it "returns local archive paths unchanged" do
       mo = described_class.new(url: "/archives/bookmarks/abc/f.mp3", simple_type: "audio")
@@ -90,42 +89,42 @@ RSpec.describe MediaObject do
     # rubocop:disable RSpec/AnyInstance
     before do
       allow_any_instance_of(described_class).to receive(:transcribe)
+      create(:s3_bucket, name: "bb-archives", primary: true)
       allow(BackupBrain::S3Storage).to receive(:enabled?).and_return(true)
-      allow(Setting).to receive(:get_value_of_key) { |key, **| {"s3_bucket" => "bb-archives"}[key] }
       # delete_prefix is what Bookmark.destroy_all in the after hook would hit
-      allow(storage).to receive_messages(delete: true, delete_prefix: 0)
+      allow(storage).to receive_messages(delete_url: true, delete_prefix: 0)
     end
     # rubocop:enable RSpec/AnyInstance
 
     it "deletes the S3 object for an s3 url" do
       bookmark = bookmark_with_media(s3_url)
       bookmark.archives.last.media_objects.first.destroy
-      expect(storage).to have_received(:delete).with("bookmarks/abc/f.mp3")
+      expect(storage).to have_received(:delete_url).with(s3_url)
     end
 
     it "deletes the S3 object for an archived web path" do
       bookmark = bookmark_with_media("/archives/bookmarks/abc/f.mp3")
       bookmark.archives.last.media_objects.first.destroy
-      expect(storage).to have_received(:delete).with("bookmarks/abc/f.mp3")
+      expect(storage).to have_received(:delete_url).with("/archives/bookmarks/abc/f.mp3")
     end
 
     it "leaves the object alone while another MediaObject on the bookmark uses it" do
       bookmark = bookmark_with_media(s3_url, s3_url)
       bookmark.archives.last.media_objects.first.destroy
-      expect(storage).not_to have_received(:delete)
+      expect(storage).not_to have_received(:delete_url)
     end
 
     it "ignores remote media it never archived" do
       bookmark = bookmark_with_media("https://www.youtube.com/watch?v=abc")
       bookmark.archives.last.media_objects.first.destroy
-      expect(storage).not_to have_received(:delete)
+      expect(storage).not_to have_received(:delete_url)
     end
 
     it "does nothing when S3 storage is off" do
       allow(BackupBrain::S3Storage).to receive(:enabled?).and_return(false)
       bookmark = bookmark_with_media(s3_url)
       bookmark.archives.last.media_objects.first.destroy
-      expect(storage).not_to have_received(:delete)
+      expect(storage).not_to have_received(:delete_url)
     end
   end
 

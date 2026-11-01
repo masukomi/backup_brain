@@ -255,7 +255,7 @@ RSpec.describe Bookmark do
     it "deletes the bookmark's S3 folder when storage is enabled" do
       allow(BackupBrain::S3Storage).to receive(:enabled?).and_return(true)
       bookmark.remove_archived_images
-      expect(storage).to have_received(:delete_prefix).with("bookmarks/#{bookmark._id}/")
+      expect(storage).to have_received(:delete_prefix).with("archives/bookmarks/#{bookmark._id}/")
     end
 
     it "touches nothing remote when storage is off" do

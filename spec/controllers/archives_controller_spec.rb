@@ -21,6 +21,7 @@ RSpec.describe ArchivesController do
     allow_any_instance_of(Bookmark).to receive(:update_in_search)
     allow_any_instance_of(Bookmark).to receive(:remove_from_search)
     allow_any_instance_of(Bookmark).to receive(:generate_archive)
+    create(:s3_bucket, primary: true) if s3_enabled
     allow(BackupBrain::S3Storage).to receive(:enabled?).and_return(s3_enabled)
   end
   # rubocop:enable RSpec/AnyInstance
@@ -29,6 +30,7 @@ RSpec.describe ArchivesController do
     FileUtils.rm_rf(folder)
     Bookmark.destroy_all
     Tag.destroy_all
+    S3Bucket.destroy_all
   end
 
   describe "GET show" do

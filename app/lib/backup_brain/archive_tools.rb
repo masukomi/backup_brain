@@ -41,8 +41,8 @@ module BackupBrain
 
     # REMOTE STORAGE HELPERS
 
-    # Moves a freshly written archive file into the S3 bucket (when
-    # enable_s3_storage is on) and removes the local copy. The file's web
+    # Moves a freshly written archive file into every enabled S3 bucket
+    # and removes the local copy. The file's web
     # path keeps working: ArchivesController redirects to a presigned URL
     # when the file isn't on disk.
     #
@@ -53,7 +53,6 @@ module BackupBrain
       return false unless File.exist?(local_file_path)
       storage = BackupBrain::S3Storage.instance
       storage.upload_local_file(local_file_path)
-      # storage.upload(local_file_path, storage.key_for_local_path(local_file_path))
       File.delete(local_file_path)
       true
     rescue => e

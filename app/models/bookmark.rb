@@ -166,7 +166,7 @@ class Bookmark
     FileUtils.rm_rf(folder)
     return unless BackupBrain::S3Storage.enabled?
     storage = BackupBrain::S3Storage.instance
-    storage.delete_prefix("#{storage.key_for_local_path(folder)}/")
+    storage.delete_prefix("#{folder}/")
   rescue => e
     Rails.logger.warn("Bookmark #{_id}: couldn't delete archived files from S3 - #{e.message}")
   end

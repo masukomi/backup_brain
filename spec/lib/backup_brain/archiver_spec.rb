@@ -114,13 +114,16 @@ RSpec.describe BackupBrain::Archiver do
       end
 
       before do
+        create(:s3_bucket, primary: true)
         allow(BackupBrain::S3Storage).to receive(:enabled?).and_return(true)
-        allow(storage).to receive_messages(upload: true, exists?: false)
+        allow(storage).to receive_messages(upload_local_file: true, exists?: false)
         allow(HTTParty).to receive(:get).and_yield("audio bytes")
       end
 
+      after { S3Bucket.destroy_all }
+
       it "uploads the downloaded file" do
-        expect(storage).to receive(:upload).with(local_path, storage.key_for_local_path(local_path))
+        expect(storage).to receive(:upload_local_file).with(local_path)
         instance.download_asset(bookmark, url, asset_label: "audio")
       end
 
@@ -135,7 +138,7 @@ RSpec.describe BackupBrain::Archiver do
       end
 
       it "keeps the local copy when the upload fails" do
-        allow(storage).to receive(:upload).and_raise(Aws::S3::Errors::ServiceError.new(nil, "boom"))
+        allow(storage).to receive(:upload_local_file).and_raise(Aws::S3::Errors::ServiceError.new(nil, "boom"))
         instance.download_asset(bookmark, url, asset_label: "audio")
         expect(File).to exist(local_path)
       end

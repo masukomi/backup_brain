@@ -1,5 +1,6 @@
-# Moves the local archives/ folder to the S3 compatible bucket configured
-# in Settings (enable_s3_storage and the s3_* settings).
+# Moves the local archives/ folder to the enabled S3 compatible buckets
+# (S3Bucket records). Every enabled bucket gets a copy; verification and
+# MediaObject urls use the primary bucket.
 #
 #   bundle exec rails runner scripts/upload_archives_to_s3.rb [options]
 #
@@ -66,11 +67,16 @@ end
 # ── preflight ──────────────────────────────────────────────────────────
 unless BackupBrain::S3Storage.enabled?
   warn Paint["S3 storage isn't enabled.", :red]
-  warn "Fill in the s3_* settings and turn on enable_s3_storage at /settings first."
+  warn "Create an S3Bucket (enabled, primary) with the connection details first."
   exit 78 # EX_CONFIG
 end
 
 storage = BackupBrain::S3Storage.instance
+unless storage.bucket
+  warn Paint["No S3Bucket is marked as the primary.", :red]
+  exit 78 # EX_CONFIG
+end
+buckets = S3Bucket.enabled_buckets.to_a
 archives_root = Rails.root.join(BackupBrain::ArchiveTools::ARCHIVES_FOLDER)
 unless archives_root.directory?
   puts "Nothing to do: #{archives_root} doesn't exist."
@@ -82,17 +88,19 @@ local_files = Dir.glob(archives_root.join("**", "*").to_s, File::FNM_DOTMATCH)
   .reject { |f| File.basename(f) == ".DS_Store" }
   .sort
 
-puts "Bucket:       #{storage.bucket}"
-puts "Key prefix:   #{storage.key_prefix.presence || "(none)"}"
+buckets.each do |s3_bucket|
+  role = s3_bucket.primary ? "primary" : "mirror"
+  puts "Bucket:       #{s3_bucket.name} (#{s3_bucket.nickname}, #{role}), key prefix #{storage.key_prefix(s3_bucket).presence || "(none)"}"
+end
 puts "Local files:  #{local_files.size} under #{archives_root}"
 puts "Total size:   #{(local_files.sum { |f| File.size(f) } / 1024.0 / 1024.0).round(1)} MB"
 puts Paint["DRY RUN: nothing will be uploaded, changed or deleted.", :yellow] if options[:dry_run]
 puts
 
-begin
-  storage.client.head_bucket(bucket: storage.bucket)
+buckets.each do |s3_bucket|
+  storage.client(s3_bucket).head_bucket(bucket: s3_bucket.name)
 rescue => e
-  warn Paint["Can't reach bucket #{storage.bucket}: #{e.class}: #{e.message}", :red]
+  warn Paint["Can't reach bucket #{s3_bucket.name}: #{e.class}: #{e.message}", :red]
   exit 78
 end
 
@@ -122,6 +130,7 @@ upload_failures = {} # path => message
 
 bar = progress_bar("Uploading", local_files.size)
 local_files.each do |path|
+  key = storage.key_for_local_path(path) # the primary bucket's key, for messages
   begin
     if File.zero?(path)
       # Never useful, never uploaded. Repaired further down.
@@ -132,10 +141,12 @@ local_files.each do |path|
     existing = storage.head(key)
     if existing && existing.content_length == File.size(path)
       already_present << path
+      # mirrors that don't have it yet still get a copy
+      storage.upload_local_file(path) unless options[:dry_run]
     elsif options[:dry_run]
       uploaded << path
     else
-      storage.upload(path)
+      storage.upload_local_file(path)
       uploaded << path
     end
   rescue => e

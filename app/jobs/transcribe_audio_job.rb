@@ -94,11 +94,13 @@ class TranscribeAudioJob < ApplicationJob
     return [nil, false] unless BackupBrain::S3Storage.enabled?
 
     storage = BackupBrain::S3Storage.instance
-    key = storage.key_for(audio_local_path)
-    return [nil, false] unless key.present? && storage.exists?(key)
+    # an s3 url may name a bucket other than the current primary
+    s3_bucket = storage.bucket_for_s3_url(audio_local_path) || storage.bucket
+    key = storage.key_for(audio_local_path, s3_bucket)
+    return [nil, false] unless key.present? && storage.exists?(key, s3_bucket)
 
     tmp_path = File.join(Dir.tmpdir, "bb_transcribe_#{SecureRandom.hex(8)}#{File.extname(key)}")
-    storage.download(key, tmp_path)
+    storage.download(key, tmp_path, s3_bucket)
     [tmp_path, true]
   rescue => e
     Rails.logger.warn("TranscribeAudioJob: could not fetch #{audio_local_path} from S3 - #{e.message}")
