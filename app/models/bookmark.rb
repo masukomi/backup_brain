@@ -285,6 +285,17 @@ class Bookmark
     sorted_archives.where(mime_type: mime_type).first
   end
 
+  # The most recently completed transcription of any media archived for
+  # this bookmark, across every archive.
+  #
+  # @return [Transcription, nil]
+  def latest_transcription
+    archives.flat_map { |a| a.media_objects.map(&:transcription) }
+      .compact
+      .select { |t| t.status == "completed" && t.text.present? }
+      .max_by { |t| t.created_at || Time.at(0) }
+  end
+
   # Prevents the after_create and before_save hooks from enqueuing an
   # ArchiveUrlJob for this instance. Call before save when the caller
   # will supply its own Archive (e.g. FetchMastodonBookmarksJob).

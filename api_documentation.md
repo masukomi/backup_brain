@@ -12,6 +12,7 @@ your own host.
 - [Searching bookmarks & notes](#searching-bookmarks--notes)
 - [Bookmarks](#bookmarks)
 - [Notes](#notes)
+- [MCP server](#mcp-server)
 - [Quirks & gotchas](#quirks--gotchas)
 
 ---
@@ -511,6 +512,165 @@ curl -X PATCH "http://localhost:3334/notes/69dd541fb1a9dabdb5ad3e29.json" \
 
 Responds `200 OK`, or `422` with `{"errors": {...}}`. As with bookmarks, `tags`
 replaces the whole list.
+
+---
+
+## MCP server
+
+BackupBrain is also an [MCP](https://modelcontextprotocol.io) (Model Context
+Protocol) server, so AI agents and the tools built around them can search your
+knowledge base and read what they find. It speaks the **Streamable HTTP**
+transport at:
+
+```
+POST /mcp
+```
+
+It uses the same API keys and permission scopes as the rest of this document.
+Every request needs a key; there is no anonymous access to the MCP server.
+For a step by step setup guide aimed at end users, see
+[accessing_your_data_with_agents.md](accessing_your_data_with_agents.md).
+
+### Connecting a client
+
+Most MCP clients take a URL plus headers. For example, in Claude Code:
+
+```bash
+claude mcp add --transport http backup_brain http://localhost:3334/mcp \
+  --header "Authorization: Bearer $BB_KEY"
+```
+
+or as JSON in a client's configuration file:
+
+```json
+{
+  "mcpServers": {
+    "backup_brain": {
+      "type": "http",
+      "url": "http://localhost:3334/mcp",
+      "headers": {"Authorization": "Bearer $BB_KEY"}
+    }
+  }
+}
+```
+
+A client that only speaks the stdio transport can bridge to it with
+[`mcp-remote`](https://www.npmjs.com/package/mcp-remote):
+
+```
+npx mcp-remote http://localhost:3334/mcp --header "Authorization: Bearer $BB_KEY"
+```
+
+The server is stateless: no sessions, no server-initiated messages. `GET` and
+`DELETE` on `/mcp` answer `405`. A missing, unknown or expired key answers `401`
+before any MCP message is read.
+
+### Tools
+
+| Tool | Needs | Does |
+|---|---|---|
+| `search` | `read:bookmarks` and/or `read:notes` | Full text search. Returns summaries, not bodies. |
+| `get_bookmark` | `read:bookmarks` | A bookmark, the Markdown of its latest archive, and its latest transcription. |
+| `get_note` | `read:notes` | The full Markdown of a note. |
+| `create_note` | `write:notes` | Saves a new note. |
+
+Permissions are checked per tool call. `search` only searches the record types
+the key can read, and names the ones it couldn't under `denied`, so a key with
+only `read:notes` still gets note results. The other tools return an MCP tool
+error naming the missing permission. People, reviews and other record types are
+not exposed.
+
+Every tool answers with one `text` content block containing JSON.
+
+**`search`** — `query` (required; `#hashtags` in it become tag filters), `types`
+(`["bookmarks", "notes"]`, default both), `tags` (records must carry all of
+them), `search_archives` (default `false`: bookmarks are matched on title,
+description, url and tags only), `limit` (per type, default 20, max 100).
+Results come back in Meilisearch's relevance order.
+
+```json
+{
+  "query": "brillig",
+  "tags": [],
+  "denied": [],
+  "bookmarks": [
+    {
+      "type": "bookmark",
+      "id": "69dd541fb1a9dabdb5ad3e29",
+      "title": "Jabberwocky",
+      "url": "https://example.com/jabberwocky",
+      "description": "a poem",
+      "tags": ["poetry"],
+      "private": false,
+      "has_archive": true,
+      "has_transcription": false,
+      "created_at": "2026-10-31T12:00:00Z",
+      "app_url": "http://localhost:3334/bookmarks/69dd541fb1a9dabdb5ad3e29"
+    }
+  ],
+  "notes": [
+    {
+      "type": "note",
+      "id": "69dd54a0b1a9dabdb5ad3e2a",
+      "title": "Toves",
+      "excerpt": "slithy and gyre…",
+      "tags": ["poetry"],
+      "private": true,
+      "created_at": "2026-10-31T12:00:00Z",
+      "updated_at": "2026-10-31T12:00:00Z",
+      "app_url": "http://localhost:3334/notes/69dd54a0b1a9dabdb5ad3e2a"
+    }
+  ]
+}
+```
+
+**`get_bookmark`** — `id` (required), `include_archive` and
+`include_transcription` (default `true`), `max_characters` (cuts the archive and
+the transcription down to that many characters each; `truncated` says whether
+anything was cut). Only the most recent Markdown archive and the most recent
+completed transcription are returned; older ones aren't available over MCP.
+Transcription text has its timestamps stripped.
+
+```json
+{
+  "id": "69dd541fb1a9dabdb5ad3e29",
+  "title": "Jabberwocky",
+  "url": "https://example.com/jabberwocky",
+  "description": "a poem",
+  "tags": ["poetry"],
+  "private": false,
+  "sensitive": false,
+  "to_read": false,
+  "created_at": "2026-10-31T12:00:00Z",
+  "app_url": "http://localhost:3334/bookmarks/69dd541fb1a9dabdb5ad3e29",
+  "archive": {
+    "mime_type": "text/markdown",
+    "created_at": "2026-10-31T12:00:05Z",
+    "manually_edited": false,
+    "truncated": false,
+    "markdown": "# Jabberwocky\n\n'Twas brillig…"
+  },
+  "transcription": {
+    "source": "whisper",
+    "media_url": "/archives/bookmarks/69dd541fb1a9dabdb5ad3e29/abc123.mp3",
+    "media_type": "audio",
+    "created_at": "2026-10-31T12:10:00Z",
+    "truncated": false,
+    "text": "Twas brillig and the slithy toves…"
+  }
+}
+```
+
+`archive` and `transcription` are `null` when there isn't one. An id the key
+can't read, for any reason, is reported as not found.
+
+**`get_note`** — `id` (required). Returns `id`, `title`, `tags`, `private`,
+`sensitive`, `mime_type`, timestamps, `app_url` and the full `markdown`.
+
+**`create_note`** — `markdown` (required), `title`, `tags`, `private` (default
+`true`), `sensitive` (default `false`; needs a `title`). Returns the new note's
+`id`, `title`, `tags`, flags and `app_url`. Validation failures come back as a
+tool error.
 
 ---
 

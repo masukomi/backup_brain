@@ -733,6 +733,59 @@ en:
       insufficient_permissions: "That API key lacks the '%{permission}' permission."
       search_unavailable: "Search is currently unavailable: %{error}"
       not_found: "Not found."
+  # strings served to MCP (Model Context Protocol) clients, i.e. AI agents
+  mcp:
+    server:
+      instructions: >-
+        BackupBrain is a single person's personal knowledge base: bookmarks
+        (with locally archived Markdown copies of the pages, and transcriptions
+        of archived audio and video) and Markdown notes. Start with `search`,
+        which returns summaries. Then call `get_bookmark` or `get_note` for the
+        full text of anything worth reading. Archives and transcriptions can be
+        long; pass `max_characters` to `get_bookmark` when context is tight.
+        `create_note` saves a new note.
+    errors:
+      validation_failed: "The note could not be saved: %{errors}"
+    tools:
+      search:
+        description: >-
+          Full text search of the user's bookmarks and notes. Returns summaries
+          only: for a bookmark its original url, title, description, tags, and
+          whether a Markdown archive and a transcription are available; for a
+          note its title, tags and a short excerpt. Use get_bookmark / get_note
+          to read the full text. Each record type is only searched if the API
+          key can read it; types it can't are listed under "denied".
+        params:
+          query: "Words to search for. Hashtags in the query (#foo) are treated as tag filters."
+          types: "Which record types to search: \"bookmarks\", \"notes\", or both. Defaults to both."
+          tags: "Only return records carrying every one of these tags."
+          search_archives: "Also match against the archived page text of bookmarks, not just their title, description, url and tags. Defaults to false."
+          limit: "Maximum results per record type. Defaults to %{default_limit}, at most %{max}."
+      get_bookmark:
+        description: >-
+          A bookmark's metadata, the Markdown text of its most recent archive
+          of the bookmarked page, and the most recent transcription of any
+          audio or video archived with it. `archive` and `transcription` are
+          null when there isn't one.
+        params:
+          id: "The bookmark's id, as returned by search."
+          include_archive: "Include the archived Markdown. Defaults to true."
+          include_transcription: "Include the transcription. Defaults to true."
+          max_characters: "Cut the archive and transcription text down to this many characters each. `truncated` reports whether anything was cut."
+      get_note:
+        description: "The full Markdown text of one note, plus its title and tags."
+        params:
+          id: "The note's id, as returned by search."
+      create_note:
+        description: >-
+          Save a new Markdown note in the knowledge base. Notes are private by
+          default. Needs an API key with the write:notes permission.
+        params:
+          markdown: "The body of the note, in Markdown."
+          title: "An optional title. Required if sensitive is true."
+          tags: "Tags to apply. They are lowercased. Use underscores, not spaces, inside a tag."
+          private: "Hide the note from anonymous visitors. Defaults to true."
+          sensitive: "Blur the note's text in the web UI until clicked. Defaults to false."
   access:
     nav_link: "Access Keys"
     nav_icon_alt: "a key icon"

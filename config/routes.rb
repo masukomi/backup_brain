@@ -86,6 +86,11 @@ Rails.application.routes.draw do
   get    "access/api_keys/:id/rename",        controller: :access, action: :rename_api_key_form,    as: :rename_api_key_form
   patch  "access/api_keys/:id/rename",        controller: :access, action: :rename_api_key,         as: :rename_api_key
 
+  # MCP (Model Context Protocol) server. Stateless Streamable HTTP:
+  # POST carries the JSON-RPC messages, GET & DELETE aren't supported.
+  post  "mcp", controller: :mcp, action: :handle, as: :mcp
+  match "mcp", controller: :mcp, action: :not_supported, via: [:get, :delete]
+
   post   "privacy/hide", controller: :privacy, action: :hide_private, as: :hide_private
   delete "privacy/hide", controller: :privacy, action: :show_private, as: :show_private
 

@@ -188,6 +188,10 @@ Meilisearch via the `mongodb_meilisearch` gem, enabled by `SEARCH_ENABLED`. Each
 - Use dedicated views (`search.json.jbuilder`, `search.md.erb`, `show.md.erb`). Don't reuse `bookmarks/_bookmark.json.jbuilder` for API output, because it overwrites `url` with the app's own URL.
 - **Adding a non-html format?** `config/initializers/overrides.rb` wraps dev-mode templates in `<!-- START PARTIAL -->` comments, guarded by `template.format == :html`. Keep that guard, or json/md/rss output gets corrupted.
 
+### MCP server
+
+`POST /mcp` (`McpController`) is a stateless Streamable HTTP MCP server built on the `mcp` gem, for AI agents. It requires an `ApiKey` as a Bearer token (401 otherwise; GET/DELETE answer 405) and builds a fresh `MCP::Server` per request via `BackupBrain::Mcp::Server.build`, passing the key and `request.base_url` in `server_context`. Tools live in `app/lib/backup_brain/mcp/` and subclass `BackupBrain::Mcp::BaseTool`, which provides `permitted?`, `find_readable` (treats forbidden and missing alike), `json_response` and `error_response`. Tools: `search` (bookmarks + notes, summaries only; skips types the key can't read and lists them under `denied`), `get_bookmark` (latest Markdown archive + latest completed transcription via `Bookmark#latest_transcription`), `get_note`, `create_note` (`write:notes`). Tool descriptions and the server instructions are i18n strings under `mcp:` in `en.yml`; `default` is a reserved interpolation key there. Documented in `api_documentation.md` (tool shapes) and `accessing_your_data_with_agents.md` (end-user setup guide); update both when tools or permissions change. Spec: `spec/requests/mcp_spec.rb`.
+
 ### Frontend
 
 - Importmap (no bundler), Hotwire (Turbo + Stimulus; controllers in `app/javascript/controllers/`).

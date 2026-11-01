@@ -75,6 +75,7 @@ gem "groupdate"
 gem "httparty" # for importer to check if urls are serving.
 gem "aws-sdk-s3", "~> 1" # optional remote storage of archived assets (any S3-compatible service)
 gem "youtube-transcript-rb" # fetch transcripts from YouTube videos
+gem "mcp" # Model Context Protocol server mounted at /mcp
 
 # gem "carrierwave-mongoid" # for file uploads
 
