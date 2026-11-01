@@ -52,7 +52,8 @@ module BackupBrain
       return false unless BackupBrain::S3Storage.enabled?
       return false unless File.exist?(local_file_path)
       storage = BackupBrain::S3Storage.instance
-      storage.upload(local_file_path, storage.key_for_local_path(local_file_path))
+      storage.upload_local_file(local_file_path)
+      # storage.upload(local_file_path, storage.key_for_local_path(local_file_path))
       File.delete(local_file_path)
       true
     rescue => e
@@ -79,8 +80,7 @@ module BackupBrain
     def remote_storage_web_path_with_prefix(local_path_prefix)
       return nil unless BackupBrain::S3Storage.enabled?
       storage = BackupBrain::S3Storage.instance
-      key = storage.first_key_with_prefix(storage.key_for_local_path(local_path_prefix))
-      key ? storage.web_path_for_key(key) : nil
+      storage.web_path_for_path_prefix(local_path_prefix)
     rescue => e
       Rails.logger.warn("Failed to list S3 for #{local_path_prefix}: #{e.message}")
       nil

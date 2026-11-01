@@ -122,7 +122,6 @@ upload_failures = {} # path => message
 
 bar = progress_bar("Uploading", local_files.size)
 local_files.each do |path|
-  key = storage.key_for_local_path(path)
   begin
     if File.zero?(path)
       # Never useful, never uploaded. Repaired further down.
@@ -136,7 +135,7 @@ local_files.each do |path|
     elsif options[:dry_run]
       uploaded << path
     else
-      storage.upload(path, key)
+      storage.upload(path)
       uploaded << path
     end
   rescue => e

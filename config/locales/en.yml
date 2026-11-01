@@ -138,6 +138,9 @@ en:
     default_tags:
       oauth_site_type_bookmark: "%{slug}_bookmark"
       fediverse_bookmark: "fediverse_bookmark"
+  s3_buckets:
+    errors:
+      enabled_primaries_only: "An s3 bucket can't be the primary if it's disabled."
   administration:
     heading: "Administration"
     nav_link: "Administration"

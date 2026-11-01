@@ -101,8 +101,7 @@ class MediaObject
     return unless archived_file?
     return if other_media_objects_share_file?
     storage = BackupBrain::S3Storage.instance
-    key = storage.key_for(url)
-    storage.delete(key) if key.present?
+    storage.delete_url(url)
   rescue => e
     Rails.logger.warn("MediaObject #{_id}: couldn't delete #{url} from S3 - #{e.message}")
   end
