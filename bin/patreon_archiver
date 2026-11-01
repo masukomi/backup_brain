@@ -101,8 +101,12 @@ archiver_logger.info("[#{File.basename($0)}] start url=#{ARGV[0]}")
 begin
   url = ARGV[0]
 
-  path_segment = url.match(%r{patreon\.com/posts/([^/?#]+)})&.[](1)
-  post_id = path_segment&.match(/(\d+)$/)&.[](1)
+  # should match
+  # https://www.patreon.com/CreatorName/posts/slug-text-here-123456789
+  # https://www.patreon.com/posts/123456789
+  # or either of those followed by a query string or an anchor e.g. ?foo=bar OR #foo
+  # and extract the trailing number
+  post_id = url.match(%r{patreon\.com/(?:[^\/]+/)?posts/(?:[a-zA-Z0-9]+-)*(\d+)(?:[?/#]|$)})&.[](1)
   unless post_id
     error_json_and_exit(note: "patreon_archiver: could not extract post ID from URL: #{url}",
       exception: nil)
