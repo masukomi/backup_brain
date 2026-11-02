@@ -5,8 +5,8 @@ truncated = non_blank.length > 3
 # make things look terrible
 preview   = (non_blank
              .first(3)
-             .map{|l| l.gsub(/^#+ (.*)/, "**\\1**")}
-            ).join.strip + "…"
+             .map{|l| l.gsub(/^#+ (.*)/, "**\\1**  ")}
+            ).join + "…"
 privacy_class = (note.private? ? 'private-note' : '')
 sensitive_class = (note.sensitive ? " blurred" : "")
 %>
