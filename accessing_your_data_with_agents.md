@@ -15,6 +15,7 @@ minutes.
 - [Step 2: find your MCP URL](#step-2-find-your-mcp-url)
 - [Step 3: connect your agent](#step-3-connect-your-agent)
 - [Step 4: check that it works](#step-4-check-that-it-works)
+- [Step 5 (optional): teach the agent when to use it](#step-5-optional-teach-the-agent-when-to-use-it)
 - [Revoking access](#revoking-access)
 - [Privacy and safety](#privacy-and-safety)
 - [Troubleshooting](#troubleshooting)
@@ -197,6 +198,37 @@ curl -s http://localhost:3334/mcp \
 
 A working server answers `{"jsonrpc":"2.0","id":1,"result":{}}`. A `401`
 means the key is missing, mistyped or expired.
+
+---
+
+## Step 5 (optional): teach the agent when to use it
+
+The server tells agents *how* to use each tool. It can't tell them *when* to
+reach for BackupBrain instead of the web, or how you like notes filed. For
+that, BackupBrain ships a skill: a short Markdown file that agents supporting
+the [Agent Skills](https://agentskills.io) format (Claude Code, Blackwell and
+others) read to decide when the server is relevant.
+
+It lives at [`skills/backup_brain/SKILL.md`](skills/backup_brain/SKILL.md)
+in the BackupBrain repository. It tells the agent to search BackupBrain before
+researching on the web, to look there whenever you ask about something you've
+saved or read, to search metadata before archives, to keep large archives out
+of its context, and to only create notes when you ask, tagged `agent_created`
+and left private.
+
+To install it for Claude Code, copy the folder into your skills directory:
+
+```bash
+mkdir -p ~/.claude/skills
+cp -r /path/to/backup_brain/skills/backup_brain ~/.claude/skills/
+```
+
+Use a project's `.claude/skills/` directory instead to limit it to one project.
+Other agents have their own skills directory; check their documentation.
+
+The file is plain Markdown, so edit it to match your habits: the tags you
+want on agent-written notes, topics you'd rather the agent didn't search for,
+or a reminder that your audio bookmarks usually have transcripts worth reading.
 
 ---
 
