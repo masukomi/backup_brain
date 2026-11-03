@@ -30,6 +30,7 @@ bundle exec rubocop
 
 rake db:mongoid:create_indexes        # after adding an index to a model
 scripts/run_data_migrations.sh        # run pending schema_N data migrations
+bundle exec rails runner scripts/remove_orphaned_archive_folders.rb --dry-run  # delete archives/<type>/<id>/ folders with no record
 
 # Maintenance (lib/tasks/cleanup.rake)
 rake cleanup:retry_unarchived
@@ -124,6 +125,8 @@ Requires the `enable_archiving` setting, which depends on `reader_path`.
 4. Relative URLs are fully qualified. Images, audio and video are downloaded and cached locally under `archives/bookmarks/<id>/` (SHA256-named files), or offloaded to S3 when `enable_s3_storage` is on (see Remote storage below). `MediaObject`s are created, which triggers transcription.
 5. Failures are recorded as embedded `FailedArchiveAttempt`s.
 
+**Download before save leaks folders.** The fediverse fetch jobs download media into `archives/bookmarks/<id>/` *before* `bookmark.save!`. If anything raises in between, the folder is orphaned and the next run repeats the download under a new id (this once produced 691 copies of one video). Any job that writes under `archives/` for an unsaved document must call `ArchiveTools#remove_archive_folder_for_unsaved_doc` in its rescue. `scripts/remove_orphaned_archive_folders.rb` (`--dry-run`, `--yes`, `--min-age=HOURS`, `--type=`) deletes folders whose id has no record, skipping folders younger than an hour.
+
 Tool entry fields: `name`, `domains` (subdomains match automatically), `command` (`{TEMPFILE}` / `{URL}` placeholders), `handles_download`, `default`. Current tools: `reader` (default), `soundgasm`, `audiochan`, `reddit_posts`, `patreon` (internal JSON API with the Android app UA; exits 1 on paywalled posts). The tool scripts live in `bin/` and share `bin/archive_tool_helper.rb`. Per-domain request headers come from `config/archive_request_headers.yml` via `BackupBrain::RequestHeaders`.
 
 Archiving modules:
@@ -190,7 +193,7 @@ Meilisearch via the `mongodb_meilisearch` gem, enabled by `SEARCH_ENABLED`. Each
 
 ### MCP server
 
-`POST /mcp` (`McpController`) is a stateless Streamable HTTP MCP server built on the `mcp` gem, for AI agents. It requires an `ApiKey` as a Bearer token (401 otherwise; GET/DELETE answer 405) and builds a fresh `MCP::Server` per request via `BackupBrain::Mcp::Server.build`, passing the key and `request.base_url` in `server_context`. Tools live in `app/lib/backup_brain/mcp/` and subclass `BackupBrain::Mcp::BaseTool`, which provides `permitted?`, `find_readable` (treats forbidden and missing alike), `json_response` and `error_response`. Tools: `search` (bookmarks + notes, summaries only; skips types the key can't read and lists them under `denied`), `get_bookmark` (latest Markdown archive + latest completed transcription via `Bookmark#latest_transcription`), `get_note`, `create_note` (`write:notes`). Tool descriptions and the server instructions are i18n strings under `mcp:` in `en.yml`; `default` is a reserved interpolation key there. Documented in `api_documentation.md` (tool shapes) and `accessing_your_data_with_agents.md` (end-user setup guide); update both when tools or permissions change. Spec: `spec/requests/mcp_spec.rb`.
+`POST /mcp` (`McpController`) is a stateless Streamable HTTP MCP server built on the `mcp` gem, for AI agents. It requires an `ApiKey` as a Bearer token (401 otherwise; GET/DELETE answer 405) and builds a fresh `MCP::Server` per request via `BackupBrain::Mcp::Server.build`, passing the key and `request.base_url` in `server_context`. Tools live in `app/lib/backup_brain/mcp/` and subclass `BackupBrain::Mcp::BaseTool`, which provides `permitted?`, `find_readable` (treats forbidden and missing alike), `json_response` and `error_response`. Tools: `search` (bookmarks + notes, summaries only; skips types the key can't read and lists them under `denied`), `get_bookmark` (latest Markdown archive + latest completed transcription via `Bookmark#latest_transcription`), `get_note`, `create_note` (`write:notes`). Tool descriptions and the server instructions are i18n strings under `mcp:` in `en.yml`; `default` is a reserved interpolation key there. Documented in `api_documentation.md` (tool shapes) and `accessing_your_data_with_agents.md` (end-user setup guide); update both when tools or permissions change. `skills/backup_brain/SKILL.md` is a copyable agent skill covering *when* to use the server and note conventions; it deliberately doesn't restate the tool reference. Spec: `spec/requests/mcp_spec.rb`.
 
 ### Frontend
 

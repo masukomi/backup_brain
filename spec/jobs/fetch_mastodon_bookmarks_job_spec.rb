@@ -764,6 +764,49 @@ RSpec.describe FetchMastodonBookmarksJob do
       expect(created_bookmark.api_archive_source.service).to eq("mastodon")
       expect(created_bookmark.api_archive_source.oauth_site).to eq(oauth_site)
     end
+
+    context "when a media attachment has a description" do
+      let(:media_status) do
+        status.merge("media_attachments" => [{
+          "type" => "image",
+          "url" => "https://mastodon.social/media/pic.png",
+          "remote_url" => nil,
+          "description" => "a [bracketed] (photo)"
+        }])
+      end
+
+      before do
+        allow(job).to(receive(:find_or_create_sma_for).and_return(nil))
+        allow(job).to(receive(:download_media_attachment).and_return({url: "/archives/bookmarks/x/pic.png"}))
+        job.send(:create_bookmark_from_status, media_status, user, oauth_site)
+      end
+
+      it "saves the bookmark with the description as alt text" do
+        expect(Bookmark.last.archives.last.string_data).to(include("![a  bracketed   photo ](/archives/bookmarks/x/pic.png)"))
+      end
+    end
+
+    context "when the bookmark fails to save after media was downloaded" do
+      before do
+        allow(job).to(receive(:find_or_create_sma_for).and_return(nil))
+        allow(job).to(receive(:append_media_attachments).and_raise(StandardError, "boom"))
+        allow(Rails.logger).to(receive(:error))
+        allow(Dir).to(receive(:exist?).and_call_original)
+        allow(Dir).to(receive(:exist?).with(%r{\Aarchives/bookmarks/}).and_return(true))
+        allow(FileUtils).to(receive(:rm_rf))
+      end
+
+      it "does not create a bookmark" do
+        expect {
+          job.send(:create_bookmark_from_status, status, user, oauth_site)
+        }.not_to change(Bookmark, :count)
+      end
+
+      it "removes the orphaned archive folder" do
+        job.send(:create_bookmark_from_status, status, user, oauth_site)
+        expect(FileUtils).to(have_received(:rm_rf).with(%r{\Aarchives/bookmarks/[0-9a-f]{24}\z}))
+      end
+    end
   end
 end
 # rubocop:enable RSpec/MultipleMemoizedHelpers

@@ -183,6 +183,10 @@ class FetchMastodonBookmarksJob < ApplicationJob
     bookmark.save!
   rescue => e
     Rails.logger.error("FetchMastodonBookmarksJob: failed to save bookmark for #{url}: #{e.message}\n#{e.backtrace.first(15).join("\n")}")
+    # Media was downloaded into the bookmark's folder before save!. Without the
+    # bookmark that folder is an orphan, and the next run would download it all
+    # over again into a new one.
+    remove_archive_folder_for_unsaved_doc(bookmark)
   end
 
   # Downloads each media attachment using the authenticated Mastodon API and
@@ -205,7 +209,7 @@ class FetchMastodonBookmarksJob < ApplicationJob
 
       download_results = download_media_attachment(local_url, remote_url, bookmark, access_token)
       if !download_results.has_key?(:error)
-        alt = attachment[“description”].to_s.strip.gsub(/[\[\]()“”]/, " ")
+        alt = attachment["description"].to_s.strip.gsub(/[\[\]()“”]/, " ")
         next "![#{alt}](#{download_results[:url]})"
       end
       "BB: Image archive failure: #{download_results[:error]}"

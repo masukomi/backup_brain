@@ -35,6 +35,24 @@ module BackupBrain
       ["", "archives", doc_type, mongoid_doc._id.to_s].join("/")
     end
 
+    # Removes the archive folder of a document that was never saved.
+    # Jobs download media into archive_folder_path_for_doc before the
+    # document is persisted; when the save fails, that folder has no owner
+    # and nothing would ever clean it up. Does nothing for persisted docs.
+    #
+    # @param mongoid_doc [Mongoid::Document, nil]
+    # @return [Boolean] true when a folder was removed
+    def remove_archive_folder_for_unsaved_doc(mongoid_doc)
+      return false if mongoid_doc.nil? || mongoid_doc.persisted?
+      folder = archive_folder_path_for_doc(mongoid_doc)
+      return false unless Dir.exist?(folder)
+      FileUtils.rm_rf(folder)
+      true
+    rescue => e
+      Rails.logger.warn("Couldn't remove orphaned archive folder for unsaved #{mongoid_doc.class} #{mongoid_doc._id}: #{e.message}")
+      false
+    end
+
     def class_to_path_string(klass)
       klass.name.titlecase.pluralize.downcase.gsub(" ", "_")
     end

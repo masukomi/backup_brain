@@ -151,6 +151,9 @@ class FetchMisskeyBookmarksJob < ApplicationJob
     bookmark.save!
   rescue => e
     Rails.logger.error("FetchMisskeyBookmarksJob: failed to save bookmark for #{url}: #{e.message}\n#{e.backtrace.first(15).join("\n")}")
+    # Media was downloaded into the bookmark's folder before save!; don't leave
+    # an orphaned folder behind for the next run to duplicate.
+    remove_archive_folder_for_unsaved_doc(bookmark)
   end
 
   def append_media_files(files, archive, bookmark)
