@@ -10,7 +10,7 @@ module BackupBrain
         },
         required: ["id"]
       )
-      annotations(read_only_hint: true, idempotent_hint: true, open_world_hint: false)
+      annotations(read_only_hint: true, destructive_hint: false, idempotent_hint: true, open_world_hint: false)
 
       class << self
         def call(id:, server_context:)

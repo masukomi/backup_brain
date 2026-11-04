@@ -119,6 +119,16 @@ RSpec.describe "MCP server", type: :request do
 
       expect(names).to contain_exactly("search", "get_bookmark", "get_note", "create_note")
     end
+
+    # The mcp gem fills in destructiveHint: true whenever it's omitted, and
+    # some clients (Paperclip) trust that over readOnlyHint.
+    it "marks the read-only tools as non-destructive" do
+      tools = rpc("tools/list")["result"]["tools"]
+      readers = tools.select { |t| t["annotations"]["readOnlyHint"] }
+
+      expect(readers.map { |t| [t["name"], t["annotations"]["destructiveHint"]] })
+        .to contain_exactly(["search", false], ["get_bookmark", false], ["get_note", false])
+    end
   end
 
   describe "search" do

@@ -33,7 +33,7 @@ module BackupBrain
         },
         required: ["query"]
       )
-      annotations(read_only_hint: true, idempotent_hint: true, open_world_hint: false)
+      annotations(read_only_hint: true, destructive_hint: false, idempotent_hint: true, open_world_hint: false)
 
       class << self
         def call(query:, types: TYPES, tags: [], search_archives: false, limit: DEFAULT_LIMIT, server_context:)
